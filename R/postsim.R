@@ -1,0 +1,53 @@
+#' Read the .csv files and combine them into one list
+#'
+#' @param modeloutput The object that is produced by \code{\link{RSimpactCyan::simpact.run()}}
+#' @return A list, containing dataframes for the output of the model run:
+#' ptable (people), rtable (relationships), etable (events), ttable (HIV treatment episodes),
+#' paramtable (input parameters), and ltable (bookkeeping log) if created
+#' @examples
+#' cfg <- initiate()
+#' modeloutput <- simpact.run(configParams = cfg, destDir = "~TMP")
+#' datalist <- readthedata(modeloutput)
+
+
+readthedata <- function(modeloutput){
+  path <- as.character(modeloutput["outputfile"])
+  outputID <- as.character(modeloutput["id"])
+  DestDir <- sub(pattern = paste0(outputID, "output.txt"), replacement = "", x = path, fixed=T)
+  personlogfilename <- paste0(DestDir, outputID, "personlog.csv")
+  relationlogfilename <- paste0(DestDir, outputID, "relationlog.csv")
+  eventlogfilename <- paste0(DestDir, outputID, "eventlog.csv")
+  treatmentlogfilename <- paste0(DestDir, outputID, "treatmentlog.csv")
+  inputparamlogfilename <- paste0(DestDir, outputID, "settingslog.csv")
+  periodiclogfilename <- paste0(DestDir, outputID, "periodiclog.csv")
+
+  ptable <- data.table::fread(personlogfilename, sep = ",", skip = 0)
+  rtable <- data.table::fread(relationlogfilename, sep = ",", skip = 0)
+  readetable <- readcsvcolumns::read.csv.columns(eventlogfilename, has.header = FALSE, column.types = "rssiirsiir")
+  etable <- data.table::setDT(readetable)
+  etable.colnames <- colnames(etable)
+  #etable <- fread(eventlogfilename, sep = ",", skip = 0)
+  if (ncol(etable) == 10){
+    data.table::setnames(etable, etable.colnames,
+             c("eventtime", "eventname", "p1name", "p1ID", "p1gender", "p1age", "p2name", "p2ID", "p2gender", "p2age"))
+  } else {
+    data.table::setnames(etable, etable.colnames,
+             c("eventtime", "eventname", "p1name", "p1ID", "p1gender", "p1age", "p2name", "p2ID", "p2gender", "p2age", "extradescript", "value"))
+
+  }
+  #etable <- setDT(read.csv.columns(eventlogfilename, has.header = FALSE, column.types = "rssiirsiir"))
+  #etable <- fread(eventlogfilename, sep = ",", skip = 0)
+  #Set(etable, c("col_001", "col_002", "col_003", "col_004", "col_005", "col_006", "col_007", "col_008", "col_009", "col_010"),
+  #         c("eventtime", "eventname", "p1name", "p1ID", "p1gender", "p1age", "p2name", "p2ID", "p2gender", "p2age"), allow.absent=T)
+  ttable <- data.table::fread(treatmentlogfilename, sep  = ",", skip = 0)
+  inputparamtable <- data.table::fread(inputparamlogfilename, sep  = ",", skip = 0)
+
+  if (file.exists(periodiclogfilename)){
+    ltable <- data.table::fread(periodiclogfilename, sep = ",", skip = 0)
+    outputtables <- list(ptable = ptable, rtable = rtable, etable = etable, ttable = ttable, inputparamtable, ltable = ltable)
+  } else {
+    outputtables <- list(ptable = ptable, rtable = rtable, etable = etable, ttable = ttable, inputparamtable)
+  }
+  return(outputtables)
+
+}
