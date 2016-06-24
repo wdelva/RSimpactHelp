@@ -1,4 +1,6 @@
-#' Read the .csv files and combine them into one list
+#' Read the Simpact output files.
+#'
+#' Read the .csv files and combine them into one list.
 #'
 #' @param modeloutput The object that is produced by \code{\link{RSimpactCyan::simpact.run()}}
 #' @return A list, containing dataframes for the output of the model run:
