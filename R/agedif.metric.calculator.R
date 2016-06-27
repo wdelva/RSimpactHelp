@@ -8,14 +8,14 @@
 #' @param timepoint Point in time at which the age-mixing metrics should be calculated.
 #' @param timewindow The length of time before the timepoint for which relationships should be included,
 #' e.g. 1, representing one year before the timepoint. This should be a whole number.
-#' @param  start This is a logical indicating that only relationships starting after the beginning of the window
+#' @param start This is a logical indicating that only relationships starting after the beginning of the window
 #' should be used. If start = FALSE relationships could start before the time window.
 #'
 #' @return a dataframe with median age difference and inter-quartile range(IQR)
 #' for the specified time point and age group, overall, and stratified by gender
 #'
 #' @examples
-#' agemix.df <- agedif.metric.calculator(datalist = datalist, agegroup = c(15, 30), timepoint = 30)
+#' agemix.df <- agedif.metric.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
 
 
 agedif.metric.calculator <- function(datalist,
@@ -85,23 +85,19 @@ agedif.metric.calculator <- function(datalist,
     distinct(relid)
 
   # Calculate median age difference by gender
-  adbygender <- subdf %>%
+  adbygender <- subdf2 %>%
     group_by(Gender) %>%
     summarise(n = n(),
               median = median(AgeGap),
-              iqr = IQR(AgeGap),
-              Q1 = median - (iqr / 2),
-              Q3 = median + (iqr / 2)) %>%
-    select(-iqr)
+              Q1 = as.numeric(summary(AgeGap)["1st Qu."]),
+              Q3 = as.numeric(summary(AgeGap)["3rd Qu."]))
 
   # Calculate median age difference overall
   adoverall <- subdf2 %>%
     summarise(n = n(),
               median = median(AgeGap),
-              iqr = IQR(AgeGap),
-              Q1 = median - (iqr / 2),
-              Q3 = median + (iqr / 2)) %>%
-    select(-iqr)
+              Q1 = as.numeric(summary(AgeGap)["1st Qu."]),
+              Q3 = as.numeric(summary(AgeGap)["3rd Qu."]))
 
 
   #Combine tables
