@@ -6,9 +6,9 @@
 #' @param scale The scale parameter for the Weibull distribution function (default is 65)
 #' @return a data.frame with Age, Percent.Male and Percent.Female as variables, and 101 rows (0.5 to 100.5 years old). Nobody gets older than 100 years old.
 #' @examples
-#' agedist.data.frame <- agedist.create(shape = 5, scale = 65)
+#' agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 
-agedist.create <- function(shape = 5, scale = 65){
+agedistr.creator <- function(shape = 5, scale = 65){
   agebins <- seq(0.5, 99.5, 1)
   probofstillalive <- 1 - pweibull(agebins, shape = shape, scale = scale)
   fractionsinagebins <- 100 * probofstillalive/sum(probofstillalive)
