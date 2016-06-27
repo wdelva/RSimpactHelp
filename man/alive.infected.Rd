@@ -4,22 +4,20 @@
 \alias{alive.infected}
 \title{Subset the datalist ptable to people alive at a point in time and add HIV status.}
 \usage{
-alive.infected(DT = datalist$ptable, timepoint = 20, dec.places = 0)
+alive.infected(DT = datalist$ptable, timepoint = 20)
 }
 \arguments{
 \item{DT}{The person table (ptable) that is produced by \code{\link{readthedata()}}}
 
 \item{timepoint}{Point in time at which the subset should be created and HIV status should be evaluated.}
-
-\item{dec.places}{Number of decimals for the Age variable that is also added to the dataset.}
 }
 \value{
-a data.table that only includes people who were alive at the timepoint and that records their HIV status and age at that timepoint.
+a data.table that only includes people who were alive at the timepoint and that records their HIV status.
 }
 \description{
 Subset the datalist ptable to include only people who were alive at a point in time and add their HIV status at that point in time.
 }
 \examples{
-alive.twenty.dt <- alive.infected(DT = datalist$ptable, timepoint = 20, dec.places = 0)
+alive.twenty.dt <- alive.infected(DT = datalist$ptable, timepoint = 20)
 }
 

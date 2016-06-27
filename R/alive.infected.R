@@ -4,16 +4,13 @@
 #'
 #' @param DT The person table (ptable) that is produced by \code{\link{readthedata()}}
 #' @param timepoint Point in time at which the subset should be created and HIV status should be evaluated.
-#' @param dec.places Number of decimals for the Age variable that is also added to the dataset.
-#' @return a data.table that only includes people who were alive at the timepoint and that records their HIV status and age at that timepoint.
+#' @return a data.table that only includes people who were alive at the timepoint and that records their HIV status.
 #' @examples
-#' alive.twenty.dt <- alive.infected(DT = datalist$ptable, timepoint = 20, dec.places = 0)
+#' alive.twenty.dt <- alive.infected(DT = datalist$ptable, timepoint = 20)
 
 alive.infected <- function(DT = datalist$ptable,
-                           timepoint = 20,
-                           dec.places = 0){ # arguments are the personlog data.table and a point in time
+                           timepoint = 20){ # arguments are the personlog data.table and a point in time
   DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint)
-  DTalive$Age <- time -round(ceiling(DTalive$TOB), dec.places) # Next we allocate them in discrete age bins with bin size as wide as timestep
-  DTalive$Infected <- time >= DTalive$InfectTime # Now we allocate infection status to all people in our table of living people
+  DTalive$Infected <- timepoint >= DTalive$InfectTime # Now we allocate infection status to all people in our table of living people
   return(DTalive)
 }
