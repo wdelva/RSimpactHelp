@@ -13,47 +13,27 @@
 prevalence.calculator <- function(datalist = datalist,
                                   agegroup = c(15, 30),
                                   timepoint = 30){
-  time.of.lowerbound.agegroup <- datalist$ptable$TOB + agegroup[1]
-  time.of.lowerbound.timewind <- timewindow[1]
-  exposure.start <- pmax(time.of.lowerbound.agegroup, time.of.lowerbound.timewind)
-  time.of.upperbound.agegroup <- datalist$ptable$TOB + agegroup[2]
-  time.of.upperbound.timewind <- timewindow[2]
-  time.of.HIV.infection <- datalist$ptable$InfectTime
-  exposure.end <- pmin(time.of.HIV.infection, pmin(time.of.upperbound.agegroup, time.of.upperbound.timewind))
-  exposure.time <- exposure.end - exposure.start # This is the naive exposure time, before tidying up
-  real.exposure.time <- exposure.time > 0 # We create a vector to see who REALLY had exposure time
-  exposure.time[real.exposure.time == FALSE] <- 0
-
-  # Now we check who of the people with the real exposure time had the event
-  # Their InfectTime must be after their exposure.time started, and before or at exposure.end
-  infection.after.exposure.start <- datalist$ptable$InfectTime > exposure.start
-  infection.before.or.at.exposure.end <- datalist$ptable$InfectTime <= exposure.end
-  infection.in.timewindow <- infection.after.exposure.start & infection.before.or.at.exposure.end
-
-
-  datalist$ptable$incident.case <- infection.in.timewindow
-  datalist$ptable$exposure.times <- exposure.time
-
-  raw.df <- data.frame(datalist$ptable)
-
+  DTP <- datalist$ptable
+  DTalive.infected <- alive.infected(DT = DTP, timepoint = timepoint, dec.places = 0) # First we only take the data of people who were alive at the timepoint
+  DTalive.infected.agegroup <- subset(DTalive.infected, TOB <= timepoint - agegroup[1] & TOB > timepoint - agegroup[2])
+  raw.df <- data.frame(DTalive.infected.agegroup)
   # Now we apply some dplyr function to get the sum of cases and sum of exposure.time per gender.
-  incidence.df <- dplyr::summarise(group_by(raw.df, Gender),
-                                   sum.exposure.time = sum(exposure.times),
-                                   sum.incident.cases = sum(incident.case),
-                                   incidence = sum(incident.case) / sum(exposure.time),
-                                   incidence.95.ll = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.time))$conf.int)[1],
-                                   incidence.95.ul = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.time))$conf.int)[2]
-  )
-
-  # Now we add the overall incidence to this dataframe
-  incidence.all.df <- cbind(Gender = NA,
+  prevalence.df <- dplyr::summarise(group_by(raw.df, Gender),
+                                   popsize = length(Gender),
+                                   sum.cases = sum(Infected),
+                                   pointprevalence = sum(Infected) / length(Gender),
+                                   pointprevalence.95.ll = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[1],
+                                   pointprevalence.95.ul = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[2]
+                                   )
+  prevalence.all.df <- cbind(Gender = NA,
                             dplyr::summarise(raw.df,
-                                             sum.exposure.time = sum(exposure.times),
-                                             sum.incident.cases = sum(incident.case),
-                                             incidence = sum(incident.case) / sum(exposure.time),
-                                             incidence.95.ll = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.time))$conf.int)[1],
-                                             incidence.95.ul = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.time))$conf.int)[2]
-                            ))
-  incidence.df <- rbind(incidence.df, incidence.all.df)
-  return(incidence.df)
+                                             popsize = length(Gender),
+                                             sum.cases = sum(Infected),
+                                             pointprevalence = sum(Infected) / length(Gender),
+                                             pointprevalence.95.ll = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[1],
+                                             pointprevalence.95.ul = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[2]
+                                             )
+                            )
+  prevalence.df <- rbind(prevalence.df, prevalence.all.df)
+  return(prevalence.df)
 }
