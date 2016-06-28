@@ -9,13 +9,20 @@ library(RSimpactCyan)
 library(RSimpactHelper)
 agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 testinput <- input.params.creator(conception.alpha_base = -2,
-                                  population.numwomen = 500,
-                                  population.nummen = 500,
+                                  population.eyecap.fraction = 0.4,
+                                  population.numwomen = 1000,
+                                  population.nummen = 1000,
+                                  population.simtime = 20,
+                                  hivseed.amount = 20,
+                                  hivseed.age.min = 15,
+                                  hivseed.age.max = 25,
                                   person.agegap.woman.dist.normal.sigma = 1,
                                   person.agegap.man.dist.normal.sigma = 1,
                                   person.eagerness.dist.gamma.b = 30,
                                   formation.hazard.agegapry.gap_factor_woman_exp = -0.5,
-                                  formation.hazard.agegapry.gap_factor_man_exp = -0.5
+                                  formation.hazard.agegapry.gap_factor_man_exp = -0.5,
+                                  transmission.param.f1 = 1000,
+                                  transmission.param.f2 = 0
                                   )
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
@@ -29,7 +36,7 @@ library(data.table)
 library(dplyr)
 library(magrittr)
 datalist.test <- readthedata(testoutput)
-times <- 0:30
+times <- 0:60
 prev.df <- data.frame(times = times,
                       prevalence.men = NA,
                       prevalence.women = NA,
@@ -48,9 +55,7 @@ agemix.df <- agedif.metric.calculator(datalist = datalist.test,
                                       timewindow = 10,
                                       timepoint = 30)
 
-agemix.df
-hist(datalist.test$rtable$AgeGap)
-nrow(datalist.test$rtable)
+
 
 matplot(x = prev.df$times,
         y = prev.df[, 2:4],
@@ -60,5 +65,8 @@ legend(x = "bottomright",
        lty = rep(1, 4),
        legend = c("Men", "Women", "Both"))
 
-
+agemix.df
+hist(datalist.test$rtable$AgeGap)
+print(datalist.test$ltable)
+nrow(datalist.test$rtable) # Total number of relationships
 ```
