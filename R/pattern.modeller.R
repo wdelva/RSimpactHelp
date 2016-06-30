@@ -1,25 +1,56 @@
-#' Age-mixing pattern
+#' Model age-mixing pattern.
 #'
-#'Models the age-mixing pattern in the population for relationships that
-#'occurred within a specified time window at a specified point in the simulation.
+#' Models the age-mixing pattern for the population simulated in Simpact. The
+#' user specifies a time point, time window, and age group for which they would
+#' like to obtain a summary of the age-mixing pattern.
 #'
-#' @param df The dataframe that is produced by \code{\link{agedif.df.maker()}}
-#' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)
-#' @param timepoint Point in time at which the age-mixing metrics should be calculated.
-#' @param timewindow The length of time before the timepoint for which relationships should be included,
-#' e.g. 1, representing one year before the timepoint. This should be a whole number.
-#' @param start This is a logical indicating that only relationships starting after the beginning of the window
-#' should be used. If start = FALSE relationships could start before the time window.
+#' The \code{pattern.modeller} function uses the \code{link[nlme]{lme}} function
+#' to build a linear mixed effects model regressing the partner's age at the
+#' time the relationship started on his/her own age at the beginning of the
+#' relationship. The models are stratified by gender. Each person can have more
+#' than one relationship so a random intercept at the level of the person is
+#' added to the model.
 #'
-#' @return a list that contains two elements. One, a subsetted dataframe of relationships that
-#' meet criteria of the function's arguments, including partner age predictions from
-#' the model, and two, a dataframe that contains key age-mixing pattern
-#' outputs from the model.
+#' The models also explicitly account for heteroskedastic variance, since the
+#' variance in partner ages tends to grow for older ages.
+#'
+#' The function produces a list containing two elements. The first is a
+#' subsetted dataframe of relationships that meet the inclusion criteria
+#' specified in the function's arguments. This dataframe includes
+#' population-average partner age predictions from the model. The second element
+#' is a dataframe that contains key age-mixing pattern outputs from the model.
+#' These outputs can be found in the second dataframe:
+#'
+#' \describe{ \item{slope} {Also known as the beta-coefficient, this is the
+#' change in partner age for each year increase in age. It represents how fast
+#' the average age differences grow in the population.} \item{intercept} {This
+#' is the average partner age for the first age in the specified interval.}
+#' \item{power} {This represents how fast the variance in partner ages grows
+#' with increasing age.} \item{lowerpower} {This is the lower limit of the 95%
+#' confidence interval for the power coefficient.} \item{upperpower} {This is
+#' the upper limit of the 95% confidence interval for the power coefficient.}
+#' \item{bvar} {This is the between-subject variance from the model.}
+#' \item{wvar} {Also known as the residual error, this represents the amount of
+#' within-subject variance from the model.} }
+#'
+#' @param df The dataframe that is produced by \code{\link{agemix.df.maker()}}
+#' @param agegroup Boundaries of the age group that should be retained, e.g.
+#'   c(15, 30). The interval is closed on the left and open on the right.
+#' @param timepoint Point in time during the simulation to be used in the
+#'   calculation.
+#' @param timewindow The length of time before the timepoint for which
+#'   relationships should be included, e.g. 1, representing one year before the
+#'   timepoint. This should be a whole number.
+#' @param start This is a logical indicating that only relationships starting
+#'   after the beginning of the window should be used. If start = FALSE
+#'   relationships could start before the time window. This is the default.
+#'
+#' @return returns a list with two elements: 1. Dataframe of relationships
+#'   inputted into model, and 2. dataframe of model outputs.
 #'
 #' @examples
+#' load(dataframe)
 #' amp <- pattern.modeller(df = dataframe, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
-
-# dplyr, magrittr, nlme
 
 pattern.modeller <- function(df,
                             agegroup,
@@ -28,7 +59,7 @@ pattern.modeller <- function(df,
                             start = FALSE) {
   #Warnings
   if (!is.data.frame(df)) {
-    stop("Dataframe wrong type")
+    stop("df wrong type")
   }
 
   if (length(agegroup) != 2) {
@@ -49,90 +80,60 @@ pattern.modeller <- function(df,
   lwrage <- agegroup[1]
   uprage <- agegroup[2]
 
-  # Create subset df of relationships that meet input criteria
-  # Also remove duplicated relationships (from multiple episodes)
-  # by gender only
-  # The same relationship will still be represented twice —once by the female
-  # partner and once by the male partner.
-  # However, there will only be one episode for each.
 
   if (start == TRUE) {
+    # This only includes relationships that started
+    # in the time window
 
     men <- df %>%
-      arrange(ID, relid, FormTime) %>%
-      group_by(ID, relid) %>%
-      mutate(episodeorder = row_number(),
-             agerelform = TOB + FormTime,
-             agerelform = first(agerelform),
-             pagerelform = agerelform - AgeGap) %>%
-      ungroup() %>%
-      mutate(age = TOB + time) %>%
+      mutate(age = time - TOB) %>%
       filter(episodeorder == 1 &
                (FormTime <= time & FormTime >= window) &
                age >= lwrage &
                age < uprage &
-               Gender == "male") %>%
-      mutate(agerelform0 = agerelform - 18)
+               Gender == "male" &
+               TOD > time) %>%
+      mutate(agerelform0 = agerelform - lwrage)
 
     women <- df %>%
-      arrange(ID, relid, FormTime) %>%
-      group_by(ID, relid) %>%
-      mutate(episodeorder = row_number(),
-             agerelform = TOB + FormTime,
-             agerelform = first(agerelform),
-             pagerelform = agerelform + AgeGap) %>%
-      ungroup() %>%
-      mutate(age = TOB + time) %>%
+      mutate(age = time - TOB) %>%
       filter(episodeorder == 1 &
                (FormTime <= time & FormTime >= window) &
                age >= lwrage &
                age < uprage &
-               Gender == "female") %>%
-      mutate(agerelform0 = agerelform - 18)
+               Gender == "female" &
+               TOD > time) %>%
+      mutate(agerelform0 = agerelform - lwrage)
 
   } else {
+    # This includes all relationships that were ongoing
+    # at somepoint during the time window, but may have
+    # started long before the time window.
 
     men <- df %>%
-      arrange(ID, relid, FormTime) %>%
-      group_by(ID, relid) %>%
-      mutate(episodeorder = row_number(),
-             agerelform = TOB + FormTime,
-             agerelform = first(agerelform),
-             pagerelform = agerelform - AgeGap) %>%
-      ungroup() %>%
-      mutate(age = TOB + time) %>%
+      mutate(age = time - TOB) %>%
       filter(FormTime <= time &
                DisTime > window &
                age >= lwrage &
                age < uprage &
-               Gender == "male") %>%
+               Gender == "male" &
+               TOD > time) %>%
       distinct(ID, relid) %>%
-      mutate(agerelform0 = agerelform - 18)
+      mutate(agerelform0 = agerelform - lwrage)
 
     women <- df %>%
-      arrange(ID, relid, FormTime) %>%
-      group_by(ID, relid) %>%
-      mutate(episodeorder = row_number(),
-             agerelform = TOB + FormTime,
-             agerelform = first(agerelform),
-             pagerelform = agerelform + AgeGap) %>%
-      ungroup() %>%
-      mutate(age = TOB + time) %>%
+      mutate(age = time - TOB) %>%
       filter(FormTime <= time &
                DisTime > window &
                age >= lwrage &
                age < uprage &
-               Gender == "female") %>%
+               Gender == "female" &
+               TOD > time) %>%
       distinct(ID, relid) %>%
-      mutate(agerelform0 = agerelform - 18)
+      mutate(agerelform0 = agerelform - lwrage)
 
   }
 
-  # Now fit separate models for men and women
-  # varPower variance structure for each model
-  # The formula to calculate the weights for variance is |v|^(2*t)
-  # Age can't be at 0 in varPower formula because then it will
-  # evaluate to 0 variance for the first level (18 year olds)
   malemodel <- lme(pagerelform ~ agerelform0,
                    data = men,
                    random = ~1 | ID,
@@ -145,15 +146,11 @@ pattern.modeller <- function(df,
                      weights = varPower(value = 0.5, form = ~agerelform0 + 1),
                      method = "REML")
 
-  # Add the predicted values to the dataset
-  # Level 0 mean population level predictions
   men$pred <- predict(malemodel, men, level = 0)
   women$pred <- predict(femalemodel, women, level = 0)
 
-  # Combine both datasets again
   comb <- bind_rows(men, women)
 
-  # Create list to store model output
   modoutput <- matrix(nrow = 1, ncol = 14) %>%
     as.data.frame()
   colnames(modoutput) <- c("slopem", "slopew", "interceptm", "interceptw",
@@ -192,8 +189,6 @@ pattern.modeller <- function(df,
   modoutput$wvarw <- VarCorr(femalemodel)[2] %>%
     as.numeric()
 
-  # Return datalist with 1. Dataframe based upon input arguments
-  # and 2. Dataframe of model output
   agemix.pieces <- list(comb, modoutput)
 
   return(agemix.pieces)

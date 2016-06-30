@@ -1,4 +1,4 @@
-#' Age-mixing pattern plot
+#' Plot age-mixing pattern.
 #'
 #'Visualizes the age-mixing pattern in the population.
 #'
