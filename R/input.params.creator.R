@@ -148,6 +148,9 @@ input.params.creator <- function(population.eyecap.fraction = 0.5,
   input.params.list$transmission.param.d2 <- transmission.param.d2
   input.params.list$transmission.param.f1 <- transmission.param.f1
   input.params.list$transmission.param.f2 <- transmission.param.f2
+  input.params.list$person.vsp.toacute.x <- person.vsp.toacute.x
+  input.params.list$person.vsp.toaids.x <- person.vsp.toaids.x
+  input.params.list$person.vsp.tofinalaids.x <- person.vsp.tofinalaids.x
   input.params.list$formation.hazard.agegapry.numrel_man <- formation.hazard.agegapry.numrel_man
   input.params.list$formation.hazard.agegapry.numrel_woman <- formation.hazard.agegapry.numrel_woman
   input.params.list$formation.hazard.agegapry.numrel_diff <- formation.hazard.agegapry.numrel_diff
