@@ -25,11 +25,14 @@
 #' @param formation.hazard.agegapry.eagerness_sum Effect of the sum of eagerness values in both partners on the relationship formation rate (1)
 #' @param transmission.param.a Baseline parameter for HIV transmission rate in serodiscordant couples (-1.0352239)
 #' @param transmission.param.b Parameter "b" for the linear component of the effect of viral load on the HIV transmission rate in serodiscordant couples (-89.339994)
-#' @param transmission.param.c Parameter "c" for the exponential component of the effect of viral load on the HIV transmission rate in serodiscordant couples (-0.4948478)
+#' @param transmission.param.c Parameter "c" for the exponential component of the effect of viral load on the HIV transmission rate in serodiscordant couples (0.4948478)
 #' @param transmission.param.d1 Parameter "d1" for effect of number of ongoing relationships the the male partner (coital dilution) (0)
 #' @param transmission.param.d2 Parameter "d2" for effect of number of ongoing relationships the the female partner (coital dilution) (0)
 #' @param transmission.param.f1 Effect of youngest age on HIV susceptibility (log(5) ~1.6 such that the hazard is x 5 in 15 year olds)
 #' @param transmission.param.f2 Effect of female age on HIV susceptibility (log(log(2.5) / log(5)) / 5 ~-0.11 such that the hazard is x 2.5 in 20 year olds, compared to the reference (>>25 year olds)
+#' @param person.vsp.toacute.x Effect of acute versus chronic HIV infection on infectiousness (10)
+#' @param person.vsp.toaids.x Effect of "initial" AIDS stage versus chronic HIV infection on infectiousness (7)
+#' @param person.vsp.tofinalaids.x Effect of "final" AIDS stage versus chronic HIV infection on infectiousness (12)
 #' @param formation.hazard.agegapry.numrel_man Effect of number of ongoing relationships on the relationship formation rate for men (-0.2)
 #' @param formation.hazard.agegapry.numrel_woman Effect of number of ongoing relationships on the relationship formation rate for women (-0.2)
 #' @param formation.hazard.agegapry.numrel_diff Effect of absolute difference in number of ongoing relationships on the relationship formation rate (-0.1)
@@ -89,6 +92,9 @@ input.params.creator <- function(population.eyecap.fraction = 0.5,
                                  transmission.param.d2 = 0,
                                  transmission.param.f1 = log(5),
                                  transmission.param.f2 = log(log(2.5) / log(5)) / 5,
+                                 person.vsp.toacute.x = 10,
+                                 person.vsp.toaids.x = 7,
+                                 person.vsp.tofinalaids.x = 12,
                                  formation.hazard.agegapry.numrel_man = -0.2,
                                  formation.hazard.agegapry.numrel_woman = -0.2,
                                  formation.hazard.agegapry.numrel_diff = -0.1,

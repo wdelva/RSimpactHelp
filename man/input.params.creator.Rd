@@ -31,7 +31,8 @@ input.params.creator(population.eyecap.fraction = 0.5,
   transmission.param.a = -1.0352239, transmission.param.b = -89.339994,
   transmission.param.c = 0.4948478, transmission.param.d1 = 0,
   transmission.param.d2 = 0, transmission.param.f1 = log(5),
-  transmission.param.f2 = log(log(2.5)/log(5))/5,
+  transmission.param.f2 = log(log(2.5)/log(5))/5, person.vsp.toacute.x = 10,
+  person.vsp.toaids.x = 7, person.vsp.tofinalaids.x = 12,
   formation.hazard.agegapry.numrel_man = -0.2,
   formation.hazard.agegapry.numrel_woman = -0.2,
   formation.hazard.agegapry.numrel_diff = -0.1,
@@ -97,6 +98,12 @@ input.params.creator(population.eyecap.fraction = 0.5,
 \item{transmission.param.f1}{Effect of youngest age on HIV susceptibility (log(5) ~1.6 such that the hazard is x 5 in 15 year olds)}
 
 \item{transmission.param.f2}{Effect of female age on HIV susceptibility (log(log(2.5) / log(5)) / 5 ~-0.11 such that the hazard is x 2.5 in 20 year olds, compared to the reference (>>25 year olds)}
+
+\item{person.vsp.toacute.x}{Effect of acute versus chronic HIV infection on infectiousness (10)}
+
+\item{person.vsp.toaids.x}{Effect of "initial" AIDS stage versus chronic HIV infection on infectiousness (7)}
+
+\item{person.vsp.tofinalaids.x}{Effect of "final" AIDS stage versus chronic HIV infection on infectiousness (12)}
 
 \item{formation.hazard.agegapry.numrel_man}{Effect of number of ongoing relationships on the relationship formation rate for men (-0.2)}
 
