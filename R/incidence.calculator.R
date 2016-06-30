@@ -40,9 +40,9 @@ incidence.calculator <- function(datalist = datalist,
   incidence.df <- dplyr::summarise(group_by(raw.df, Gender),
                                    sum.exposure.time = sum(exposure.times),
                                    sum.incident.cases = sum(incident.case),
-                                   incidence = sum(incident.case) / sum(exposure.time),
-                                   incidence.95.ll = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.time))$conf.int)[1],
-                                   incidence.95.ul = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.time))$conf.int)[2]
+                                   incidence = sum(incident.case) / sum(exposure.times),
+                                   incidence.95.ll = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.times))$conf.int)[1],
+                                   incidence.95.ul = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.times))$conf.int)[2]
                                    )
 
   # Now we add the overall incidence to this dataframe
@@ -50,9 +50,9 @@ incidence.calculator <- function(datalist = datalist,
                             dplyr::summarise(raw.df,
                                              sum.exposure.time = sum(exposure.times),
                                              sum.incident.cases = sum(incident.case),
-                                             incidence = sum(incident.case) / sum(exposure.time),
-                                             incidence.95.ll = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.time))$conf.int)[1],
-                                             incidence.95.ul = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.time))$conf.int)[2]
+                                             incidence = sum(incident.case) / sum(exposure.times),
+                                             incidence.95.ll = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.times))$conf.int)[1],
+                                             incidence.95.ul = as.numeric(poisson.exact(x = sum(incident.case), T = sum(exposure.times))$conf.int)[2]
                             ))
   incidence.df <- rbind(incidence.df, incidence.all.df)
   return(incidence.df)
