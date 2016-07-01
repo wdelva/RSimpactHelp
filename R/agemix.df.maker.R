@@ -30,11 +30,16 @@
 #' @examples
 #' load(datalist)
 #' agemix.df <- agemix.df.maker(datalist = datalist)
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
 
 
 agemix.df.maker <- function(datalist) {
 
-  if(!is.list(datalist) | length(datalist) != 5) {
+  if(!is.list(datalist) |
+     names(datalist)[[1]] != "ptable" |
+     names(datalist)[[2]] != "rtable") {
     stop("Datalist wrong type")
   }
 

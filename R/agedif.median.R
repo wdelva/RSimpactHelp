@@ -40,6 +40,9 @@
 #'
 #' load(dataframe)
 #' agedifmedtable <- agedif.median(df = dataframe, agegroup = c(18, 50), timewindow = 2, timepoint = 40)
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
 
 
 agedif.median <- function(df,

@@ -49,8 +49,15 @@
 #'   inputted into model, and 2. dataframe of model outputs.
 #'
 #' @examples
-#' load(dataframe)
-#' amp <- pattern.modeller(df = dataframe, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
+#' load(persreldf)
+#' agemixpatdat <- pattern.modeller(df = persreldf, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
+#' @importFromnlme lme
+#' @importFrom nlme predict
+#' @importFrom nlme intervals
+#' @importFrom nlme VarCorr
 
 pattern.modeller <- function(df,
                             agegroup,

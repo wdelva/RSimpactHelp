@@ -1,18 +1,32 @@
 #' Plot age-mixing pattern.
 #'
-#'Visualizes the age-mixing pattern in the population.
+#' Visualizes the age-mixing pattern from a Simpact-simulated population. This
+#' function takes as input a datalist produced by \code{\link{pattern.modeller}}
+#' and outputs a scatterplot of the age of the individual in the population
+#' versus the age of their partner. The plot contains a dashed line that
+#' represents a scenario where people choose partners that are the same age as
+#' themselves. Juxtaposed with this is a line that represents the
+#' population-average predicted partner ages based upon the generalised linear
+#' mixed effects model in \code{\link{pattern.modeller}}.
 #'
-#' @param df The dataframe that is produced by \code{\link{pattern.modeller()}}
 #'
-#' @return a large gg plot of the age-mixing pattern
+#' @param dl The datalist that is produced by \code{\link{pattern.modeller()}}
+#'
+#' @return a large ggplot object of the age-mixing pattern
 #'
 #' @examples
-#' amp <- pattern.plotter(df = dataframe)
+#' load(obs)
+#' amp <- pattern.plotter(dl = pat)
+#' amp
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
+#' @import ggplot2
 
-# dplyr, magrittr, nlme, ggplot
 
+pattern.plotter <- function(dl) {
 
-pattern.plotter <- function(df) {
+  df <- dl[[1]]
 
   theme <- theme(axis.title.x = element_text(face = "bold", size = 12),
                  axis.text.x  = element_text(angle = 90,
@@ -33,7 +47,7 @@ pattern.plotter <- function(df) {
                  legend.text = element_text(size = 8, face = "bold"),
                  plot.margin = unit(c(1.5, 1, 1, 1), "lines"))
 
-  fig <- comb %>%
+  fig <- df %>%
     ggplot(aes(x = agerelform, y = pred)) +
     geom_point(aes(x = agerelform, y = pagerelform),
                position = position_jitter(width = 0.75, height = 0.75),
@@ -47,7 +61,7 @@ pattern.plotter <- function(df) {
     scale_y_continuous(name = "Partner's ages") +
     scale_linetype_manual('Lines',
                           values = c("Population mean" = 1, "Same age" = 2)) +
-    xlab("Participant's age") +
+    xlab("Individual in population") +
     guides(linetype = guide_legend(keywidth = 2, keyheight = 1)) +
     theme
 
