@@ -2,34 +2,71 @@
 % Please edit documentation in R/pattern.modeller.R
 \name{pattern.modeller}
 \alias{pattern.modeller}
-\title{Age-mixing pattern}
+\title{Model age-mixing pattern.}
 \usage{
 pattern.modeller(df, agegroup, timepoint, timewindow, start = FALSE)
 }
 \arguments{
-\item{df}{The dataframe that is produced by \code{\link{agedif.df.maker()}}}
+\item{df}{The dataframe that is produced by \code{\link{agemix.df.maker()}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)}
+\item{agegroup}{Boundaries of the age group that should be retained, e.g.
+c(15, 30). The interval is closed on the left and open on the right.}
 
-\item{timepoint}{Point in time at which the age-mixing metrics should be calculated.}
+\item{timepoint}{Point in time during the simulation to be used in the
+calculation.}
 
-\item{timewindow}{The length of time before the timepoint for which relationships should be included,
-e.g. 1, representing one year before the timepoint. This should be a whole number.}
+\item{timewindow}{The length of time before the timepoint for which
+relationships should be included, e.g. 1, representing one year before the
+timepoint. This should be a whole number.}
 
-\item{start}{This is a logical indicating that only relationships starting after the beginning of the window
-should be used. If start = FALSE relationships could start before the time window.}
+\item{start}{This is a logical indicating that only relationships starting
+after the beginning of the window should be used. If start = FALSE
+relationships could start before the time window. This is the default.}
 }
 \value{
-a list that contains two elements. One, a subsetted dataframe of relationships that
-meet criteria of the function's arguments, including partner age predictions from
-the model, and two, a dataframe that contains key age-mixing pattern
-outputs from the model.
+returns a list with two elements: 1. Dataframe of relationships
+  inputted into model, and 2. dataframe of model outputs.
 }
 \description{
-Models the age-mixing pattern in the population for relationships that
-occurred within a specified time window at a specified point in the simulation.
+Models the age-mixing pattern for the population simulated in Simpact. The
+user specifies a time point, time window, and age group for which they would
+like to obtain a summary of the age-mixing pattern.
+}
+\details{
+The \code{pattern.modeller()} function uses the \code{link[nlme]{lme}}
+function to build a linear mixed effects model regressing the partner's age
+at the time the relationship started on his/her own age at the beginning of
+the relationship. The models are stratified by gender. Each person can have
+more than one relationship so a random intercept at the level of the person
+is added to the model.
+
+The models also explicitly account for heteroskedastic variance, since the
+variance in partner ages tends to grow for older ages.
+
+The function produces a list containing two elements. The first is a
+subsetted dataframe of relationships that meet the inclusion criteria
+specified in the function's arguments. This dataframe includes
+population-average partner age predictions from the model. The second element
+is a dataframe that contains key age-mixing pattern outputs from the model.
+These outputs can be found in the second dataframe:
+
+\describe{ \item{slope} {Also known as the beta-coefficient, this is the
+change in partner age for each year increase in age. It represents how fast
+the average age differences grow in the population.} \item{intercept} {This
+is the average partner age for the first age in the specified interval.}
+\item{power} {This represents how fast the variance in partner ages grows
+with increasing age.} \item{lowerpower} {This is the lower limit of the 95%
+confidence interval for the power coefficient.}
+\item{upperpower} {This is
+the upper limit of the 95% confidence interval for the power coefficient.
+}
+\item{bvar} {This is the between-subject variance from the model.}
+\item{wvar} {Also known as the residual error, this represents the amount of
+within-subject variance from the model.}}
 }
 \examples{
-amp <- pattern.modeller(df = dataframe, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
+load(persreldf)
+agemixpatdat <- pattern.modeller(df = persreldf, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
+
 }
 

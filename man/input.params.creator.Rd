@@ -89,7 +89,7 @@ input.params.creator(population.eyecap.fraction = 0.5,
 
 \item{transmission.param.b}{Parameter "b" for the linear component of the effect of viral load on the HIV transmission rate in serodiscordant couples (-89.339994)}
 
-\item{transmission.param.c}{Parameter "c" for the exponential component of the effect of viral load on the HIV transmission rate in serodiscordant couples (-0.4948478)}
+\item{transmission.param.c}{Parameter "c" for the exponential component of the effect of viral load on the HIV transmission rate in serodiscordant couples (0.4948478)}
 
 \item{transmission.param.d1}{Parameter "d1" for effect of number of ongoing relationships the the male partner (coital dilution) (0)}
 
