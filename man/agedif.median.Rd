@@ -2,32 +2,58 @@
 % Please edit documentation in R/agedif.median.R
 \name{agedif.median}
 \alias{agedif.median}
-\title{Age difference median}
+\title{Age difference median.}
 \usage{
 agedif.median(df, agegroup, timepoint, timewindow, start = FALSE)
 }
 \arguments{
-\item{df}{The dataframe that is produced by \code{\link{agedif.df.maker()}}}
+\item{df}{The dataframe that is produced by \code{\link{agedmix.df.maker()}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)}
+\item{agegroup}{Boundaries of the age group that should be retained, e.g.
+c(15, 30). The interval is closed on the left and open on the right.}
 
-\item{timepoint}{Point in time at which the age-mixing metrics should be calculated.}
+\item{timepoint}{Point in time during the simulation to be used in the
+calculation.}
 
-\item{timewindow}{The length of time before the timepoint for which relationships should be included,
-e.g. 1, representing one year before the timepoint. This should be a whole number.}
+\item{timewindow}{The length of time before the timepoint for which
+relationships should be included, e.g. 1, representing one year before the
+timepoint. This should be a whole number.}
 
-\item{start}{This is a logical indicating that only relationships starting after the beginning of the window
-should be used. If start = FALSE relationships could start before the time window.}
+\item{start}{This is a logical indicating that only relationships starting
+after the beginning of the window should be used. If start = FALSE
+relationships could start before the time window. This is the default.}
 }
 \value{
-a dataframe with median age difference and inter-quartile range(IQR)
-for the specified time point and age group, overall, and stratified by gender
+A dataframe of class "tbl_df" "tbl" "data.frame"
 }
 \description{
-Calculate the median age difference at a specified time point,
-for the supplied age group, stratfied by gender
+Calculate the median and inter-quartile range (IQR) of age differences for
+the population simulated in Simpact. The user specifies a time point, time
+window, and age group for which they would like to obtain the median age
+difference.
+}
+\details{
+The user can optionally choose whether or not they would like to examine only
+relationships that began during their specified time window.
+
+The table that is returned contains the median stratified by gender, as well
+as the overall median in the population. The user should be aware that the
+number of relationships for men and women does not sum to the same number as
+the overall number. This is because Simpact produces a complete closed
+population and therefore some of the relationships used to calculate the
+median for men, may also be included in the calculation for women. The
+overall calculation, examines only unique relationships in the entire
+population.
 }
 \examples{
-agedifmedtable <- agedif.median(df = dataframe, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
+# In our  population we want to look at the median age difference for men
+# and women 40 years into the simulation. We want to pretend we are
+# replicating a survey where participants are included only if they are
+# between the ages of 18 and 49. Furthermore, the are asked only about
+# the relationships that happened in the previous 2 years.
+
+load(dataframe)
+agedifmedtable <- agedif.median(df = dataframe, agegroup = c(18, 50), timewindow = 2, timepoint = 40)
+
 }
 
