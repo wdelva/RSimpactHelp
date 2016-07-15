@@ -35,9 +35,9 @@ ascending order with the column "episodeorder".
 
 
   \describe{
-    \item{agerelform} {The age of the person when when the relationship began. In
+    \item{agerelform}{The age of the person when when the relationship began. In
       other words, the age at the first episode}
-    \item{pagerelform} {The age of their partner when the relationship began.}
+    \item{pagerelform}{The age of their partner when the relationship began.}
    }
 }
 \examples{
