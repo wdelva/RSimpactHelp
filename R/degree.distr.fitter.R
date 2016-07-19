@@ -49,6 +49,7 @@ degree.distr.fitter <- function(dataframe = degree.df){
 
   # (fitb<-fitdist(dataframe$degree, "beta"))
   # gofstat(fitb) # values must be in [0-1]
-  gofstat(list(fitn,fitpois,fitnb,fitw,fitg,fitln))
+  (fit<-gofstat(list(fitn,fitpois,fitnb,fitw,fitg,fitln)))
+  return(fit)
 }
 
