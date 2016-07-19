@@ -13,6 +13,43 @@ library(magrittr)
 library(exactci)
 library(nlme)
 library(ggplot2)
+install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
+library(readcsvcolumns)
+
+
+agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
+
+testinput <- list()
+testinput$periodiclogging.interval <- 1
+testinput$syncrefyear.interval <- 1
+testinput$formation.hazard.type <- "agegapry"
+testinput$person.eagerness.dist.type <- "gamma"
+testinput$person.eagerness.dist.type <- "gamma"
+testinput$person.eagerness.dist.gamma.a <- 1
+testinput$person.eagerness.dist.gamma.b <- 1
+testinput$formation.hazard.agegapry.eagerness_sum <- 0.1
+testinput$population.simtime <- 20
+
+testoutput <- simpact.run(configParams = testinput,
+                          destDir = "temp",
+                          agedist = agedist.data.frame,
+                          seed = 11)
+datalist.test <- readthedata(testoutput)
+
+agemix.df <- agemix.df.maker(datalist.test) %>% subset(Gender == "female")
+degree.df <- degree.df.maker(df = agemix.df, survey.time = 20, window.width = 1, only.new = TRUE)
+Degree.LT.one <- sum(degree.df$Degree > 1) / length(degree.df$Degree)
+incidence.df <- incidence.calculator(datalist = datalist.test, agegroup = c(15, 30), timewindow = c(19, 20))
+inc <- incidence.df$incidence[2]
+prevalence.calculator(datalist = datalist.test, agegroup = c(15, 50), timepoint = 20)
+ART.coverage.calculator(datalist = datalist.test, agegroup = c(15, 50), timepoint = 20)
+pop.growth.calculator(datalist = datalist.test, timewindow = c(0, 20))
+
+print(c(Degree.LT.one, inc))
+
+
+
+
 
 V <- c(1e3, 1e4, 1e5, 1e6)
 transmission.param.a <- -1.0352239 #-1.3997
@@ -48,12 +85,11 @@ testinput <- input.params.creator(conception.alpha_base = -2,
                                   person.vsp.toaids.x = 7,
                                   person.vsp.tofinalaids.x = 12
                                   )
-testinput <- list()
+
 testinput$transmission.param.f1 <- log(5)
 testinput$population.nummen <- 500
 testinput$population.numwomen <- 500
 testinput$population.simtime <- 30
-testinput$syncrefyear.interval <- 1
 testinput$conception.alpha_base <- -2
 testinput$hivseed.age.min <- 25
 testinput$hivseed.age.max <- 50
@@ -63,19 +99,17 @@ testinput$person.agegap.woman.dist.normal.sigma <- 1
 testinput$person.agegap.man.dist.normal.sigma <- 1
 testinput$person.agegap.woman.dist.normal.mu <- -4
 testinput$person.agegap.man.dist.normal.mu <- -4
-testinput$person.eagerness.dist.type <- "gamma"
-testinput$person.eagerness.dist.type <- "gamma"
-testinput$person.eagerness.dist.gamma.a <- 10
-testinput$person.eagerness.dist.gamma.b <- 4
-testinput$formation.hazard.agegapry.eagerness_sum <- 0.1
-testinput$formation.hazard.type <- "agegapry"
+
+
 testinput$formation.hazard.agegapry.gap_factor_woman_exp <- -0.5#-0.5
 testinput$formation.hazard.agegapry.gap_factor_man_exp <- -0.5#-0.5
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
-                          seed = 1)
+                          seed = 11)
 datalist.test <- readthedata(testoutput)
+
+
 transmission.events <- subset(datalist.test$etable, eventname == "transmission")
 table(transmission.events$p1gender)
 hist(datalist.test$rtable$AgeGap)

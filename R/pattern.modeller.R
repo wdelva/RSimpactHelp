@@ -4,12 +4,12 @@
 #' user specifies a time point, time window, and age group for which they would
 #' like to obtain a summary of the age-mixing pattern.
 #'
-#' The \code{pattern.modeller} function uses the \code{link[nlme]{lme}} function
-#' to build a linear mixed effects model regressing the partner's age at the
-#' time the relationship started on his/her own age at the beginning of the
-#' relationship. The models are stratified by gender. Each person can have more
-#' than one relationship so a random intercept at the level of the person is
-#' added to the model.
+#' The \code{pattern.modeller()} function uses the \code{link[nlme]{lme}}
+#' function to build a linear mixed effects model regressing the partner's age
+#' at the time the relationship started on his/her own age at the beginning of
+#' the relationship. The models are stratified by gender. Each person can have
+#' more than one relationship so a random intercept at the level of the person
+#' is added to the model.
 #'
 #' The models also explicitly account for heteroskedastic variance, since the
 #' variance in partner ages tends to grow for older ages.
@@ -21,17 +21,21 @@
 #' is a dataframe that contains key age-mixing pattern outputs from the model.
 #' These outputs can be found in the second dataframe:
 #'
-#' \describe{ \item{slope} {Also known as the beta-coefficient, this is the
+#' \describe{
+#' \item{slope}{Also known as the beta-coefficient, this is the
 #' change in partner age for each year increase in age. It represents how fast
-#' the average age differences grow in the population.} \item{intercept} {This
-#' is the average partner age for the first age in the specified interval.}
-#' \item{power} {This represents how fast the variance in partner ages grows
-#' with increasing age.} \item{lowerpower} {This is the lower limit of the 95%
-#' confidence interval for the power coefficient.} \item{upperpower} {This is
-#' the upper limit of the 95% confidence interval for the power coefficient.}
-#' \item{bvar} {This is the between-subject variance from the model.}
-#' \item{wvar} {Also known as the residual error, this represents the amount of
-#' within-subject variance from the model.} }
+#' the average age differences grow in the population.}
+#' \item{intercept}{This is the average partner age for the first age in the specified interval.}
+#' \item{power}{This represents how fast the variance in partner ages grows with
+#' increasing age.}
+#' \item{lowerpower}{This is the lower limit of the 95%
+#' confidence interval for the power coefficient.}
+#' \item{upperpower}{This is the upper limit of the 95% confidence interval for the power coefficient.
+#' }
+#' \item{bvar}{This is the between-subject variance from the model.}
+#' \item{wvar}{Also known as the residual error, this represents the amount of
+#' within-subject variance from the model.}
+#' }
 #'
 #' @param df The dataframe that is produced by \code{\link{agemix.df.maker()}}
 #' @param agegroup Boundaries of the age group that should be retained, e.g.
@@ -54,7 +58,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @import dplyr
-#' @importFromnlme lme
+#' @importFrom nlme lme
 #' @importFrom nlme predict
 #' @importFrom nlme intervals
 #' @importFrom nlme VarCorr
