@@ -15,6 +15,8 @@ library(nlme)
 library(ggplot2)
 install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
 library(readcsvcolumns)
+library(survival)
+library(KMsurv)
 
 
 agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
@@ -26,15 +28,43 @@ testinput$formation.hazard.type <- "agegapry"
 testinput$person.eagerness.dist.type <- "gamma"
 testinput$person.eagerness.dist.type <- "gamma"
 testinput$person.eagerness.dist.gamma.a <- 1
-testinput$person.eagerness.dist.gamma.b <- 1
+testinput$person.eagerness.dist.gamma.b <- 3
 testinput$formation.hazard.agegapry.eagerness_sum <- 0.1
-testinput$population.simtime <- 20
+testinput$debut.debutage <- 14
+testinput$population.simtime <- 40
+testinput$hivseed.type <- "amount"
+testinput$hivseed.amount <- 10
+testinput$hivseed.age.min <- 15
+testinput$hivseed.age.max <- 25
+testinput$hivseed.time <- 10
+testinput$transmission.param.a <- -1.0352239
+testinput$transmission.param.b <- -89.339994
+testinput$transmission.param.c <- 0.4948478
 
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
-                          seed = 11)
+                          seed = 1)
 datalist.test <- readthedata(testoutput)
+table(datalist.test$ptable$InfectTime)
+prevalence.calculator(datalist = datalist.test, agegroup = c(15, 30), timepoint = 30)
+coxph.person.df <- coxph.person.df.maker(datalist = datalist.test, agegroup = c(15, 30), timewindow = c(30, 40))
+# Now we create the dataset for the CoxPH models
+#1. Firstly, a dataset to do a person-level analysis
+# We can treat the data as left-truncated (women must be HIV-negative at the time of entering the cohort of 15>= year old women).
+# Because we assume that the study cohort's observation time starts at some arbitrary point in the simulation
+# (e.g. 20 years after HIV is introduced), some women will enter the cohort at an age > 15 (but still < 30).
+# time is the left-truncated age of entering the cohort
+# time2 is the event time or end time of the interval if the event wasn't observed by the end of the study.
+# The event parameter indicates whether or not the HIV transmission event was observed or not.
+# type indicates that we have right-censored data.
+
+# Cohort should include all the women we were at least for some period (> 0 time units) HIV-negative and between 15 and 30 years old.
+
+Surv(time = age, time2 = age + time, event = observed, type = "right")
+
+
+#2. Secondly, a dataset to do a relationship-level analysis
 
 agemix.df <- agemix.df.maker(datalist.test) %>% subset(Gender == "female")
 degree.df <- degree.df.maker(df = agemix.df, survey.time = 20, window.width = 1, only.new = TRUE)
