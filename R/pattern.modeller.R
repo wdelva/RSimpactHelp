@@ -37,7 +37,7 @@
 #' within-subject variance from the model.}
 #' }
 #'
-#' @param df The dataframe that is produced by \code{\link{agemix.df.maker()}}
+#' @param dataframe The dataframe that is produced by \code{\link{agemix.df.maker()}}
 #' @param agegroup Boundaries of the age group that should be retained, e.g.
 #'   c(15, 30). The interval is closed on the left and open on the right.
 #' @param timepoint Point in time during the simulation to be used in the
@@ -54,7 +54,7 @@
 #'
 #' @examples
 #' load(persreldf)
-#' agemixpatdat <- pattern.modeller(df = persreldf, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
+#' agemixpatdat <- pattern.modeller(dataframe = persreldf, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
 #'
 #' @importFrom magrittr %>%
 #' @import dplyr
@@ -63,14 +63,14 @@
 #' @importFrom nlme intervals
 #' @importFrom nlme VarCorr
 
-pattern.modeller <- function(df,
+pattern.modeller <- function(dataframe,
                             agegroup,
                             timepoint,
                             timewindow,
                             start = FALSE) {
   #Warnings
-  if (!is.data.frame(df)) {
-    stop("df wrong type")
+  if (!is.data.frame(dataframe)) {
+    stop("dataframe wrong type")
   }
 
   if (length(agegroup) != 2) {
@@ -96,7 +96,7 @@ pattern.modeller <- function(df,
     # This only includes relationships that started
     # in the time window
 
-    men <- df %>%
+    men <- dataframe %>%
       mutate(age = time - TOB) %>%
       filter(episodeorder == 1 &
                (FormTime <= time & FormTime >= window) &
@@ -106,7 +106,7 @@ pattern.modeller <- function(df,
                TOD > time) %>%
       mutate(agerelform0 = agerelform - lwrage)
 
-    women <- df %>%
+    women <- dataframe %>%
       mutate(age = time - TOB) %>%
       filter(episodeorder == 1 &
                (FormTime <= time & FormTime >= window) &
@@ -121,27 +121,27 @@ pattern.modeller <- function(df,
     # at somepoint during the time window, but may have
     # started long before the time window.
 
-    men <- df %>%
-      mutate(age = time - TOB) %>%
-      filter(FormTime <= time &
+    men <- dataframe %>%
+      dplyr::mutate(age = time - TOB) %>%
+      dplyr::filter(FormTime <= time &
                DisTime > window &
                age >= lwrage &
                age < uprage &
                Gender == "male" &
                TOD > time) %>%
-      distinct(ID, relid) %>%
-      mutate(agerelform0 = agerelform - lwrage)
+      dplyr::distinct(ID, relid, .keep_all = TRUE) %>%
+      dplyr::mutate(agerelform0 = agerelform - lwrage)
 
-    women <- df %>%
-      mutate(age = time - TOB) %>%
-      filter(FormTime <= time &
+    women <- dataframe %>%
+      dplyr::mutate(age = time - TOB) %>%
+      dplyr::filter(FormTime <= time &
                DisTime > window &
                age >= lwrage &
                age < uprage &
                Gender == "female" &
                TOD > time) %>%
-      distinct(ID, relid) %>%
-      mutate(agerelform0 = agerelform - lwrage)
+      dplyr::distinct(ID, relid, .keep_all = TRUE) %>%
+      dplyr::mutate(agerelform0 = agerelform - lwrage)
 
   }
 
@@ -179,12 +179,12 @@ pattern.modeller <- function(df,
 
   # Extract power
   modoutput$powerm <- (attributes(malemodel$apVar)$Pars["varStruct.power"])
-  modoutput$lowerpowerm <- intervals(malemodel)$varStruct[,1]
-  modoutput$upperpowerm <- intervals(malemodel)$varStruct[,3]
+  #modoutput$lowerpowerm <- intervals(malemodel)$varStruct[,1]
+  #modoutput$upperpowerm <- intervals(malemodel)$varStruct[,3]
 
   modoutput$powerw <- (attributes(femalemodel$apVar)$Pars["varStruct.power"])
-  modoutput$lowerpowerw <- intervals(femalemodel)$varStruct[, 1]
-  modoutput$upperpowerw <- intervals(femalemodel)$varStruct[, 3]
+  #modoutput$lowerpowerw <- intervals(femalemodel)$varStruct[, 1]
+  #modoutput$upperpowerw <- intervals(femalemodel)$varStruct[, 3]
 
   # Extract between-participant variance
   modoutput$bvarm <- VarCorr(malemodel)[1] %>%
