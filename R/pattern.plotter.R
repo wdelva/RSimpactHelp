@@ -63,6 +63,7 @@ pattern.plotter <- function(dl) {
                           values = c("Population mean" = 1, "Same age" = 2)) +
     xlab("Individual in population") +
     guides(linetype = guide_legend(keywidth = 2, keyheight = 1)) +
+    coord_fixed(ratio = 1)
     theme
 
   return(fig)
