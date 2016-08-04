@@ -22,35 +22,35 @@
 
 degree.distr.fitter <- function(dataframe = degree.df){
   # Normal distribution
-  (fitn<-fitdist(dataframe$Degree, "norm"))
-  gofstat(fitn)
+  (fitn<-fitdistrplus::fitdist(dataframe$Degree, "norm"))
+  #gofstat(fitn)
 
   # Poisson distribution
-  (fitpois<-fitdist(dataframe$Degree, "pois"))
-  gofstat(fitpois)
+  (fitpois<-fitdistrplus::fitdist(dataframe$Degree, "pois"))
+  #gofstat(fitpois)
 
   # Negative Bionomial distribution
-  (fitnb<-fitdist(dataframe$Degree, "nbinom"))
-  gofstat(fitnb)
+  (fitnb<-fitdistrplus::fitdist(dataframe$Degree, "nbinom"))
+  #gofstat(fitnb)
 
   # Weibull distribution
-  (fitw<-fitdist(dataframe$Degree, "weibull"))
-  gofstat(fitw)
+  (fitw<-fitdistrplus::fitdist(dataframe$Degree, "weibull"))
+  #gofstat(fitw)
 
   # Gamma distribution
-  (fitg<-fitdist(dataframe$Degree, "gamma"))
-  gofstat(fitg)
+  (fitg<-fitdistrplus::fitdist(dataframe$Degree, "gamma"))
+  #gofstat(fitg)
 
   # Log-normal distribution
-  (fitln<-fitdist(dataframe$Degree, "lnorm"))
-  gofstat(fitln)
+  (fitln<-fitdistrplus::fitdist(dataframe$Degree, "lnorm"))
+  #gofstat(fitln)
 
   # Beta distribution
 
   # (fitb<-fitdist(dataframe$degree, "beta"))
   # gofstat(fitb) # values must be in [0-1]
 
-  (fit<-gofstat(list(fitn,fitpois,fitnb,fitw,fitg,fitln)))
+  (fit<-fitdistrplus::gofstat(list(fitn,fitpois,fitnb,fitw,fitg,fitln)))
   return(fit)
 }
 
