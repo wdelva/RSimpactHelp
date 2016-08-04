@@ -57,13 +57,13 @@ agemix.df.maker <- function(datalist) {
     data.frame() %>%
     filter(Gender == 0) %>%
     left_join(dfrmale, by = "ID") %>%
-    select(-IDw)
+    dplyr::select(-IDw)
 
   dffemale <- datalist$ptable %>%
     data.frame() %>%
     filter(Gender == 1) %>%
     left_join(dfrfemale, by = "ID") %>%
-    select(-IDm)
+    dplyr::select(-IDm)
 
   df <- bind_rows(dfmale, dffemale) %>%
     arrange(Gender, ID, relid, FormTime) %>%
