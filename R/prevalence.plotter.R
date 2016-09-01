@@ -7,6 +7,8 @@
 #' @return a ggplot2 object
 #' @examples
 #' prevalence.df <- prevalence.calculator(datalist = datalist, agegroup = c(15, 30), timepoint = 30)
+#'
+#' @import gtools
 
 prevalence.plotter <- function(datalist = datalist,
                                   agegroup = c(15, 50)){
