@@ -4,10 +4,10 @@
 \alias{pattern.modeller}
 \title{Model age-mixing pattern.}
 \usage{
-pattern.modeller(df, agegroup, timepoint, timewindow, start = FALSE)
+pattern.modeller(dataframe, agegroup, timepoint, timewindow, start = FALSE)
 }
 \arguments{
-\item{df}{The dataframe that is produced by \code{\link{agemix.df.maker()}}}
+\item{dataframe}{The dataframe that is produced by \code{\link{agemix.df.maker()}}}
 
 \item{agegroup}{Boundaries of the age group that should be retained, e.g.
 c(15, 30). The interval is closed on the left and open on the right.}
@@ -68,7 +68,7 @@ within-subject variance from the model.}
 }
 \examples{
 load(persreldf)
-agemixpatdat <- pattern.modeller(df = persreldf, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
+agemixpatdat <- pattern.modeller(dataframe = persreldf, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
 
 }
 
