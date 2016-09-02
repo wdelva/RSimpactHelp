@@ -44,10 +44,11 @@ degree.df.maker <- function(dataframe.df,
     rename(Degree= relid)
   # counting total number of relationships each ID has.
   degreedata.df <- aggregate(Degree ~ ID, data = uniqueOut, length)
-  ntotal<-dim(degreedata.df)[1]  # all women aged 15-30 in relationships in the last year.
-  degree2plus.df<-filter(degreedata.df, Degree>=2)
-  npartial<-dim(degreedata.df)[1]  # women aged 15-30 with more than 1 sexual partner in the last year.
-  print(npartial/ntotal)  # fraction of women with >1 partner in the last year.
+  # The following four lines don't below here, they belong in a function that takes degreedata.df as input.
+  #ntotal<-dim(degreedata.df)[1]  # all women aged 15-30 in relationships in the last year.
+  #degree2plus.df<-filter(degreedata.df, Degree>=2)
+  #npartial<-dim(degreedata.df)[1]  # women aged 15-30 with more than 1 sexual partner in the last year.
+  #print(npartial/ntotal)  # fraction of women with >1 partner in the last year.
   return(degreedata.df)
 }
 # degree.df <- degree.df.maker(df, survey.time = 10, window.width = 1, only.new = TRUE, 15, 30)
