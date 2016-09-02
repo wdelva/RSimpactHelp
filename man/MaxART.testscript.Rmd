@@ -32,8 +32,8 @@ testinput$syncrefyear.interval <- 1
 testinput$formation.hazard.type <- "agegapry"
 testinput$person.eagerness.dist.type <- "gamma"
 testinput$person.eagerness.dist.type <- "gamma"
-testinput$person.eagerness.dist.gamma.a <- 0.85#1
-testinput$person.eagerness.dist.gamma.b <- 20#16#3
+testinput$person.eagerness.dist.gamma.a <- 0.1#0.425#3.4#1.7#0.85 
+testinput$person.eagerness.dist.gamma.b <- 170#3.5#5#10#20
 testinput$person.agegap.man.dist.type <- "normal"
 testinput$person.agegap.woman.dist.type <- "normal"
 testinput$person.agegap.man.dist.normal.mu <- -5
@@ -50,7 +50,7 @@ testinput$formation.hazard.agegapry.gap_agescale_man <- 0.23
 testinput$formation.hazard.agegapry.gap_agescale_woman <- 0.23
 testinput$formation.hazard.agegapry.eagerness_sum <- 0.1
 testinput$formation.hazard.agegapry.eagerness_diff <- -0.110975
-testinput$dissolution.alpha_0 <- -0.1 # baseline
+testinput$dissolution.alpha_0 <- -0.52#-0.1 # baseline
 testinput$dissolution.alpha_4 <- -0.05 
 testinput$debut.debutage <- 14
 testinput$population.simtime <- 80
@@ -75,7 +75,7 @@ testoutput <- simpact.run(configParams = testinput,
 datalist.test <- readthedata(testoutput)
 
 prev.agegroup <- c(15, 50)
-testplot.prev <- prevalence.plot(prev.agegroup)
+testplot.prev <- prevalence.plotter(prev.agegroup)
 testplot.prev
 agemix.df <- agemix.df.maker(datalist.test)
 agemix.pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(15, 60), timepoint = 50, timewindow = 1, start = FALSE)
@@ -84,11 +84,20 @@ testplot.agemix
 incidence.calculator(datalist = datalist.test, agegroup = c(14,18), timewindow = c(40, 50))
 
 degree.df <- degree.df.maker(agemix.df, survey.time = 40, window.width = 1, only.new = TRUE)
+mean(degree.df$Degree)
+mean(degree.df$Degree > 1)
+datalist.test$itable$person.eagerness.dist.gamma.a * datalist.test$itable$person.eagerness.dist.gamma.b
+
 degree.hist <- degree.hist.maker(dataframe = degree.df)
 degree.hist
 gamma.dens <- dgamma(seq(0.1, 200, by = 0.1),
                      shape = datalist.test$itable$person.eagerness.dist.gamma.a,
                      scale = datalist.test$itable$person.eagerness.dist.gamma.b)
+
+gamma.dens <- dgamma(seq(0.1, 200, by = 0.1),
+                     shape = 3.4,
+                     scale = 3.5)
+
 plot(seq(0.1, 200, by = 0.1), gamma.dens, type = "l")
 
 hist(datalist.test$ptable$FormEag, freq = FALSE, 200)
