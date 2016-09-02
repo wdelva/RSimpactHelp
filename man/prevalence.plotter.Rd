@@ -19,5 +19,6 @@ Plot the overall HIV prevalence, with confidence interval, for the duration of t
 }
 \examples{
 prevalence.df <- prevalence.calculator(datalist = datalist, agegroup = c(15, 30), timepoint = 30)
+
 }
 
