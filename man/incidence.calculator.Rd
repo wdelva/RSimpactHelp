@@ -23,5 +23,6 @@ Calculate the HIV incidence in a time window and for specific age groups and gen
 }
 \examples{
 incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30))
+
 }
 
