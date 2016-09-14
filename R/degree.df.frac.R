@@ -17,18 +17,12 @@
 #' load(degreedata.df)
 #' degreefrac.df <- degree.df.frac(degreedata.df, agegroup = c(15, 30), survey.time = 10, window.width = 1, only.new = TRUE)
 
-degree.df.frac<- function(degreedata.df,
-                          agegroup = c(15, 30),
-                          survey.time = 10,
-                          window.width = 1,
-                          only.new = TRUE){
+degree.df.frac<- function(degreedata.df){
   # ntotal<-dim(degree.df)[1]
   ntotal<-dim(degreedata.df)[1]  # all women aged 15-30 in relationships in the last year.
   degree2plus.df<-filter(degreedata.df, Degree>=2)
   npartial<-dim(degree2plus.df)[1]    # women aged 15-30 with more than 1 sexual partner in the last year.
-  degreefrac.df<-npartial/ntotal   # fraction of women aged 15-30 with >1 partner in the last year.
-
-  return(degreefrac.df)
-
+  degree.frac<-npartial/ntotal   # fraction of women aged 15-30 with >1 partner in the last year.
+  return(degree.frac)
 }
 
