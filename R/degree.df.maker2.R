@@ -9,6 +9,7 @@
 #' @param dataframe.df The dataframe that is produced by \code{\link{agemix.df.maker()}}
 #' @param survey.time Time point of the cross-sectional survey.
 #' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)
+#' @param hivstatus HIV status at the time of the survey. Options are >= 0, means all; 0 means only HIV-negative, 1 means only HIV-positive.
 #' @param window.width Time period before the survey e.g 1 year before the survey.
 #' @param only.new Logical indicator. If TRUE, only relationships that were newly started during window.width are counted
 #' (i.e. the individual was NEVER in a relationship with these partners before the start of the window).
@@ -18,13 +19,14 @@
 #' with >1 sexual partner in the last year.
 #' @examples
 #' load(dataframe.df)
-#' degree.df <- degree.df.maker(dataframe.df, agegroup = c(15, 30), survey.time = 10, window.width = 1, only.new = TRUE)
+#' degree.df <- degree.df.maker(dataframe.df, agegroup = c(15, 30), hivstatus = 0, survey.time = 10, window.width = 1, only.new = TRUE)
 
 #' @importFrom magrittr %>%
 #' @import dplyr
 
 degree.df.maker <- function(dataframe.df,
                             agegroup = c(15, 30),
+                            hivstatus = 0,
                             survey.time = 10,
                             window.width = 1,
                             only.new = TRUE){
@@ -34,6 +36,8 @@ degree.df.maker <- function(dataframe.df,
   # so that there is one row (duplicated because of gender) per relid (relationship)
   # instead of one row (duplicated) per relationship episode.
 
+  # Also only subset the relationships for the people that were still alive at the time of the survey.
+
 
 
   # newly formed relationships "else" ongoing relationships.
@@ -42,6 +46,7 @@ degree.df.maker <- function(dataframe.df,
                                  FormTime >= survey.time-window.width,
                                  FormTime < survey.time,
                                  DisTime > survey.time-window.width,
+                                 #InfectTime > survey.time; InfectTime <= survey.time
                                  Gender=='female',survey.time-TOB>=agegroup[1], survey.time-TOB<agegroup[2])}
     else
     {dataframe.df <- dplyr::filter(dataframe.df,
