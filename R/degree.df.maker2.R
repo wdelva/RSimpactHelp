@@ -29,12 +29,24 @@ degree.df.maker <- function(dataframe.df,
                             window.width = 1,
                             only.new = TRUE){
 
+
+  # Before filtering dataframe.df, we need to reshape the dataframe.df,
+  # so that there is one row (duplicated because of gender) per relid (relationship)
+  # instead of one row (duplicated) per relationship episode.
+
+
+
   # newly formed relationships "else" ongoing relationships.
   {if(only.new)
-  {dataframe.df <- dplyr::filter(dataframe.df, FormTime >=survey.time-window.width, DisTime >= survey.time,
+  {dataframe.df <- dplyr::filter(dataframe.df,
+                                 FormTime >= survey.time-window.width,
+                                 FormTime < survey.time,
+                                 DisTime > survey.time-window.width,
                                  Gender=='female',survey.time-TOB>=agegroup[1], survey.time-TOB<agegroup[2])}
     else
-    {dataframe.df <- dplyr::filter(dataframe.df, FormTime < survey.time-window.width, DisTime >= survey.time,
+    {dataframe.df <- dplyr::filter(dataframe.df,
+                                   FormTime < survey.time,
+                                   DisTime > survey.time-window.width,
                                    Gender=='female',survey.time-TOB>=agegroup[1], survey.time-TOB<agegroup[2])}
   }
   # unique relid's(those in the relationship) of each ID.
