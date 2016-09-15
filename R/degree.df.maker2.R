@@ -23,6 +23,7 @@
 
 #' @importFrom magrittr %>%
 #' @import dplyr
+#' @import sqldf
 
 degree.df.maker <- function(dataframe.df,
                             agegroup = c(15, 30),
@@ -36,9 +37,21 @@ degree.df.maker <- function(dataframe.df,
   # so that there is one row (duplicated because of gender) per relid (relationship)
   # instead of one row (duplicated) per relationship episode.
 
+dfnew<-sqldf("SELECT ID, Gender, TOB, TOD, IDF, IDM, TODebut, FormEag, InfectTime, InfectOrigID,
+               InfectType, log10SPVL, TreatTime, XCoord, YCoord, AIDSDeath, AgeGap, relid, episodeorder,
+               agerelform, pagerelform, MIN(FormTime) AS FormTime, MAX(DisTime) AS DisTime FROM dataframe.df GROUP BY relid")
+
   # Also only subset the relationships for the people that were still alive at the time of the survey.
 
-
+   {if (hivstatus==0){
+   dfnew<-sqldf("SELECT * FROM dfnew WHERE InfectTime='Inf'")
+   }
+   else if (hivstatus==1){
+    dfnew<-sqldf("SELECT * FROM dfnew WHERE InfectTime!='Inf'")
+  }}
+# else {
+#   dfnew<-dfnew
+# }}
 
   # newly formed relationships "else" ongoing relationships.
   {if(only.new)
