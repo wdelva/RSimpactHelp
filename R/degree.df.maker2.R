@@ -41,7 +41,23 @@ dfnew<-sqldf("SELECT ID, Gender, TOB, TOD, IDF, IDM, TODebut, FormEag, InfectTim
                InfectType, log10SPVL, TreatTime, XCoord, YCoord, AIDSDeath, AgeGap, relid, episodeorder,
                agerelform, pagerelform, MIN(FormTime) AS FormTime, MAX(DisTime) AS DisTime FROM dataframe.df GROUP BY relid")
 
+dataframe.rels.df <- dataframe.df # The dataframe of relationship episodes must be turned into a dataframe of relationships.
+dataframe.rels.df <- subset(dataframe.rels.df, select = -c(episodeorder, FormTime, DisTime))
+dataframe.rels.df <- unique.data.frame(dataframe.rels.df)
+
+rels.form.dis.df <- dplyr::summarise(group_by(dataframe.df, relid),
+                 FormTime = min(FormTime),
+                 DisTime = max(DisTime))
+
+dfnew <- left_join(x = dataframe.rels.df,
+                   y = rels.form.dis.df,
+                   by = "relid")
+
   # Also only subset the relationships for the people that were still alive at the time of the survey.
+dfnew <- subset(dfnew, TOD > survey.time)
+
+
+  # Now we filter dfnew, based on hivstatus at the time of the survey.
 
    {if (hivstatus==0){
    dfnew<-sqldf("SELECT * FROM dfnew WHERE InfectTime='Inf'")
