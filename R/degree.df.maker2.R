@@ -55,13 +55,15 @@ dfnew <- subset(dfnew, TOD > survey.time)
   # Now we filter dfnew, based on hivstatus at the time of the survey.
 
 {if (hivstatus==0){
-  dfnew <- dplyr::filter(dfnew, InfectTime ='Inf')
+  dfnew <- dplyr::filter(dfnew,
+                         InfectTime == "Inf")
 }
   else if
-    (hivstatus==1){
-    dfnew <- dplyr::filter(dfnew, InfectTime!='Inf')
+  (hivstatus==1){
+    dfnew <- dplyr::filter(dfnew,
+                           InfectTime!= "Inf")
   }
-  }
+}
 
   # newly formed relationships "else" ongoing relationships.
   {if(only.new)
