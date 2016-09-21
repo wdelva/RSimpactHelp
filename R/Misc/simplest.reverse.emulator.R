@@ -64,7 +64,7 @@ colMeans(df)
 targets <- c(0, 1.5, 158.7, 5.5)
 
 #### Setting up design. Creating the LHS over the 0-1 uniform parameter space
-design.points <- 40 #20
+design.points <- 200 #40 #20
 variables <- 5
 # On VSC, when each core or node gets its own series of simulations to run, the seed must be set to a different value for each core or node.
 # set.seed(1)
@@ -149,8 +149,9 @@ colMeans(df)                    # -0.1894938  2.3169974 31.3353000  4.8122847
 
 #### From here, we can improve on this method in at least 3 non-mutually exclusive ways:
 # 1. We run more initial model simulations (more design.points) so that the emulator has more data to work with (it worked with 20 and 40)
-# 2. We expore more narrowly around the parameter estimates obtained from the first step with a second step of simulation+emulation
-# 3. We apply Principal Component Analysis to reduce the dimensions of the model output (see McNeal example page 16 of multivator tutorial)
+# 2. Try different argument values for optimal_params()
+# 3. We expore more narrowly around the parameter estimates obtained from the first step with a second step of simulation+emulation
+# 4. We apply Principal Component Analysis to reduce the dimensions of the model output (see McNeal example page 16 of multivator tutorial)
 
 
 
