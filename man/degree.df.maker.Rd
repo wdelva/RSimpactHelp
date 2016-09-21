@@ -5,14 +5,14 @@
 \title{Degree distribution of recent sexual relationships.}
 \usage{
 degree.df.maker(dataframe.df, agegroup = c(15, 30), hivstatus = 0,
-  survey.time = 10, window.width = 1, only.new = TRUE)
+  survey.time = 40, window.width = 1, only.new = TRUE)
 }
 \arguments{
 \item{dataframe.df}{The dataframe that is produced by \code{\link{agemix.df.maker()}}}
 
 \item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)}
 
-\item{hivstatus}{HIV status at the time of the survey. Options are >= 0, means all; 0 means only HIV-negative, 1 means only HIV-positive.}
+\item{hivstatus}{HIV status at the time of the survey. Options are 2, means all; 0 means only HIV-negative, 1 means only HIV-positive.}
 
 \item{survey.time}{Time point of the cross-sectional survey.}
 

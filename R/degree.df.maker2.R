@@ -9,7 +9,7 @@
 #' @param dataframe.df The dataframe that is produced by \code{\link{agemix.df.maker()}}
 #' @param survey.time Time point of the cross-sectional survey.
 #' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)
-#' @param hivstatus HIV status at the time of the survey. Options are >= 0, means all; 0 means only HIV-negative, 1 means only HIV-positive.
+#' @param hivstatus HIV status at the time of the survey. Options are 2, means all; 0 means only HIV-negative, 1 means only HIV-positive.
 #' @param window.width Time period before the survey e.g 1 year before the survey.
 #' @param only.new Logical indicator. If TRUE, only relationships that were newly started during window.width are counted
 #' (i.e. the individual was NEVER in a relationship with these partners before the start of the window).
@@ -27,7 +27,7 @@
 degree.df.maker <- function(dataframe.df,
                             agegroup = c(15, 30),
                             hivstatus = 0,
-                            survey.time = 10,
+                            survey.time = 40,
                             window.width = 1,
                             only.new = TRUE){
 
@@ -56,12 +56,12 @@ dfnew <- subset(dfnew, TOD > survey.time)
 
 {if (hivstatus==0){
   dfnew <- dplyr::filter(dfnew,
-                         InfectTime == "Inf")
+                         InfectTime > survey.time)
 }
   else if
   (hivstatus==1){
     dfnew <- dplyr::filter(dfnew,
-                           InfectTime!= "Inf")
+                           InfectTime <= survey.time)
   }
 }
 
