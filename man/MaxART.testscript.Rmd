@@ -27,13 +27,16 @@ simpact.set.simulation("simpact-cyan")#("maxart")
 agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 
 testinput <- list()
+testinput$mortality.normal.weibull.shape <- 5
+testinput$mortality.normal.weibull.scale <- 65
+testinput$mortality.normal.weibull.genderdiff <- 0
 testinput$periodiclogging.interval <- 1
 testinput$syncrefyear.interval <- 1
 testinput$formation.hazard.type <- "agegapry"
 testinput$person.eagerness.dist.type <- "gamma"
 testinput$person.eagerness.dist.type <- "gamma"
-testinput$person.eagerness.dist.gamma.a <- 0.1#0.425#3.4#1.7#0.85 
-testinput$person.eagerness.dist.gamma.b <- 170#3.5#5#10#20
+testinput$person.eagerness.dist.gamma.a <- 0.231989836885#0.15 #0.425#3.4#1.7#0.85 #0.1
+testinput$person.eagerness.dist.gamma.b <- 45#70#100 #3.5#5#10#20 #170
 testinput$person.agegap.man.dist.type <- "normal"
 testinput$person.agegap.woman.dist.type <- "normal"
 testinput$person.agegap.man.dist.normal.mu <- -5
@@ -42,23 +45,24 @@ testinput$person.agegap.man.dist.normal.sigma <- 1
 testinput$person.agegap.woman.dist.normal.sigma <- 1
 testinput$formation.hazard.agegapry.numrel_man <- -0.5
 testinput$formation.hazard.agegapry.numrel_woman <- -0.5
-testinput$formation.hazard.agegapry.gap_factor_man_exp <- -0.1# -0.5
-testinput$formation.hazard.agegapry.gap_factor_woman_exp <- -0.1# -0.5
+testinput$formation.hazard.agegapry.gap_factor_man_exp <- -0.35#-0.15# -0.5
+testinput$formation.hazard.agegapry.gap_factor_woman_exp <- -0.35#-0.15# -0.5
 testinput$formation.hazard.agegapry.gap_factor_man_const <- 0
 testinput$formation.hazard.agegapry.gap_factor_woman_const <- 0
 testinput$formation.hazard.agegapry.gap_agescale_man <- 0.23
-testinput$formation.hazard.agegapry.gap_agescale_woman <- 0.23
+testinput$formation.hazard.agegapry.gap_agescale_woman <- 0.1#0.23
 testinput$formation.hazard.agegapry.eagerness_sum <- 0.1
-testinput$formation.hazard.agegapry.eagerness_diff <- -0.110975
+testinput$formation.hazard.agegapry.eagerness_diff <- -0.048#-0.110975
 testinput$dissolution.alpha_0 <- -0.52#-0.1 # baseline
 testinput$dissolution.alpha_4 <- -0.05 
 testinput$debut.debutage <- 14
-testinput$population.simtime <- 80
-testinput$population.nummen <- 1000
-testinput$population.numwomen <- 1000
+testinput$population.simtime <- 50
+testinput$population.nummen <- 2000
+testinput$population.numwomen <- 2000
+testinput$population.maxevents <- testinput$population.simtime * testinput$population.nummen * 4 # If 4 events happen per person per year, something's wrong.
 testinput$population.eyecap.fraction <- 0.2
 testinput$hivseed.type <- "amount"
-testinput$hivseed.amount <- 10
+testinput$hivseed.amount <- 20
 testinput$hivseed.age.min <- 15
 testinput$hivseed.age.max <- 25
 testinput$hivseed.time <- 10
@@ -66,24 +70,67 @@ testinput$transmission.param.a <- -1.0352239
 testinput$transmission.param.b <- -89.339994
 testinput$transmission.param.c <- 0.4948478
 testinput$transmission.param.f1 <- log(5) # ~1.6 such that the hazard is x 5 in 15 yo
-testinput$transmission.param.f2 <- log(log(2.5) / log(5)) / 5 
+testinput$transmission.param.f2 <- log(log(2.5) / log(5)) / 5
+testinput$conception.alpha_base <- -2.35 #-3
 
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
                           seed = 1)
 datalist.test <- readthedata(testoutput)
-
+# Plotting prevalence over time among 15-50 year olds (men and women combined)
 prev.agegroup <- c(15, 50)
 testplot.prev <- prevalence.plotter(prev.agegroup)
 testplot.prev
+# Plotting prevalence by age group, 30 years after introducing HIV (40 years into the simulation ~ 2017)
+# 7 age groups, 2 genders, 3 types (prev, ul, ll) ==> 7*2*3 datapoints = 42 datapoints
+n.rows <- 7*2*3
+prevalence.at.2017 <- data.frame(agegroup = rep(NA, n.rows),
+                                 gender = rep(NA, n.rows),
+                                 type = rep(NA, n.rows),
+                                 prevalence = rep(NA, n.rows))
+row.index <- 1
+for (agegroup in seq(from = 15, to = 45, by = 5)){
+  for (gender in 1:2){
+    for (type in 1:3){
+      prevalence.at.2017$agegroup[row.index] <- paste0(agegroup," <= x < ",(agegroup+5))
+      prevalence.at.2017$gender[row.index] <- c("Men", "Women")[gender]
+      prevalence.at.2017$type[row.index] <- c("point.est", "ll", "ul")[type]
+      prevalence.at.2017$prevalence[row.index] <- as.numeric(prevalence.calculator(datalist = datalist.test,
+                                                             agegroup = c(agegroup, (agegroup+5)),
+                                                             timepoint = 40)[gender, (type+3)])
+      row.index <- row.index + 1
+    }
+  }
+}
+prevalence.at.2017$point.est <- prevalence.at.2017$type=="point.est"
+prevalence.at.2017$gender.agegroup <- paste0(prevalence.at.2017$agegroup, prevalence.at.2017$gender)
+
+p <- ggplot(prevalence.at.2017, aes(x=agegroup, y=prevalence, group=gender.agegroup)) +
+  geom_line(aes(colour = gender), size=.6,
+            position = position_dodge(width = .5)) +
+  geom_point(aes(colour = gender , shape = !point.est, size = !point.est),
+             position = position_dodge(width = .5)) +
+  scale_shape_manual(values=c(19, 95), guide = FALSE) +
+  scale_size_manual(values=c(3, 7), guide = FALSE) +
+  scale_colour_brewer(palette = "Set1", direction = -1, name = "Gender") +
+  xlab("Age groups") +
+  ylab("HIV prevalence") +
+  #facet_wrap(~Gender, nrow=1)
+  theme_bw() #+
+  #theme(legend.position = "none")
+p
+
+
 agemix.df <- agemix.df.maker(datalist.test)
+sd(agemix.df$AgeGap, na.rm = TRUE)
 agemix.pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(15, 60), timepoint = 50, timewindow = 1, start = FALSE)
 testplot.agemix <- pattern.plotter(agemix.pattern)
 testplot.agemix
 incidence.calculator(datalist = datalist.test, agegroup = c(14,18), timewindow = c(40, 50))
+incidence.calculator(datalist = datalist.test, agegroup = c(15,30), timewindow = c(40, 50))
 
-degree.df <- degree.df.maker(agemix.df, survey.time = 40, window.width = 1, only.new = TRUE)
+degree.df <- degree.df.maker(agemix.df, agegroup = c(15, 30), hivstatus = 0, survey.time = 40, window.width = 1, only.new = TRUE)
 mean(degree.df$Degree)
 mean(degree.df$Degree > 1)
 datalist.test$itable$person.eagerness.dist.gamma.a * datalist.test$itable$person.eagerness.dist.gamma.b
