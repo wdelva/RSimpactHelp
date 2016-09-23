@@ -19,6 +19,10 @@ library(readcsvcolumns)
 library(survival)
 library(KMsurv)
 library(tidyr)
+library(expoTree)
+library(sna)
+library(intergraph)
+library(igraph)
 
 # MaxART specific simulation
 # MaxART specific simulation
@@ -62,7 +66,7 @@ testinput$population.numwomen <- 2000
 testinput$population.maxevents <- testinput$population.simtime * testinput$population.nummen * 4 # If 4 events happen per person per year, something's wrong.
 testinput$population.eyecap.fraction <- 0.2
 testinput$hivseed.type <- "amount"
-testinput$hivseed.amount <- 20
+testinput$hivseed.amount <- 1#20
 testinput$hivseed.age.min <- 15
 testinput$hivseed.age.max <- 25
 testinput$hivseed.time <- 10
@@ -73,11 +77,18 @@ testinput$transmission.param.f1 <- log(5) # ~1.6 such that the hazard is x 5 in 
 testinput$transmission.param.f2 <- log(log(2.5) / log(5)) / 5
 testinput$conception.alpha_base <- -2.35 #-3
 
+start.time <- proc.time()
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
-                          seed = 1)
+                          seed = 3)
+
+time.it.took <- proc.time() - start.time
+time.it.took
+
 datalist.test <- readthedata(testoutput)
+
+
 # Plotting prevalence over time among 15-50 year olds (men and women combined)
 prev.agegroup <- c(15, 50)
 testplot.prev <- prevalence.plotter(prev.agegroup)
@@ -120,6 +131,28 @@ p <- ggplot(prevalence.at.2017, aes(x=agegroup, y=prevalence, group=gender.agegr
   theme_bw() #+
   #theme(legend.position = "none")
 p
+
+# Plotting the phylo tree
+transm.ls <- transm.network.builder(datalist.test, endpoint = 12)
+test.tree <- epi2tree(transm.ls)
+plot(test.tree, edge.width = 2, cex = 1.5)
+
+# Plotting the transmission network
+transm.df <- data.frame(tails = as.character(transm.ls$parent),
+                        heads = as.character(transm.ls$id))
+tn <- network(transm.df, directed = TRUE, matrix.type = "edgelist")
+plot(tn, label.cex = 1.5, mode  = "fruchtermanreingold")
+tn.igraph <- asIgraph(tn)
+V(tn.igraph)$name <- network.vertex.names(tn)
+plot(tn.igraph, layout = layout.reingold.tilford(tn.igraph))
+
+
+plot(tn, label = network.vertex.names(tn), label.cex = 1.5)
+tnplot <- plot(tt$tn,
+                label = "",
+                vertex.col = tt$tn.vertex.col,
+                vertex.cex = tt$tn.vertex.cex,
+                jitter=F)
 
 
 agemix.df <- agemix.df.maker(datalist.test)
