@@ -77,6 +77,7 @@ z_obs <- as.vector(t(apply(x.design, 1, model)))
 
 #### Before we start the emulation, let's see what the best fit is from the model simulation runs
 z.df <- as.data.frame(t(apply(x.design, 1, model)))
+names(z.df) <- c("z1", "z2", "z3", "z4")
 sq.array <- as.data.frame(t(apply(z.df, 1, function(x) (x - t(c(0, 1.5, 158.7, 5.5)))^2)))
 SumSq <- as.numeric(rowSums(sq.array))
 which.min(SumSq)
@@ -153,10 +154,35 @@ colMeans(df)                    # -0.1894938  2.3169974 31.3353000  4.8122847
 # 3. We expore more narrowly around the parameter estimates obtained from the first step with a second step of simulation+emulation
 # 4. We apply Principal Component Analysis to reduce the dimensions of the model output (see McNeal example page 16 of multivator tutorial)
 
+# Principal component analysis
+pairs(z.df)
 
+z.pc <- princomp(z.df, scores = TRUE, cor = TRUE)
+summary(z.pc)
+plot(z.pc)
+biplot(z.pc)
+z.pc$loadings
+z.pc$scores
+targets.df = data.frame(z1 = targets[1], z2 = targets[2], z3 = targets[3], z4 = targets[4])
+# As an example: the value of the first PC for the target statistics:
+as.numeric(as.numeric(z.pc$loadings[, 1]) %*% ((as.numeric(targets.df) - z.pc$center) / z.pc$scale) )
+# All PCs for the target statistics:
+targets.pc <- predict(z.pc, targets.df)
+# So the proposal is to only use the first 3 components
+# because they jointly capture 96% of the total (normalised, standardised) variance
 
+# As an example: recovering the value of the first statistics (z1), based on the loadings and scores
+as.numeric(as.numeric(z.pc$loadings[1, ]) %*% as.numeric(z.pc$scores[1, ])) * as.numeric(z.pc$scale[1]) + as.numeric(z.pc$center[1])
+# And the second statistic:
+as.numeric(as.numeric(z.pc$loadings[2, ]) %*% as.numeric(z.pc$scores[1, ])) * as.numeric(z.pc$scale[2]) + as.numeric(z.pc$center[2])
+z.df[1, ]
 
-
+# If we, however, discard the third PC, because it captures less than 5% of the total variance,
+# we can only recover statistics to some approximate level of accuracy:
+as.numeric(as.numeric(z.pc$loadings[1, 1:3]) %*% as.numeric(z.pc$scores[1, 1:3])) * as.numeric(z.pc$scale[1]) + as.numeric(z.pc$center[1])
+# And the second statistic:
+as.numeric(as.numeric(z.pc$loadings[2, 1:3]) %*% as.numeric(z.pc$scores[1, 1:3])) * as.numeric(z.pc$scale[2]) + as.numeric(z.pc$center[2])
+z.df[1, ]
 
 
 
