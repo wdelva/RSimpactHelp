@@ -167,7 +167,7 @@ targets.df = data.frame(z1 = targets[1], z2 = targets[2], z3 = targets[3], z4 = 
 # As an example: the value of the first PC for the target statistics:
 as.numeric(as.numeric(z.pc$loadings[, 1]) %*% ((as.numeric(targets.df) - z.pc$center) / z.pc$scale) )
 # All PCs for the target statistics:
-targets.pc <- predict(z.pc, targets.df)
+targets.pc <- predict(z.pc, targets.df)[1:3]
 # So the proposal is to only use the first 3 components
 # because they jointly capture 96% of the total (normalised, standardised) variance
 
@@ -183,6 +183,76 @@ as.numeric(as.numeric(z.pc$loadings[1, 1:3]) %*% as.numeric(z.pc$scores[1, 1:3])
 # And the second statistic:
 as.numeric(as.numeric(z.pc$loadings[2, 1:3]) %*% as.numeric(z.pc$scores[1, 1:3])) * as.numeric(z.pc$scale[2]) + as.numeric(z.pc$center[2])
 z.df[1, ]
+
+# Let's build the emulator now, using only the first 3 PCs.
+z.pc$scores
+
+#### Creating the multivator objects for the PC-based emulator
+x.design.long.pc <- rbind(x.design, x.design, x.design) # one for each of the 3 PC components
+pc_obs <- as.vector(z.pc$scores)[1:(3*design.points)]
+
+RS_mdm.pc <- mdm(x.design.long.pc, types = rep(c("pc1", "pc2", "pc3"), each = design.points))
+RS_expt.pc <- experiment(mm = RS_mdm.pc, obs = pc_obs)
+RS_opt.pc <- optimal_params(RS_expt.pc, option="b")
+
+#### Using the emulator to explore the parameter space
+n <- 5000
+x.new <- latin.hypercube(n, variables, names=c("x1","x2", "x3", "x4", "x5"))
+RS_new_mdm.pc <- mdm(rbind(x.new, x.new, x.new), types = rep(c("pc1", "pc2", "pc3"), each = n))
+RS_prediction.pc <- multem(x = RS_new_mdm.pc, expt = RS_expt.pc, hp = RS_opt.pc)
+hist(RS_prediction.pc[1:n]) # distribution of pc1
+hist(RS_prediction.pc[(n+1):(2*n)]) # distribution of pc2
+
+#### The targets, transformed to the first 3 PCs:
+targets.pc   # 1.8825113 -0.4188274 -0.2740838
+
+
+#### One way of efficiently comparing emulation output with target statistics is to reshape RS_prediction as a dataframe
+prediction.pc.df <- data.frame(matrix(RS_prediction.pc, nrow = n, dimnames = list(rownames = 1:n, colnames = c("pc1", "pc2", "pc3"))))
+
+#### sum of squared distances between model statistics and target statistics
+# Note: we could normalise (and centralise) these statistics to give them more equal weight in the SumSq
+sq.pc.array <- as.data.frame(t(apply(prediction.pc.df, 1, function(x) (x - t(targets.pc))^2)))
+names(sq.pc.array) <- names(prediction.pc.df)
+SumSq.pc <- as.numeric(rowSums(sq.pc.array))
+which.min(SumSq.pc)
+prediction.pc.df[which.min(SumSq.pc), ] #            pc1       pc2       pc3
+#                                                1.951745 -0.4689429 -0.2492109
+# Not bad, in light of targets:                  1.882511 -0.4188274 -0.2740838
+
+#### And most importantly, the best estimate for the model parameters:
+x.standardised.pc <- as.numeric(x.new[which.min(SumSq.pc), ])
+x1 <- qunif(x.standardised.pc[1], min = x1.min.max[1], max = x1.min.max[2])
+x2 <- qunif(x.standardised.pc[2], min = x2.min.max[1], max = x2.min.max[2])
+x3 <- qunif(x.standardised.pc[3], min = x3.min.max[1], max = x3.min.max[2])
+x4 <- qunif(x.standardised.pc[4], min = x4.min.max[1], max = x4.min.max[2])
+x5 <- qunif(x.standardised.pc[5], min = x5.min.max[1], max = x5.min.max[2])
+x.estimate <- c(x1, x2, x3, x4, x5)
+#                       -0.08530    1.38561   22.93771   -1.96600  1861
+# But the truth was:     0          1.5       10         -1.5      1000
+
+#### The average model output for the best estimate of the model parameters:
+reps <- 10000
+df <- data.frame(matrix(rep(NA, time = reps, each = 4), ncol = 4))
+for(rep in 1:reps){
+  df[rep, ] <- truth(x = x.estimate)
+}
+
+colMeans(df)
+  #old values before PCA        # -0.1894938  2.3169974 31.3353000  4.8122847
+
+                                # -0.08514   1.38520   162.373      5.510
+# Much closer to targets:          0         1.5       158.7        5.5
+
+
+
+
+
+
+
+
+
+
 
 
 
