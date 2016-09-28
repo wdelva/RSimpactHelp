@@ -103,7 +103,7 @@ art.intro["diagnosis.baseline"] <- 0 # Reset to zero, from its original value of
 art.intro["monitoring.cd4.threshold"] <- 100
 art.intro["diagnosis.genderfactor"] <- 2
 
-# Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2013:
+# Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2013:500
 
 art.intro2 <- list()
 art.intro2["time"] <- 30
@@ -116,7 +116,7 @@ art.intro3["monitoring.cd4.threshold"] <- 350
 art.intro3["diagnosis.genderfactor"] <- 1
 
 art.intro4 <- list()
-art.intro4["time"] <- 33
+art.intro4["time"] <- 36
 art.intro4["monitoring.cd4.threshold"] <- 500
 art.intro4["diagnosis.genderfactor"] <- 0.5
 
@@ -314,7 +314,7 @@ simpact4emulation <- function(sim.id, lhs.df, testinput, agedist.data.frame, iv)
 
 ```
 
-```{r simpactTestrun, echo=TRUE, message = FALSE, cache = FALSE}
+```{r simpactTestrun, echo=TRUE, message = FALSE, cache = TRUE}
 # Running the simpact4emulation function with error catcher in a loop
 for (sim.id in inANDout.df$sim.id){
   out.test <- tryCatch(simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv), error = errFunction)
@@ -323,7 +323,7 @@ for (sim.id in inANDout.df$sim.id){
 }
 ```
 
-```{r saveInputOutput, echo=TRUE, message = FALSE, cache = FALSE}
+```{r saveInputOutput, echo=TRUE, message = FALSE, cache = TRUE}
 # Running the simpact4emulation function with error catcher in a loop
 save(inANDout.df, agedist.data.frame, testinput, iv, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
 #save(inANDout.df, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
@@ -373,14 +373,15 @@ matched.df <- dplyr::filter(inANDout.df,
                             # ART.cov.15.50 >= 0.15,
                             # ART.cov.15.50 <= 0.4)
 
-pairs(matched.df[, 20:21],
-      xlim = c(0, 1),
-      ylim = c(0, 1))
-matchedplusHarling.df <- rbind(matched.df,
+names(matched.df)
+
+matchedplusHarling.df <- rbind(matched.df[, 20:21],
                                c(0.075, 0.013))
 matchedplusHarling.df$Harling <- c(rep(0, nrow(matched.df)), 1)
 
-pairs(matchedplusHarling.df[, 20:21],
+head(matchedplusHarling.df, 30)
+
+pairs(matchedplusHarling.df[, 1:2],
       col = 1+matchedplusHarling.df$Harling)#,
       # xlim = c(0, 1),
       # ylim = c(0, 1))
