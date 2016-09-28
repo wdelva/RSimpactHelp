@@ -76,8 +76,8 @@ testinput$dissolution.alpha_0 <- -0.52#-0.1 # baseline
 testinput$dissolution.alpha_4 <- -0.05 
 testinput$debut.debutage <- 14
 testinput$population.simtime <- 40
-testinput$population.nummen <- 1000 #2000
-testinput$population.numwomen <- 1000 #2000
+testinput$population.nummen <- 400 #1000 #2000
+testinput$population.numwomen <- 400 #1000 #2000
 testinput$population.maxevents <- testinput$population.simtime * testinput$population.nummen * 4 # If 4 events happen per person per year, something's wrong.
 testinput$population.eyecap.fraction <- 0.2
 testinput$hivseed.type <- "amount"
@@ -176,7 +176,7 @@ test.output <- function(testoutput){
   ARTcov <- ART.coverage.calculator(datalist = datalist.test,
                                     agegroup = c(15, 50),
                                     timepoint = 34) # 2011 is 34 years after 1977
-  ART.cov.15.50 <- ARTcov$pointprevalence[3] # among men and women
+  ART.cov.15.50 <- ARTcov$ART.coverage[3] # among men and women
   # 8. HIV incidence among women 15 <= x < 30 in the window 20-30 years after HIV introduction
   inc <- incidence.calculator(datalist = datalist.test,
                               agegroup = c(15, 30),
@@ -323,7 +323,66 @@ for (sim.id in inANDout.df$sim.id){
 }
 ```
 
-```{r plotOutput, echo=TRUE, message = FALSE, cache = FALSE}
+```{r saveInputOutput, echo=TRUE, message = FALSE, cache = FALSE}
 # Running the simpact4emulation function with error catcher in a loop
-head(inANDout.df)
+save(inANDout.df, agedist.data.frame, testinput, iv, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+#save(inANDout.df, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+```
+
+```{r exploreInputOutput, echo=TRUE, message = FALSE, cache = FALSE}
+# Running the simpact4emulation function with error catcher in a loop
+incidence.degree.exploration.100.loaded <- load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+#save(inANDout.df, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+
+# How many runs gave non-NA output?
+nrow(inANDout.df[complete.cases(inANDout.df), ]) # 53
+
+pairs(inANDout.df[, 14:21])
+pairs(inANDout.df[, 20:21])
+```
+
+### Fitting the emulator to these data
+Here we have to insert code blocks from simple.simpact.emulator.R
+
+### Then we rerun Simpact with updated guesses for the model parameters
+
+### Finally we explore the output of the calibrated model
+
+```{r onlyMatches, echo=TRUE, message = FALSE, cache = FALSE}
+
+# 1. Population growth (target between 0 and 2% annual growth rate)
+# 2. Median age difference in most recent relationships (target 2-5 years)
+# 3. IQR age difference in most recent relationships (target IQR 2 - 6)
+# 4. HIV prevalence in the window among men 15-25 (target 5% - 10%)
+# 5. HIV prevalence in the window among men 25-50 (target 10% - 30%)
+# 6. Point prevalence of concurrency among the male partners of women 15 <= x < 30 in the window 25 years after HIV introduction (target 5% - 75%)
+# 7. ART coverage among all HIV+ people aged 15-50 (target 15% - 40% in 2011)
+
+matched.df <- dplyr::filter(inANDout.df,
+                            growth.rate >= 0,
+                            growth.rate <= 0.02,
+                            prev.men.25.50 <= 0.3) #,
+                            # median.AD >= 2,
+                            # median.AD <= 5,
+                            # IQR.AD >= 2,
+                            # IQR.AD <= 6,
+                            # prev.men.15.25 >= 0.05,
+                            # prev.men.15.25 <= 0.1,
+                            # prev.men.25.50 >= 0.1,
+                            # prev.men.25.50 <= 0.3,
+                            # ART.cov.15.50 >= 0.15,
+                            # ART.cov.15.50 <= 0.4)
+
+pairs(matched.df[, 20:21],
+      xlim = c(0, 1),
+      ylim = c(0, 1))
+matchedplusHarling.df <- rbind(matched.df,
+                               c(0.075, 0.013))
+matchedplusHarling.df$Harling <- c(rep(0, nrow(matched.df)), 1)
+
+pairs(matchedplusHarling.df[, 20:21],
+      col = 1+matchedplusHarling.df$Harling)#,
+      # xlim = c(0, 1),
+      # ylim = c(0, 1))
+
 ```
