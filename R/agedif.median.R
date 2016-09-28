@@ -17,7 +17,7 @@
 #' overall calculation, examines only unique relationships in the entire
 #' population.
 #'
-#' @param df The dataframe that is produced by \code{\link{agedmix.df.maker()}}
+#' @param df The dataframe that is produced by \code{\link{agemix.df.maker()}}
 #' @param agegroup Boundaries of the age group that should be retained, e.g.
 #'   c(15, 30). The interval is closed on the left and open on the right.
 #' @param timepoint Point in time during the simulation to be used in the
@@ -82,7 +82,7 @@ agedif.median <- function(df,
                age >= lwrage &
                age < uprage &
                TOD > time) %>%
-      distinct(Gender, relid)
+      distinct(Gender, relid, .keep_all = TRUE)
 
   } else {
 
@@ -93,24 +93,24 @@ agedif.median <- function(df,
                age >= lwrage &
                age < uprage &
                TOD > time) %>%
-      distinct(Gender, relid)
+      distinct(Gender, relid, .keep_all = TRUE)
   }
 
   #Remove duplicated relationship episodes overall
   subdf2 <- subdf %>%
-    distinct(relid)
+    distinct(relid, .keep_all = TRUE)
 
   # Calculate median age difference by gender
-  adbygender <- subdf %>%
+  adbygender <- subdf2 %>%
     group_by(Gender) %>%
-    summarise(n = n(),
+    dplyr::summarise(n = n(),
               median = median(AgeGap),
               Q1 = as.numeric(summary(AgeGap)["1st Qu."]),
               Q3 = as.numeric(summary(AgeGap)["3rd Qu."]))
 
   # Calculate median age difference overall
   adoverall <- subdf2 %>%
-    summarise(n = n(),
+    dplyr::summarise(n = n(),
               median = median(AgeGap),
               Q1 = as.numeric(summary(AgeGap)["1st Qu."]),
               Q3 = as.numeric(summary(AgeGap)["3rd Qu."]))
