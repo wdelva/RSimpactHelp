@@ -219,7 +219,7 @@ errFunction <- function(e){
   if (length(grep("internal event time",e$message)) != 0)
     return(inANDout.test = rep(NA, 8))
   # Een andere foutmelding dan MAXEVENTS, zorg dat we toch stoppen
-  stop(e)
+  return(inANDout.test = rep(NA, 8)) #stop(e)
 }
 ```
 
