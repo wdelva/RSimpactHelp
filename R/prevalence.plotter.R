@@ -9,6 +9,7 @@
 #' prevalence.df <- prevalence.calculator(datalist = datalist, agegroup = c(15, 30), timepoint = 30)
 #'
 #' @import gtools
+#' @import ggplot2
 
 prevalence.plotter <- function(datalist = datalist,
                                   agegroup = c(15, 50)){
