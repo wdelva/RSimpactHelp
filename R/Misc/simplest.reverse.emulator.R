@@ -105,6 +105,7 @@ RS_opt <- optimal_params(RS_expt, option="b")
 
 #### Using the emulator to explore the parameter space
 n <- 5000
+variables <- 5
 x.new <- latin.hypercube(n, variables, names=c("x1","x2", "x3", "x4", "x5"))
 RS_new_mdm <- mdm(rbind(x.new, x.new, x.new, x.new), types = rep(c("z1", "z2", "z3", "z4"), each = n))
 RS_prediction <- multem(x = RS_new_mdm, expt = RS_expt, hp = RS_opt)
