@@ -15,7 +15,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r getready, echo = FALSE, message = FALSE}
+```{r getready, echo = FALSE, message = FALSE, cache = TRUE}
 library(RSimpactCyan)
 library(RSimpactHelper)
 library(data.table)
@@ -40,7 +40,7 @@ library(lhs)
 
 You can also embed plots, for example:
 
-```{r getmodelready, echo=FALSE, message = FALSE}
+```{r getmodelready, echo=FALSE, message = FALSE, cache = TRUE}
 # simpact.set.simulation("simpact-cyan")#("maxart")
 
 agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
@@ -76,8 +76,8 @@ testinput$dissolution.alpha_0 <- -0.52#-0.1 # baseline
 testinput$dissolution.alpha_4 <- -0.05 
 testinput$debut.debutage <- 14
 testinput$population.simtime <- 40
-testinput$population.nummen <- 400 #1000 #2000
-testinput$population.numwomen <- 400 #1000 #2000
+testinput$population.nummen <- 500 #1000 #2000
+testinput$population.numwomen <- 500 #1000 #2000
 testinput$population.maxevents <- testinput$population.simtime * testinput$population.nummen * 4 # If 4 events happen per person per year, something's wrong.
 testinput$population.eyecap.fraction <- 0.2
 testinput$hivseed.type <- "amount"
@@ -95,7 +95,7 @@ testinput$diagnosis.baseline <- -100 # This will result in timing of HIV diagnos
 testinput$monitoring.cd4.threshold <- 0.01
 ```
 
-```{r ARTintervention, echo=FALSE, message = FALSE}
+```{r ARTintervention, echo=FALSE, message = FALSE, cache = TRUE}
 # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
 art.intro <- list()
 art.intro["time"] <- 27
@@ -139,12 +139,12 @@ iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
 
 
 
-```{r testrun, echo=FALSE, message = FALSE, cache = FALSE}
-testoutput <- simpact.run(configParams = testinput,
-                          destDir = "temp",
-                          agedist = agedist.data.frame,
-                          intervention = iv,
-                          seed = 1)
+```{r testrun, echo=FALSE, message = FALSE, cache = TRUE}
+# testoutput <- simpact.run(configParams = testinput,
+#                           destDir = "temp",
+#                           agedist = agedist.data.frame,
+#                           intervention = iv,
+#                           seed = 1)
 ```
 
 ```{r testoutput, echo=TRUE, message = FALSE, cache = TRUE}
@@ -223,7 +223,7 @@ errFunction <- function(e){
 }
 ```
 
-```{r LHSdesign, echo=TRUE, message = FALSE, cache = FALSE}
+```{r LHSdesign, echo=TRUE, message = FALSE, cache = TRUE}
 # Creating the LHS over the 0-1 uniform parameter space
 # We are going to vary 6 variables
 # 1. person.eagerness.dist.gamma.a (0.1 to 1)
@@ -234,7 +234,7 @@ errFunction <- function(e){
 # 6. formation.hazard.agegapry.gap_factor_man_exp = formation.hazard.agegapry.gap_factor_woman_exp (-1 to -0.1) (influences variance of age differences)
 
 
-design.points <- 100
+design.points <- 500
 variables <- 6
 # On VSC, when each core or node gets its own series of simulations to run, the seed must be set to a different value for each core or node.
 set.seed(1)
@@ -325,17 +325,17 @@ for (sim.id in inANDout.df$sim.id){
 
 ```{r saveInputOutput, echo=TRUE, message = FALSE, cache = TRUE}
 # Running the simpact4emulation function with error catcher in a loop
-save(inANDout.df, agedist.data.frame, testinput, iv, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+save(inANDout.df, agedist.data.frame, testinput, iv, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.500.RData")
 #save(inANDout.df, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
 ```
 
 ```{r exploreInputOutput, echo=TRUE, message = FALSE, cache = FALSE}
 # Running the simpact4emulation function with error catcher in a loop
-incidence.degree.exploration.100.loaded <- load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+incidence.degree.exploration.500.loaded <- load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.500.RData")
 #save(inANDout.df, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
-
+incidence.degree.exploration.500.loaded
 # How many runs gave non-NA output?
-nrow(inANDout.df[complete.cases(inANDout.df), ]) # 53
+nrow(inANDout.df[complete.cases(inANDout.df), ]) # 258
 
 pairs(inANDout.df[, 14:21])
 pairs(inANDout.df[, 20:21])
@@ -360,8 +360,13 @@ Here we have to insert code blocks from simple.simpact.emulator.R
 
 matched.df <- dplyr::filter(inANDout.df,
                             growth.rate >= 0,
-                            growth.rate <= 0.02,
-                            prev.men.25.50 <= 0.3) #,
+                            growth.rate <= 0.04,
+                            prev.men.25.50 >= 0.05,
+                            prev.men.25.50 <= 0.5,
+                            median.AD >= 0,#2,
+                            median.AD <= 10,#5,
+                            IQR.AD >= 0,#2,
+                            IQR.AD <= 20)#6)
                             # median.AD >= 2,
                             # median.AD <= 5,
                             # IQR.AD >= 2,
@@ -387,3 +392,28 @@ pairs(matchedplusHarling.df[, 1:2],
       # ylim = c(0, 1))
 
 ```
+
+
+incidence.degree.exploration.500.loaded <- load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.500.RData")
+nrow(inANDout.df[complete.cases(inANDout.df), ]) # 258
+matched.df <- dplyr::filter(inANDout.df,
+                            growth.rate >= 0,
+                            growth.rate <= 0.04,
+                            prev.men.25.50 <= 0.5,
+                            median.AD >= 2,
+                            median.AD <= 5,
+                            IQR.AD >= 2,
+                            IQR.AD <= 6)
+                            # prev.men.15.25 >= 0.05,
+                            # prev.men.15.25 <= 0.1,
+                            # prev.men.25.50 >= 0.1,
+                            # prev.men.25.50 <= 0.3,
+                            # ART.cov.15.50 >= 0.15,
+                            # ART.cov.15.50 <= 0.4)
+                            
+matchedplusHarling.df <- rbind(matched.df[, 20:21],
+                               c(0.075, 0.013))
+matchedplusHarling.df$Harling <- c(rep(0, nrow(matched.df)), 1)
+
+pairs(matchedplusHarling.df[, 1:2],
+      col = 1+matchedplusHarling.df$Harling)
