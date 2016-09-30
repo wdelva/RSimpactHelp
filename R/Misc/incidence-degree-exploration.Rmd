@@ -353,12 +353,12 @@ Here we have to insert code blocks from simple.simpact.emulator.R
 matched.df <- dplyr::filter(inANDout.df,
                             growth.rate >= 0,
                             growth.rate <= 0.04,
-                            prev.men.25.50 >= 0.05,
+                            prev.men.25.50 >= 0.15,
                             prev.men.25.50 <= 0.5,
-                            median.AD >= 0,#2,
-                            median.AD <= 10,#5,
-                            IQR.AD >= 0,#2,
-                            IQR.AD <= 20)#6)
+                            median.AD >= 2,
+                            median.AD <= 5,
+                            IQR.AD >= 2,
+                            IQR.AD <= 6)
                             # median.AD >= 2,
                             # median.AD <= 5,
                             # IQR.AD >= 2,
