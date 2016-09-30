@@ -5,6 +5,7 @@
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)
 #' @param timewindow Boundaries of the time window (lower bound < time <= upper bound) that should be retained, e.g. c(20, 30)
+#' @param only.active Should only women who are in sexual relationships contribute exposure time (~ Harling)? 0 for no and 1 for yes.
 #' @return a dataframe with cases, exposure time, incidence estimate and surrounding confidence bounds,
 #' for the specified time window and age group, overall, and stratified by gender
 #' @examples
@@ -14,13 +15,17 @@
 
 incidence.calculator <- function(datalist = datalist,
                                  agegroup = c(15, 30),
-                                 timewindow = c(20, 30)){
+                                 timewindow = c(20, 30),
+                                 only.active = 0){
   time.of.lowerbound.agegroup <- datalist$ptable$TOB + agegroup[1]
   time.of.lowerbound.timewind <- timewindow[1]
   exposure.start <- pmax(time.of.lowerbound.agegroup, time.of.lowerbound.timewind)
   time.of.upperbound.agegroup <- datalist$ptable$TOB + agegroup[2]
   time.of.upperbound.timewind <- timewindow[2]
   time.of.HIV.infection <- datalist$ptable$InfectTime
+
+  # Code for subtracting exposure time while not in any relationships still te be inserted.
+
   exposure.end <- pmin(time.of.HIV.infection, pmin(time.of.upperbound.agegroup, time.of.upperbound.timewind))
   exposure.time <- exposure.end - exposure.start # This is the naive exposure time, before tidying up
   real.exposure.time <- exposure.time > 0 # We create a vector to see who REALLY had exposure time
