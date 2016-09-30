@@ -1,3 +1,7 @@
+library(magrittr)
+library(dplyr)
+library(emulator)
+library(multivator)
 ## Simple Simpact emulator
 
 simpact.inANDout.df <- read.csv(file = "/Users/delvaw/Documents/RSimpactHelper/data/inANDout.df2016-09-27.csv",
@@ -33,8 +37,7 @@ names(simpact.inANDout.df)
 hist(simpact.inANDout.df$concept.base)
 hist(simpact.inANDout.df$formation.hazard.agegapry.eagerness_sum)
 
-library(emulator)
-library(multivator)
+
 #library(lhs)
 
 # Defining the target statistics for which we will seek the most likely parameters.
@@ -80,6 +83,8 @@ z_obs <- as.vector(unlist(simpact.z))
 
 #### Before we start the emulation, let's see what the best fit is from the model simulation runs
 z.df <- simpact.z
+hist(z.df$growth.rate)
+hist(z.df$prev.15.50.end)
 #names(z.df) <- c("z1", "z2", "z3", "z4")
 sq.array <- as.data.frame(t(apply(z.df, 1, function(x) (x - t(c(0, 0.1)))^2)))
 SumSq <- as.numeric(rowSums(sq.array))
@@ -103,18 +108,17 @@ names(simpact.x)
 #### Creating the multivator objects
 RS_mdm <- mdm(x.design.long, types = rep(c("growth.rate", "prev.15.50.end"), each = design.points))
 RS_expt <- experiment(mm = RS_mdm, obs = z_obs)
-RS_opt <- optimal_params(RS_expt, option="a")
+#RS_opt <- optimal_params(RS_expt, option="a")
 RS_opt_c <- optimal_params(RS_expt, option="c")
 
 #### Using the emulator to explore the parameter space
 n <- 5000
 x.new <- latin.hypercube(n, variables, names=colnames(x.design))
 RS_new_mdm <- mdm(rbind(x.new, x.new), types = rep(c("growth.rate", "prev.15.50.end"), each = n))
-RS_prediction <- multem(x = RS_new_mdm, expt = RS_expt, hp = RS_opt)
 RS_prediction_c <- multem(x = RS_new_mdm, expt = RS_expt, hp = RS_opt_c)
 
-hist(RS_prediction[1:n]) # distribution of z1
-hist(RS_prediction[(n+1):(2*n)]) # distribution of z2
+hist(RS_prediction_c[1:n]) # distribution of z1
+hist(RS_prediction_c[(n+1):(2*n)]) # distribution of z2
 
 
 #### One way of efficiently comparing emulation output with target statistics is to reshape RS_prediction as a dataframe
