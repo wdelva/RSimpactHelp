@@ -249,11 +249,11 @@ lhs.df <- data.frame(eagerness.a = rep(NA, design.points), # tunes relationship 
                      eagerness.diff = rep(NA, design.points),
                      gapfactor.exp = rep(NA, design.points))
 
-lhs.df$eagerness.a <- qunif(rlhs[ , 1], min = 0.1, max = 1)
-lhs.df$eagerness.b <- qunif(rlhs[ , 2], min = 25, max = 90) #10, max = 100)
-lhs.df$concept.base <- qunif(rlhs[ , 3], min = -2.6, max = -1.2) #-4, max = -1)
-lhs.df$numrel <- qunif(rlhs[ , 4], min = -1.5, max = -0.2) #-1, max = -0.1)
-lhs.df$eagerness.diff <- qunif(rlhs[ , 5], min = -0.25, max = -0.04) #-0.2, max = -0.02)
+lhs.df$eagerness.a <- qunif(rlhs[ , 1], min = 0.1, max = 2) #max = 1)
+lhs.df$eagerness.b <- qunif(rlhs[ , 2], min = 5, max = 60) #min = 25, max = 90) #10, max = 100)
+lhs.df$concept.base <- qunif(rlhs[ , 3], min = -3.6, max = -1.2) #min = -2.6, max = -1.2) #-4, max = -1)
+lhs.df$numrel <- qunif(rlhs[ , 4], min = -1.5, max = -0.1) #max = -0.2) #-1, max = -0.1)
+lhs.df$eagerness.diff <- qunif(rlhs[ , 5], min = -0.1, max = 0) #min = -0.25, max = -0.04) #-0.2, max = -0.02)
 lhs.df$gapfactor.exp <- qunif(rlhs[ , 6], min = -1.5, max = -0.4) #-1, max = -0.1)
 
 # Creating a dataframe for input AND output
