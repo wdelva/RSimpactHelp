@@ -11,6 +11,7 @@
 #' @examples
 #' timespentsingle <- timespentsingle.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30), type = "Harling")
 #'
+#' @import dplyr
 
 timespentsingle.calculator <- function(datalist = datalist,
                                        agegroup = c(15, 30),
@@ -61,7 +62,7 @@ timespentsingle.calculator <- function(datalist = datalist,
   women.rel.status.change$change[women.rel.status.change$eventname == "debut"] <- 0
   women.rel.status.change$change[women.rel.status.change$eventname == "formation"] <- 1
   women.rel.status.change <- women.rel.status.change %>% group_by(woman.ID) %>% mutate(numrels = cumsum(change))
-  women.rel.status.change <- women.rel.status.change %>% group_by(woman.ID) %>% mutate(timespent = diff(c(eventtime, as.numeric(datalist.test$itable$population.simtime[1]))))
+  women.rel.status.change <- women.rel.status.change %>% group_by(woman.ID) %>% mutate(timespent = diff(c(eventtime, as.numeric(datalist$itable$population.simtime[1]))))
   # We only really need to keep the rows for the events (periods) that the woman spent not in any relationships
   women.no.rels <- dplyr::filter(women.rel.status.change,
                                  numrels == 0)
