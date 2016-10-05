@@ -5,7 +5,10 @@
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)
 #' @param timewindow Boundaries of the time window (lower bound < time <= upper bound) that should be retained, e.g. c(20, 30)
-#' @param only.active Should only women who are in sexual relationships contribute exposure time (~ Harling)? 0 for no and 1 for yes.
+#' @param only.active Should only women who are in sexual relationships contribute exposure time (~ Harling)?
+#' If "Strict", all time spent being not being in any relationship will be excluded from exposure time.
+#' If "Harling", time will be excluded from exposure time in blocks of one year, if the person spent that entire block not in any relationship.
+#' If "No", exposure time is being contributed, even while not in any relationships.
 #' @return a dataframe with cases, exposure time, incidence estimate and surrounding confidence bounds,
 #' for the specified time window and age group, overall, and stratified by gender
 #' @examples
@@ -16,15 +19,13 @@
 incidence.calculator <- function(datalist = datalist,
                                  agegroup = c(15, 30),
                                  timewindow = c(20, 30),
-                                 only.active = 0){
+                                 only.active = "No"){
   time.of.lowerbound.agegroup <- datalist$ptable$TOB + agegroup[1]
   time.of.lowerbound.timewind <- timewindow[1]
   exposure.start <- pmax(time.of.lowerbound.agegroup, time.of.lowerbound.timewind)
   time.of.upperbound.agegroup <- datalist$ptable$TOB + agegroup[2]
   time.of.upperbound.timewind <- timewindow[2]
   time.of.HIV.infection <- datalist$ptable$InfectTime
-
-  # Code for subtracting exposure time while not in any relationships still te be inserted.
 
   exposure.end <- pmin(time.of.HIV.infection, pmin(time.of.upperbound.agegroup, time.of.upperbound.timewind))
   exposure.time <- exposure.end - exposure.start # This is the naive exposure time, before tidying up
@@ -42,9 +43,24 @@ incidence.calculator <- function(datalist = datalist,
   datalist$ptable$exposure.times <- exposure.time
 
   raw.df <- data.frame(datalist$ptable)
+  raw.plus.df <- raw.df
 
+  if (only.active != "No"){
+    norels.timespent.df <- timespentsingle.calculator(datalist = datalist,
+                                                      agegroup = agegroup,
+                                                      timewindow = timewindow,
+                                                      type = only.active)
+    raw.plus.df <- left_join(x = raw.df,
+                             y = norels.timespent.df,
+                             by = c("ID" = "woman.ID"))
+    raw.plus.df$sum.norels.timespent[is.na(raw.plus.df$sum.norels.timespent)] <- 0
+    raw.plus.df$exposure.times <- raw.plus.df$exposure.times - raw.plus.df$sum.norels.timespent
+  }
+
+  raw.plus.filtered.df <- dplyr::filter(raw.plus.df,
+                        exposure.times > 0)
   # Now we apply some dplyr function to get the sum of cases and sum of exposure.time per gender.
-  incidence.df <- dplyr::summarise(group_by(raw.df, Gender),
+  incidence.df <- dplyr::summarise(dplyr::group_by(raw.plus.filtered.df, Gender),
                                    sum.exposure.time = sum(exposure.times),
                                    sum.incident.cases = sum(incident.case),
                                    incidence = sum(incident.case) / sum(exposure.times),
@@ -54,7 +70,7 @@ incidence.calculator <- function(datalist = datalist,
 
   # Now we add the overall incidence to this dataframe
   incidence.all.df <- cbind(Gender = NA,
-                            dplyr::summarise(raw.df,
+                            dplyr::summarise(raw.plus.filtered.df,
                                              sum.exposure.time = sum(exposure.times),
                                              sum.incident.cases = sum(incident.case),
                                              incidence = sum(incident.case) / sum(exposure.times),
