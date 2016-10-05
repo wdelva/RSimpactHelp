@@ -9,6 +9,7 @@
 #' for the specified time point and age group, overall, and stratified by gender
 #' @examples
 #' ART.coverage.df <- ART.coverage.calculator(datalist = datalist, agegroup = c(15, 30), timepoint = 30)
+#' @import dplyr
 
 ART.coverage.calculator <- function(datalist = datalist,
                                   agegroup = c(15, 30),
@@ -23,17 +24,17 @@ ART.coverage.calculator <- function(datalist = datalist,
   raw.df$onART <- !is.na(raw.df$TStart)
 
   # Now we apply some dplyr function to get the sum of cases and population size per gender.
-  ART.coverage.df <- dplyr::summarise(group_by(raw.df, Gender),
-                                   popsize = length(Gender),
-                                   sum.cases = sum(Infected),
-                                   sum.onART = sum(onART),
-                                   pointprevalence = sum(Infected) / length(Gender),
-                                   pointprevalence.95.ll = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[1],
-                                   pointprevalence.95.ul = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[2],
-                                   ART.coverage = sum(onART) / sum(Infected),
-                                   ART.coverage.95.ll = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[1],
-                                   ART.coverage.95.ul = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[2]
-                                   )
+  # ART.coverage.df <- dplyr::summarise(group_by(raw.df, Gender),
+  #                                  popsize = length(Gender),
+  #                                  sum.cases = sum(Infected),
+  #                                  sum.onART = sum(onART),
+  #                                  pointprevalence = sum(Infected) / length(Gender),
+  #                                  pointprevalence.95.ll = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[1],
+  #                                  pointprevalence.95.ul = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[2],
+  #                                  ART.coverage = sum(onART) / sum(Infected),
+  #                                  ART.coverage.95.ll = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[1],
+  #                                  ART.coverage.95.ul = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[2]
+  #                                  )
   ART.coverage.all.df <- cbind(Gender = NA,
                             dplyr::summarise(raw.df,
                                              popsize = length(Gender),
@@ -47,6 +48,6 @@ ART.coverage.calculator <- function(datalist = datalist,
                                              ART.coverage.95.ul = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[2]
                                              )
                             )
-  ART.coverage.df <- rbind(ART.coverage.df, ART.coverage.all.df)
+  ART.coverage.df <- ART.coverage.all.df #rbind(ART.coverage.df, ART.coverage.all.df)
   return(ART.coverage.df)
 }
