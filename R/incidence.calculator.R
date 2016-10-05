@@ -15,6 +15,7 @@
 #' incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30))
 #'
 #' @import exactci
+#' @import dplyr
 
 incidence.calculator <- function(datalist = datalist,
                                  agegroup = c(15, 30),
@@ -58,7 +59,7 @@ incidence.calculator <- function(datalist = datalist,
   }
 
   raw.plus.filtered.df <- dplyr::filter(raw.plus.df,
-                        exposure.times > 0)
+                        exposure.times >= 0)
   # Now we apply some dplyr function to get the sum of cases and sum of exposure.time per gender.
   incidence.df <- dplyr::summarise(dplyr::group_by(raw.plus.filtered.df, Gender),
                                    sum.exposure.time = sum(exposure.times),
