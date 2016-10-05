@@ -145,20 +145,20 @@ pattern.modeller <- function(dataframe,
 
   }
 
-  malemodel <- lme(pagerelform ~ agerelform0,
-                   data = men,
-                   random = ~1 | ID,
-                   weights = varPower(value = 0.5, form = ~agerelform0 + 1),
-                   method = "REML")
-
-  femalemodel <- lme(pagerelform ~ agerelform0,
-                     data = women,
-                     random = ~1 | ID,
-                     weights = varPower(value = 0.5, form = ~agerelform0 + 1),
-                     method = "REML")
-
-  men$pred <- predict(malemodel, men, level = 0)
-  women$pred <- predict(femalemodel, women, level = 0)
+  # malemodel <- lme(pagerelform ~ agerelform0,
+  #                  data = men,
+  #                  random = ~1 | ID,
+  #                  weights = varPower(value = 0.5, form = ~agerelform0 + 1),
+  #                  method = "REML")
+  #
+  # femalemodel <- lme(pagerelform ~ agerelform0,
+  #                    data = women,
+  #                    random = ~1 | ID,
+  #                    weights = varPower(value = 0.5, form = ~agerelform0 + 1),
+  #                    method = "REML")
+  #
+  # men$pred <- predict(malemodel, men, level = 0)
+  # women$pred <- predict(femalemodel, women, level = 0)
 
   comb <- bind_rows(men, women)
 
@@ -168,37 +168,37 @@ pattern.modeller <- function(dataframe,
                            "powerm",  "lowerpowerm", "upperpowerm", "powerw",
                            "lowerpowerw", "upperpowerw", "bvarm", "bvarw",
                            "wvarm", "wvarw")
-
-  # Extract slope/Beta-coefficent of the fixed effects from model
-  modoutput$slopem <- malemodel$coefficients$fixed[2]
-  modoutput$slopew <- femalemodel$coefficients$fixed[2]
-
-  # Extract population intercepts
-  modoutput$interceptm <- malemodel$coefficients$fixed[1]
-  modoutput$interceptw <- femalemodel$coefficients$fixed[1]
-
-  # Extract power
-  modoutput$powerm <- (attributes(malemodel$apVar)$Pars["varStruct.power"])
-  #modoutput$lowerpowerm <- intervals(malemodel)$varStruct[,1]
-  #modoutput$upperpowerm <- intervals(malemodel)$varStruct[,3]
-
-  modoutput$powerw <- (attributes(femalemodel$apVar)$Pars["varStruct.power"])
-  #modoutput$lowerpowerw <- intervals(femalemodel)$varStruct[, 1]
-  #modoutput$upperpowerw <- intervals(femalemodel)$varStruct[, 3]
-
-  # Extract between-participant variance
-  modoutput$bvarm <- VarCorr(malemodel)[1] %>%
-    as.numeric()
-
-  modoutput$bvarw <- VarCorr(femalemodel)[1] %>%
-    as.numeric()
-
-  # Extract residual variance
-  modoutput$wvarm <- VarCorr(malemodel)[2] %>%
-    as.numeric()
-
-  modoutput$wvarw <- VarCorr(femalemodel)[2] %>%
-    as.numeric()
+  #
+  # # Extract slope/Beta-coefficent of the fixed effects from model
+  # modoutput$slopem <- malemodel$coefficients$fixed[2]
+  # modoutput$slopew <- femalemodel$coefficients$fixed[2]
+  #
+  # # Extract population intercepts
+  # modoutput$interceptm <- malemodel$coefficients$fixed[1]
+  # modoutput$interceptw <- femalemodel$coefficients$fixed[1]
+  #
+  # # Extract power
+  # modoutput$powerm <- (attributes(malemodel$apVar)$Pars["varStruct.power"])
+  # #modoutput$lowerpowerm <- intervals(malemodel)$varStruct[,1]
+  # #modoutput$upperpowerm <- intervals(malemodel)$varStruct[,3]
+  #
+  # modoutput$powerw <- (attributes(femalemodel$apVar)$Pars["varStruct.power"])
+  # #modoutput$lowerpowerw <- intervals(femalemodel)$varStruct[, 1]
+  # #modoutput$upperpowerw <- intervals(femalemodel)$varStruct[, 3]
+  #
+  # # Extract between-participant variance
+  # modoutput$bvarm <- VarCorr(malemodel)[1] %>%
+  #   as.numeric()
+  #
+  # modoutput$bvarw <- VarCorr(femalemodel)[1] %>%
+  #   as.numeric()
+  #
+  # # Extract residual variance
+  # modoutput$wvarm <- VarCorr(malemodel)[2] %>%
+  #   as.numeric()
+  #
+  # modoutput$wvarw <- VarCorr(femalemodel)[2] %>%
+  #   as.numeric()
 
   agemix.pieces <- list(comb, modoutput)
 
