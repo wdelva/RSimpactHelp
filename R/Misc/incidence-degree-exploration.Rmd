@@ -1,7 +1,7 @@
 ---
 title: "Incidence-degree-exploration"
 author: "Wim Delva"
-date: "30 September 2016"
+date: "5 October 2016"
 output: html_document
 ---
 
@@ -29,6 +29,7 @@ library(sna)
 library(intergraph)
 library(igraph)
 library(lhs)
+library(GGally)
 ```
 
 
@@ -132,7 +133,7 @@ iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
 
 
 
-```{r testrun, echo=FALSE, message = FALSE, cache = FALSE}
+```{r testrun, echo=FALSE, message = FALSE, cache = TRUE}
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
@@ -152,10 +153,10 @@ test.output <- function(testoutput){
   pattern <- pattern.modeller(dataframe = agemix.df,
                               agegroup = c(15, 30),
                               timepoint = 30,
-                              timewindow = 3,
+                              timewindow = 1,
                               start = FALSE)
   # pattern.plotter(pattern)
-  agedifmedtable <- agedif.median(df = agemix.df, agegroup = c(15, 30), timewindow = 3, timepoint = 30)
+  #agedifmedtable <- agedif.median(df = agemix.df, agegroup = c(15, 30), timewindow = 3, timepoint = 30)
   median.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))# agedifmedtable$median[2] # Median age difference as reported by women
   # 3. IQR age difference in most recent relationships (target IQR 2 - 6)
   Q1.AD <- as.numeric(summary(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"])[2])
@@ -177,11 +178,12 @@ test.output <- function(testoutput){
   ARTcov <- ART.coverage.calculator(datalist = datalist.test,
                                     agegroup = c(15, 50),
                                     timepoint = 34) # 2011 is 34 years after 1977
-  ART.cov.15.50 <- ARTcov$ART.coverage[3] # among men and women
+  ART.cov.15.50 <- ARTcov$ART.coverage[1] # among men and women
   # 8. HIV incidence among women 15 <= x < 30 in the window 20-30 years after HIV introduction
   inc <- incidence.calculator(datalist = datalist.test,
                               agegroup = c(15, 30),
-                              timewindow = c(30, 40))
+                              timewindow = c(30, 40),
+                              only.active = "Harling")
   incid.wom.15.30 <- inc$incidence[2] # among women
   # NOTE: We may want to also calculate a different type of HIV incidence, more in line with the Harling paper:
   # Where we only accumulate exposure time for the periods that a woman was in (a) relationship(s).
@@ -207,7 +209,7 @@ test.output <- function(testoutput){
   # 1 - (nrow(degree.df) / nrow(allsurveywomen))
   
   summStats <- matrix(c(growth.rate, median.AD, Q1.AD, Q3.AD, prev.men.15.25, prev.men.25.50, ART.cov.15.50, incid.wom.15.30, frac.degreeGT1.wom.15.30),
-                      nrow = 1, dimnames = list(NULL, c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50", "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30"))) # 8 summary statistics
+                      nrow = 1, dimnames = list(NULL, c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50", "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30"))) # 9 summary statistics
   return(summStats)
 }
 ```
@@ -233,10 +235,14 @@ errFunction <- function(e){
 # 4. formation.hazard.agegapry.numrel_man = formation.hazard.agegapry.numrel_woman (-1 to -0.1) (influences concurrency levels)
 # 5. formation.hazard.agegapry.eagerness_diff (-0.2 to -0.02) (influences the degree distribution)
 # 6. formation.hazard.agegapry.gap_factor_man_exp = formation.hazard.agegapry.gap_factor_woman_exp (-1 to -0.1) (influences variance of age differences)
+# 7. person.agegap.man.dist.normal.mu (0 to 4)
+# 8. person.agegap.woman.dist.normal.mu (0 to 4)
+# 9. person.agegap.man.dist.normal.sigma (0.5 to 2)
+# 10. person.agegap.woman.dist.normal.sigma (0.5 to 2)
 
 
-design.points <- 6000
-variables <- 6
+design.points <- 8000
+variables <- 10
 # On VSC, when each core or node gets its own series of simulations to run, the seed must be set to a different value for each core or node.
 set.seed(1)
 rlhs <- randomLHS(design.points, variables)
@@ -247,7 +253,11 @@ lhs.df <- data.frame(eagerness.a = rep(NA, design.points), # tunes relationship 
                      concept.base = rep(NA, design.points),
                      numrel = rep(NA, design.points),
                      eagerness.diff = rep(NA, design.points),
-                     gapfactor.exp = rep(NA, design.points))
+                     gapfactor.exp = rep(NA, design.points),
+                     agegap.man.mu = rep(NA, design.points),
+                     agegap.woman.mu = rep(NA, design.points),
+                     agegap.man.sigma = rep(NA, design.points),
+                     agegap.woman.sigma = rep(NA, design.points))
 
 lhs.df$eagerness.a <- qunif(rlhs[ , 1], min = 0.1, max = 2) #max = 1)
 lhs.df$eagerness.b <- qunif(rlhs[ , 2], min = 5, max = 60) #min = 25, max = 90) #10, max = 100)
@@ -255,9 +265,13 @@ lhs.df$concept.base <- qunif(rlhs[ , 3], min = -3.6, max = -1.2) #min = -2.6, ma
 lhs.df$numrel <- qunif(rlhs[ , 4], min = -1.5, max = -0.1) #max = -0.2) #-1, max = -0.1)
 lhs.df$eagerness.diff <- qunif(rlhs[ , 5], min = -0.1, max = 0) #min = -0.25, max = -0.04) #-0.2, max = -0.02)
 lhs.df$gapfactor.exp <- qunif(rlhs[ , 6], min = -1.5, max = -0.4) #-1, max = -0.1)
+lhs.df$agegap.man.mu <- qunif(rlhs[ , 7], min = 0, max = 4)
+lhs.df$agegap.woman.mu <- qunif(rlhs[ , 8], min = 0, max = 4)
+lhs.df$agegap.man.sigma <- qunif(rlhs[ , 9], min = 0.5, max = 2)
+lhs.df$agegap.woman.sigma <- qunif(rlhs[ , 10], min = 0.5, max = 2)
 
 # Creating a dataframe for input AND output
-inANDout.6000.df <- cbind.data.frame(sim.id = 1:design.points,
+inANDout.8000.df <- cbind.data.frame(sim.id = 1:design.points,
                                 rlhs,
                                 lhs.df,
                                 growth.rate = rep(NA, design.points),
@@ -284,6 +298,10 @@ simpact4emulation <- function(sim.id, lhs.df, testinput, agedist.data.frame, iv)
   testinput$formation.hazard.agegapry.eagerness_diff <-lhs.df$eagerness.diff[sim.id] #5
   testinput$formation.hazard.agegapry.gap_factor_man_exp <- lhs.df$gapfactor.exp[sim.id] #6
   testinput$formation.hazard.agegapry.gap_factor_woman_exp <- lhs.df$gapfactor.exp[sim.id] #6
+  testinput$person.agegap.man.dist.normal.mu <- lhs.df$agegap.man.mu[sim.id] #7
+  testinput$person.agegap.woman.dist.normal.mu <- lhs.df$agegap.woman.mu[sim.id] #8
+  testinput$person.agegap.man.dist.normal.sigma <- lhs.df$agegap.man.sigma[sim.id] #9
+  testinput$person.agegap.woman.dist.normal.sigma <- lhs.df$agegap.woman.sigma[sim.id] #10
 
   simpact.seed.id <- sim.id
 
@@ -311,6 +329,7 @@ simpact4emulation <- function(sim.id, lhs.df, testinput, agedist.data.frame, iv)
     }
   }
   output.stats <- test.output(testoutput)
+  #print(output.stats) # For debugging 
   return(output.stats)
 }
 
@@ -318,30 +337,31 @@ simpact4emulation <- function(sim.id, lhs.df, testinput, agedist.data.frame, iv)
 
 ```{r simpactTestrun, echo=TRUE, message = FALSE, warning = FALSE, results = 'hide', cache = FALSE}
 # Running the simpact4emulation function with error catcher in a loop
-for (sim.id in inANDout.6000.df$sim.id){
+for (sim.id in inANDout.8000.df$sim.id){
+  #out.test <- simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv)
   out.test <- tryCatch(simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv), error = errFunction)
   # Inserting the output to the inANDout dataframe
-  inANDout.6000.df[sim.id, 14:22] <- as.numeric(out.test)
-  print(as.numeric(out.test))
+  inANDout.8000.df[sim.id, 22:30] <- as.numeric(out.test)
+  #print(as.numeric(out.test))
 }
 ```
 
 ```{r saveInputOutput, echo=TRUE, message = FALSE, cache = FALSE}
 # Running the simpact4emulation function with error catcher in a loop
-save(inANDout.6000.df, agedist.data.frame, testinput, iv, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.6000.RData")
+save(inANDout.8000.df, agedist.data.frame, testinput, iv, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
 #save(inANDout.df, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
 ```
 
 ```{r exploreInputOutput, echo=TRUE, message = FALSE, cache = FALSE}
 # Running the simpact4emulation function with error catcher in a loop
-incidence.degree.exploration.6000.loaded <- load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.6000.RData")
+incidence.degree.exploration.8000.loaded <- load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
 #save(inANDout.df, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
 #incidence.degree.exploration.6000.loaded
 # How many runs gave non-NA output?
-nrow(inANDout.6000.df[complete.cases(inANDout.6000.df), ]) # 258
+nrow(inANDout.8000.df[complete.cases(inANDout.8000.df), ]) # 5719
 
-#pairs(inANDout.100.df[, 14:22])
-#pairs(inANDout.100.df[, 21:22])
+#pairs(inANDout.8000.df[, 14:22])
+#pairs(inANDout.8000.df[, 21:22])
 ```
 
 ### Fitting the emulator to these data
@@ -361,7 +381,7 @@ Here we have to insert code blocks from simple.simpact.emulator.R
 # 6. Point prevalence of concurrency among the male partners of women 15 <= x < 30 in the window 25 years after HIV introduction (target 5% - 75%)
 # 7. ART coverage among all HIV+ people aged 15-50 (target 15% - 40% in 2011)
 
-matched.df <- dplyr::filter(inANDout.6000.df,
+matched.df <- dplyr::filter(inANDout.8000.df,
                             growth.rate >= 0,
                             growth.rate <= 0.025,
                             prev.men.15.25 >= 0.05,
@@ -377,18 +397,40 @@ matched.df <- dplyr::filter(inANDout.6000.df,
 
 nrow(matched.df)
 names(matched.df)
-matchedplusHarling.df <- rbind(matched.df[, 21:22],
+matchedplusHarling.df <- rbind(matched.df[, 29:30],
                                c(0.075, 0.013))
 matchedplusHarling.df$Harling <- c(rep(0, nrow(matched.df)), 1)
 
 #head(matchedplusHarling.df, 30)
-
-pairs(matchedplusHarling.df[, 1:2],
+if (nrow(matched.df) > 0){
+  pairs(matchedplusHarling.df[, 1:2],
       col = 1+matchedplusHarling.df$Harling)#,
       # xlim = c(0, 1),
       # ylim = c(0, 1))
-pairs(matched.df[, 8:22])
-#pairs(inANDout.100.df[, 8:13])
+  pairs(matched.df[, 12:30])
+  ggpairs(matched.df[, 12:30], colour = "incid.wom.15.30", alpha = 0.4)
+}
+
+#pairs(inANDout.8000.df[, 8:13])
+Harling.incid <- poisson.test(x = 458,
+                              T = 5913)
+Harling.frac <- binom.test(x = 32,
+                           n = 2444)
+matched.incid.df <- dplyr::filter(inANDout.8000.df,
+                            incid.wom.15.30 >= Harling.incid$conf.int[1],
+                            incid.wom.15.30 <= Harling.incid$conf.int[2],
+                            prev.men.15.25 <= 0.15)
+matched.frac.df <- dplyr::filter(inANDout.8000.df,
+                            #frac.degreeGT1.wom.15.30 >= Harling.frac$conf.int[1],
+                            frac.degreeGT1.wom.15.30 <= Harling.frac$conf.int[2],
+                            prev.men.15.25 <= 0.15)
+plot(matched.incid.df[, 29],
+     matched.incid.df[, 30])
+plot(matched.frac.df[, 29],
+     matched.frac.df[, 30])
+head(matched.frac.df[matched.frac.df$incid.wom.15.30 > 0.05, ])
+
+
 
 ```
 
