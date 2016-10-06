@@ -163,11 +163,11 @@ plot(z.pc)
 biplot(z.pc)
 z.pc$loadings
 z.pc$scores
-targets.df = data.frame(z1 = targets[1], z2 = targets[2], z3 = targets[3], z4 = targets[4])
+targets.df = data.frame(growth.rate = targets[1], prev.15.50.end = targets[2])#, z3 = targets[3], z4 = targets[4])
 # As an example: the value of the first PC for the target statistics:
 as.numeric(as.numeric(z.pc$loadings[, 1]) %*% ((as.numeric(targets.df) - z.pc$center) / z.pc$scale) )
 # All PCs for the target statistics:
-targets.pc <- predict(z.pc, targets.df)[1:3]
+targets.pc <- predict(z.pc, targets.df)[1:2]
 # So the proposal is to only use the first 3 components
 # because they jointly capture 96% of the total (normalised, standardised) variance
 
