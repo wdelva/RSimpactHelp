@@ -434,27 +434,17 @@ head(matched.frac.df[matched.frac.df$incid.wom.15.30 > 0.05, ])
 
 ```
 
+```{r prepareForPCA, echo=TRUE, message = FALSE, cache = FALSE}
 
-incidence.degree.exploration.6000.loaded <- load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.6000.RData")
-nrow(inANDout.6000.df[complete.cases(inANDout.6000.df), ]) # 2101
-matched.df <- dplyr::filter(inANDout.6000.df,
-                            growth.rate >= 0,
-                            growth.rate <= 0.04,
-                            prev.men.25.50 <= 0.5,
-                            median.AD >= 2,
-                            median.AD <= 5,
-                            IQR.AD >= 2,
-                            IQR.AD <= 6)
-                            # prev.men.15.25 >= 0.05,
-                            # prev.men.15.25 <= 0.1,
-                            # prev.men.25.50 >= 0.1,
-                            # prev.men.25.50 <= 0.3,
-                            # ART.cov.15.50 >= 0.15,
-                            # ART.cov.15.50 <= 0.4)
-                            
-matchedplusHarling.df <- rbind(matched.df[, 20:21],
-                               c(0.075, 0.013))
-matchedplusHarling.df$Harling <- c(rep(0, nrow(matched.df)), 1)
-
-pairs(matchedplusHarling.df[, 1:2],
-      col = 1+matchedplusHarling.df$Harling)
+complete.df <- dplyr::filter(inANDout.8000.df,
+                             complete.cases(inANDout.8000.df),
+                             prev.men.15.25 > 0.05)
+hist(complete.df$growth.rate)
+hist(complete.df$median.AD)
+hist(complete.df$Q1.AD)
+hist(complete.df$Q3.AD)
+hist(complete.df$prev.men.15.25, 30)
+hist(complete.df$prev.men.25.50, 30)
+hist(complete.df$ART.cov.15.50, 30)
+hist(complete.df$incid.wom.15.30, 30)
+hist(complete.df$frac.degreeGT1.wom.15.30)
