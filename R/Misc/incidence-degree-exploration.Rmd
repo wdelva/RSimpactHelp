@@ -491,7 +491,7 @@ hist(complete.df$frac.degreeGT1.wom.15.30)
 
 #### Setting up design. Creating the LHS over the 0-1 uniform parameter space
 design.points <- nrow(complete.df)
-design.points.fraction <- 0.1
+design.points.fraction <- 0.25 #0.1
 reduced.design.points <- round(design.points * design.points.fraction)
 
 simpact.x <- dplyr::select(complete.df[1:reduced.design.points, ],
@@ -565,10 +565,10 @@ z.pc.obs <- as.vector(unlist(z.pc.df[ ,1:4])) # Turning first 4 PCs into a long 
 
 
 #### Creating the multivator objects
-RS_mdm <- mdm(x.design.long, types = rep(names(z.df), each = reduced.design.points))
-RS_expt <- experiment(mm = RS_mdm, obs = z_obs)
-RS_opt <- optimal_params(RS_expt, option="a")
-RS_opt_c <- optimal_params(RS_expt, option="c")
+# RS_mdm <- mdm(x.design.long, types = rep(names(z.df), each = reduced.design.points))
+# RS_expt <- experiment(mm = RS_mdm, obs = z_obs)
+# RS_opt <- optimal_params(RS_expt, option="a")
+# RS_opt_c <- optimal_params(RS_expt, option="c")
 
 #### Creating the multivator objects for the PCA-based analysis
 RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df)[1:4], each = reduced.design.points))
@@ -580,8 +580,8 @@ RS.pc.opt.a <- optimal_params(RS.pc.expt, option="a")
 load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.maxit.100.RData")
 #RS.pc.opt.b <- optimal_params(RS.pc.expt, option="b", start_hp = RS.pc.opt.a, control = list(maxit=10))
 RS.pc.opt.b <- optimal_params(RS.pc.expt, option="b", start_hp = RS.pc.opt.b, control = list(maxit=100))
-save(RS.pc.opt.b, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.maxit.100.RData")
-
+# save(RS.pc.opt.b, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.maxit.100.RData")
+save(RS.pc.opt.b, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.quarterdata.maxit.100.RData")
 
 #### Using the emulator to explore the parameter space
 n <- 20000
