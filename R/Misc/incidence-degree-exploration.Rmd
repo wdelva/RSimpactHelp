@@ -30,6 +30,8 @@ library(intergraph)
 library(igraph)
 library(lhs)
 library(GGally)
+library(emulator)
+library(multivator)
 ```
 
 
@@ -259,16 +261,37 @@ lhs.df <- data.frame(eagerness.a = rep(NA, design.points), # tunes relationship 
                      agegap.man.sigma = rep(NA, design.points),
                      agegap.woman.sigma = rep(NA, design.points))
 
-lhs.df$eagerness.a <- qunif(rlhs[ , 1], min = 0.1, max = 2) #max = 1)
-lhs.df$eagerness.b <- qunif(rlhs[ , 2], min = 5, max = 60) #min = 25, max = 90) #10, max = 100)
-lhs.df$concept.base <- qunif(rlhs[ , 3], min = -3.6, max = -1.2) #min = -2.6, max = -1.2) #-4, max = -1)
-lhs.df$numrel <- qunif(rlhs[ , 4], min = -1.5, max = -0.1) #max = -0.2) #-1, max = -0.1)
-lhs.df$eagerness.diff <- qunif(rlhs[ , 5], min = -0.1, max = 0) #min = -0.25, max = -0.04) #-0.2, max = -0.02)
-lhs.df$gapfactor.exp <- qunif(rlhs[ , 6], min = -1.5, max = -0.4) #-1, max = -0.1)
-lhs.df$agegap.man.mu <- qunif(rlhs[ , 7], min = 0, max = 4)
-lhs.df$agegap.woman.mu <- qunif(rlhs[ , 8], min = 0, max = 4)
-lhs.df$agegap.man.sigma <- qunif(rlhs[ , 9], min = 0.5, max = 2)
-lhs.df$agegap.woman.sigma <- qunif(rlhs[ , 10], min = 0.5, max = 2)
+eagerness.a.min <- 0.1
+eagerness.a.max <- 2
+eagerness.b.min <- 5
+eagerness.b.max <- 60
+concept.base.min <- -3.6
+concept.base.max <- -1.2
+numrel.min <- -1.5
+numrel.max <- -0.1
+eagerness.diff.min <- -0.1
+eagerness.diff.max <- 0
+gapfactor.exp.min <- -1.5
+gapfactor.exp.max <- -0.4
+agegap.man.mu.min <- 0
+agegap.man.mu.max <- 4
+agegap.woman.mu.min <- 0
+agegap.woman.mu.max <- 4
+agegap.man.sigma.min <- 0.5
+agegap.man.sigma.max <- 2
+agegap.woman.sigma.min <- 0.5
+agegap.woman.sigma.max <- 2
+  
+lhs.df$eagerness.a <- qunif(rlhs[ , 1], min = eagerness.a.min, max = eagerness.a.max) #max = 1)
+lhs.df$eagerness.b <- qunif(rlhs[ , 2], min = eagerness.b.min, max = eagerness.b.max) #min = 25, max = 90) #10, max = 100)
+lhs.df$concept.base <- qunif(rlhs[ , 3], min = concept.base.min, max = concept.base.max) #min = -2.6, max = -1.2) #-4, max = -1)
+lhs.df$numrel <- qunif(rlhs[ , 4], min = numrel.min, max = numrel.max) #max = -0.2) #-1, max = -0.1)
+lhs.df$eagerness.diff <- qunif(rlhs[ , 5], min = eagerness.diff.min, max = eagerness.diff.max) #min = -0.25, max = -0.04) #-0.2, max = -0.02)
+lhs.df$gapfactor.exp <- qunif(rlhs[ , 6], min = gapfactor.exp.min, max = gapfactor.exp.max) #-1, max = -0.1)
+lhs.df$agegap.man.mu <- qunif(rlhs[ , 7], min = agegap.man.mu.min, max = agegap.man.mu.max)
+lhs.df$agegap.woman.mu <- qunif(rlhs[ , 8], min = agegap.woman.mu.min, max = agegap.woman.mu.max)
+lhs.df$agegap.man.sigma <- qunif(rlhs[ , 9], min = agegap.man.sigma.min, max = agegap.man.sigma.max)
+lhs.df$agegap.woman.sigma <- qunif(rlhs[ , 10], min = agegap.woman.sigma.min, max = agegap.woman.sigma.max)
 
 # Creating a dataframe for input AND output
 inANDout.8000.df <- cbind.data.frame(sim.id = 1:design.points,
@@ -435,7 +458,7 @@ head(matched.frac.df[matched.frac.df$incid.wom.15.30 > 0.05, ])
 ```
 
 ```{r prepareForPCA, echo=TRUE, message = FALSE, cache = FALSE}
-
+incidence.degree.exploration.8000.loaded <- load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
 complete.df <- dplyr::filter(inANDout.8000.df,
                              complete.cases(inANDout.8000.df),
                              prev.men.15.25 > 0.05)
@@ -448,3 +471,228 @@ hist(complete.df$prev.men.25.50, 30)
 hist(complete.df$ART.cov.15.50, 30)
 hist(complete.df$incid.wom.15.30, 30)
 hist(complete.df$frac.degreeGT1.wom.15.30)
+```
+
+
+```{r PCA, echo=TRUE, message = FALSE, cache = FALSE}
+## Simple Simpact emulator
+
+# The x variables (model parameters) that were varied:
+# eagerness.a
+# eagerness.b
+# concept.base
+# numrel
+# eagerness.diff
+# gapfactor.exp
+# agegap.man.mu
+# agegap.woman.mu
+# agegap.man.sigma
+# agegap.woman.sigma
+
+#### Setting up design. Creating the LHS over the 0-1 uniform parameter space
+design.points <- nrow(complete.df)
+design.points.fraction <- 0.1
+reduced.design.points <- round(design.points * design.points.fraction)
+variables <- ncol(simpact.x)
+
+simpact.x <- dplyr::select(complete.df[1:reduced.design.points, ],
+                           eagerness.a,
+                           eagerness.b,
+                           concept.base,
+                           numrel,
+                           eagerness.diff,
+                           gapfactor.exp,
+                           agegap.man.mu,
+                           agegap.woman.mu,
+                           agegap.man.sigma,
+                           agegap.woman.sigma) %>% as.matrix()
+
+# The "z" variables (model summary statistics), for which we will define targets:
+
+z.df <- dplyr::select(complete.df[1:reduced.design.points, ],
+                           growth.rate,
+                           median.AD,
+                           Q1.AD,
+                           Q3.AD,
+                           prev.men.15.25,
+                           prev.men.25.50,
+                           ART.cov.15.50) #,
+                           #incid.wom.15.30,
+                           #frac.degreeGT1.wom.15.30)
+
+simpact.z <- as.matrix(z.df)
+
+
+z.pc <- princomp(z.df, scores = TRUE, cor = TRUE)
+summary(z.pc) # The first 4 components capture 95% of the total variance. That's perhaps sufficient?
+plot(z.pc)
+#biplot(z.pc)
+z.pc$loadings
+z.pc.df <- data.frame(z.pc$scores)
+
+### Defining targets (do we really need to?) for the summary statistics in their original scale
+# Growth rate from some (SSA) document online, based on census data for SA: https://www.statssa.gov.za/publications/P0302/P03022014.pdf
+# Median, Q1 and Q3 from Harling paper
+# HIV prevalence form Zuidi paper AIDS 2013
+# ART coverage from Zaidi paper AIDS 2013
+#
+targets <- c(0.014, 3, 2, 5, 0.08, 0.25, 0.3)
+
+
+
+
+x.design <- cbind(complete.df[1:reduced.design.points, 2:11])
+x.design.long <- rbind(x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design) %>% as.matrix() # one for each z component (there has to be a better way)
+x.design.pc.long <- rbind(x.design,
+                          x.design,
+                          x.design,
+                          x.design) %>% as.matrix() # one for each z component (there has to be a better way)
+#### Computing model output at design points
+z_obs <- as.vector(unlist(z.df))
+z.pc.obs <- as.vector(unlist(z.pc.df[ ,1:4])) # Turning first 4 PCs into a long vector
+
+
+
+
+#### Creating the multivator objects
+RS_mdm <- mdm(x.design.long, types = rep(names(z.df), each = reduced.design.points))
+RS_expt <- experiment(mm = RS_mdm, obs = z_obs)
+RS_opt <- optimal_params(RS_expt, option="a")
+RS_opt_c <- optimal_params(RS_expt, option="c")
+
+#### Creating the multivator objects for the PCA-based analysis
+RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df)[1:4], each = reduced.design.points))
+RS.pc.expt <- experiment(mm = RS.pc.mdm, obs = z.pc.obs)
+#RS_opt <- optimal_params(RS_expt, option="a")
+RS.pc.opt.a <- optimal_params(RS.pc.expt, option="a")
+RS.pc.opt.c <- optimal_params(RS.pc.expt, option="c")
+
+#### Using the emulator to explore the parameter space
+n <- 5000
+x.pc.new <- latin.hypercube(n, variables, names=colnames(x.design))
+x.pc.new.long <- rbind(x.pc.new,
+                       x.pc.new,
+                       x.pc.new,
+                       x.pc.new) %>% as.matrix()
+RS.pc.new.mdm <- mdm(x.pc.new.long, types = rep(names(z.pc.df)[1:4], each = n))
+
+RS.pc.prediction.opt.a <- multem(x = RS.pc.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.a)
+
+hist(RS.pc.prediction.opt.a[1:n]) # distribution of pc1
+hist(RS.pc.prediction.opt.a[(n+1):(2*n)]) # distribution of pc2
+hist(RS.pc.prediction.opt.a[(2*n+1):(3*n)]) # distribution of pc3
+hist(RS.pc.prediction.opt.a[(3*n+1):(4*n)]) # distribution of pc4
+
+
+#### One way of efficiently comparing emulation output with target statistics is to reshape RS_prediction as a dataframe
+prediction.df <- data.frame(matrix(RS.pc.prediction.opt.a, nrow = n, dimnames = list(rownames = 1:n, colnames = names(z.pc.df)[1:4])))
+
+#### sum of squared distances between model statistics and target statistics
+# We first need to convert the targets statistics c(0.014, 3, 2, 5, 0.08, 0.25, 0.3) to their values on the PC scales.
+
+names(z.df)[1]
+
+targets.df = data.frame(growth.rate = targets[1],
+                        median.AD = targets[2],
+                        Q1.AD = targets[3],
+                        Q3.AD = targets[4],
+                        prev.men.15.25 = targets[5],
+                        prev.men.25.50 = targets[6],
+                        ART.cov.15.50 = targets[7])
+# As an example: the value of the first PC for the target statistics:
+as.numeric(as.numeric(z.pc$loadings[, 1]) %*% ((as.numeric(targets.df) - z.pc$center) / z.pc$scale) )
+# All PCs for the target statistics:
+targets.pc <- predict(z.pc, targets.df)
+targets.pc.vector <- as.numeric(targets.pc)[1:4]
+
+
+
+sq.array <- as.data.frame(t(apply(prediction.df, 1, function(x) (x - t(targets.pc.vector))^2)))
+names(sq.array) <- names(prediction.df)
+SumSq <- as.numeric(rowSums(sq.array))
+which.min(SumSq)
+prediction.df[which.min(SumSq), ] #             PC1        PC2        PC3        PC4
+#                                              -0.4337296  1.701795   0.9169298  0.5236572
+# ok?       In light of targets:                0.07984905 1.30920736 2.56260823 2.28446195
+
+#### And most importantly, the best estimate for the model parameters:
+
+x.estimate <- as.numeric(x.pc.new[which.min(SumSq), ])
+
+### Creating a new dataframe lhs.pred.df, for validation purposes
+validation.repeats <- 20
+
+rlhs.pred <- matrix(rep(x.estimate, each = validation.repeats), nrow = validation.repeats)
+
+lhs.pred.df <- data.frame(eagerness.a = rep(NA, validation.repeats), # tunes relationship rate and distribution
+                     eagerness.b = rep(NA, validation.repeats), # tunes conception rate) # tunes relationship rate and distribution
+                     concept.base = rep(NA, validation.repeats),
+                     numrel = rep(NA, validation.repeats),
+                     eagerness.diff = rep(NA, validation.repeats),
+                     gapfactor.exp = rep(NA, validation.repeats),
+                     agegap.man.mu = rep(NA, validation.repeats),
+                     agegap.woman.mu = rep(NA, validation.repeats),
+                     agegap.man.sigma = rep(NA, validation.repeats),
+                     agegap.woman.sigma = rep(NA, validation.repeats))
+
+lhs.pred.df$eagerness.a <- qunif(x.estimate[1], min = eagerness.a.min, max = eagerness.a.max) #max = 1)
+lhs.pred.df$eagerness.b <- qunif(x.estimate[2], min = eagerness.b.min, max = eagerness.b.max) #min = 25, max = 90) #10, max = 100)
+lhs.pred.df$concept.base <- qunif(x.estimate[3], min = concept.base.min, max = concept.base.max) #min = -2.6, max = -1.2) #-4, max = -1)
+lhs.pred.df$numrel <- qunif(x.estimate[4], min = numrel.min, max = numrel.max) #max = -0.2) #-1, max = -0.1)
+lhs.pred.df$eagerness.diff <- qunif(x.estimate[5], min = eagerness.diff.min, max = eagerness.diff.max) #min = -0.25, max = -0.04) #-0.2, max = -0.02)
+lhs.pred.df$gapfactor.exp <- qunif(x.estimate[6], min = gapfactor.exp.min, max = gapfactor.exp.max) #-1, max = -0.1)
+lhs.pred.df$agegap.man.mu <- qunif(x.estimate[7], min = agegap.man.mu.min, max = agegap.man.mu.max)
+lhs.pred.df$agegap.woman.mu <- qunif(x.estimate[8], min = agegap.woman.mu.min, max = agegap.woman.mu.max)
+lhs.pred.df$agegap.man.sigma <- qunif(x.estimate[9], min = agegap.man.sigma.min, max = agegap.man.sigma.max)
+lhs.pred.df$agegap.woman.sigma <- qunif(x.estimate[10], min = agegap.woman.sigma.min, max = agegap.woman.sigma.max)
+
+### Creatig a new dataframe inANDout.pred.20.df, for validation purposes
+inANDout.pred.20.df <- cbind.data.frame(sim.id = 1:validation.repeats,
+                                        rlhs.pred,
+                                        lhs.pred.df,
+                                        growth.rate = rep(NA, validation.repeats),
+                                        median.AD = rep(NA, validation.repeats),
+                                        Q1.AD = rep(NA, validation.repeats),
+                                        Q3.AD = rep(NA, validation.repeats),
+                                        prev.men.15.25 = rep(NA, validation.repeats),
+                                        prev.men.25.50 = rep(NA, validation.repeats),
+                                        ART.cov.15.50 = rep(NA, validation.repeats),
+                                        incid.wom.15.30 = rep(NA, validation.repeats),
+                                        frac.degreeGT1.wom.15.30 = rep(NA, validation.repeats)
+)
+
+
+for (sim.id in 1:validation.repeats){
+  #out.test <- simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv)
+  out.test <- tryCatch(simpact4emulation(sim.id, lhs.pred.df, testinput, agedist.data.frame, iv), error = errFunction)
+  # Inserting the output to the inANDout dataframe
+  inANDout.pred.20.df[sim.id, 22:30] <- as.numeric(out.test)
+  #print(as.numeric(out.test))
+}
+
+
+
+
+inANDout.pred.20.plusHarling.df <- rbind(inANDout.pred.20.df[, 29:30],
+                               c(0.075, 0.013))
+inANDout.pred.20.plusHarling.df$Harling <- c(rep(0, nrow(inANDout.pred.20.df)), 1)
+
+#head(matchedplusHarling.df, 30)
+if (nrow(inANDout.pred.20.df) > 0){
+  pairs(inANDout.pred.20.plusHarling.df[, 1:2],
+      col = 1+inANDout.pred.20.plusHarling.df$Harling)#,
+      # xlim = c(0, 1),
+      # ylim = c(0, 1))
+  pairs(inANDout.pred.20.df[, 22:30])
+  ggpairs(inANDout.pred.20.df[, 22:30], colour = "incid.wom.15.30", alpha = 0.4)
+}
+
+```
