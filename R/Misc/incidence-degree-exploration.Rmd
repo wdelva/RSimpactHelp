@@ -493,7 +493,6 @@ hist(complete.df$frac.degreeGT1.wom.15.30)
 design.points <- nrow(complete.df)
 design.points.fraction <- 0.1
 reduced.design.points <- round(design.points * design.points.fraction)
-variables <- ncol(simpact.x)
 
 simpact.x <- dplyr::select(complete.df[1:reduced.design.points, ],
                            eagerness.a,
@@ -506,6 +505,9 @@ simpact.x <- dplyr::select(complete.df[1:reduced.design.points, ],
                            agegap.woman.mu,
                            agegap.man.sigma,
                            agegap.woman.sigma) %>% as.matrix()
+
+variables <- ncol(simpact.x)
+
 
 # The "z" variables (model summary statistics), for which we will define targets:
 
@@ -573,10 +575,16 @@ RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df)[1:4], each = reduc
 RS.pc.expt <- experiment(mm = RS.pc.mdm, obs = z.pc.obs)
 #RS_opt <- optimal_params(RS_expt, option="a")
 RS.pc.opt.a <- optimal_params(RS.pc.expt, option="a")
-RS.pc.opt.c <- optimal_params(RS.pc.expt, option="c")
+# Now we use the RS.pc.opt.a as starting point for option b
+# Or a previously constructed option b object, that was fitted using a smaller dataset
+load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.maxit.100.RData")
+#RS.pc.opt.b <- optimal_params(RS.pc.expt, option="b", start_hp = RS.pc.opt.a, control = list(maxit=10))
+RS.pc.opt.b <- optimal_params(RS.pc.expt, option="b", start_hp = RS.pc.opt.b, control = list(maxit=100))
+save(RS.pc.opt.b, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.maxit.100.RData")
+
 
 #### Using the emulator to explore the parameter space
-n <- 5000
+n <- 20000
 x.pc.new <- latin.hypercube(n, variables, names=colnames(x.design))
 x.pc.new.long <- rbind(x.pc.new,
                        x.pc.new,
@@ -585,20 +593,23 @@ x.pc.new.long <- rbind(x.pc.new,
 RS.pc.new.mdm <- mdm(x.pc.new.long, types = rep(names(z.pc.df)[1:4], each = n))
 
 RS.pc.prediction.opt.a <- multem(x = RS.pc.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.a)
+RS.pc.prediction.opt.b <- multem(x = RS.pc.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.b)
 
 hist(RS.pc.prediction.opt.a[1:n]) # distribution of pc1
 hist(RS.pc.prediction.opt.a[(n+1):(2*n)]) # distribution of pc2
 hist(RS.pc.prediction.opt.a[(2*n+1):(3*n)]) # distribution of pc3
 hist(RS.pc.prediction.opt.a[(3*n+1):(4*n)]) # distribution of pc4
 
+hist(RS.pc.prediction.opt.b[1:n]) # distribution of pc1
+hist(RS.pc.prediction.opt.b[(n+1):(2*n)]) # distribution of pc2
+hist(RS.pc.prediction.opt.b[(2*n+1):(3*n)]) # distribution of pc3
+hist(RS.pc.prediction.opt.b[(3*n+1):(4*n)]) # distribution of pc4
 
 #### One way of efficiently comparing emulation output with target statistics is to reshape RS_prediction as a dataframe
-prediction.df <- data.frame(matrix(RS.pc.prediction.opt.a, nrow = n, dimnames = list(rownames = 1:n, colnames = names(z.pc.df)[1:4])))
-
+prediction.a.df <- data.frame(matrix(RS.pc.prediction.opt.a, nrow = n, dimnames = list(rownames = 1:n, colnames = names(z.pc.df)[1:4])))
+prediction.b.df <- data.frame(matrix(RS.pc.prediction.opt.b, nrow = n, dimnames = list(rownames = 1:n, colnames = names(z.pc.df)[1:4])))
 #### sum of squared distances between model statistics and target statistics
 # We first need to convert the targets statistics c(0.014, 3, 2, 5, 0.08, 0.25, 0.3) to their values on the PC scales.
-
-names(z.df)[1]
 
 targets.df = data.frame(growth.rate = targets[1],
                         median.AD = targets[2],
@@ -615,21 +626,29 @@ targets.pc.vector <- as.numeric(targets.pc)[1:4]
 
 
 
-sq.array <- as.data.frame(t(apply(prediction.df, 1, function(x) (x - t(targets.pc.vector))^2)))
-names(sq.array) <- names(prediction.df)
-SumSq <- as.numeric(rowSums(sq.array))
-which.min(SumSq)
-prediction.df[which.min(SumSq), ] #             PC1        PC2        PC3        PC4
-#                                              -0.4337296  1.701795   0.9169298  0.5236572
+sq.array.a <- as.data.frame(t(apply(prediction.a.df, 1, function(x) (x - t(targets.pc.vector))^2)))
+sq.array.b <- as.data.frame(t(apply(prediction.b.df, 1, function(x) (x - t(targets.pc.vector))^2)))
+
+names(sq.array.b) <- names(sq.array.a) <- names(prediction.a.df)
+
+SumSq.a <- as.numeric(rowSums(sq.array.a))
+SumSq.b <- as.numeric(rowSums(sq.array.b))
+which.min(SumSq.a)
+which.min(SumSq.b)
+prediction.a.df[which.min(SumSq.a), ] #             PC1        PC2        PC3        PC4
+# option a                                      0.05195031 1.433094   1.569559   0.1822626
+prediction.b.df[which.min(SumSq.b), ] #             PC1        PC2        PC3        PC4
+# option b                                      0.4164066  1.283678   1.640091   0.2035101
 # ok?       In light of targets:                0.07984905 1.30920736 2.56260823 2.28446195
 
 #### And most importantly, the best estimate for the model parameters:
 
-x.estimate <- as.numeric(x.pc.new[which.min(SumSq), ])
+x.estimate.a <- as.numeric(x.pc.new[which.min(SumSq.a), ])
+x.estimate.b <- as.numeric(x.pc.new[which.min(SumSq.b), ])
 
 ### Creating a new dataframe lhs.pred.df, for validation purposes
 validation.repeats <- 20
-
+x.estimate <- x.estimate.b
 rlhs.pred <- matrix(rep(x.estimate, each = validation.repeats), nrow = validation.repeats)
 
 lhs.pred.df <- data.frame(eagerness.a = rep(NA, validation.repeats), # tunes relationship rate and distribution
@@ -692,7 +711,8 @@ if (nrow(inANDout.pred.20.df) > 0){
       # xlim = c(0, 1),
       # ylim = c(0, 1))
   pairs(inANDout.pred.20.df[, 22:30])
-  ggpairs(inANDout.pred.20.df[, 22:30], colour = "incid.wom.15.30", alpha = 0.4)
+  ggpairs(inANDout.pred.20.df[, 22:30],
+          mapping = aes(color = incid.wom.15.30))
 }
 
 ```
