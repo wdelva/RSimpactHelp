@@ -11,7 +11,7 @@ agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 cfg <- input.params.creator(population.simtime = 40, population.numwomen = 500, population.nummen = 500)
 
 #number of simulations repeats.
-design.points <- 1000
+design.points <- 2
 simulation.number.count <- 0
 #intervention introduced
 # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.

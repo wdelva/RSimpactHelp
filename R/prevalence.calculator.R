@@ -16,8 +16,9 @@ prevalence.calculator <- function(datalist = datalist,
   DTP <- datalist$ptable
   DTalive.infected <- alive.infected(DT = DTP, timepoint = timepoint) # First we only take the data of people who were alive at the timepoint
   DTalive.infected.agegroup <- subset(DTalive.infected, TOB <= timepoint - agegroup[1] & TOB > timepoint - agegroup[2])
-  if(nrow(raw.df)>0){
+
   raw.df <- data.frame(DTalive.infected.agegroup)
+  if(nrow(raw.df)>0){
   # Now we apply some dplyr function to get the sum of cases and sum of exposure.time per gender.
   prevalence.df <- dplyr::summarise(group_by(raw.df, Gender),
                                    popsize = length(Gender),
