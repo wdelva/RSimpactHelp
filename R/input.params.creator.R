@@ -52,115 +52,99 @@
 #' formation.hazard.agegapry.numrel_man = -1,
 #' formation.hazard.agegapry.numrel_woman = -1, ...)
 
-input.params.creator <- function(population.eyecap.fraction = 0.5,
-                                 population.simtime = 40,
-                                 population.numwomen = 200,
-                                 population.nummen = 200,
+input.params.creator <- function(mortality.normal.weibull.shape = 5,
+                                 mortality.normal.weibull.scale = 65,
+                                 mortality.normal.weibull.genderdiff = 0,
                                  periodiclogging.interval = 1,
-                                 periodiclogging.starttime = 0,
                                  syncrefyear.interval = 1,
-                                 syncpopstats.interval = 1,
-                                 hivseed.time = 10,
-                                 hivseed.type = "amount",
-                                 hivseed.amount = 10,
-                                 hivseed.age.min = 20,
-                                 hivseed.age.max = 30,
-                                 conception.alpha_base = -3,
-                                 conception.alpha_agewoman = 0,
-                                 dissolution.alpha_0 = 0.1,
-                                 dissolution.alpha_4 = -0.05,
                                  formation.hazard.type = "agegapry",
-                                 formation.hazard.agegapry.gap_factor_man_const = 0,
-                                 formation.hazard.agegapry.gap_factor_woman_const = 0,
+                                 person.eagerness.dist.type = "gamma",
+                                 person.eagerness.dist.gamma.a = 0.231989836885,#0.15 #0.425#3.4#1.7#0.85 #0.1
+                                 person.eagerness.dist.gamma.b = 45,#70#100 #3.5#5#10#20 #170
                                  person.agegap.man.dist.type = "normal",
                                  person.agegap.woman.dist.type = "normal",
-                                 person.agegap.man.dist.normal.mu = -4,
-                                 person.agegap.woman.dist.normal.mu = -4,
-                                 person.agegap.man.dist.normal.sigma = 3,
-                                 person.agegap.woman.dist.normal.sigma = 3,
-                                 formation.hazard.agegapry.baseline = 0,
-                                 formation.hazard.agegapry.numrel_scale_man = 0,
-                                 formation.hazard.agegapry.numrel_scale_woman = 0,
-                                 formation.hazard.agegapry.gap_agescale_man = 0.3,
-                                 formation.hazard.agegapry.gap_agescale_woman = 0.3,
-                                 person.eagerness.dist.type = "gamma",
-                                 formation.hazard.agegapry.eagerness_sum = 1,
+                                 person.agegap.man.dist.normal.mu = 0, #-5
+                                 person.agegap.woman.dist.normal.mu = 0, #2.5
+                                 person.agegap.man.dist.normal.sigma = 1,
+                                 person.agegap.woman.dist.normal.sigma = 1,
+                                 formation.hazard.agegapry.numrel_man = -0.5,
+                                 formation.hazard.agegapry.numrel_woman = -0.5,
+                                 formation.hazard.agegapry.gap_factor_man_exp = -0.35,#-0.15# -0.5
+                                 formation.hazard.agegapry.gap_factor_woman_exp = -0.35,#-0.15# -0.5
+                                 formation.hazard.agegapry.gap_factor_man_const = 0,
+                                 formation.hazard.agegapry.gap_factor_woman_const = 0,
+                                 formation.hazard.agegapry.gap_agescale_man = 0.23,
+                                 formation.hazard.agegapry.gap_agescale_woman = 0.1,#0.23
+                                 formation.hazard.agegapry.eagerness_sum = 0.1,
+                                 formation.hazard.agegapry.eagerness_diff = -0.048,#-0.110975
+                                 dissolution.alpha_0 = -0.52,#-0.1 # baseline
+                                 dissolution.alpha_4 = -0.05,
+                                 debut.debutage = 14,
+                                 population.simtime = 40,
+                                 population.nummen = 500, #1000 #2000
+                                 population.numwomen = 500, #1000 #2000
+                                 population.eyecap.fraction = 0.2,
+                                 hivseed.type = "amount",
+                                 hivseed.amount = 20,
+                                 hivseed.age.min = 20,
+                                 hivseed.age.max = 30,
+                                 hivseed.time = 10,
                                  transmission.param.a = -1.0352239,
                                  transmission.param.b = -89.339994,
                                  transmission.param.c = 0.4948478,
-                                 transmission.param.d1 = 0,
-                                 transmission.param.d2 = 0,
-                                 transmission.param.f1 = log(5),
+                                 transmission.param.f1 = log(5), # ~1.6 such that the hazard is x 5 in 15 yo
                                  transmission.param.f2 = log(log(2.5) / log(5)) / 5,
-                                 person.vsp.toacute.x = 10,
-                                 person.vsp.toaids.x = 7,
-                                 person.vsp.tofinalaids.x = 12,
-                                 formation.hazard.agegapry.numrel_man = -0.2,
-                                 formation.hazard.agegapry.numrel_woman = -0.2,
-                                 formation.hazard.agegapry.numrel_diff = -0.1,
-                                 person.eagerness.dist.gamma.a = 0.125,
-                                 person.eagerness.dist.gamma.b = 8,
-                                 formation.hazard.agegapry.eagerness_diff = -1,
-                                 formation.hazard.agegapry.gap_factor_man_exp = -0.2,
-                                 formation.hazard.agegapry.gap_factor_woman_exp = -0.2,
-                                 formation.hazard.agegapry.gap_factor_man_age = 0.05,
-                                 formation.hazard.agegapry.gap_factor_woman_age = 0.05,
-                                 formation.hazard.agegapry.meanage = -0.1
+                                 conception.alpha_base = -2.35, #-3
+                                 diagnosis.baseline = -100,
+                                 monitoring.cd4.threshold = 0.01
                                  ){
   input.params.list <- list()
-  input.params.list$population.eyecap.fraction <- population.eyecap.fraction
-  input.params.list$population.simtime <- population.simtime
-  input.params.list$population.numwomen <- population.numwomen
-  input.params.list$population.nummen <- population.nummen
+  input.params.list$mortality.normal.weibull.shape <- mortality.normal.weibull.shape
+  input.params.list$mortality.normal.weibull.scale <- mortality.normal.weibull.scale
+  input.params.list$mortality.normal.weibull.genderdiff <- mortality.normal.weibull.genderdiff
   input.params.list$periodiclogging.interval <- periodiclogging.interval
-  input.params.list$periodiclogging.starttime <- periodiclogging.starttime
   input.params.list$syncrefyear.interval <- syncrefyear.interval
-  input.params.list$syncpopstats.interval <- syncpopstats.interval
-  input.params.list$hivseed.time <- hivseed.time
-  input.params.list$hivseed.type <- hivseed.type
-  input.params.list$hivseed.amount <- hivseed.amount
-  input.params.list$hivseed.age.min <- hivseed.age.min
-  input.params.list$hivseed.age.max <- hivseed.age.max
-  input.params.list$conception.alpha_base <- conception.alpha_base
-  input.params.list$conception.alpha_agewoman <- conception.alpha_agewoman
-  input.params.list$dissolution.alpha_0 <- dissolution.alpha_0
-  input.params.list$dissolution.alpha_4 <- dissolution.alpha_4
   input.params.list$formation.hazard.type <- formation.hazard.type
-  input.params.list$formation.hazard.agegapry.gap_factor_man_const <- formation.hazard.agegapry.gap_factor_man_const
-  input.params.list$formation.hazard.agegapry.gap_factor_woman_const <- formation.hazard.agegapry.gap_factor_woman_const
+  input.params.list$person.eagerness.dist.type <- person.eagerness.dist.type
+  input.params.list$person.eagerness.dist.type <- person.eagerness.dist.type
+  input.params.list$person.eagerness.dist.gamma.a <- person.eagerness.dist.gamma.a
+  input.params.list$person.eagerness.dist.gamma.b <- person.eagerness.dist.gamma.b
   input.params.list$person.agegap.man.dist.type <- person.agegap.man.dist.type
   input.params.list$person.agegap.woman.dist.type <- person.agegap.woman.dist.type
   input.params.list$person.agegap.man.dist.normal.mu <- person.agegap.man.dist.normal.mu
   input.params.list$person.agegap.woman.dist.normal.mu <- person.agegap.woman.dist.normal.mu
   input.params.list$person.agegap.man.dist.normal.sigma <- person.agegap.man.dist.normal.sigma
   input.params.list$person.agegap.woman.dist.normal.sigma <- person.agegap.woman.dist.normal.sigma
-  input.params.list$formation.hazard.agegapry.baseline <- formation.hazard.agegapry.baseline
-  input.params.list$formation.hazard.agegapry.numrel_scale_man <- formation.hazard.agegapry.numrel_scale_man
-  input.params.list$formation.hazard.agegapry.numrel_scale_woman <- formation.hazard.agegapry.numrel_scale_woman
+  input.params.list$formation.hazard.agegapry.numrel_man <- formation.hazard.agegapry.numrel_man
+  input.params.list$formation.hazard.agegapry.numrel_woman <- formation.hazard.agegapry.numrel_woman
+  input.params.list$formation.hazard.agegapry.gap_factor_man_exp <- formation.hazard.agegapry.gap_factor_man_exp
+  input.params.list$formation.hazard.agegapry.gap_factor_woman_exp <- formation.hazard.agegapry.gap_factor_woman_exp
+  input.params.list$formation.hazard.agegapry.gap_factor_man_const <- formation.hazard.agegapry.gap_factor_man_const
+  input.params.list$formation.hazard.agegapry.gap_factor_woman_const <- formation.hazard.agegapry.gap_factor_woman_const
   input.params.list$formation.hazard.agegapry.gap_agescale_man <- formation.hazard.agegapry.gap_agescale_man
   input.params.list$formation.hazard.agegapry.gap_agescale_woman <- formation.hazard.agegapry.gap_agescale_woman
-  input.params.list$person.eagerness.dist.type <- person.eagerness.dist.type
   input.params.list$formation.hazard.agegapry.eagerness_sum <- formation.hazard.agegapry.eagerness_sum
+  input.params.list$formation.hazard.agegapry.eagerness_diff <- formation.hazard.agegapry.eagerness_diff
+  input.params.list$dissolution.alpha_0 <- dissolution.alpha_0
+  input.params.list$dissolution.alpha_4 <- dissolution.alpha_4
+  input.params.list$debut.debutage <- debut.debutage
+  input.params.list$population.simtime <- population.simtime
+  input.params.list$population.nummen <- population.nummen
+  input.params.list$population.numwomen <- population.numwomen
+  input.params.list$population.maxevents <- population.simtime * population.nummen * 4 # If 4 events happen per person per year, something's wrong.
+  input.params.list$population.eyecap.fraction <- population.eyecap.fraction
+  input.params.list$hivseed.type <- hivseed.type
+  input.params.list$hivseed.amount <- hivseed.amount
+  input.params.list$hivseed.age.min <- hivseed.age.min
+  input.params.list$hivseed.age.max <- hivseed.age.max
+  input.params.list$hivseed.time <- hivseed.time
   input.params.list$transmission.param.a <- transmission.param.a
   input.params.list$transmission.param.b <- transmission.param.b
   input.params.list$transmission.param.c <- transmission.param.c
-  input.params.list$transmission.param.d1 <- transmission.param.d1
-  input.params.list$transmission.param.d2 <- transmission.param.d2
   input.params.list$transmission.param.f1 <- transmission.param.f1
   input.params.list$transmission.param.f2 <- transmission.param.f2
-  input.params.list$person.vsp.toacute.x <- person.vsp.toacute.x
-  input.params.list$person.vsp.toaids.x <- person.vsp.toaids.x
-  input.params.list$person.vsp.tofinalaids.x <- person.vsp.tofinalaids.x
-  input.params.list$formation.hazard.agegapry.numrel_man <- formation.hazard.agegapry.numrel_man
-  input.params.list$formation.hazard.agegapry.numrel_woman <- formation.hazard.agegapry.numrel_woman
-  input.params.list$formation.hazard.agegapry.numrel_diff <- formation.hazard.agegapry.numrel_diff
-  input.params.list$person.eagerness.dist.gamma.a <- person.eagerness.dist.gamma.a
-  input.params.list$person.eagerness.dist.gamma.b <- person.eagerness.dist.gamma.b
-  input.params.list$formation.hazard.agegapry.eagerness_diff <- formation.hazard.agegapry.eagerness_diff
-  input.params.list$formation.hazard.agegapry.gap_factor_man_exp <- formation.hazard.agegapry.gap_factor_man_exp
-  input.params.list$formation.hazard.agegapry.gap_factor_woman_exp <- formation.hazard.agegapry.gap_factor_woman_exp
-  input.params.list$formation.hazard.agegapry.gap_factor_man_age <- formation.hazard.agegapry.gap_factor_man_age
-  input.params.list$formation.hazard.agegapry.gap_factor_woman_age <- formation.hazard.agegapry.gap_factor_woman_age
-  input.params.list$formation.hazard.agegapry.meanage <- formation.hazard.agegapry.meanage
+  input.params.list$conception.alpha_base <- conception.alpha_base
+  input.params.list$diagnosis.baseline <- diagnosis.baseline # This will result in timing of HIV diagnosis way beyond the simulation period (until this parameter is overwritten when ART is introduced)
+  input.params.list$monitoring.cd4.threshold <- monitoring.cd4.threshold
   return(input.params.list)
 }
