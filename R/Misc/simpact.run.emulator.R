@@ -11,7 +11,7 @@ agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 cfg <- input.params.creator(population.simtime = 40, population.numwomen = 500, population.nummen = 500)
 
 #number of simulations repeats.
-design.points <- 2
+design.points <- 8000
 simulation.number.count <- 0
 #intervention introduced
 # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
@@ -176,6 +176,11 @@ inANDout.df <- cbind.data.frame(sim.id = 1:design.points,
                                 incid.wom.15.30 = rep(NA, design.points),
                                 frac.degreeGT1.wom.15.30 = rep(NA, design.points)
                                 )
+
+inANDout.df.bk <- inANDout.df
+inANDout.df <- inANDout.df.bk[231:232,]
+
+sim.id <- 232
 
 # Creating a new Simpact4emulation function
 # Generating New function from here
