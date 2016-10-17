@@ -22,7 +22,7 @@ ART.coverage.calculator <- function(datalist = datalist,
   # Now we apply the left_join dplyr function to add the ART status to raw.df.
   raw.df <- left_join(x = raw.df, y = art.df, by = c("ID", "Gender"))
 
-  if (nrow(raw.df > 0)) {
+  if (nrow(raw.df > 0) & sum(raw.df$Infected)>0) {
     raw.df$onART <- !is.na(raw.df$TStart)
 
     # Now we apply some dplyr function to get the sum of cases and population size per gender.
@@ -48,6 +48,7 @@ ART.coverage.calculator <- function(datalist = datalist,
                                                   ART.coverage = sum(onART) / sum(Infected),
                                                   ART.coverage.95.ll = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[1],
                                                   ART.coverage.95.ul = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[2]
+
                                  )
     )
     ART.coverage.df <- ART.coverage.all.df #rbind(ART.coverage.df, ART.coverage.all.df)

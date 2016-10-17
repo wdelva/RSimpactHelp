@@ -177,10 +177,10 @@ inANDout.df <- cbind.data.frame(sim.id = 1:design.points,
                                 frac.degreeGT1.wom.15.30 = rep(NA, design.points)
                                 )
 
-inANDout.df.bk <- inANDout.df
-inANDout.df <- inANDout.df.bk[231:232,]
+##inANDout.df.bk <- read.csv("C:/Users/tchibawara/Documents/MaxART/RSimpactHelp/RowUpdate-8000Points12Par_Partial2016-10-17.csv")
+##inANDout.df <- inANDout.df.bk
 
-sim.id <- 232
+
 
 # Creating a new Simpact4emulation function
 # Generating New function from here
@@ -232,46 +232,50 @@ succInANDOut.df<- function(design.points=10){
 
   # Running the simpact4emulation function with error catcher in a loop
   for (sim.id in inANDout.df$sim.id){
-    #create a df to collect the repetead runs to be averaged
-    outStats <- as.data.frame(cbind(growth.rate = rep(NA, 10), median.AD = rep(NA, 10), Q1.AD = rep(NA, 10), Q3.AD = rep(NA, 10),
-                      prev.15.25 = rep(NA, 10), prev.25.50 = rep(NA, 10), ART.cov.15.50 = rep(NA, 10),
-                      incid.wom.15.30 = rep(NA, 10), frac.degreeGT1.wom.15.30 = rep(NA, 10)))
+
+    if(sim.id > 832){
+      #create a df to collect the repetead runs to be averaged
+      outStats <- as.data.frame(cbind(growth.rate = rep(NA, 10), median.AD = rep(NA, 10), Q1.AD = rep(NA, 10), Q3.AD = rep(NA, 10),
+                        prev.15.25 = rep(NA, 10), prev.25.50 = rep(NA, 10), ART.cov.15.50 = rep(NA, 10),
+                        incid.wom.15.30 = rep(NA, 10), frac.degreeGT1.wom.15.30 = rep(NA, 10)))
+
+      for (j in 1:10){
+        simulation.number.count <- simulation.number.count + 1
+        print(paste("Simulation Count:",simulation.number.count,"Design number:", sim.id, sep = " "))
+
+        datalist.test <- tryCatch(simpact4emulation(sim.id, lhs.df, cfg, agedist.data.frame, iv), error = errFunction)
+        if(length(datalist.test)>1){out.test <- summary.statistics(datalist.test)}else{out.test <- rep(NA,9)}
+
+        outStats[j,] <- out.test
+
+      }
 
 
-    for (j in 1:10){
-      simulation.number.count <- simulation.number.count + 1
-      print(paste("Simulation Count:",simulation.number.count,"Design number:", sim.id, sep = " "))
+      out.test <- c(mean(as.numeric(outStats$growth.rate), na.rm=TRUE), mean(as.numeric(outStats$median.AD), na.rm=TRUE),
+                    mean(as.numeric(outStats$Q1.AD), na.rm=TRUE), mean(as.numeric(outStats$Q3.AD), na.rm=TRUE),
+                    mean(as.numeric(outStats$prev.15.25), na.rm=TRUE), mean(as.numeric(outStats$prev.25.50), na.rm=TRUE),
+                    mean(as.numeric(outStats$ART.cov.15.50), na.rm=TRUE), mean(as.numeric(outStats$incid.wom.15.30), na.rm=TRUE),
+                    mean(as.numeric(outStats$frac.degreeGT1.wom.15.30), na.rm=TRUE))
 
-      datalist.test <- tryCatch(simpact4emulation(sim.id, lhs.df, cfg, agedist.data.frame, iv), error = errFunction)
-      if(length(datalist.test)>1){out.test <- summary.statistics(datalist.test)}else{out.test <- rep(NA,9)}
 
-      outStats[j,] <- out.test
 
+      # Inserting the output to the inANDout dataframe
+
+
+      big.insert <- length(inANDout.df) - 8
+
+      inANDout.df[sim.id, big.insert:length(inANDout.df)] <- out.test
+
+      write.csv(inANDout.df, file =paste("RowUpdate","-",design.points,"Points",variables,"Par_Partial",Sys.Date(), ".csv", sep=""), row.names = FALSE)
+      unlink(paste(getwd(),"/temp/*", sep=""))
     }
-
-
-    out.test <- c(mean(as.numeric(outStats$growth.rate), na.rm=TRUE), mean(as.numeric(outStats$median.AD), na.rm=TRUE),
-                  mean(as.numeric(outStats$Q1.AD), na.rm=TRUE), mean(as.numeric(outStats$Q3.AD), na.rm=TRUE),
-                  mean(as.numeric(outStats$prev.15.25), na.rm=TRUE), mean(as.numeric(outStats$prev.25.50), na.rm=TRUE),
-                  mean(as.numeric(outStats$ART.cov.15.50), na.rm=TRUE), mean(as.numeric(outStats$incid.wom.15.30), na.rm=TRUE),
-                  mean(as.numeric(outStats$frac.degreeGT1.wom.15.30), na.rm=TRUE))
-
-
-
-    # Inserting the output to the inANDout dataframe
-
-
-    big.insert <- length(inANDout.df) - 8
-
-    inANDout.df[sim.id, big.insert:length(inANDout.df)] <- out.test
-
-    write.csv(inANDout.df, file =paste("RowUpdate","-",design.points,"Points",variables,"Par_Partial",Sys.Date(), ".csv", sep=""), row.names = FALSE)
-    unlink(paste(getwd(),"/temp/*", sep=""))
+    #write the data stating the number of design points and the number of var parameters
   }
-  #write the data stating the number of design points and the number of var parameters
+
   write.csv(inANDout.df, file =paste("inANDout.df","-",design.points,"Points",variables,"Par",Sys.Date(), ".csv", sep=""), row.names = FALSE)
 
   return(inANDout.df)
+
 }
 
 #succRows.df <- success
