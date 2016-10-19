@@ -1,23 +1,10 @@
-library(RSimpactCyan)
-library(RSimpactHelper)
-library(data.table)
-library(dplyr)
-#library(dtplyr)
-library(magrittr)
-library(exactci)
-library(nlme)
-library(ggplot2)
-library(readcsvcolumns)
-library(survival)
-library(KMsurv)
-library(tidyr)
-library(lhs)
-library(emulator)
-library(multivator)
+#Read the libraries
+pacman::p_load(data.table, dplyr,magrittr, emulator, multivator)
+
 ## Simple Simpact emulator
 
 #file.name.csv <-"C:/Users/tchibawara/Documents/MaxART/RSimpactHelp/data/inANDout.df2016-09-27.csv" #6param.varied
-file.name.csv <-"C:/Users/tchibawara/Documents/MaxART/RSimpactHelp/data/inANDout.df12016-10-01.csv" #2param.varied
+#file.name.csv <-"C:/Users/tchibawara/Documents/MaxART/RSimpactHelp/data/inANDout.df12016-10-01.csv" #2param.varied
 #file.name.csv <-"C:/Users/tchibawara/Documents/MaxART/RSimpactHelp/data/succRows.df.sim16.2016-09-28.csv" #2param.varied
 
 
@@ -25,12 +12,20 @@ simpact.inANDout.df <- read.csv(file = file.name.csv, header = TRUE, sep = ",")
 
 simpact.inANDout.df <- simpact.inANDout.df[(!is.na(simpact.inANDout.df$growth.rate) | !is.na(simpact.inANDout.df$prev.15.50.end)),]
 
+###nrow(simpact.inANDout.df[complete.cases(simpact.inANDout.df), ])
+
 # The x variables (model parameters) that were varied:
 
 #x.variables = c("concept.base", "eagerness.a", "eagerness.b", "formation.hazard.agegapry.numrel_man",
 #               "formation.hazard.agegapry.eagerness_sum", "formation.hazard.agegapry.eagerness_diff")
 
 x.variables = c("eagerness.a", "eagerness.b")
+
+
+x.variables = c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
+                "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30")
+
+
 # The "z" variables (model summary statistics), for which we will define targets:
 # growth.rate
 # prev.15.50.end
