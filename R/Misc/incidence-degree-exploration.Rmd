@@ -11,27 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r getready, echo = FALSE, message = FALSE, cache = FALSE}
-library(RSimpactCyan)
-library(RSimpactHelper)
-library(data.table)
-library(dplyr)
-library(magrittr)
-library(exactci)
-library(nlme)
-library(ggplot2)
+pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactci,
+               nlme, ggplot2, readcsvcolumns,survival, KMsurv, tidyr, expoTree, 
+               sna, intergraph, igraph,lhs, GGally, emulator, multivator)
 # install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
-library(readcsvcolumns)
-library(survival)
-library(KMsurv)
-library(tidyr)
-library(expoTree)
-library(sna)
-library(intergraph)
-library(igraph)
-library(lhs)
-library(GGally)
-library(emulator)
-library(multivator)
 ```
 
 
