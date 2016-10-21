@@ -85,7 +85,12 @@ dfnew <- subset(dfnew, TOD > survey.time)
     distinct %>%
     rename(Degree= relid)
   # counting total number of relationships each ID has.
-  degreedata.df <- aggregate(Degree ~ ID, data = uniqueOut, length)
+  if(dim(uniqueOut)[1]!=0){
+    degreedata.df <- aggregate(Degree ~ ID, data = uniqueOut, length)
+  }
+  else{
+    degreedata.df <-data.frame(ID=NA,Degree=NA)
+  }
 
   return(degreedata.df)
 }

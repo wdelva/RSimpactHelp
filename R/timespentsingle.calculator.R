@@ -58,7 +58,7 @@ timespentsingle.calculator <- function(datalist = datalist,
   women.rel.status.change <- rbind(women.rel.status.change, women.debut)
   # Merely to facilitate visual inspection:
   women.rel.status.change <- women.rel.status.change[order(women.rel.status.change$woman.ID, women.rel.status.change$eventtime), ]
-  women.rel.status.change$change <- -1
+  women.rel.status.change$change <- NULL  #Changed this to NULL in case the woman.rel.status.change is an empty df.
   women.rel.status.change$change[women.rel.status.change$eventname == "debut"] <- 0
   women.rel.status.change$change[women.rel.status.change$eventname == "formation"] <- 1
   women.rel.status.change <- women.rel.status.change %>% group_by(woman.ID) %>% mutate(numrels = cumsum(change))
