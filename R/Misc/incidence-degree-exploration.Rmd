@@ -293,6 +293,8 @@ lhs.df$agegap.woman.mu <- qunif(rlhs[ , 8], min = agegap.woman.mu.min, max = age
 lhs.df$agegap.man.sigma <- qunif(rlhs[ , 9], min = agegap.man.sigma.min, max = agegap.man.sigma.max)
 lhs.df$agegap.woman.sigma <- qunif(rlhs[ , 10], min = agegap.woman.sigma.min, max = agegap.woman.sigma.max)
 
+
+
 # Creating a dataframe for input AND output
 inANDout.8000.df <- cbind.data.frame(sim.id = 1:design.points,
                                 rlhs,
@@ -471,6 +473,54 @@ hist(complete.df$prev.men.25.50, 30)
 hist(complete.df$ART.cov.15.50, 30)
 hist(complete.df$incid.wom.15.30, 30)
 hist(complete.df$frac.degreeGT1.wom.15.30)
+
+
+
+complete.matched.df <- dplyr::filter(complete.df,
+                                     growth.rate >= 0,
+                                     growth.rate <= 0.025,
+                                     prev.men.15.25 <= 0.15,
+                                     prev.men.25.50 >= 0.15,
+                                     prev.men.25.50 <= 0.5,
+                                     median.AD >= 2,
+                                     median.AD <= 5,
+                                     Q1.AD >= 1,
+                                     Q3.AD <= 6,
+                                     ART.cov.15.50 >= 0.15,
+                                     ART.cov.15.50 <= 0.4)
+
+nrow(complete.matched.df)
+names(complete.matched.df)
+
+###
+# Let's also plot the empirical confidence intervals around the Harling data point
+###
+frac.estim <- exactci::binom.exact(x = 32, n = 2444)
+frac.confint <- as.numeric(frac.estim$conf.int)
+incid.estim <- exactci::poisson.exact(x = 458, T = 5913)
+incid.confint <- as.numeric(incid.estim$conf.int)
+
+
+
+complete.matchedplusHarling.df <- rbind(complete.matched.df[, 29:30],
+                               c(as.numeric(incid.estim$estimate), as.numeric(frac.estim$estimate)))
+complete.matchedplusHarling.df$Harling <- c(rep(0, nrow(complete.matched.df)), 1)
+
+
+
+
+plot(100*complete.matchedplusHarling.df$frac.degreeGT1.wom.15.30,
+     100*complete.matchedplusHarling.df$incid.wom.15.30,
+     col = 1+complete.matchedplusHarling.df$Harling,
+     pch = 16,
+     xlab = "More than one partner in last year (%)",
+     ylab = "Cohort HIV incidence (/100 PY)")
+lines(100*frac.confint, 100*c(incid.estim$estimate, incid.estim$estimate),
+      col = "red", lwd = 4)
+lines(100*c(frac.estim$estimate, frac.estim$estimate), 100*incid.confint,
+      col = "red", lwd = 4)
+
+
 ```
 
 
@@ -575,6 +625,7 @@ RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df)[1:4], each = reduc
 RS.pc.expt <- experiment(mm = RS.pc.mdm, obs = z.pc.obs)
 #RS_opt <- optimal_params(RS_expt, option="a")
 RS.pc.opt.a <- optimal_params(RS.pc.expt, option="a")
+save(RS.pc.opt.a, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.a.maxit.100.RData")
 # Now we use the RS.pc.opt.a as starting point for option b
 # Or a previously constructed option b object, that was fitted using a smaller dataset
 load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.maxit.100.RData")
@@ -592,7 +643,7 @@ x.pc.new.long <- rbind(x.pc.new,
                        x.pc.new) %>% as.matrix()
 RS.pc.new.mdm <- mdm(x.pc.new.long, types = rep(names(z.pc.df)[1:4], each = n))
 
-RS.pc.prediction.opt.a <- multem(x = RS.pc.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.a)
+#RS.pc.prediction.opt.a <- multem(x = RS.pc.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.a)
 RS.pc.prediction.opt.b <- multem(x = RS.pc.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.b)
 
 hist(RS.pc.prediction.opt.a[1:n]) # distribution of pc1
@@ -638,7 +689,8 @@ which.min(SumSq.b)
 prediction.a.df[which.min(SumSq.a), ] #             PC1        PC2        PC3        PC4
 # option a                                      0.05195031 1.433094   1.569559   0.1822626
 prediction.b.df[which.min(SumSq.b), ] #             PC1        PC2        PC3        PC4
-# option b                                      0.4164066  1.283678   1.640091   0.2035101
+# option b with 10% of training data            0.4164066  1.283678   1.640091   0.2035101
+# option b with 25% of training data            0.3739289  1.627044   1.83018    1.074347
 # ok?       In light of targets:                0.07984905 1.30920736 2.56260823 2.28446195
 
 #### And most importantly, the best estimate for the model parameters:
@@ -697,7 +749,16 @@ for (sim.id in 1:validation.repeats){
   #print(as.numeric(out.test))
 }
 
+# Preparing for the pairs plot with added in colour the target statistics in Harling data
 
+inANDout.pred.20.plusTargetsplusHarling.df <- rbind(inANDout.pred.20.df[, 22:30],
+                                                    c(targets, 0.075, 0.013))
+inANDout.pred.20.plusTargetsplusHarling.df$Target <- c(rep(0, nrow(inANDout.pred.20.df)), 1)
+
+pairs(inANDout.pred.20.plusTargetsplusHarling.df,
+      col = 1+inANDout.pred.20.plusTargetsplusHarling.df$Target)
+
+                              
 
 
 inANDout.pred.20.plusHarling.df <- rbind(inANDout.pred.20.df[, 29:30],
