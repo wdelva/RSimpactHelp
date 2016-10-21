@@ -1,0 +1,717 @@
+---
+title: "incidence-degree-4000"
+author: "Josline Otieno"
+date: "20 October 2016"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r getready, echo = FALSE, message = FALSE, cache = FALSE}
+pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactci,
+               nlme, ggplot2, readcsvcolumns,survival, KMsurv, tidyr, expoTree, 
+               sna, intergraph, igraph,lhs, GGally, emulator, multivator)
+# install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
+```
+
+
+```{r getmodelready, echo=FALSE, message = FALSE, cache = FALSE}
+# simpact.set.simulation("simpact-cyan")#("maxart")
+
+agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
+
+testinput <- list()
+testinput$mortality.normal.weibull.shape <- 5
+testinput$mortality.normal.weibull.scale <- 65
+testinput$mortality.normal.weibull.genderdiff <- 0
+testinput$periodiclogging.interval <- 1
+testinput$syncrefyear.interval <- 1
+testinput$formation.hazard.type <- "agegapry"
+testinput$person.eagerness.dist.type <- "gamma"
+testinput$person.eagerness.dist.type <- "gamma"
+testinput$person.eagerness.dist.gamma.a <- 0.231989836885#0.15 #0.425#3.4#1.7#0.85 #0.1
+testinput$person.eagerness.dist.gamma.b <- 45#70#100 #3.5#5#10#20 #170
+testinput$person.agegap.man.dist.type <- "normal"
+testinput$person.agegap.woman.dist.type <- "normal"
+testinput$person.agegap.man.dist.normal.mu <- 0 #-5
+testinput$person.agegap.woman.dist.normal.mu <- 0 #2.5
+testinput$person.agegap.man.dist.normal.sigma <- 1
+testinput$person.agegap.woman.dist.normal.sigma <- 1
+testinput$formation.hazard.agegapry.numrel_man <- -0.5
+testinput$formation.hazard.agegapry.numrel_woman <- -0.5
+testinput$formation.hazard.agegapry.gap_factor_man_exp <- -0.35#-0.15# -0.5
+testinput$formation.hazard.agegapry.gap_factor_woman_exp <- -0.35#-0.15# -0.5
+testinput$formation.hazard.agegapry.gap_factor_man_const <- 0
+testinput$formation.hazard.agegapry.gap_factor_woman_const <- 0
+testinput$formation.hazard.agegapry.gap_agescale_man <- 0.23
+testinput$formation.hazard.agegapry.gap_agescale_woman <- 0.1#0.23
+testinput$formation.hazard.agegapry.eagerness_sum <- 0.1
+testinput$formation.hazard.agegapry.eagerness_diff <- -0.048#-0.110975
+testinput$dissolution.alpha_0 <- -0.52#-0.1 # baseline
+testinput$dissolution.alpha_4 <- -0.05 
+testinput$debut.debutage <- 14
+testinput$population.simtime <- 40
+testinput$population.nummen <- 500 #1000 #2000
+testinput$population.numwomen <- 500 #1000 #2000
+testinput$population.maxevents <- testinput$population.simtime * testinput$population.nummen * 4 # If 4 events happen per person per year, something's wrong.
+testinput$population.eyecap.fraction <- 0.2
+testinput$hivseed.type <- "amount"
+testinput$hivseed.amount <- 20
+testinput$hivseed.age.min <- 20
+testinput$hivseed.age.max <- 30
+testinput$hivseed.time <- 10
+testinput$transmission.param.a <- -1.0352239
+testinput$transmission.param.b <- -89.339994
+testinput$transmission.param.c <- 0.4948478
+testinput$transmission.param.f1 <- log(5) # ~1.6 such that the hazard is x 5 in 15 yo
+testinput$transmission.param.f2 <- log(log(2.5) / log(5)) / 5
+testinput$conception.alpha_base <- -2.35 #-3
+testinput$diagnosis.baseline <- -100 # This will result in timing of HIV diagnosis way beyond the simulation period (until this parameter is overwritten when ART is introduced)
+testinput$monitoring.cd4.threshold <- 0.01
+```
+
+```{r ARTintervention, echo=FALSE, message = FALSE, cache = FALSE}
+# Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
+art.intro <- list()
+art.intro["time"] <- 27
+art.intro["diagnosis.baseline"] <- 0 # Reset to zero, from its original value of -100 at the start of the simulatio
+art.intro["monitoring.cd4.threshold"] <- 100
+art.intro["diagnosis.genderfactor"] <- 2
+
+# Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2013:500
+
+art.intro2 <- list()
+art.intro2["time"] <- 30
+art.intro2["monitoring.cd4.threshold"] <- 200
+art.intro2["diagnosis.genderfactor"] <- 1.5
+
+art.intro3 <- list()
+art.intro3["time"] <- 33
+art.intro3["monitoring.cd4.threshold"] <- 350
+art.intro3["diagnosis.genderfactor"] <- 1
+
+art.intro4 <- list()
+art.intro4["time"] <- 36
+art.intro4["monitoring.cd4.threshold"] <- 500
+art.intro4["diagnosis.genderfactor"] <- 0.5
+
+# person.art.accept.threshold.dist.fixed.value
+
+iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
+
+```
+
+### Summary statistics:
+1. Population growth (target between 0 and 2% annual growth rate)
+2. Median age difference in most recent relationships (target 2-5 years)
+3a. Q1 age difference in most recent relationships (target 2)
+3b. Q1 age difference in most recent relationships (target 5)
+4. HIV prevalence in the window among men 15-25 (target 5% - 10%)
+5. HIV prevalence in the window among men 25-50 (target 10% - 30%)
+6. Point prevalence of concurrency among the male partners of women 15 <= x < 30 in the window 25 years after HIV introduction (target 5% - 75%)
+7. ART coverage among all HIV+ people aged 15-50 (target 15% - 40% in 2011)
+8. HIV incidence among women 15 <= x < 30 in the window 20-30 years after HIV introduction (NO targets)
+9. % of women who had > 1 partner in the past 12 months (NO targets)
+10. degree distribution of sexual relationships in the past 12 months (NO targets)
+
+
+
+```{r testrun, echo=FALSE, message = FALSE, cache = TRUE}
+testoutput <- simpact.run(configParams = testinput,
+                          destDir = "temp",
+                          agedist = agedist.data.frame,
+                          intervention = iv,
+                          seed = 1)
+```
+
+```{r testoutput, echo=TRUE, message = FALSE, cache = FALSE}
+test.output <- function(testoutput){
+  datalist.test <- readthedata(testoutput)
+  
+  # 1. Population growth
+  growth.rate <- pop.growth.calculator(datalist = datalist.test,
+                                       timewindow = c(0, unique(datalist.test$itable$population.simtime)))
+  # 2. Median age difference in most recent relationships (target 2-5 years)
+  agemix.df <- agemix.df.maker(datalist.test)
+  pattern <- pattern.modeller(dataframe = agemix.df,
+                              agegroup = c(15, 30),
+                              timepoint = 30,
+                              timewindow = 1,
+                              start = FALSE)
+  # pattern.plotter(pattern)
+  #agedifmedtable <- agedif.median(df = agemix.df, agegroup = c(15, 30), timewindow = 3, timepoint = 30)
+  median.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))# agedifmedtable$median[2] # Median age difference as reported by women
+  # 3. IQR age difference in most recent relationships (target IQR 2 - 6)
+  Q1.AD <- as.numeric(summary(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"])[2])
+  Q3.AD <- as.numeric(summary(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"])[5])
+  #IQR.AD <- agedifmedtable$Q3[2] - agedifmedtable$Q1[2] # IQR as reported by women
+  # 4. HIV prevalence in the window among men 15-25 (target 5% - 10%)
+  prev <- prevalence.calculator(datalist = datalist.test,
+                                agegroup = c(15, 25),
+                                timepoint = 35)
+  prev.men.15.25 <- prev$pointprevalence[1] # among men
+  # 5. HIV prevalence in the window among men 25-50 (target 10% - 30%)
+  prev <- prevalence.calculator(datalist = datalist.test,
+                                agegroup = c(25, 50),
+                                timepoint = 35)
+  prev.men.25.50 <- prev$pointprevalence[1] # among men
+  # 6. Point prevalence of concurrency. postsim function to be converted to RSimpactHelper function
+  
+  # 7. ART coverage among all HIV+ people aged 15-50 (target 15% - 40% in 2011)
+  ARTcov <- ART.coverage.calculator(datalist = datalist.test,
+                                    agegroup = c(15, 50),
+                                    timepoint = 34) # 2011 is 34 years after 1977
+  ART.cov.15.50 <- ARTcov$ART.coverage[1] # among men and women
+  # 8. HIV incidence among women 15 <= x < 30 in the window 20-30 years after HIV introduction
+  inc <- incidence.calculator(datalist = datalist.test,
+                              agegroup = c(15, 30),
+                              timewindow = c(30, 40),
+                              only.active = "Harling")
+  incid.wom.15.30 <- inc$incidence[2] # among women
+  # NOTE: We may want to also calculate a different type of HIV incidence, more in line with the Harling paper:
+  # Where we only accumulate exposure time for the periods that a woman was in (a) relationship(s).
+  # For now, this (correct) HIV incidence measure suffices
+  
+  # 9. % of women who had > 1 partner in the past 12 months
+  degree.df <- degree.df.maker(agemix.df,
+                               agegroup = c(15, 30),
+                               hivstatus = 0,
+                               survey.time = 30,
+                               window.width = 1,
+                               only.new = FALSE)
+  frac.degreeGT1.wom.15.30 <- mean(degree.df$Degree > 1)
+  # If we want to know % of women who had 0 partners in the past 12 months,
+  # We need to compare nrow(degree.df) with the number of 15-30 year old HIV negative women
+  # that were alive at the time of the survey
+  # allsurveywomen <- dplyr::filter(datalist.test$ptable,
+  #               Gender == 1, # Female
+  #               TOD > 30, # Still alive at the time of the survey
+  #               TOB <=15, # Not younger than 15 at the time of the survey
+  #               TOB >0, # Not older than 30 at the time of the survey
+  #               InfectTime > 30) # HIV negative at the time of the survey
+  # 1 - (nrow(degree.df) / nrow(allsurveywomen))
+  
+   # 10. degree distribution
+  degree <- degree.df$Degree
+  
+  summStats <- matrix(c(growth.rate, median.AD, Q1.AD, Q3.AD, prev.men.15.25, prev.men.25.50, ART.cov.15.50, incid.wom.15.30, frac.degreeGT1.wom.15.30, degree),
+                      nrow = 1, dimnames = list(NULL, c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50", "ART.cov.15.50", "incid.wom.15.30",  "frac.degreeGT1.wom.15.30", "degree"))) # 10 summary statistics
+  return(summStats)
+}
+```
+
+```{r errorFunction, echo=TRUE, message = FALSE, cache = FALSE}
+# Creating an error function to catch the case when population.maxevents is reached before population.simtime is reached
+errFunction <- function(e){
+  if (length(grep("MAXEVENTS",e$message)) != 0)
+    return(inANDout.test = rep(NA, 10))
+  if (length(grep("internal event time",e$message)) != 0)
+    return(inANDout.test = rep(NA, 10))
+  # Een andere foutmelding dan MAXEVENTS, zorg dat we toch stoppen
+  return(inANDout.test = rep(NA, 10)) #stop(e)
+}
+```
+
+```{r LHSdesign, echo=TRUE, message = FALSE, cache = FALSE}
+# Creating the LHS over the 0-1 uniform parameter space
+# We are going to vary 10 variables
+# 1. person.eagerness.dist.gamma.a (0.1 to 1)
+# 2. person.eagerness.dist.gamma.b (10 to 100)
+# 3. conception.alpha_base (-4 to -1) (influences population growth rate)
+# 4. formation.hazard.agegapry.numrel_man = formation.hazard.agegapry.numrel_woman (-1 to -0.1) (influences concurrency levels)
+# 5. formation.hazard.agegapry.eagerness_diff (-0.2 to -0.02) (influences the degree distribution)
+# 6. formation.hazard.agegapry.gap_factor_man_exp = formation.hazard.agegapry.gap_factor_woman_exp (-1 to -0.1) (influences variance of age differences)
+# 7. person.agegap.man.dist.normal.mu (0 to 4)
+# 8. person.agegap.woman.dist.normal.mu (0 to 4)
+# 9. person.agegap.man.dist.normal.sigma (0.5 to 2)
+# 10. person.agegap.woman.dist.normal.sigma (0.5 to 2)
+
+
+design.points <- 4000
+variables <- 10
+# On VSC, when each core or node gets its own series of simulations to run, the seed must be set to a different value for each core or node.
+set.seed(1)
+rlhs <- randomLHS(design.points, variables)
+
+# Creating the LHS dataframe
+lhs.df <- data.frame(eagerness.a = rep(NA, design.points), # tunes relationship rate and distribution
+                     eagerness.b = rep(NA, design.points), # tunes conception rate) # tunes relationship rate and distribution
+                     concept.base = rep(NA, design.points),
+                     numrel = rep(NA, design.points),
+                     eagerness.diff = rep(NA, design.points),
+                     gapfactor.exp = rep(NA, design.points),
+                     agegap.man.mu = rep(NA, design.points),
+                     agegap.woman.mu = rep(NA, design.points),
+                     agegap.man.sigma = rep(NA, design.points),
+                     agegap.woman.sigma = rep(NA, design.points))
+
+eagerness.a.min <- 0.1
+eagerness.a.max <- 2
+eagerness.b.min <- 5
+eagerness.b.max <- 60
+concept.base.min <- -3.6
+concept.base.max <- -1.2
+numrel.min <- -1.5
+numrel.max <- -0.1
+eagerness.diff.min <- -0.1
+eagerness.diff.max <- 0
+gapfactor.exp.min <- -1.5
+gapfactor.exp.max <- -0.4
+agegap.man.mu.min <- 0
+agegap.man.mu.max <- 4
+agegap.woman.mu.min <- 0
+agegap.woman.mu.max <- 4
+agegap.man.sigma.min <- 0.5
+agegap.man.sigma.max <- 2
+agegap.woman.sigma.min <- 0.5
+agegap.woman.sigma.max <- 2
+  
+lhs.df$eagerness.a <- qunif(rlhs[ , 1], min = eagerness.a.min, max = eagerness.a.max) #max = 1)
+lhs.df$eagerness.b <- qunif(rlhs[ , 2], min = eagerness.b.min, max = eagerness.b.max) #min = 25, max = 90) #10, max = 100)
+lhs.df$concept.base <- qunif(rlhs[ , 3], min = concept.base.min, max = concept.base.max) #min = -2.6, max = -1.2) #-4, max = -1)
+lhs.df$numrel <- qunif(rlhs[ , 4], min = numrel.min, max = numrel.max) #max = -0.2) #-1, max = -0.1)
+lhs.df$eagerness.diff <- qunif(rlhs[ , 5], min = eagerness.diff.min, max = eagerness.diff.max) #min = -0.25, max = -0.04) #-0.2, max = -0.02)
+lhs.df$gapfactor.exp <- qunif(rlhs[ , 6], min = gapfactor.exp.min, max = gapfactor.exp.max) #-1, max = -0.1)
+lhs.df$agegap.man.mu <- qunif(rlhs[ , 7], min = agegap.man.mu.min, max = agegap.man.mu.max)
+lhs.df$agegap.woman.mu <- qunif(rlhs[ , 8], min = agegap.woman.mu.min, max = agegap.woman.mu.max)
+lhs.df$agegap.man.sigma <- qunif(rlhs[ , 9], min = agegap.man.sigma.min, max = agegap.man.sigma.max)
+lhs.df$agegap.woman.sigma <- qunif(rlhs[ , 10], min = agegap.woman.sigma.min, max = agegap.woman.sigma.max)
+
+# Creating a dataframe for input AND output
+inANDout.4000.df <- cbind.data.frame(sim.id = 1:design.points,
+                                rlhs,
+                                lhs.df,
+                                growth.rate = rep(NA, design.points),
+                                median.AD = rep(NA, design.points),
+                                Q1.AD = rep(NA, design.points),
+                                Q3.AD = rep(NA, design.points),
+                                prev.men.15.25 = rep(NA, design.points),
+                                prev.men.25.50 = rep(NA, design.points),
+                                ART.cov.15.50 = rep(NA, design.points),
+                                incid.wom.15.30 = rep(NA, design.points),
+                                frac.degreeGT1.wom.15.30 = rep(NA, design.points),
+                                degree = rep(NA, design.points)
+                                )
+```
+
+```{r simpact4emulation, echo=TRUE, message = FALSE, warning = FALSE, cache = FALSE}
+# Creating a new Simpact4emulation function
+simpact4emulation <- function(sim.id, lhs.df, testinput, agedist.data.frame, iv){
+
+  testinput$person.eagerness.dist.gamma.a <- lhs.df$eagerness.a[sim.id] #1
+  testinput$person.eagerness.dist.gamma.b <- lhs.df$eagerness.b[sim.id] #2
+  testinput$conception.alpha_base <- lhs.df$concept.base[sim.id] #3
+  testinput$formation.hazard.agegapry.numrel_man <- lhs.df$numrel[sim.id] #4
+  testinput$formation.hazard.agegapry.numrel_woman <- lhs.df$numrel[sim.id] #4
+  testinput$formation.hazard.agegapry.eagerness_diff <-lhs.df$eagerness.diff[sim.id] #5
+  testinput$formation.hazard.agegapry.gap_factor_man_exp <- lhs.df$gapfactor.exp[sim.id] #6
+  testinput$formation.hazard.agegapry.gap_factor_woman_exp <- lhs.df$gapfactor.exp[sim.id] #6
+  testinput$person.agegap.man.dist.normal.mu <- lhs.df$agegap.man.mu[sim.id] #7
+  testinput$person.agegap.woman.dist.normal.mu <- lhs.df$agegap.woman.mu[sim.id] #8
+  testinput$person.agegap.man.dist.normal.sigma <- lhs.df$agegap.man.sigma[sim.id] #9
+  testinput$person.agegap.woman.dist.normal.sigma <- lhs.df$agegap.woman.sigma[sim.id] #10
+
+  simpact.seed.id <- sim.id
+
+  testoutput <- simpact.run(configParams = testinput,
+                            destDir = "temp",
+                            agedist = agedist.data.frame,
+                            intervention = iv,
+                            seed = simpact.seed.id)
+
+  if (testoutput$simulationtime < testinput$population.simtime)
+  {
+    # Ik kan op dit moment twee redenen bedenken waarom de simulatie te vroeg zou stoppen
+    #  - maximaal aantal events is bereikt, kan op gecheckt worden dmv ret["eventsexecuted"]
+    #  - geen events meer, gebeurt bvb als populatie uitsterft.
+    if (testoutput$eventsexecuted >= testinput$population.maxevents-1)
+    {
+      # Ik doe hier een -1 omdat in R getallen standaard voorgesteld worden als floating
+      # point getallen, en echte gelijkheden daarmee nogal gevaarlijk zijn.
+      stop("MAXEVENTS: Simulation stopped prematurely, max events reached")
+    }
+    else
+    {
+      # Misschien moet er in dit geval niet gestopt worden
+      stop("Simulation stopped prematurely, probably ran out of events")
+    }
+  }
+  output.stats <- test.output(testoutput)
+  #print(output.stats) # For debugging 
+  return(output.stats)
+}
+
+```
+
+```{r simpactTestrun, echo=TRUE, message = FALSE, warning = FALSE, results = 'hide', cache = FALSE}
+# Running the simpact4emulation function with error catcher in a loop
+for (sim.id in inANDout.4000.df$sim.id){
+  #out.test <- simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv)
+  out.test <- tryCatch(simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv), error = errFunction)
+  # Inserting the output to the inANDout dataframe
+  inANDout.4000.df[sim.id, 22:31] <- as.numeric(out.test)
+  #print(as.numeric(out.test))
+}
+```
+
+```{r saveInputOutput, echo=TRUE, message = FALSE, cache = FALSE}
+# Running the simpact4emulation function with error catcher in a loop
+save(inANDout.4000.df, agedist.data.frame, testinput, iv, file =
+       "/home/josline/THIS_COMPUTER/Disk_Space/josline/RSimpactHelp/R/Misc/incidence-degree-exploration.4000.RData")
+       
+       #"/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+#save(inANDout.df, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+```
+
+```{r exploreInputOutput, echo=TRUE, message = FALSE, cache = FALSE}
+# Running the simpact4emulation function with error catcher in a loop
+incidence.degree.exploration.4000.loaded <- load(file =
+ "/home/josline/THIS_COMPUTER/Disk_Space/josline/RSimpactHelp/R/Misc/incidence-degree-exploration.4000.RData")                                                   
+                                                   #"/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+#save(inANDout.df, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+#incidence.degree.exploration.6000.loaded
+# How many runs gave non-NA output?
+nrow(inANDout.4000.df[complete.cases(inANDout.4000.df), ]) 
+
+#pairs(inANDout.4000.df[, 14:22])
+#pairs(inANDout.4000.df[, 21:22])
+```
+
+### Fitting the emulator to these data
+Here we have to insert code blocks from simple.simpact.emulator.R
+
+### Then we rerun Simpact with updated guesses for the model parameters
+
+### Finally we explore the output of the calibrated model
+
+```{r onlyMatches, echo=TRUE, message = FALSE, cache = FALSE}
+
+# 1. Population growth (target between 0 and 2% annual growth rate)
+# 2. Median age difference in most recent relationships (target 2-5 years)
+# 3. IQR age difference in most recent relationships (target IQR 2 - 6)
+# 4. HIV prevalence in the window among men 15-25 (target 5% - 10%)
+# 5. HIV prevalence in the window among men 25-50 (target 25% - 35%)
+# 6. Point prevalence of concurrency among the male partners of women 15 <= x < 30 in the window 25 years after HIV introduction (target 5% - 75%)
+# 7. ART coverage among all HIV+ people aged 15-50 (target 15% - 40% in 2011)
+
+matched.df <- dplyr::filter(inANDout.4000.df,
+                            growth.rate >= 0,
+                            growth.rate <= 0.025,
+                            prev.men.15.25 >= 0.05,
+                            prev.men.15.25 <= 0.15,
+                            prev.men.25.50 >= 0.15,
+                            prev.men.25.50 <= 0.5,
+                            median.AD >= 2,
+                            median.AD <= 5,
+                            Q1.AD >= 1,
+                            Q3.AD <= 6,
+                            ART.cov.15.50 >= 0.15,
+                            ART.cov.15.50 <= 0.4)
+
+nrow(matched.df)
+names(matched.df)
+matchedplusHarling.df <- rbind(matched.df[, 29:30],
+                               c(0.075, 0.013))
+matchedplusHarling.df$Harling <- c(rep(0, nrow(matched.df)), 1)
+
+#head(matchedplusHarling.df, 30)
+if (nrow(matched.df) > 0){
+  pairs(matchedplusHarling.df[, 1:2],
+      col = 1+matchedplusHarling.df$Harling)#,
+      # xlim = c(0, 1),
+      # ylim = c(0, 1))
+  pairs(matched.df[, 12:30])
+  ggpairs(matched.df[, 12:30], colour = "incid.wom.15.30", alpha = 0.4)
+}
+
+#pairs(inANDout.8000.df[, 8:13])
+Harling.incid <- poisson.test(x = 458,
+                              T = 5913)
+Harling.frac <- binom.test(x = 32,
+                           n = 2444)
+matched.incid.df <- dplyr::filter(inANDout.4000.df,
+                            incid.wom.15.30 >= Harling.incid$conf.int[1],
+                            incid.wom.15.30 <= Harling.incid$conf.int[2],
+                            prev.men.15.25 <= 0.15)
+matched.frac.df <- dplyr::filter(inANDout.4000.df,
+                            #frac.degreeGT1.wom.15.30 >= Harling.frac$conf.int[1],
+                            frac.degreeGT1.wom.15.30 <= Harling.frac$conf.int[2],
+                            prev.men.15.25 <= 0.15)
+plot(matched.incid.df[, 29],
+     matched.incid.df[, 30])
+plot(matched.frac.df[, 29],
+     matched.frac.df[, 30])
+head(matched.frac.df[matched.frac.df$incid.wom.15.30 > 0.05, ])
+
+
+
+```
+
+```{r prepareForPCA, echo=TRUE, message = FALSE, cache = FALSE}
+incidence.degree.exploration.4000.loaded <- load(file =
+  "/home/josline/THIS_COMPUTER/Disk_Space/josline/RSimpactHelp/R/Misc/incidence-degree-exploration.4000.RData")                                                     
+                                                   #"/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
+complete.df <- dplyr::filter(inANDout.4000.df,
+                             complete.cases(inANDout.4000.df),
+                             prev.men.15.25 > 0.05)
+hist(complete.df$growth.rate)
+hist(complete.df$median.AD)
+hist(complete.df$Q1.AD)
+hist(complete.df$Q3.AD)
+hist(complete.df$prev.men.15.25, 30)
+hist(complete.df$prev.men.25.50, 30)
+hist(complete.df$ART.cov.15.50, 30)
+hist(complete.df$incid.wom.15.30, 30)
+hist(complete.df$frac.degreeGT1.wom.15.30)
+hist(complete.df$degree)
+```
+
+
+```{r PCA, echo=TRUE, message = FALSE, cache = FALSE}
+## Simple Simpact emulator
+
+# The x variables (model parameters) that were varied:
+# eagerness.a
+# eagerness.b
+# concept.base
+# numrel
+# eagerness.diff
+# gapfactor.exp
+# agegap.man.mu
+# agegap.woman.mu
+# agegap.man.sigma
+# agegap.woman.sigma
+
+#### Setting up design. Creating the LHS over the 0-1 uniform parameter space
+design.points <- nrow(complete.df)
+design.points.fraction <- 0.25 #0.1
+reduced.design.points <- round(design.points * design.points.fraction)
+
+simpact.x <- dplyr::select(complete.df[1:reduced.design.points, ],
+                           eagerness.a,
+                           eagerness.b,
+                           concept.base,
+                           numrel,
+                           eagerness.diff,
+                           gapfactor.exp,
+                           agegap.man.mu,
+                           agegap.woman.mu,
+                           agegap.man.sigma,
+                           agegap.woman.sigma) %>% as.matrix()
+
+variables <- ncol(simpact.x)
+
+
+# The "z" variables (model summary statistics), for which we will define targets:
+
+z.df <- dplyr::select(complete.df[1:reduced.design.points, ],
+                           growth.rate,
+                           median.AD,
+                           Q1.AD,
+                           Q3.AD,
+                           prev.men.15.25,
+                           prev.men.25.50,
+                           ART.cov.15.50) #,
+                           #incid.wom.15.30,
+                           #frac.degreeGT1.wom.15.30,
+                           #degree)
+
+simpact.z <- as.matrix(z.df)
+
+
+z.pc <- princomp(z.df, scores = TRUE, cor = TRUE)
+summary(z.pc) # The first 4 components capture 95% of the total variance. That's perhaps sufficient?
+plot(z.pc)
+#biplot(z.pc)
+z.pc$loadings
+z.pc.df <- data.frame(z.pc$scores)
+
+### Defining targets (do we really need to?) for the summary statistics in their original scale
+# Growth rate from some (SSA) document online, based on census data for SA: https://www.statssa.gov.za/publications/P0302/P03022014.pdf
+# Median, Q1 and Q3 from Harling paper
+# HIV prevalence form Zuidi paper AIDS 2013
+# ART coverage from Zaidi paper AIDS 2013
+#
+targets <- c(0.014, 3, 2, 5, 0.08, 0.25, 0.3)
+
+
+
+
+x.design <- cbind(complete.df[1:reduced.design.points, 2:11])
+x.design.long <- rbind(x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design,
+                       x.design) %>% as.matrix() # one for each z component (there has to be a better way)
+x.design.pc.long <- rbind(x.design,
+                          x.design,
+                          x.design,
+                          x.design) %>% as.matrix() # one for each z component (there has to be a better way)
+#### Computing model output at design points
+z_obs <- as.vector(unlist(z.df))
+z.pc.obs <- as.vector(unlist(z.pc.df[ ,1:4])) # Turning first 4 PCs into a long vector
+
+
+
+
+#### Creating the multivator objects
+# RS_mdm <- mdm(x.design.long, types = rep(names(z.df), each = reduced.design.points))
+# RS_expt <- experiment(mm = RS_mdm, obs = z_obs)
+# RS_opt <- optimal_params(RS_expt, option="a")
+# RS_opt_c <- optimal_params(RS_expt, option="c")
+
+#### Creating the multivator objects for the PCA-based analysis
+RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df)[1:4], each = reduced.design.points))
+RS.pc.expt <- experiment(mm = RS.pc.mdm, obs = z.pc.obs)
+#RS_opt <- optimal_params(RS_expt, option="a")
+RS.pc.opt.a <- optimal_params(RS.pc.expt, option="a")
+# Now we use the RS.pc.opt.a as starting point for option b
+# Or a previously constructed option b object, that was fitted using a smaller dataset
+
+# cant get this!! ....."incidence-degree-exploration.RS.pc.opt.b.maxit.100.RData"
+
+load(file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.maxit.100.RData")
+#RS.pc.opt.b <- optimal_params(RS.pc.expt, option="b", start_hp = RS.pc.opt.a, control = list(maxit=10))
+RS.pc.opt.b <- optimal_params(RS.pc.expt, option="b", start_hp = RS.pc.opt.b, control = list(maxit=100))
+# save(RS.pc.opt.b, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.maxit.100.RData")
+save(RS.pc.opt.b, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.RS.pc.opt.b.quarterdata.maxit.100.RData")
+
+#### Using the emulator to explore the parameter space
+n <- 20000
+x.pc.new <- latin.hypercube(n, variables, names=colnames(x.design))
+x.pc.new.long <- rbind(x.pc.new,
+                       x.pc.new,
+                       x.pc.new,
+                       x.pc.new) %>% as.matrix()
+RS.pc.new.mdm <- mdm(x.pc.new.long, types = rep(names(z.pc.df)[1:4], each = n))
+
+RS.pc.prediction.opt.a <- multem(x = RS.pc.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.a)
+RS.pc.prediction.opt.b <- multem(x = RS.pc.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.b)
+
+hist(RS.pc.prediction.opt.a[1:n]) # distribution of pc1
+hist(RS.pc.prediction.opt.a[(n+1):(2*n)]) # distribution of pc2
+hist(RS.pc.prediction.opt.a[(2*n+1):(3*n)]) # distribution of pc3
+hist(RS.pc.prediction.opt.a[(3*n+1):(4*n)]) # distribution of pc4
+
+hist(RS.pc.prediction.opt.b[1:n]) # distribution of pc1
+hist(RS.pc.prediction.opt.b[(n+1):(2*n)]) # distribution of pc2
+hist(RS.pc.prediction.opt.b[(2*n+1):(3*n)]) # distribution of pc3
+hist(RS.pc.prediction.opt.b[(3*n+1):(4*n)]) # distribution of pc4
+
+#### One way of efficiently comparing emulation output with target statistics is to reshape RS_prediction as a dataframe
+prediction.a.df <- data.frame(matrix(RS.pc.prediction.opt.a, nrow = n, dimnames = list(rownames = 1:n, colnames = names(z.pc.df)[1:4])))
+prediction.b.df <- data.frame(matrix(RS.pc.prediction.opt.b, nrow = n, dimnames = list(rownames = 1:n, colnames = names(z.pc.df)[1:4])))
+#### sum of squared distances between model statistics and target statistics
+# We first need to convert the targets statistics c(0.014, 3, 2, 5, 0.08, 0.25, 0.3) to their values on the PC scales.
+
+targets.df = data.frame(growth.rate = targets[1],
+                        median.AD = targets[2],
+                        Q1.AD = targets[3],
+                        Q3.AD = targets[4],
+                        prev.men.15.25 = targets[5],
+                        prev.men.25.50 = targets[6],
+                        ART.cov.15.50 = targets[7])
+# As an example: the value of the first PC for the target statistics:
+as.numeric(as.numeric(z.pc$loadings[, 1]) %*% ((as.numeric(targets.df) - z.pc$center) / z.pc$scale) )
+# All PCs for the target statistics:
+targets.pc <- predict(z.pc, targets.df)
+targets.pc.vector <- as.numeric(targets.pc)[1:4]
+
+
+
+sq.array.a <- as.data.frame(t(apply(prediction.a.df, 1, function(x) (x - t(targets.pc.vector))^2)))
+sq.array.b <- as.data.frame(t(apply(prediction.b.df, 1, function(x) (x - t(targets.pc.vector))^2)))
+
+names(sq.array.b) <- names(sq.array.a) <- names(prediction.a.df)
+
+SumSq.a <- as.numeric(rowSums(sq.array.a))
+SumSq.b <- as.numeric(rowSums(sq.array.b))
+which.min(SumSq.a)
+which.min(SumSq.b)
+prediction.a.df[which.min(SumSq.a), ] #             PC1        PC2        PC3        PC4
+# option a                                      0.05195031 1.433094   1.569559   0.1822626
+prediction.b.df[which.min(SumSq.b), ] #             PC1        PC2        PC3        PC4
+# option b                                      0.4164066  1.283678   1.640091   0.2035101
+# ok?       In light of targets:                0.07984905 1.30920736 2.56260823 2.28446195
+
+#### And most importantly, the best estimate for the model parameters:
+
+x.estimate.a <- as.numeric(x.pc.new[which.min(SumSq.a), ])
+x.estimate.b <- as.numeric(x.pc.new[which.min(SumSq.b), ])
+
+### Creating a new dataframe lhs.pred.df, for validation purposes
+validation.repeats <- 20
+x.estimate <- x.estimate.b
+rlhs.pred <- matrix(rep(x.estimate, each = validation.repeats), nrow = validation.repeats)
+
+lhs.pred.df <- data.frame(eagerness.a = rep(NA, validation.repeats), # tunes relationship rate and distribution
+                     eagerness.b = rep(NA, validation.repeats), # tunes conception rate) # tunes relationship rate and distribution
+                     concept.base = rep(NA, validation.repeats),
+                     numrel = rep(NA, validation.repeats),
+                     eagerness.diff = rep(NA, validation.repeats),
+                     gapfactor.exp = rep(NA, validation.repeats),
+                     agegap.man.mu = rep(NA, validation.repeats),
+                     agegap.woman.mu = rep(NA, validation.repeats),
+                     agegap.man.sigma = rep(NA, validation.repeats),
+                     agegap.woman.sigma = rep(NA, validation.repeats))
+
+lhs.pred.df$eagerness.a <- qunif(x.estimate[1], min = eagerness.a.min, max = eagerness.a.max) #max = 1)
+lhs.pred.df$eagerness.b <- qunif(x.estimate[2], min = eagerness.b.min, max = eagerness.b.max) #min = 25, max = 90) #10, max = 100)
+lhs.pred.df$concept.base <- qunif(x.estimate[3], min = concept.base.min, max = concept.base.max) #min = -2.6, max = -1.2) #-4, max = -1)
+lhs.pred.df$numrel <- qunif(x.estimate[4], min = numrel.min, max = numrel.max) #max = -0.2) #-1, max = -0.1)
+lhs.pred.df$eagerness.diff <- qunif(x.estimate[5], min = eagerness.diff.min, max = eagerness.diff.max) #min = -0.25, max = -0.04) #-0.2, max = -0.02)
+lhs.pred.df$gapfactor.exp <- qunif(x.estimate[6], min = gapfactor.exp.min, max = gapfactor.exp.max) #-1, max = -0.1)
+lhs.pred.df$agegap.man.mu <- qunif(x.estimate[7], min = agegap.man.mu.min, max = agegap.man.mu.max)
+lhs.pred.df$agegap.woman.mu <- qunif(x.estimate[8], min = agegap.woman.mu.min, max = agegap.woman.mu.max)
+lhs.pred.df$agegap.man.sigma <- qunif(x.estimate[9], min = agegap.man.sigma.min, max = agegap.man.sigma.max)
+lhs.pred.df$agegap.woman.sigma <- qunif(x.estimate[10], min = agegap.woman.sigma.min, max = agegap.woman.sigma.max)
+
+### Creatig a new dataframe inANDout.pred.20.df, for validation purposes
+inANDout.pred.20.df <- cbind.data.frame(sim.id = 1:validation.repeats,
+                                        rlhs.pred,
+                                        lhs.pred.df,
+                                        growth.rate = rep(NA, validation.repeats),
+                                        median.AD = rep(NA, validation.repeats),
+                                        Q1.AD = rep(NA, validation.repeats),
+                                        Q3.AD = rep(NA, validation.repeats),
+                                        prev.men.15.25 = rep(NA, validation.repeats),
+                                        prev.men.25.50 = rep(NA, validation.repeats),
+                                        ART.cov.15.50 = rep(NA, validation.repeats),
+                                        incid.wom.15.30 = rep(NA, validation.repeats),
+                                        frac.degreeGT1.wom.15.30 = rep(NA, validation.repeats),
+                                        degree =  rep(NA, validation.repeats)
+)
+
+
+for (sim.id in 1:validation.repeats){
+  #out.test <- simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv)
+  out.test <- tryCatch(simpact4emulation(sim.id, lhs.pred.df, testinput, agedist.data.frame, iv), error = errFunction)
+  # Inserting the output to the inANDout dataframe
+  inANDout.pred.20.df[sim.id, 22:31] <- as.numeric(out.test)
+  #print(as.numeric(out.test))
+}
+
+
+
+inANDout.pred.20.plusHarling.df <- rbind(inANDout.pred.20.df[, 29:30],
+                               c(0.075, 0.013))
+inANDout.pred.20.plusHarling.df$Harling <- c(rep(0, nrow(inANDout.pred.20.df)), 1)
+
+#head(matchedplusHarling.df, 30)
+if (nrow(inANDout.pred.20.df) > 0){
+  pairs(inANDout.pred.20.plusHarling.df[, 1:2],
+      col = 1+inANDout.pred.20.plusHarling.df$Harling)#,
+      # xlim = c(0, 1),
+      # ylim = c(0, 1))
+  pairs(inANDout.pred.20.df[, 22:31])
+  ggpairs(inANDout.pred.20.df[, 22:31],
+          mapping = aes(color = incid.wom.15.30))
+}
+
+```
