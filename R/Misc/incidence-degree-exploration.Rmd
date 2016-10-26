@@ -195,7 +195,13 @@ test.output <- function(testoutput){
   
   summStats <- matrix(c(growth.rate, median.AD, Q1.AD, Q3.AD, prev.men.15.25, prev.men.25.50, ART.cov.15.50, incid.wom.15.30, frac.degreeGT1.wom.15.30),
                       nrow = 1, dimnames = list(NULL, c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50", "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30"))) # 9 summary statistics
-  return(summStats)
+  
+  #degree.vector <- degree.df$Degree # Storing the number of relationships in the last year, for each person in the imaginative survey
+  
+  output.list <- list(summStats = summStats, degree.dataframe = degree.df)
+  
+  
+  return(output.list)
 }
 ```
 
@@ -203,11 +209,14 @@ test.output <- function(testoutput){
 # Creating an error function to catch the case when population.maxevents is reached before population.simtime is reached
 errFunction <- function(e){
   if (length(grep("MAXEVENTS",e$message)) != 0)
-    return(inANDout.test = rep(NA, 9))
+    return(inANDout.test = list(summStats = rep(NA, 9),
+                                degree.dataframe = data.frame()))
   if (length(grep("internal event time",e$message)) != 0)
-    return(inANDout.test = rep(NA, 9))
+    return(inANDout.test = list(summStats = rep(NA, 9),
+                                degree.dataframe = data.frame()))
   # Een andere foutmelding dan MAXEVENTS, zorg dat we toch stoppen
-  return(inANDout.test = rep(NA, 9)) #stop(e)
+  return(inANDout.test = list(summStats = rep(NA, 9),
+                                degree.dataframe = data.frame())) #stop(e)
 }
 ```
 
@@ -226,7 +235,7 @@ errFunction <- function(e){
 # 10. person.agegap.woman.dist.normal.sigma (0.5 to 2)
 
 
-design.points <- 8000
+design.points <- 100
 variables <- 10
 # On VSC, when each core or node gets its own series of simulations to run, the seed must be set to a different value for each core or node.
 set.seed(1)
@@ -279,7 +288,7 @@ lhs.df$agegap.woman.sigma <- qunif(rlhs[ , 10], min = agegap.woman.sigma.min, ma
 
 
 # Creating a dataframe for input AND output
-inANDout.8000.df <- cbind.data.frame(sim.id = 1:design.points,
+inANDout.100.df <- cbind.data.frame(sim.id = 1:design.points,
                                 rlhs,
                                 lhs.df,
                                 growth.rate = rep(NA, design.points),
@@ -292,6 +301,17 @@ inANDout.8000.df <- cbind.data.frame(sim.id = 1:design.points,
                                 incid.wom.15.30 = rep(NA, design.points),
                                 frac.degreeGT1.wom.15.30 = rep(NA, design.points)
                                 )
+
+
+# And a dataframe for the degree distribution summary statistics
+degree.dist.summStats.df <- data.frame(sim.id = 1:design.points,
+                                       mean.degree = rep(NA, design.points),
+                                       median.degree = rep(NA, design.points),
+                                       Q1.degree = rep(NA, design.points),
+                                       Q3.degree = rep(NA, design.points))
+
+# And a list of best fitting functions to the degree data
+bestfit.list <- list(rep(NA, design.points)) 
 ```
 
 ```{r simpact4emulation, echo=TRUE, message = FALSE, warning = FALSE, cache = FALSE}
@@ -336,21 +356,41 @@ simpact4emulation <- function(sim.id, lhs.df, testinput, agedist.data.frame, iv)
       stop("Simulation stopped prematurely, probably ran out of events")
     }
   }
-  output.stats <- test.output(testoutput)
+  output.list <- test.output(testoutput)
   #print(output.stats) # For debugging 
-  return(output.stats)
+  return(output.list)
 }
 
 ```
 
 ```{r simpactTestrun, echo=TRUE, message = FALSE, warning = FALSE, results = 'hide', cache = FALSE}
 # Running the simpact4emulation function with error catcher in a loop
-for (sim.id in inANDout.8000.df$sim.id){
+for (sim.id in inANDout.100.df$sim.id){
   #out.test <- simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv)
-  out.test <- tryCatch(simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv), error = errFunction)
+  out.test.list <- tryCatch(simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv), error = errFunction)
   # Inserting the output to the inANDout dataframe
-  inANDout.8000.df[sim.id, 22:30] <- as.numeric(out.test)
-  #print(as.numeric(out.test))
+  inANDout.100.df[sim.id, 22:30] <- as.numeric(out.test.list$summStats)
+  
+  # Let's create a dataframe where we store summary statistics of the degree distribution
+  # A first obvious summary statistic is the mean of the degree distribution
+  if (nrow(out.test.list$degree.dataframe) > 0){
+    degree.vector <- out.test.list$degree.dataframe$Degree
+    mean.degree <- mean(degree.vector)
+    # Median may also be useful: not influenced by outliers
+    median.degree <- median(degree.vector)
+    # Q1 and Q3 (which define the inter-quartile range) are also fine
+    Q1.degree <- as.numeric(summary(degree.vector)["1st Qu."])
+    Q3.degree <- as.numeric(summary(degree.vector)["3rd Qu."])
+    # Now we can also try to fit parametric functions to the degree data
+    degree.best.fit <- degree.distr.fitter(out.test.list$degree.dataframe)
+    bestfit.list[[si.id]] <- degree.best.fit
+    # First column is where the si.id is stored
+    degree.dist.summStats.df[sim.id, 2] <- mean.degree
+    degree.dist.summStats.df[sim.id, 3] <- median.degree
+    degree.dist.summStats.df[sim.id, 4] <- Q1.degree
+    degree.dist.summStats.df[sim.id, 5] <- Q3.degree
+  }
+  
 }
 ```
 
