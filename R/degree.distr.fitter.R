@@ -50,7 +50,15 @@ degree.distr.fitter <- function(dataframe = degree.df){
   # (fitb<-fitdist(dataframe$degree, "beta"))
   # gofstat(fitb) # values must be in [0-1]
 
-  (fit<-fitdistrplus::gofstat(list(fitn,fitpois,fitnb,fitw,fitg,fitln)))
-  return(fit)
+  fit.list <- list(fitn,fitpois,fitnb,fitw,fitg,fitln)
+
+
+  (fit<-fitdistrplus::gofstat(f = fit.list,
+                              chisqbreaks = c(0,1,4,10,1000)))
+
+  bestfit.logic <- as.logical(fit$aic == min(fit$aic))
+  bestfit.place <- min(which(bestfit.logic == TRUE))
+
+  return(fit.list[[bestfit.place]])
 }
 
