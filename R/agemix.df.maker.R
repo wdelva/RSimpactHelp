@@ -45,12 +45,12 @@ agemix.df.maker <- function(datalist) {
 
   dfrmale <- datalist$rtable %>%
     data.frame() %>%
-    rename(ID = IDm) %>%
+    dplyr::rename(ID = IDm) %>%
     mutate(relid = paste0(ID, IDw))
 
   dfrfemale <- datalist$rtable %>%
     data.frame() %>%
-    rename(ID = IDw) %>%
+    dplyr::rename(ID = IDw) %>%
     mutate(relid = paste0(IDm, ID))
 
   dfmale <- datalist$ptable %>%
