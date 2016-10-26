@@ -30,10 +30,12 @@ testinput$mortality.normal.weibull.genderdiff <- 0
 testinput$periodiclogging.interval <- 1
 testinput$syncrefyear.interval <- 1
 testinput$formation.hazard.type <- "agegapry"
-testinput$person.eagerness.dist.type <- "gamma"
-testinput$person.eagerness.dist.type <- "gamma"
-testinput$person.eagerness.dist.gamma.a <- 0.231989836885#0.15 #0.425#3.4#1.7#0.85 #0.1
-testinput$person.eagerness.dist.gamma.b <- 45#70#100 #3.5#5#10#20 #170
+testinput$person.eagerness.man.dist.type <- "gamma"
+testinput$person.eagerness.woman.dist.type <- "gamma"
+testinput$person.eagerness.man.dist.gamma.a <- 0.231989836885#0.15 #0.425#3.4#1.7#0.85 #0.1
+testinput$person.eagerness.man.dist.gamma.b <- 45#70#100 #3.5#5#10#20 #170
+testinput$person.eagerness.woman.dist.gamma.a <- 0.231989836885#0.15 #0.425#3.4#1.7#0.85 #0.1
+testinput$person.eagerness.woman.dist.gamma.b <- 45#70#100 #3.5#5#10#20 #170
 testinput$person.agegap.man.dist.type <- "normal"
 testinput$person.agegap.woman.dist.type <- "normal"
 testinput$person.agegap.man.dist.normal.mu <- 0 #-5
@@ -63,11 +65,11 @@ testinput$hivseed.amount <- 20
 testinput$hivseed.age.min <- 20
 testinput$hivseed.age.max <- 30
 testinput$hivseed.time <- 10
-testinput$transmission.param.a <- -1.0352239
-testinput$transmission.param.b <- -89.339994
-testinput$transmission.param.c <- 0.4948478
-testinput$transmission.param.f1 <- log(5) # ~1.6 such that the hazard is x 5 in 15 yo
-testinput$transmission.param.f2 <- log(log(2.5) / log(5)) / 5
+testinput$hivtransmission.param.a <- -1.0352239
+testinput$hivtransmission.param.b <- -89.339994
+testinput$hivtransmission.param.c <- 0.4948478
+testinput$hivtransmission.param.f1 <- log(5) # ~1.6 such that the hazard is x 5 in 15 yo
+testinput$hivtransmission.param.f2 <- log(log(2.5) / log(5)) / 5
 testinput$conception.alpha_base <- -2.35 #-3
 testinput$diagnosis.baseline <- -100 # This will result in timing of HIV diagnosis way beyond the simulation period (until this parameter is overwritten when ART is introduced)
 testinput$monitoring.cd4.threshold <- 0.01
@@ -311,15 +313,17 @@ degree.dist.summStats.df <- data.frame(sim.id = 1:design.points,
                                        Q3.degree = rep(NA, design.points))
 
 # And a list of best fitting functions to the degree data
-bestfit.list <- list(rep(NA, design.points)) 
+bestfit.list <- vector("list", design.points)  
 ```
 
 ```{r simpact4emulation, echo=TRUE, message = FALSE, warning = FALSE, cache = FALSE}
 # Creating a new Simpact4emulation function
 simpact4emulation <- function(sim.id, lhs.df, testinput, agedist.data.frame, iv){
 
-  testinput$person.eagerness.dist.gamma.a <- lhs.df$eagerness.a[sim.id] #1
-  testinput$person.eagerness.dist.gamma.b <- lhs.df$eagerness.b[sim.id] #2
+  testinput$person.eagerness.man.dist.gamma.a <- lhs.df$eagerness.a[sim.id] #1
+  testinput$person.eagerness.man.dist.gamma.b <- lhs.df$eagerness.b[sim.id] #2
+  testinput$person.eagerness.woman.dist.gamma.a <- lhs.df$eagerness.a[sim.id] #1
+  testinput$person.eagerness.woman.dist.gamma.b <- lhs.df$eagerness.b[sim.id] #2
   testinput$conception.alpha_base <- lhs.df$concept.base[sim.id] #3
   testinput$formation.hazard.agegapry.numrel_man <- lhs.df$numrel[sim.id] #4
   testinput$formation.hazard.agegapry.numrel_woman <- lhs.df$numrel[sim.id] #4
@@ -373,7 +377,7 @@ for (sim.id in inANDout.100.df$sim.id){
   
   # Let's create a dataframe where we store summary statistics of the degree distribution
   # A first obvious summary statistic is the mean of the degree distribution
-  if (nrow(out.test.list$degree.dataframe) > 0){
+  if (nrow(out.test.list$degree.dataframe) >=10 ){
     degree.vector <- out.test.list$degree.dataframe$Degree
     mean.degree <- mean(degree.vector)
     # Median may also be useful: not influenced by outliers
@@ -383,7 +387,7 @@ for (sim.id in inANDout.100.df$sim.id){
     Q3.degree <- as.numeric(summary(degree.vector)["3rd Qu."])
     # Now we can also try to fit parametric functions to the degree data
     degree.best.fit <- degree.distr.fitter(out.test.list$degree.dataframe)
-    bestfit.list[[si.id]] <- degree.best.fit
+    bestfit.list[[sim.id]] <- degree.best.fit
     # First column is where the si.id is stored
     degree.dist.summStats.df[sim.id, 2] <- mean.degree
     degree.dist.summStats.df[sim.id, 3] <- median.degree
@@ -392,6 +396,33 @@ for (sim.id in inANDout.100.df$sim.id){
   }
   
 }
+```
+
+```{r plotting.degree.dist.fits, echo=TRUE, message = FALSE, cache = FALSE}
+bestfit.list.trimmed <- Filter(Negate(is.null), bestfit.list)
+bestfit.distname <- unlist(lapply(bestfit.list.trimmed, function(x) x[["distname"]]))
+bestfit.list.trimmed <- bestfit.list.trimmed[bestfit.distname=="lnorm"]
+bestfit.params <- unlist(lapply(bestfit.list.trimmed, function(x) x[["estimate"]]))
+
+lognormal.estimates <- matrix(bestfit.params,
+       byrow = TRUE,
+       ncol = 2,
+       dimnames = list(rownames = 1:length(bestfit.list.trimmed), colnames = c("meanlog", "sdlog")))
+
+plot(lognormal.estimates[, 1], lognormal.estimates[, 2])
+xvector <- 1:10
+predictions <- data.frame(t(apply(lognormal.estimates, 1, function(x) dlnorm(xvector, meanlog = x[1], sdlog = x[2], log = FALSE))))
+model.data <- cbind.data.frame(lognormal.estimates, predictions)
+model.data$sim.id <- 1:nrow(model.data)
+model.data.long <- tidyr::gather(data = model.data,
+              key = "degree.label",
+              value = "density",
+              X1:X10)
+model.data.long$degree <- tidyr::extract_numeric(model.data.long$degree.label)
+line.plot<- ggplot(data = model.data.long, mapping = aes(x = degree, y = density, group=sim.id))
+line.plot + geom_line()
+
+
 ```
 
 ```{r saveInputOutput, echo=TRUE, message = FALSE, cache = FALSE}

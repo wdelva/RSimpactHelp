@@ -10,7 +10,7 @@
 
 pop.growth.calculator <- function(datalist = datalist,
                                   timewindow = c(0, 20)){
-  end.popsize <- datalist$ltable %>% subset(Time==timewindow[2]) %>% select(PopSize) %>% as.numeric()
+  end.popsize <- datalist$ltable %>% subset(Time==timewindow[2]) %>% dplyr::select(PopSize) %>% as.numeric()
   start.popsize <- ifelse(timewindow[1]==0,
                           yes = datalist$itable$population.nummen + datalist$itable$population.numwomen,
                           no = datalist$ltable %>% subset(Time==timewindow[1]) %>% select(PopSize) %>% as.numeric())
