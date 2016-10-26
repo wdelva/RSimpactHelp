@@ -1,7 +1,14 @@
 ##neatly load all the packages listed in p_load()
 rm(list=ls())
-pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, magrittr, dplyr, exactci,nlme,
+pacman::p_load(doParallel, foreach, RSimpactCyan, RSimpactHelper, data.table, magrittr, dplyr,exactci,nlme,
                ggplot2, readcsvcolumns, survival, KMsurv, tidyr, lhs)
+detectCores() #number of available cores
+
+cores.to.use <- 3
+
+cl.core.number <- makeCluster(cores.to.use) #select the number of cores to use
+registerDoParallel(cl.core.number)
+getDoParWorkers() #how many cores are being used
 
 ## First set up the runs from Simpact with the parameters that you want to vary.
 simpact.set.simulation("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
@@ -19,24 +26,24 @@ simulation.number.count <- 0
 iv <- intervention.introduced(list(27,0,100,2),list(30,200,1.5), list(33,350,1),list(36,500,0.5))
 
 input.varied.params <- c("person.eagerness.man.dist.gamma.a", "person.eagerness.man.dist.gamma.b", "conception.alpha_base",
-                 "formation.hazard.agegapry.numrel_man", "formation.hazard.agegapry.eagerness_diff",
-                 "formation.hazard.agegapry.gap_factor_man_exp", "person.agegap.man.dist.normal.mu",
-                 "person.agegap.woman.dist.normal.mu","person.agegap.man.dist.normal.sigma",
-                 "person.agegap.woman.dist.normal.sigma")
+                         "formation.hazard.agegapry.numrel_man", "formation.hazard.agegapry.eagerness_diff",
+                         "formation.hazard.agegapry.gap_factor_man_exp", "person.agegap.man.dist.normal.mu",
+                         "person.agegap.woman.dist.normal.mu","person.agegap.man.dist.normal.sigma",
+                         "person.agegap.woman.dist.normal.sigma")
 
 input.varied.params.boundaries <- list(person.eagerness.man.dist.gamma.a.min =0.1, person.eagerness.man.dist.gamma.a.max =2,
-                               person.eagerness.man.dist.gamma.b.min = 5, person.eagerness.man.dist.gamma.b.max = 60,
-                               conception.alpha_base.min = -3.6, conception.alpha_base.max = -1.2,
-                               formation.hazard.agegapry.numrel_man.min = -1.5, formation.hazard.agegapry.numrel_man.max = -0.1,
-                               formation.hazard.agegapry.eagerness_diff.min = -0.1, formation.hazard.agegapry.eagerness_diff.max = 0,
-                               formation.hazard.agegapry.gap_factor_woman_exp.min = -1.5, formation.hazard.agegapry.gap_factor_woman_exp.max =-0.4,
-                               person.agegap.man.dist.normal.mu.min = 0, person.agegap.man.dist.normal.mu.max = 4,
-                               person.agegap.woman.dist.normal.mu.min =0, person.agegap.woman.dist.normal.mu.max = 4,
-                               person.agegap.man.dist.normal.sigma.min = 0.5, person.agegap.man.dist.normal.sigma.max =2,
-                               person.agegap.woman.dist.normal.sigma.min =0.5, person.agegap.woman.dist.normal.sigma.max =2)
+                                       person.eagerness.man.dist.gamma.b.min = 5, person.eagerness.man.dist.gamma.b.max = 60,
+                                       conception.alpha_base.min = -3.6, conception.alpha_base.max = -1.2,
+                                       formation.hazard.agegapry.numrel_man.min = -1.5, formation.hazard.agegapry.numrel_man.max = -0.1,
+                                       formation.hazard.agegapry.eagerness_diff.min = -0.1, formation.hazard.agegapry.eagerness_diff.max = 0,
+                                       formation.hazard.agegapry.gap_factor_woman_exp.min = -1.5, formation.hazard.agegapry.gap_factor_woman_exp.max =-0.4,
+                                       person.agegap.man.dist.normal.mu.min = 0, person.agegap.man.dist.normal.mu.max = 4,
+                                       person.agegap.woman.dist.normal.mu.min =0, person.agegap.woman.dist.normal.mu.max = 4,
+                                       person.agegap.man.dist.normal.sigma.min = 0.5, person.agegap.man.dist.normal.sigma.max =2,
+                                       person.agegap.woman.dist.normal.sigma.min =0.5, person.agegap.woman.dist.normal.sigma.max =2)
 
 target.variables <-c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
-                       "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30")
+                     "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30")
 
 ##10Rows repeat statistics for each run (saving for house keeping)
 repeat.sum.stats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(target.variables)))
@@ -131,7 +138,7 @@ simpact4emulation <- function(sim.id){
 succInANDOut.df<- function(design.points=10){
 
   # Running the simpact4emulation function with error catcher in a loop
-  for (sim.id in inANDout.df$sim.id){
+  foreach (sim.id = inANDout.df$sim.id) %dopar% {
     set.average.number <- 10
     #create a df to collect the repetead runs to be averaged
     outStats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(target.variables)))
@@ -147,15 +154,15 @@ succInANDOut.df<- function(design.points=10){
       if(length(datalist.test)>1){
         #get the summary statistics for each run
         out.test <- output.summary.maker(datalist = datalist.test, growth.rate=list(timewindow.min = 0, timewindow.max = unique(datalist.test$itable$population.simtime)),
-                                           agemix.maker=list(agegroup.min = 15, agegroup.max=30, timepoint =30,
-                                                             timewindow = 1, start=FALSE, gender = "female"),
-                                           prev.15.25 = list(age.group.min=15, age.group.max=25, timepoint = 35, gender = "men"),
-                                           prev.25.50 = list(age.group.min=25, age.group.max=50, timepoint = 35, gender = "men"),
-                                           art.coverage = list(age.group.min=15, age.group.max=50, timepoint = 34, gender = "men"),
-                                           inc.15.30 = list(age.group.min=15, age.group.max=30, timewindow.min = 30,
-                                                            timewindow.max = 40, gender = "women", only.active = "Harling"),
-                                           partner.degree = list(age.group.min=15, age.group.max=30, hivstatus = 0, survey.time = 30,
-                                                                 window.width = 1, gender="female", only.new = FALSE))
+                                         agemix.maker=list(agegroup.min = 15, agegroup.max=30, timepoint =30,
+                                                           timewindow = 1, start=FALSE, gender = "female"),
+                                         prev.15.25 = list(age.group.min=15, age.group.max=25, timepoint = 35, gender = "men"),
+                                         prev.25.50 = list(age.group.min=25, age.group.max=50, timepoint = 35, gender = "men"),
+                                         art.coverage = list(age.group.min=15, age.group.max=50, timepoint = 34, gender = "men"),
+                                         inc.15.30 = list(age.group.min=15, age.group.max=30, timewindow.min = 30,
+                                                          timewindow.max = 40, gender = "women", only.active = "Harling"),
+                                         partner.degree = list(age.group.min=15, age.group.max=30, hivstatus = 0, survey.time = 30,
+                                                               window.width = 1, gender="female", only.new = FALSE))
         ##get the summary statistics as indicated by target.variables
         out.test <- out.test[,target.variables]
       }else{out.test <- rep(NA,length(target.variables))}
@@ -195,5 +202,20 @@ succInANDOut.df<- function(design.points=10){
 start.time = proc.time()
 inANDout.df <- succInANDOut.df(design.points)
 end.time = proc.time() - start.time
+
+
+
+
+stopCluster(cl.core.number)
+
+
+
+
+
+
+
+
+
+
 
 
