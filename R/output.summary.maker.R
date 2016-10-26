@@ -96,12 +96,37 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
                               only.new = partner.degree$only.new)
   frac.degreeGT1.wom.15.30 <- mean(degree.df$Degree > 1)
 
+  if (nrow(degree.df) >=10 ){
+    degree.vector <- degree.df$Degree
+    mean.degree <- mean(degree.vector)
+    # Median may also be useful: not influenced by outliers
+    median.degree <- median(degree.vector)
+    # Q1 and Q3 (which define the inter-quartile range) are also fine
+    Q1.degree <- as.numeric(summary(degree.vector)["1st Qu."])
+    Q3.degree <- as.numeric(summary(degree.vector)["3rd Qu."])
+    # Now we can also try to fit parametric functions to the degree data
+    #degree.best.fit <- degree.distr.fitter(degree.df)
+    #bestfit.list[[sim.id]] <- degree.best.fit
+    # First column is where the si.id is stored
+    #degree.dist.summStats.df[sim.id, 2] <- mean.degree
+    #degree.dist.summStats.df[sim.id, 3] <- median.degree
+    #degree.dist.summStats.df[sim.id, 4] <- Q1.degree
+    #degree.dist.summStats.df[sim.id, 5] <- Q3.degree
+  }else{
+    mean.degree <- NA
+    median.degree <- NA
+    Q1.degree <- NA
+    Q3.degree <- NA
+    #degree.best.fit <- NA
+  }
+
 
   out.test <- matrix(c(growth.rate, median.AD, Q1.AD, Q3.AD, prev.men.15.25, prev.men.25.50, ART.cov.15.50,
-                       incid.wom.15.30, frac.degreeGT1.wom.15.30), nrow = 1,
-                     dimnames = list(NULL, c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25",
-                                             "prev.men.25.50", "ART.cov.15.50", "incid.men.15.30",
-                                             "frac.degreeGT1.wom.15.30"))) # 9 summary statistics
+                       incid.wom.15.30, frac.degreeGT1.wom.15.30, mean.degree, median.degree, Q1.degree,
+                       Q3.degree), nrow = 1, dimnames = list(NULL, c("growth.rate",
+                      "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50", "ART.cov.15.50",
+                      "incid.men.15.30", "frac.degreeGT1.wom.15.30","mean.degree", "median.degree", "Q1.degree",
+                      "Q3.degree"))) # summary statistics
 
   if(prev.15.25$gender!="men"){
     colnames(out.test)[colnames(out.test)=="prev.men.15.25"] <- "prev.wom.15.25"
