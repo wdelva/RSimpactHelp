@@ -398,6 +398,33 @@ for (sim.id in inANDout.100.df$sim.id){
 }
 ```
 
+```{r plotting.degree.dist.fits, echo=TRUE, message = FALSE, cache = FALSE}
+bestfit.list.trimmed <- Filter(Negate(is.null), bestfit.list)
+bestfit.distname <- unlist(lapply(bestfit.list.trimmed, function(x) x[["distname"]]))
+bestfit.list.trimmed <- bestfit.list.trimmed[bestfit.distname=="lnorm"]
+bestfit.params <- unlist(lapply(bestfit.list.trimmed, function(x) x[["estimate"]]))
+
+lognormal.estimates <- matrix(bestfit.params,
+       byrow = TRUE,
+       ncol = 2,
+       dimnames = list(rownames = 1:length(bestfit.list.trimmed), colnames = c("meanlog", "sdlog")))
+
+plot(lognormal.estimates[, 1], lognormal.estimates[, 2])
+xvector <- 1:10
+predictions <- data.frame(t(apply(lognormal.estimates, 1, function(x) dlnorm(xvector, meanlog = x[1], sdlog = x[2], log = FALSE))))
+model.data <- cbind.data.frame(lognormal.estimates, predictions)
+model.data$sim.id <- 1:nrow(model.data)
+model.data.long <- tidyr::gather(data = model.data,
+              key = "degree.label",
+              value = "density",
+              X1:X10)
+model.data.long$degree <- tidyr::extract_numeric(model.data.long$degree.label)
+line.plot<- ggplot(data = model.data.long, mapping = aes(x = degree, y = density, group=sim.id))
+line.plot + geom_line()
+
+
+```
+
 ```{r saveInputOutput, echo=TRUE, message = FALSE, cache = FALSE}
 # Running the simpact4emulation function with error catcher in a loop
 save(inANDout.8000.df, agedist.data.frame, testinput, iv, file = "/Users/delvaw/Documents/RSimpactHelper/R/Misc/incidence-degree-exploration.100.RData")
