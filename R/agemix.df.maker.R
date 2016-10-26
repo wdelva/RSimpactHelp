@@ -45,25 +45,25 @@ agemix.df.maker <- function(datalist) {
 
   dfrmale <- datalist$rtable %>%
     data.frame() %>%
-    rename(ID = IDm) %>%
-    mutate(relid = paste0(ID, IDw))
+    dplyr::rename(ID = ID1) %>%
+    mutate(relid = paste0(ID, ID2))
 
   dfrfemale <- datalist$rtable %>%
     data.frame() %>%
-    rename(ID = IDw) %>%
-    mutate(relid = paste0(IDm, ID))
+    dplyr::rename(ID = ID2) %>%
+    mutate(relid = paste0(ID1, ID))
 
   dfmale <- datalist$ptable %>%
     data.frame() %>%
     filter(Gender == 0) %>%
     left_join(dfrmale, by = "ID") %>%
-    dplyr::select(-IDw)
+    dplyr::select(-ID2)
 
   dffemale <- datalist$ptable %>%
     data.frame() %>%
     filter(Gender == 1) %>%
     left_join(dfrfemale, by = "ID") %>%
-    dplyr::select(-IDm)
+    dplyr::select(-ID1)
 
   df <- bind_rows(dfmale, dffemale) %>%
     arrange(Gender, ID, relid, FormTime) %>%
