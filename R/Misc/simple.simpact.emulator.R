@@ -1,10 +1,9 @@
-library(magrittr)
-library(dplyr)
-library(emulator)
-library(multivator)
+#loading the libraries
+pacman::p_load(magrittr, dplyr, emulator, multivator)
+
 ## Simple Simpact emulator
 
-simpact.inANDout.df <- read.csv(file = "/Users/delvaw/Documents/RSimpactHelper/data/inANDout.df2016-09-27.csv",
+simpact.inANDout.df <- read.csv(file = "~/RSimpactHelper/data/inANDout.df2016-09-27.csv",
          header = TRUE,
          sep = ",")
 

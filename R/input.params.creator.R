@@ -21,7 +21,10 @@
 #' @param formation.hazard.agegapry.numrel_scale_woman Effect of the number of relationships on the penalty for deviation from preferred age difference for women (0)
 #' @param formation.hazard.agegapry.gap_agescale_man Effect of male age on preferred age difference (~ 1 - slope in regression model FemaleAge ~ MaleAge) (0.3)
 #' @param formation.hazard.agegapry.gap_agescale_woman Effect of male age on preferred age difference (~ 1 - slope in regression model FemaleAge ~ MaleAge) (0.3)
-#' @param person.eagerness.dist.type Type of distribution for "eagerness" (~ sexual activity) in the population ("gamma")
+#' @param person.eagerness.man.type Type of man distribution for "eagerness" (~ sexual activity) in the population ("independent")
+#' @param person.eagerness.woman.type Type of man distribution for "eagerness" (~ sexual activity) in the population ("independent")
+#' @param person.eagerness.man.dist.type Type of man distribution for "eagerness" (~ sexual activity) in the population ("gamma")
+#' @param person.eagerness.women.dist.type Type of women distribution for "eagerness" (~ sexual activity) in the population ("gamma")
 #' @param formation.hazard.agegapry.eagerness_sum Effect of the sum of eagerness values in both partners on the relationship formation rate (1)
 #' @param transmission.param.a Baseline parameter for HIV transmission rate in serodiscordant couples (-1.0352239)
 #' @param transmission.param.b Parameter "b" for the linear component of the effect of viral load on the HIV transmission rate in serodiscordant couples (-89.339994)
@@ -36,8 +39,10 @@
 #' @param formation.hazard.agegapry.numrel_man Effect of number of ongoing relationships on the relationship formation rate for men (-0.2)
 #' @param formation.hazard.agegapry.numrel_woman Effect of number of ongoing relationships on the relationship formation rate for women (-0.2)
 #' @param formation.hazard.agegapry.numrel_diff Effect of absolute difference in number of ongoing relationships on the relationship formation rate (-0.1)
-#' @param person.eagerness.dist.gamma.a Shape parameter (kappa parameter on wiki page) of Gamma distribution of "eagerness" (0.125)
-#' @param person.eagerness.dist.gamma.b Scale parameter (theta parameter on wiki page) of Gamma distribution of "eagerness" (8)
+#' @param person.eagerness.man.dist.gamma.a Shape parameter (kappa parameter on wiki page) of Gamma distribution of "eagerness" (0.125)
+#' @param person.eagerness.man.dist.gamma.b Scale parameter (theta parameter on wiki page) of Gamma distribution of "eagerness" (8)
+#' @param person.eagerness.women.dist.gamma.a Shape parameter (kappa parameter on wiki page) of Gamma distribution of "eagerness" (0.125)
+#' @param person.eagerness.women.dist.gamma.b Scale parameter (theta parameter on wiki page) of Gamma distribution of "eagerness" (8)
 #' @param formation.hazard.agegapry.eagerness_diff Effect of absolute difference in eagerness on the relationship formation rate (-1)
 #' @param formation.hazard.agegapry.gap_factor_man_exp Effect of deviation from preferred age difference on the relationship formation rate for men (-0.2)
 #' @param formation.hazard.agegapry.gap_factor_woman_exp Effect of deviation from preferred age difference on the relationship formation rate for women (-0.2)
@@ -58,9 +63,14 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  periodiclogging.interval = 1,
                                  syncrefyear.interval = 1,
                                  formation.hazard.type = "agegapry",
-                                 person.eagerness.dist.type = "gamma",
-                                 person.eagerness.dist.gamma.a = 0.231989836885,#0.15 #0.425#3.4#1.7#0.85 #0.1
-                                 person.eagerness.dist.gamma.b = 45,#70#100 #3.5#5#10#20 #170
+                                 person.eagerness.man.type = "independent",
+                                 person.eagerness.woman.type = "independent",
+                                 person.eagerness.man.dist.type = "gamma",
+                                 person.eagerness.woman.dist.type = "gamma",
+                                 person.eagerness.man.dist.gamma.a = 0.231989836885,#0.15 #0.425#3.4#1.7#0.85 #0.1
+                                 person.eagerness.man.dist.gamma.b = 45,#70#100 #3.5#5#10#20 #170
+                                 person.eagerness.woman.dist.gamma.a = 0.231989836885,#0.15 #0.425#3.4#1.7#0.85 #0.1
+                                 person.eagerness.woman.dist.gamma.b = 45,#70#100 #3.5#5#10#20 #170
                                  person.agegap.man.dist.type = "normal",
                                  person.agegap.woman.dist.type = "normal",
                                  person.agegap.man.dist.normal.mu = 0, #-5
@@ -89,11 +99,11 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  hivseed.age.min = 20,
                                  hivseed.age.max = 30,
                                  hivseed.time = 10,
-                                 transmission.param.a = -1.0352239,
-                                 transmission.param.b = -89.339994,
-                                 transmission.param.c = 0.4948478,
-                                 transmission.param.f1 = log(5), # ~1.6 such that the hazard is x 5 in 15 yo
-                                 transmission.param.f2 = log(log(2.5) / log(5)) / 5,
+                                 hivtransmission.param.a = -1.0352239,
+                                 hivtransmission.param.b = -89.339994,
+                                 hivtransmission.param.c = 0.4948478,
+                                 hivtransmission.param.f1 = log(5), # ~1.6 such that the hazard is x 5 in 15 yo
+                                 hivtransmission.param.f2 = log(log(2.5) / log(5)) / 5,
                                  conception.alpha_base = -2.35, #-3
                                  diagnosis.baseline = -100,
                                  monitoring.cd4.threshold = 0.01
@@ -105,10 +115,14 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params.list$periodiclogging.interval <- periodiclogging.interval
   input.params.list$syncrefyear.interval <- syncrefyear.interval
   input.params.list$formation.hazard.type <- formation.hazard.type
-  input.params.list$person.eagerness.dist.type <- person.eagerness.dist.type
-  input.params.list$person.eagerness.dist.type <- person.eagerness.dist.type
-  input.params.list$person.eagerness.dist.gamma.a <- person.eagerness.dist.gamma.a
-  input.params.list$person.eagerness.dist.gamma.b <- person.eagerness.dist.gamma.b
+  input.params.list$person.eagerness.man.type <- person.eagerness.man.type
+  input.params.list$person.eagerness.woman.type <- person.eagerness.woman.type
+  input.params.list$person.eagerness.man.dist.type <- person.eagerness.man.dist.type
+  input.params.list$person.eagerness.woman.dist.type <- person.eagerness.woman.dist.type
+  input.params.list$person.eagerness.man.dist.gamma.a <- person.eagerness.man.dist.gamma.a
+  input.params.list$person.eagerness.man.dist.gamma.b <- person.eagerness.man.dist.gamma.b
+  input.params.list$person.eagerness.woman.dist.gamma.a <- person.eagerness.woman.dist.gamma.a
+  input.params.list$person.eagerness.woman.dist.gamma.b <- person.eagerness.woman.dist.gamma.b
   input.params.list$person.agegap.man.dist.type <- person.agegap.man.dist.type
   input.params.list$person.agegap.woman.dist.type <- person.agegap.woman.dist.type
   input.params.list$person.agegap.man.dist.normal.mu <- person.agegap.man.dist.normal.mu
@@ -138,11 +152,11 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params.list$hivseed.age.min <- hivseed.age.min
   input.params.list$hivseed.age.max <- hivseed.age.max
   input.params.list$hivseed.time <- hivseed.time
-  input.params.list$transmission.param.a <- transmission.param.a
-  input.params.list$transmission.param.b <- transmission.param.b
-  input.params.list$transmission.param.c <- transmission.param.c
-  input.params.list$transmission.param.f1 <- transmission.param.f1
-  input.params.list$transmission.param.f2 <- transmission.param.f2
+  input.params.list$hivtransmission.param.a <- hivtransmission.param.a
+  input.params.list$hivtransmission.param.b <- hivtransmission.param.b
+  input.params.list$hivtransmission.param.c <- hivtransmission.param.c
+  input.params.list$hivtransmission.param.f1 <- hivtransmission.param.f1
+  input.params.list$hivtransmission.param.f2 <- hivtransmission.param.f2
   input.params.list$conception.alpha_base <- conception.alpha_base
   input.params.list$diagnosis.baseline <- diagnosis.baseline # This will result in timing of HIV diagnosis way beyond the simulation period (until this parameter is overwritten when ART is introduced)
   input.params.list$monitoring.cd4.threshold <- monitoring.cd4.threshold
