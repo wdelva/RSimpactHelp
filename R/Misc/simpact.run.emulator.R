@@ -12,7 +12,7 @@ agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 cfg <- input.params.creator(population.simtime = 40, population.numwomen = 500, population.nummen = 500)
 
 #number of simulations repeats.
-design.points <- 5
+design.points <- 50
 simulation.number.count <- 0
 #intervention introduced
 # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
@@ -36,9 +36,10 @@ input.varied.params.boundaries <- list(person.eagerness.man.dist.gamma.a.min =0.
                                person.agegap.woman.dist.normal.sigma.min =0.5, person.agegap.woman.dist.normal.sigma.max =2)
 
 target.variables <-c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
-                       "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30")
+                       "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30", "mean.degree",
+                     "median.degree", "Q1.degree", "Q3.degree")
 
-##10Rows repeat statistics for each run (saving for house keeping)
+##Rows repeat statistics for each run (saving for house keeping)
 repeat.sum.stats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(target.variables)))
 names(repeat.sum.stats.df) <- target.variables
 repeat.sum.stats.df$sim.id <- NA
@@ -108,8 +109,10 @@ simpact4emulation <- function(sim.id){
 
   simpact.seed.id <- sim.id
 
-  testoutput <- simpact.run(configParams = cfg, destDir = "temp", agedist = agedist.data.frame, intervention = iv,
-                            seed = simpact.seed.id)
+  #testoutput <- simpact.run(configParams = cfg, destDir = "temp", agedist = agedist.data.frame, intervention = iv,
+  #                          seed = simpact.seed.id)
+  #Allow for different summarise statistics per/run
+  testoutput <- simpact.run(configParams = cfg, destDir = "temp", agedist = agedist.data.frame, intervention = iv)
 
 
   if (testoutput$simulationtime < cfg$population.simtime)
@@ -160,7 +163,7 @@ succInANDOut.df<- function(design.points=10){
         out.test <- out.test[,target.variables]
       }else{out.test <- rep(NA,length(target.variables))}
 
-      print(out.test)
+      #print(out.test)
       outStats.df[rep.sim.id,] <- out.test
 
     }
@@ -195,5 +198,16 @@ succInANDOut.df<- function(design.points=10){
 start.time = proc.time()
 inANDout.df <- succInANDOut.df(design.points)
 end.time = proc.time() - start.time
+
+
+##### either read the data from before or run some data here and then Do the following
+
+
+
+
+
+
+
+
 
 
