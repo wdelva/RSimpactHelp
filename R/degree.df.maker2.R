@@ -29,6 +29,7 @@ degree.df.maker <- function(dataframe.df,
                             hivstatus = 0,
                             survey.time = 40,
                             window.width = 1,
+                            gender.degree =  "female",
                             only.new = TRUE){
 
 
@@ -72,12 +73,12 @@ dfnew <- subset(dfnew, TOD > survey.time)
                                  FormTime < survey.time,
                                  DisTime > survey.time-window.width,
                                  #InfectTime > survey.time; InfectTime <= survey.time
-                                 Gender=='female',survey.time-TOB>=agegroup[1], survey.time-TOB<agegroup[2])}
+                                 Gender==gender.degree,survey.time-TOB>=agegroup[1], survey.time-TOB<agegroup[2])}
     else
     {dfnew <- dplyr::filter(dfnew,
                                    FormTime < survey.time,
                                    DisTime > survey.time-window.width,
-                                   Gender=='female',survey.time-TOB>=agegroup[1], survey.time-TOB<agegroup[2])}
+                                   Gender==gender.degree,survey.time-TOB>=agegroup[1], survey.time-TOB<agegroup[2])}
   }
   # unique relid's(those in the relationship) of each ID.
   uniqueOut <- dfnew %>%
