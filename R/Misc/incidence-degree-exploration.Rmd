@@ -322,7 +322,7 @@ simpact4emulation <- function(sim.id, lhs.df, testinput, agedist.data.frame, iv)
 
   testinput$person.eagerness.man.dist.gamma.a <- lhs.df$eagerness.a[sim.id] #1
   testinput$person.eagerness.man.dist.gamma.b <- lhs.df$eagerness.b[sim.id] #2
-    testinput$person.eagerness.woman.dist.gamma.a <- lhs.df$eagerness.a[sim.id] #1
+  testinput$person.eagerness.woman.dist.gamma.a <- lhs.df$eagerness.a[sim.id] #1
   testinput$person.eagerness.woman.dist.gamma.b <- lhs.df$eagerness.b[sim.id] #2
   testinput$conception.alpha_base <- lhs.df$concept.base[sim.id] #3
   testinput$formation.hazard.agegapry.numrel_man <- lhs.df$numrel[sim.id] #4
