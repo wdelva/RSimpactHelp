@@ -311,7 +311,7 @@ degree.dist.summStats.df <- data.frame(sim.id = 1:design.points,
                                        Q3.degree = rep(NA, design.points))
 
 # And a list of best fitting functions to the degree data
-bestfit.list <- list(rep(NA, design.points)) 
+bestfit.list <- vector("list", design.points)  
 ```
 
 ```{r simpact4emulation, echo=TRUE, message = FALSE, warning = FALSE, cache = FALSE}
@@ -373,7 +373,7 @@ for (sim.id in inANDout.100.df$sim.id){
   
   # Let's create a dataframe where we store summary statistics of the degree distribution
   # A first obvious summary statistic is the mean of the degree distribution
-  if (nrow(out.test.list$degree.dataframe) > 0){
+  if (nrow(out.test.list$degree.dataframe) >=10 ){
     degree.vector <- out.test.list$degree.dataframe$Degree
     mean.degree <- mean(degree.vector)
     # Median may also be useful: not influenced by outliers
@@ -383,7 +383,7 @@ for (sim.id in inANDout.100.df$sim.id){
     Q3.degree <- as.numeric(summary(degree.vector)["3rd Qu."])
     # Now we can also try to fit parametric functions to the degree data
     degree.best.fit <- degree.distr.fitter(out.test.list$degree.dataframe)
-    bestfit.list[[si.id]] <- degree.best.fit
+    bestfit.list[[sim.id]] <- degree.best.fit
     # First column is where the si.id is stored
     degree.dist.summStats.df[sim.id, 2] <- mean.degree
     degree.dist.summStats.df[sim.id, 3] <- median.degree
