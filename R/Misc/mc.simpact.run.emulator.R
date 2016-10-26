@@ -2,13 +2,6 @@
 rm(list=ls())
 pacman::p_load(doParallel, foreach, RSimpactCyan, RSimpactHelper, data.table, magrittr, dplyr,exactci,nlme,
                ggplot2, readcsvcolumns, survival, KMsurv, tidyr, lhs)
-detectCores() #number of available cores
-
-cores.to.use <- 3
-
-cl.core.number <- makeCluster(cores.to.use) #select the number of cores to use
-registerDoParallel(cl.core.number)
-getDoParWorkers() #how many cores are being used
 
 ## First set up the runs from Simpact with the parameters that you want to vary.
 simpact.set.simulation("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
@@ -20,7 +13,6 @@ cfg <- input.params.creator(population.simtime = 40, population.numwomen = 500, 
 
 #number of simulations repeats.
 design.points <- 5
-simulation.number.count <- 0
 #intervention introduced
 # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
 iv <- intervention.introduced(list(27,0,100,2),list(30,200,1.5), list(33,350,1),list(36,500,0.5))
@@ -99,47 +91,67 @@ inANDout.df <- cbind.data.frame(sim.id = 1:design.points, rlhs, lhs.df, summary.
 
 # Creating a new Simpact4emulation function
 # Generating New function from here
-simpact4emulation <- function(sim.id){
 
-  #changing the parameters to indicate the row in the simulation run
-  for (cfg.par in input.varied.params){
-    assign.cfg.value <- lhs.df[sim.id,cfg.par]
-    cfg[cfg.par][[1]] <- assign.cfg.value
-  }
+cores.to.use <- 3
 
-  ## Set those parameters that need to be the same
-  cfg$person.eagerness.woman.dist.gamma.a <- cfg$person.eagerness.man.dist.gamma.a
-  cfg$person.eagerness.woman.dist.gamma.b <- cfg$person.eagerness.man.dist.gamma.b
-  cfg$formation.hazard.agegapry.numrel_woman <- cfg$formation.hazard.agegapry.numrel_man
-  cfg$formation.hazard.agegapry.gap_factor_man_exp <- cfg$formation.hazard.agegapry.gap_factor_woman_exp
-
-  simpact.seed.id <- sim.id
-
-  testoutput <- simpact.run(configParams = cfg, destDir = "temp", agedist = agedist.data.frame, intervention = iv,
-                            seed = simpact.seed.id)
-
-
-  if (testoutput$simulationtime < cfg$population.simtime)
-  {
-    if (testoutput$eventsexecuted >= cfg$population.maxevents-1)  #use ifelse
-    {
-      stop("MAXEVENTS: Simulation stopped prematurely, max events reached")
-    }
-    else
-    {
-      stop("Simulation stopped prematurely, probably ran out of events")
-    }
-  }
-  datalist.test <- readthedata(testoutput)
-}
-
+cl.core.number <- makeCluster(cores.to.use, outfile="debug.txt") #select the number of cores to use
+#make access to the following variables
+clusterExport(cl.core.number, c("target.variables", "inANDout.df","repeat.sum.stats.df", "variables",
+                                "input.varied.params","lhs.df","cfg", "agedist.data.frame", "iv"))
+clusterEvalQ(cl.core.number, library(RSimpactCyan))
+clusterEvalQ(cl.core.number, library(RSimpactHelper))
+clusterEvalQ(cl.core.number, library(magrittr))
+clusterEvalQ(cl.core.number, library(magrittr))
+clusterEvalQ(cl.core.number, library(dplyr))
+registerDoParallel(cl.core.number)
+getDoParWorkers() #how many cores are being used
 
 
 succInANDOut.df<- function(design.points=10){
 
+  simpact4emulation <- function(sim.id){
+
+    #changing the parameters to indicate the row in the simulation run
+    for (cfg.par in input.varied.params){
+      assign.cfg.value <- lhs.df[sim.id,cfg.par]
+      cfg[cfg.par][[1]] <- assign.cfg.value
+    }
+
+    ## Set those parameters that need to be the same
+    cfg$person.eagerness.woman.dist.gamma.a <- cfg$person.eagerness.man.dist.gamma.a
+    cfg$person.eagerness.woman.dist.gamma.b <- cfg$person.eagerness.man.dist.gamma.b
+    cfg$formation.hazard.agegapry.numrel_woman <- cfg$formation.hazard.agegapry.numrel_man
+    cfg$formation.hazard.agegapry.gap_factor_man_exp <- cfg$formation.hazard.agegapry.gap_factor_woman_exp
+
+    simpact.seed.id <- sim.id
+
+    testoutput <- simpact.run(configParams = cfg, destDir = "temp", agedist = agedist.data.frame, intervention = iv,
+                              seed = simpact.seed.id)
+
+
+    if (testoutput$simulationtime < cfg$population.simtime)
+    {
+      if (testoutput$eventsexecuted >= cfg$population.maxevents-1)  #use ifelse
+      {
+        stop("MAXEVENTS: Simulation stopped prematurely, max events reached")
+      }
+      else
+      {
+        stop("Simulation stopped prematurely, probably ran out of events")
+      }
+    }
+    datalist.test <- readthedata(testoutput)
+  }
+
+#pacman::p_load(doParallel, foreach, data.table, , dplyr,exactci,nlme,
+#               ggplot2, readcsvcolumns, survival, KMsurv, tidyr, lhs)
+###detectCores() #number of available cores
+
   # Running the simpact4emulation function with error catcher in a loop
-  foreach (sim.id = inANDout.df$sim.id) %dopar% {
+  foreach(sim.id = inANDout.df$sim.id) %dopar% {
     set.average.number <- 10
+    simulation.number.count <- 0
+    print(sim.id)
     #create a df to collect the repetead runs to be averaged
     outStats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(target.variables)))
     names(outStats.df) <- target.variables
@@ -192,30 +204,19 @@ succInANDOut.df<- function(design.points=10){
     #write the data stating the number of design points and the number of var parameters
   }
 
+  stopCluster(cl.core.number)
+
   write.csv(inANDout.df, file =paste("inANDout.df","-",design.points,"Points",variables,"Par",Sys.Date(), ".csv", sep=""), row.names = FALSE)
   write.csv(repeat.sum.stats.df, file =paste("RepeatAverage.df","-",design.points,"Points",variables,"Par",Sys.Date(), ".csv", sep=""), row.names = FALSE)
 
   return(inANDout.df)
 }
 
-#succRows.df <- success (Run the whole file).
 start.time = proc.time()
 inANDout.df <- succInANDOut.df(design.points)
 end.time = proc.time() - start.time
 
-
-
-
 stopCluster(cl.core.number)
-
-
-
-
-
-
-
-
-
 
 
 
