@@ -41,6 +41,11 @@ x.variables.boundaries <- list(person.eagerness.man.dist.gamma.a.min =0.1, perso
 z.variables <- c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
                  "ART.cov.15.50")
 
+##Rows repeat statistics for each run (saving for house keeping)
+repeat.20.sum.stats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(z.variables)))
+names(repeat.20.sum.stats.df) <- target.variables
+repeat.20.sum.stats.df$sim.id <- NA
+
 #Set the targets for the summary statistics.
 targets <- c(0.014, 3, 2, 5, 0.08, 0.25, 0.3)
 
@@ -382,7 +387,7 @@ names(summary.stats.pred.df) <- z.variables
 inANDout.pred.20.df <- cbind.data.frame(sim.id = 1:validation.repeats, rlhs.pred, lhs.pred.df, summary.stats.pred.df)
 
 
-simpact4emulation.pred <- function(sim.id, lhs.df, cfg, agedist.data.frame, iv){
+simpact4emulation.pred <- function(sim.id, rep.sim.id){
 
   for (j in x.variables){
     assign.cfg.value <- lhs.pred.df[sim.id,j]
@@ -395,9 +400,15 @@ simpact4emulation.pred <- function(sim.id, lhs.df, cfg, agedist.data.frame, iv){
   cfg.pred$formation.hazard.agegapry.numrel_woman <- cfg.pred$formation.hazard.agegapry.numrel_man
   cfg.pred$formation.hazard.agegapry.gap_factor_man_exp <- cfg.pred$formation.hazard.agegapry.gap_factor_woman_exp
 
-  simpact.seed.id <- sim.id
+  simpact.seed.id <- rep.sim.id
+
+  sub.dir.sim.id <- sprintf("%06d",sim.id)
+  sub.dir.rep.sim.id <- sprintf("%02d",rep.sim.id)
+
+  sub.dir.rename <- paste("temp/",sub.dir.sim.id,"/",sub.dir.rep.sim.id,sep = "")
 
   testoutput <- simpact.run(configParams = cfg.pred, destDir = "temp", agedist = agedist.data.frame, intervention = iv,
+                            identifierFormat = paste0("%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r_",sub.dir.sim.id,"_",sub.dir.rep.sim.id,"-"),
                             seed = simpact.seed.id)
 
 
@@ -433,7 +444,7 @@ succInANDOut.pred.df<- function(design.points=10){
       simulation.number.count <- simulation.number.count + 1
       print(paste("Simulation Count:",simulation.number.count,"Design number:", sim.id,"/",validation.repeats, sep = " "))
 
-      datalist.test <- tryCatch(simpact4emulation.pred(sim.id, lhs.df, cfg.pred, agedist.data.frame, iv), error = errFunction)
+      datalist.test <- tryCatch(simpact4emulation.pred(sim.id,j), error = errFunction)
       if(length(datalist.test)>1){
         #get the summary statistics for each run
         out.test <- output.summary.maker(datalist.test, growth.rate=list(timewindow.min = 0, timewindow.max = 20),
@@ -459,30 +470,47 @@ succInANDOut.pred.df<- function(design.points=10){
     out.test <- colMeans(outStats.df, na.rm = TRUE)
     # Inserting the output to the inANDout.pred.20.df dataframe
 
+    outStats.df$sim.id <- sim.id
+    repeat.sum.stats.df <- rbind(repeat.sum.stats.df,outStats.df)
+
     big.insert <- length(inANDout.pred.20.df) - length(z.variables) + 1
 
     inANDout.pred.20.df[sim.id, big.insert:length(inANDout.pred.20.df)] <- out.test
     inANDout.pred.20.df$success.pred.rows[sim.id] <- success.pred.rows
 
     write.csv(inANDout.pred.20.df, file =paste("RowUpdate_pred_20.","-",design.points,"Points",variables,"Par_Partial",Sys.Date(), ".csv", sep=""), row.names = FALSE)
-    unlink(paste(getwd(),"/temp/*", sep=""))
+    write.csv(repeat.20.sum.stats.df, file =paste("RepeatAverage.20.df","-",design.points,"Points",variables,"Par_Partial",Sys.Date(), ".csv", sep=""), row.names = FALSE)
+    #unlink(paste(getwd(),"/temp/*", sep=""))
 
     #write the data stating the number of design points and the number of var parameters
   }
 
   write.csv(inANDout.pred.20.df, file =paste("inANDout.pred.20.df","-",validation.repeats,"Points",
                                              length(z.variables),"Par",Sys.Date(), ".csv", sep=""), row.names = FALSE)
+  write.csv(repeat.20.sum.stats.df, file =paste("RepeatAverage.20.df","-",design.points,"Points",variables,"Par",Sys.Date(),
+                                             ".csv", sep=""), row.names = FALSE)
+  sim.output.result <- list(inANDout.pred.20.df, repeat.20.sum.stats.df)
 
-  return(inANDout.pred.20.df)
+  return(sim.output.result)
+
 
 }
 
+
+
 start.time = proc.time()
-inANDout.pred.20.df <- succInANDOut.pred.df(validation.repeats)
+sim.20.output.result <- succInANDOut.pred.df(validation.repeats)
 end.time = proc.time() - start.time
+
+inANDout.pred.20.df <- sim.20.output.result[[1]]
+repeat.sum.stats.df <- sim.20.output.result[[2]]
 
 
 small.insert <- length(inANDout.pred.20.df) - 1
+
+inANDout.df <-
+repeat.sum.stats.df <- simpact.inANDout.df[[1]][2]
+
 
 inANDout.pred.20.plusHarling.df <- rbind(inANDout.pred.20.df[, small.insert:length(inANDout.pred.20.df)],
                                          c(0.075, 0.013))
