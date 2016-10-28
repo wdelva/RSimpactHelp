@@ -108,10 +108,6 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
     #degree.best.fit <- degree.distr.fitter(degree.df)
     #bestfit.list[[sim.id]] <- degree.best.fit
     # First column is where the si.id is stored
-    #degree.dist.summStats.df[sim.id, 2] <- mean.degree
-    #degree.dist.summStats.df[sim.id, 3] <- median.degree
-    #degree.dist.summStats.df[sim.id, 4] <- Q1.degree
-    #degree.dist.summStats.df[sim.id, 5] <- Q3.degree
   }else{
     mean.degree <- NA
     median.degree <- NA
@@ -119,7 +115,6 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
     Q3.degree <- NA
     #degree.best.fit <- NA
   }
-
 
   out.test <- matrix(c(growth.rate, median.AD, Q1.AD, Q3.AD, prev.men.15.25, prev.men.25.50, ART.cov.15.50,
                        incid.wom.15.30, frac.degreeGT1.wom.15.30, mean.degree, median.degree, Q1.degree,
