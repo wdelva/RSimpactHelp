@@ -12,7 +12,7 @@ agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 cfg <- input.params.creator(population.simtime = 40, population.numwomen = 500, population.nummen = 500)
 
 #number of simulations repeats.
-design.points <- 50
+design.points <- 100
 simulation.number.count <- 0
 #intervention introduced
 # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
@@ -38,6 +38,10 @@ input.varied.params.boundaries <- list(person.eagerness.man.dist.gamma.a.min =0.
 target.variables <-c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
                        "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30", "mean.degree",
                      "median.degree", "Q1.degree", "Q3.degree")
+
+# And a dataframe for the degree distribution summary statistics
+#bestfit.length <- 10*design.points #(number of repeats per sim.id)
+#bestfit.list <- vector("list" ,bestfit.length)
 
 ##Rows repeat statistics for each run (saving for house keeping)
 repeat.sum.stats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(target.variables)))
@@ -93,7 +97,7 @@ inANDout.df <- cbind.data.frame(sim.id = 1:design.points, rlhs, lhs.df, summary.
 
 # Creating a new Simpact4emulation function
 # Generating New function from here
-simpact4emulation <- function(sim.id){
+simpact4emulation <- function(sim.id, rep.sim.id){
 
   #changing the parameters to indicate the row in the simulation run
   for (cfg.par in input.varied.params){
@@ -107,12 +111,19 @@ simpact4emulation <- function(sim.id){
   cfg$formation.hazard.agegapry.numrel_woman <- cfg$formation.hazard.agegapry.numrel_man
   cfg$formation.hazard.agegapry.gap_factor_man_exp <- cfg$formation.hazard.agegapry.gap_factor_woman_exp
 
-  simpact.seed.id <- sim.id
+  simpact.seed.id <- rep.sim.id
 
-  #testoutput <- simpact.run(configParams = cfg, destDir = "temp", agedist = agedist.data.frame, intervention = iv,
-  #                          seed = simpact.seed.id)
   #Allow for different summarise statistics per/run
-  testoutput <- simpact.run(configParams = cfg, destDir = "temp", agedist = agedist.data.frame, intervention = iv)
+
+  sub.dir.sim.id <- sprintf("%06d",sim.id)
+  sub.dir.rep.sim.id <- sprintf("%02d",rep.sim.id)
+
+  sub.dir.rename <- paste("temp/",sub.dir.sim.id,"/",sub.dir.rep.sim.id,sep = "")
+
+
+  testoutput <- simpact.run(configParams = cfg, destDir = sub.dir.rename, agedist = agedist.data.frame, intervention = iv,
+                            identifierFormat = paste0("%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r_",sub.dir.sim.id,"_",sub.dir.rep.sim.id,"-"),
+                            seed = simpact.seed.id)
 
 
   if (testoutput$simulationtime < cfg$population.simtime)
@@ -130,7 +141,6 @@ simpact4emulation <- function(sim.id){
 }
 
 
-
 succInANDOut.df<- function(design.points=10){
 
   # Running the simpact4emulation function with error catcher in a loop
@@ -145,7 +155,7 @@ succInANDOut.df<- function(design.points=10){
       simulation.number.count <- simulation.number.count + 1
       print(paste("Simulation Count:",simulation.number.count,"Design number:", sim.id,"/",design.points, sep = " "))
 
-      datalist.test <- tryCatch(simpact4emulation(sim.id), error = errFunction)
+      datalist.test <- tryCatch(simpact4emulation(sim.id,rep.sim.id), error = errFunction)
 
       if(length(datalist.test)>1){
         #get the summary statistics for each run
@@ -160,17 +170,20 @@ succInANDOut.df<- function(design.points=10){
                                            partner.degree = list(age.group.min=15, age.group.max=30, hivstatus = 0, survey.time = 30,
                                                                  window.width = 1, gender="female", only.new = FALSE))
         ##get the summary statistics as indicated by target.variables
-        out.test <- out.test[,target.variables]
-      }else{out.test <- rep(NA,length(target.variables))}
-
-      #print(out.test)
-      outStats.df[rep.sim.id,] <- out.test
+        out.test.not.degree <- out.test[,target.variables]
+        ##out.test.degree <- out.test[[2]]
+      }else{
+        out.test.not.degree <- rep(NA,length(target.variables))
+        ##out.test.degree <- NA
+      }
+      outStats.df[rep.sim.id,] <- out.test.not.degree
+      ##bestfit.list[[simulation.number.count]] <- out.test.degree
 
     }
     #average the ten runs to get the averal summary statistic
     success.complete.df <- dplyr::filter(outStats.df, complete.cases(outStats.df))
     success.rows <- nrow(success.complete.df)
-    out.test <- colMeans(outStats.df, na.rm = TRUE)
+    out.test.not.degree <- colMeans(outStats.df, na.rm = TRUE)
 
     outStats.df$sim.id <- sim.id
     repeat.sum.stats.df <- rbind(repeat.sum.stats.df,outStats.df)
@@ -178,7 +191,7 @@ succInANDOut.df<- function(design.points=10){
     # Inserting the output to the inANDout dataframe
     big.insert <- length(inANDout.df) - length(target.variables) + 1
 
-    inANDout.df[sim.id, big.insert:length(inANDout.df)] <- out.test
+    inANDout.df[sim.id, big.insert:length(inANDout.df)] <- out.test.not.degree
     inANDout.df$success.rows[sim.id] <- success.rows
 
     write.csv(inANDout.df, file =paste("RowUpdate","-",design.points,"Points",variables,"Par_Partial",Sys.Date(), ".csv", sep=""), row.names = FALSE)
@@ -191,23 +204,17 @@ succInANDOut.df<- function(design.points=10){
   write.csv(inANDout.df, file =paste("inANDout.df","-",design.points,"Points",variables,"Par",Sys.Date(), ".csv", sep=""), row.names = FALSE)
   write.csv(repeat.sum.stats.df, file =paste("RepeatAverage.df","-",design.points,"Points",variables,"Par",Sys.Date(), ".csv", sep=""), row.names = FALSE)
 
-  return(inANDout.df)
+  sim.output.result <- list(inANDout.df, repeat.sum.stats.df)
+
+  return(sim.output.result)
 }
 
 #succRows.df <- success (Run the whole file).
 start.time = proc.time()
-inANDout.df <- succInANDOut.df(design.points)
+sim.output.result <- succInANDOut.df(design.points)
 end.time = proc.time() - start.time
 
-
-##### either read the data from before or run some data here and then Do the following
-
-
-
-
-
-
-
-
+inANDout.df <- sim.output.result [[1]]
+repeat.sum.stats.df <- sim.output.result [[2]]
 
 
