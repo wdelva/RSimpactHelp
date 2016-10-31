@@ -237,7 +237,7 @@ errFunction <- function(e){
 # 10. person.agegap.woman.dist.normal.sigma (0.5 to 2)
 
 
-design.points <- 100
+design.points <- 10
 variables <- 10
 # On VSC, when each core or node gets its own series of simulations to run, the seed must be set to a different value for each core or node.
 set.seed(1)
@@ -290,7 +290,7 @@ lhs.df$agegap.woman.sigma <- qunif(rlhs[ , 10], min = agegap.woman.sigma.min, ma
 
 
 # Creating a dataframe for input AND output
-inANDout.100.df <- cbind.data.frame(sim.id = 1:design.points,
+inANDout.10.df <- cbind.data.frame(sim.id = 1:design.points,
                                 rlhs,
                                 lhs.df,
                                 growth.rate = rep(NA, design.points),
@@ -369,11 +369,11 @@ simpact4emulation <- function(sim.id, lhs.df, testinput, agedist.data.frame, iv)
 
 ```{r simpactTestrun, echo=TRUE, message = FALSE, warning = FALSE, results = 'hide', cache = FALSE}
 # Running the simpact4emulation function with error catcher in a loop
-for (sim.id in inANDout.100.df$sim.id){
+for (sim.id in inANDout.10.df$sim.id){
   #out.test <- simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv)
   out.test.list <- tryCatch(simpact4emulation(sim.id, lhs.df, testinput, agedist.data.frame, iv), error = errFunction)
   # Inserting the output to the inANDout dataframe
-  inANDout.100.df[sim.id, 22:30] <- as.numeric(out.test.list$summStats)
+  inANDout.10.df[sim.id, 22:30] <- as.numeric(out.test.list$summStats)
   
   # Let's create a dataframe where we store summary statistics of the degree distribution
   # A first obvious summary statistic is the mean of the degree distribution
