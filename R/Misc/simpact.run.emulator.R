@@ -12,7 +12,7 @@ agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 cfg <- input.params.creator(population.simtime = 40, population.numwomen = 500, population.nummen = 500)
 
 #number of simulations repeats.
-design.points <- 100
+design.points <- 10
 simulation.number.count <- 0
 #intervention introduced
 # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
@@ -25,15 +25,15 @@ input.varied.params <- c("person.eagerness.man.dist.gamma.a", "person.eagerness.
                  "person.agegap.woman.dist.normal.sigma")
 
 input.varied.params.boundaries <- list(person.eagerness.man.dist.gamma.a.min =0.1, person.eagerness.man.dist.gamma.a.max =2,
-                               person.eagerness.man.dist.gamma.b.min = 5, person.eagerness.man.dist.gamma.b.max = 60,
-                               conception.alpha_base.min = -3.6, conception.alpha_base.max = -1.2,
-                               formation.hazard.agegapry.numrel_man.min = -1.5, formation.hazard.agegapry.numrel_man.max = -0.1,
-                               formation.hazard.agegapry.eagerness_diff.min = -0.1, formation.hazard.agegapry.eagerness_diff.max = 0,
-                               formation.hazard.agegapry.gap_factor_woman_exp.min = -1.5, formation.hazard.agegapry.gap_factor_woman_exp.max =-0.4,
-                               person.agegap.man.dist.normal.mu.min = 0, person.agegap.man.dist.normal.mu.max = 4,
-                               person.agegap.woman.dist.normal.mu.min =0, person.agegap.woman.dist.normal.mu.max = 4,
-                               person.agegap.man.dist.normal.sigma.min = 0.5, person.agegap.man.dist.normal.sigma.max =2,
-                               person.agegap.woman.dist.normal.sigma.min =0.5, person.agegap.woman.dist.normal.sigma.max =2)
+                                       person.eagerness.man.dist.gamma.b.min = 5, person.eagerness.man.dist.gamma.b.max = 60,
+                                       conception.alpha_base.min = -3.6, conception.alpha_base.max = -1.2,
+                                       formation.hazard.agegapry.numrel_man.min = -1.5, formation.hazard.agegapry.numrel_man.max = -0.1,
+                                       formation.hazard.agegapry.eagerness_diff.min = -0.1, formation.hazard.agegapry.eagerness_diff.max = 0,
+                                       formation.hazard.agegapry.gap_factor_man_exp.min = -1.5, formation.hazard.agegapry.gap_factor_man_exp.max =-0.4,
+                                       person.agegap.man.dist.normal.mu.min = 0, person.agegap.man.dist.normal.mu.max = 4,
+                                       person.agegap.woman.dist.normal.mu.min =0, person.agegap.woman.dist.normal.mu.max = 4,
+                                       person.agegap.man.dist.normal.sigma.min = 0.5, person.agegap.man.dist.normal.sigma.max =2,
+                                       person.agegap.woman.dist.normal.sigma.min =0.5, person.agegap.woman.dist.normal.sigma.max =2)
 
 target.variables <-c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
                        "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30", "mean.degree",
@@ -86,7 +86,8 @@ for (j in input.varied.params){
 lhs.df$person.eagerness.woman.dist.gamma.a <- lhs.df$person.eagerness.man.dist.gamma.a
 lhs.df$person.eagerness.woman.dist.gamma.b <- lhs.df$person.eagerness.man.dist.gamma.b
 lhs.df$formation.hazard.agegapry.numrel_woman <- lhs.df$formation.hazard.agegapry.numrel_man
-lhs.df$formation.hazard.agegapry.gap_factor_man_exp <- lhs.df$formation.hazard.agegapry.gap_factor_woman_exp
+lhs.df$formation.hazard.agegapry.gap_factor_woman_exp <- lhs.df$formation.hazard.agegapry.gap_factor_man_exp
+
 lhs.df$success.rows <- NA
 
 #Create a dataframe with NA for the summary statistics
