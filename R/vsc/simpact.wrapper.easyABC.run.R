@@ -1,22 +1,22 @@
 #get the necessary libraries
 pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr,lhs,data.table, dplyr, magrittr, exactci,
              nlme, ggplot2,survival, KMsurv, tidyr, expoTree, sna, intergraph,
-             igraph,lhs, GGally, emulator, multivator, tidyr)
+             igraph,lhs, GGally, emulator, multivator, tidyr, EasyABC)
 
-#data file to read 
+#data file to read
 dirname <- getwd()
 main.filename <- "INPUT.df-10Points10Par2016-10-31.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
-inANDout.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")    
+inANDout.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 
 #Select a chunk to send to process
-min.chunk <- 0
-max.chunk <- 10
+min.chunk <- 1
+max.chunk <- 2
 inANDout.df.chunk <- inANDout.df.complete[min.chunk:max.chunk,]
 
-sim_repeat <- 10
-ncluster.use <- 5
+sim_repeat <- 5
+ncluster.use <- 2 # number of cores per node
 
 ## In case you do not need all the target statistics
 target.variables <-c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
@@ -33,38 +33,49 @@ chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(target.v
 names(chunk.summary.stats.df) <- target.variables
 chunk.summary.stats.df$sim.id <- NA
 
+#Check the simulation max-ivents and output; record error as needed
+simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
+  #browser()
+  library(RSimpactHelper)
+  source('~/Documents/GIT_Projects/RSimpactHelp/R/vsc/simpact.chunk.run.R')
+  chunk.summary.stats <- tryCatch(simpact.chunk.run(simpact.chunk.prior),
+                                  error = err.function)
+}
+
+
 start.chunk.time <- proc.time()
 for (chunk.sim.id in inANDout.df.chunk$sim.id){
-
+  chunk.sim.id <- 1
   simpact.chunk.prior = list()
-  
+
   for (i in preprior.names.chunk){
-    
+
     #col.index <- which(colnames(preprior.names.chunk)==i)
-    
+
     prior.chunk.val <- list(c("runif",1,as.numeric(inANDout.df.chunk[chunk.sim.id,i]),
                               as.numeric(inANDout.df.chunk[chunk.sim.id,i])), c("dunif",0,1))
     simpact.chunk.prior[[length(simpact.chunk.prior)+1]] <- prior.chunk.val
   }
-  
+
+
   #invoke the ABC_rejection method repeating the number of simulation X* for each chunk row.
-  ABC.chunk.result <- ABC_rejection(model = simpact.chunk.run,
+  ABC.chunk.result <- ABC_rejection(model = simpact4ABC.chunk.wrapper,
                                         prior = simpact.chunk.prior,
                                         nb_simul= sim_repeat,
                                         use_seed = TRUE,
                                         seed_count = 0,
                                         n_cluster = ncluster.use)
-  
-  #Save the statistics results with the chunk row sim.id repeated X* from the ABC_rejection method 
+
+  #Save the statistics results with the chunk row sim.id repeated X* from the ABC_rejection method
   ABC.results.chunk.statistics <- data.frame(ABC.chunk.result$stats)
   names(ABC.results.chunk.statistics) <- target.variables
   ABC.results.chunk.statistics$sim.id <- chunk.sim.id
-  
+
   chunk.summary.stats.df <- rbind(chunk.summary.stats.df, ABC.results.chunk.statistics)
-  
+
 }
 
-write.csv(chunk.summary.stats.df, file =paste0("SummaryOutPut-inANDout.df.chunk-",min.chunk,"-",max.chunk,"-",Sys.Date(), 
+write.csv(chunk.summary.stats.df, file =paste0("SummaryOutPut-inANDout.df.chunk-",min.chunk,"-",max.chunk,"-",Sys.Date(),
                                                ".csv"), row.names = FALSE)
 
 end.chunk.time <- proc.time() - start.chunk.time
