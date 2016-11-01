@@ -2,7 +2,7 @@
 pacman::p_load(dplyr, EasyABC)
 #data file to read
 dirname <- getwd()
-main.filename <- "INPUT.df-10Points10Par2016-10-31.csv" #Read the file produced by varying parameters *design.points
+main.filename <- "INPUT.df-10Points10Par2016-11-01.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
@@ -26,9 +26,8 @@ preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
 
 #rbind all the results for this chunk to be merged after
 #Create a dataframe with NA for the summary statistics Will collect all the chunks with the sim.id to link back
-chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(target.variables)))
-names(chunk.summary.stats.df) <- target.variables
-chunk.summary.stats.df$sim.id <- NA
+chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 0, ncol = length(target.variables)+1))
+names(chunk.summary.stats.df) <- c(target.variables, "sim.id")
 
 
 simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
