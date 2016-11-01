@@ -3,11 +3,7 @@
 #'
 #' After the simpact simulation a number of statistics can be computed to summarise the output
 #'
-#' art.intro list should include the time when the diagnosis to take effect.
-#'
-#'
-#' The function take in a list of paramenters set at intervals of cd4 count threshhold used to
-#' decide if a person can be offerd treatment
+#' The function take in a list of paramenters set whose computations have been in the method of useage.
 #'
 #' @param datalist.test The dataframe that is produced by \code{\link{readthedata()}}
 #' @param growth.rate parameters used  by \code{\link{pop.growth.calculator()}}
@@ -27,7 +23,7 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
                                                      timewindow = 1, start=FALSE, gender = "female"),
                                    prev.15.25 = list(age.group.min=15, age.group.max=25, timepoint = 35, gender = "men"),
                                    prev.25.50 = list(age.group.min=25, age.group.max=50, timepoint = 35, gender = "men"),
-                                   art.coverage = list(age.group.min=15, age.group.max=50, timepoint = 35, gender = "men"),
+                                   art.coverage = list(age.group.min=15, age.group.max=50, timepoint = 34, gender = "men"),
                                    inc.15.30 = list(age.group.min=15, age.group.max=30, timewindow.min = 30,
                                                       timewindow.max = 40, gender = "men", only.active = "No"),
                                    partner.degree = list(age.group.min=15, age.group.max=30, hivstatus = 0, survey.time = 30,
