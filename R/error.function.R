@@ -1,25 +1,15 @@
-#' We expect this to grow and the returned summary statistics to include a lot more.
-#' Will include an Ignore variable to each of the summary statistics. Only computed if IGNORE is set to FALSE
-#'
-#' After the simpact simulation a number of statistics can be computed to summarise the output
-#'
-#' art.intro list should include the time when the diagnosis to take effect.
-#'
-#'
-#' The function take in a list of paramenters set at intervals of cd4 count threshhold used to
-#' decide if a person can be offerd treatment
-#'
-#' @param the output message from simpact.run \code{\link{readthedata()}}
+#' This function will control the errors that can be produced by simpact run.
+#' Error function catches as well the case when population.maxevents is reached before population.simtime is reached
+#' @param e is the function that runs simpact.run
 #' @return a string indicating that the program terminated premature
 #' @examples
-#' out.test <- tryCatch(simpact.run(), error = errFunction)
+#' out.test <- tryCatch(simpact.run(), error = err.function)
 
-# Creating an error function to catch the case when population.maxevents is reached before population.simtime is reached
 err.function <- function(e){
   if (length(grep("MAXEVENTS",e$message)) != 0)
-    return(chunk.summary.stats = "Not Complete")
+    return(chunk.summary.stats = rep(NA,length(select.summary.params()[[1]])))
   if (length(grep("internal event time",e$message)) != 0)
-    return(chunk.summary.stats = "Not Complete")
+    return(chunk.summary.stats = rep(NA,length(select.summary.params()[[1]])))
   stop(e)
 }
 
