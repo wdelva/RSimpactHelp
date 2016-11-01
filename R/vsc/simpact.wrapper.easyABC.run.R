@@ -1,27 +1,24 @@
 #get the necessary libraries
-pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr,lhs,data.table, dplyr, magrittr, exactci,
-             nlme, ggplot2,survival, KMsurv, tidyr, expoTree, sna, intergraph,
-             igraph,lhs, GGally, emulator, multivator, tidyr, EasyABC)
-
+pacman::p_load(dplyr, EasyABC)
 #data file to read
 dirname <- getwd()
 main.filename <- "INPUT.df-10Points10Par2016-10-31.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
-inANDout.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
+inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 2
-inANDout.df.chunk <- inANDout.df.complete[min.chunk:max.chunk,]
+max.chunk <- 10
+inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 
-sim_repeat <- 5
-ncluster.use <- 2 # number of cores per node
+sim_repeat <- 10
+ncluster.use <- 5 # number of cores per node
 
-## In case you do not need all the target statistics
-target.variables <-c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
-                     "ART.cov.15.50", "incid.wom.15.30", "frac.degreeGT1.wom.15.30", "mean.degree",
-                     "median.degree", "Q1.degree", "Q3.degree")
+## In case you need more target statistics you can add here. The default are 13. Rember to change
+## in the target.variables in the main file as well.
+target.variables <- select.summary.params()[[1]]
+
 
 #set the prior names - varied parameters
 preprior.chunk <- names(dplyr::select(inANDout.df.chunk, contains(".")))
@@ -33,11 +30,99 @@ chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(target.v
 names(chunk.summary.stats.df) <- target.variables
 chunk.summary.stats.df$sim.id <- NA
 
-#Check the simulation max-ivents and output; record error as needed
+
 simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
-  #browser()
-  library(RSimpactHelper)
-  source('~/Documents/GIT_Projects/RSimpactHelp/R/vsc/simpact.chunk.run.R')
+  pacman::p_load(RSimpactHelper)
+  simpact.chunk.run <- function(input.chunk.params){
+
+    pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr,lhs,data.table, dplyr, magrittr, exactci,
+                   nlme, ggplot2,survival, KMsurv, tidyr, expoTree, sna, intergraph,
+                   igraph,lhs, GGally, emulator, multivator, tidyr)
+
+
+    input.varied.params.plus <- varied.simpact.params()[[1]]
+
+    target.variables <- select.summary.params()[[1]]
+
+    simpact.set.simulation("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
+    agedist.chunk.data.frame <- agedistr.creator(shape = 5, scale = 65)
+
+    #### Set input params
+    ##Specifying the initially chosen values for the simulation.
+    cfg.chunk <- input.params.creator(population.simtime = 40, population.numwomen = 500, population.nummen = 500)
+
+    #intervention introduced See the intervention.introduced
+    # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
+    iv.chunk <- intervention.introduced(list(27,0,100,2),list(30,200,1.5), list(33,350,1),list(36,500,0.5))
+
+    #The first parameter is set to be the seed value
+    seed.chunk.id <- input.chunk.params[1]
+
+    #set up the parameters to be varied in the model starting from 2:length of the varied params.
+    j <- 1
+    for (cfg.chunk.par in input.varied.params.plus){
+      j <- j + 1
+      assign.chunk.cfg.value <- input.chunk.params[j]
+      cfg.chunk[cfg.chunk.par][[1]] <- assign.chunk.cfg.value
+    }
+
+    ## Keep the files produced in subfolders
+    generate.filename <- function(how.long){
+      chars <- c(letters, LETTERS)
+      paste0(sample(chars,how.long), collapse = "")
+    }
+
+    print(cfg.chunk)
+
+    sub.dir.sim.id <- generate.filename(8)
+    sub.dir.rename <- paste0("temp/",sub.dir.sim.id,"/")
+
+    testoutput <- simpact.run(configParams = cfg.chunk,
+                              destDir = sub.dir.rename,
+                              agedist = agedist.chunk.data.frame,
+                              intervention = iv.chunk,
+                              identifierFormat = paste0("%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r_",sub.dir.sim.id,"-"),
+                              seed = seed.chunk.id)
+
+    if(testoutput$simulationtime < cfg.chunk$population.simtime)#{chunk.datalist.test <- "Error"}else{chunk.datalist.test <- readthedata(testoutput)}
+    {
+      if (testoutput$eventsexecuted >= cfg.chunk$population.maxevents-1)  #use ifelse
+      {
+        stop("MAXEVENTS: Simulation stopped prematurely, max events reached")
+      }
+      else
+      {
+        stop("Simulation stopped prematurely, probably ran out of events")
+      }
+    }
+    chunk.datalist.test <- readthedata(testoutput)
+
+    if(length(chunk.datalist.test)>1){
+      #get the summary statistics for each run
+      out.statistics <- output.summary.maker(datalist = chunk.datalist.test,
+                                             growth.rate=list(timewindow.min = 0, timewindow.max = unique(chunk.datalist.test$itable$population.simtime)),
+                                             agemix.maker=list(agegroup.min = 15, agegroup.max=30, timepoint =30,
+                                                               timewindow = 1, start=FALSE, gender = "female"),
+                                             prev.15.25 = list(age.group.min=15, age.group.max=25, timepoint = 35, gender = "men"),
+                                             prev.25.50 = list(age.group.min=25, age.group.max=50, timepoint = 35, gender = "men"),
+                                             art.coverage = list(age.group.min=15, age.group.max=50, timepoint = 34, gender = "men"),
+                                             inc.15.30 = list(age.group.min=15, age.group.max=30, timewindow.min = 30,
+                                                              timewindow.max = 40, gender = "women", only.active = "Harling"),
+                                             partner.degree = list(age.group.min=15, age.group.max=30, hivstatus = 0, survey.time = 30,
+                                                                   window.width = 1, gender="female", only.new = FALSE))
+      ##get the summary statistics as indicated by target.variables
+      out.statistic.no.degree <- out.statistics[,target.variables]
+      ##out.test.degree <- out.statistic[[2]]
+    }else{
+      out.statistic.no.degree <- rep(NA,length(target.variables))
+      ##out.statistic.degree <- NA
+    }
+
+    chunk.summary.stats <- out.statistic.no.degree
+
+    return(chunk.summary.stats)
+  }
+
   chunk.summary.stats <- tryCatch(simpact.chunk.run(simpact.chunk.prior),
                                   error = err.function)
 }
@@ -45,7 +130,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
 start.chunk.time <- proc.time()
 for (chunk.sim.id in inANDout.df.chunk$sim.id){
-  chunk.sim.id <- 1
+
   simpact.chunk.prior = list()
 
   for (i in preprior.names.chunk){
@@ -66,6 +151,7 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
                                         seed_count = 0,
                                         n_cluster = ncluster.use)
 
+
   #Save the statistics results with the chunk row sim.id repeated X* from the ABC_rejection method
   ABC.results.chunk.statistics <- data.frame(ABC.chunk.result$stats)
   names(ABC.results.chunk.statistics) <- target.variables
@@ -77,19 +163,6 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
 
 write.csv(chunk.summary.stats.df, file =paste0("SummaryOutPut-inANDout.df.chunk-",min.chunk,"-",max.chunk,"-",Sys.Date(),
                                                ".csv"), row.names = FALSE)
-
 end.chunk.time <- proc.time() - start.chunk.time
-
-
-
-
-
-
-
-
-
-
-
-
 
 
