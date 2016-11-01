@@ -15,11 +15,11 @@
 #' out.test <- tryCatch(simpact.run(), error = errFunction)
 
 # Creating an error function to catch the case when population.maxevents is reached before population.simtime is reached
-errFunction <- function(e){
+err.function <- function(e){
   if (length(grep("MAXEVENTS",e$message)) != 0)
-    return("Not Complete")
+    return(chunk.summary.stats = "Not Complete")
   if (length(grep("internal event time",e$message)) != 0)
-    return("Not Complete")
+    return(chunk.summary.stats = "Not Complete")
   stop(e)
 }
 
