@@ -1,8 +1,8 @@
 #get the necessary libraries
-pacman::p_load(dplyr, EasyABC)
+pacman::p_load(dplyr, EasyABC, RSimpactHelper)
 #data file to read
 dirname <- getwd()
-main.filename <- "INPUT.df-10Points10Par2016-11-01.csv" #Read the file produced by varying parameters *design.points
+main.filename <- "INPUT.df-10Points10Par2016-11-02.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
