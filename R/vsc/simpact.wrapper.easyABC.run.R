@@ -5,18 +5,18 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr,lhs,data.table, dplyr, magrit
 
 #data file to read
 dirname <- getwd()
-main.filename <- "INPUT.df-10Points10Par2016-10-31.csv" #Read the file produced by varying parameters *design.points
+main.filename <- "INPUT.df-10Points10Par2016-11-01.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inANDout.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 2
+max.chunk <- 4
 inANDout.df.chunk <- inANDout.df.complete[min.chunk:max.chunk,]
 
-sim_repeat <- 5
-ncluster.use <- 2 # number of cores per node
+sim_repeat <- 6
+ncluster.use <- 8 # number of cores per node
 
 ## In case you do not need all the target statistics
 target.variables <-c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
@@ -29,15 +29,15 @@ preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
 
 #rbind all the results for this chunk to be merged after
 #Create a dataframe with NA for the summary statistics Will collect all the chunks with the sim.id to link back
-chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(target.variables)))
-names(chunk.summary.stats.df) <- target.variables
-chunk.summary.stats.df$sim.id <- NA
+chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 0, ncol = length(target.variables)+1))
+names(chunk.summary.stats.df) <- c(target.variables, "sim.id")
+
 
 #Check the simulation max-ivents and output; record error as needed
 simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   #browser()
   library(RSimpactHelper)
-  source('~/Documents/GIT_Projects/RSimpactHelp/R/vsc/simpact.chunk.run.R')
+  source('~/Documents/RSimpactHelper/R/vsc/simpact.chunk.run.R')
   chunk.summary.stats <- tryCatch(simpact.chunk.run(simpact.chunk.prior),
                                   error = err.function)
 }
@@ -45,7 +45,6 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
 start.chunk.time <- proc.time()
 for (chunk.sim.id in inANDout.df.chunk$sim.id){
-  chunk.sim.id <- 1
   simpact.chunk.prior = list()
 
   for (i in preprior.names.chunk){
