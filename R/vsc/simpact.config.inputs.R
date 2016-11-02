@@ -4,7 +4,7 @@ pacman::p_load(lhs)
 #Set working directory
 dirname <- getwd()
 #Set the number of design points
-design.points <- 10
+design.points <- 100
 
 
 #Set the number of input simpact params to vary (these will the parameters that we seek to calibrate).
