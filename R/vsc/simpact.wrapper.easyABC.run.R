@@ -1,3 +1,4 @@
+#!/usr/bin/env/ Rscript
 #get the necessary libraries
 pacman::p_load(dplyr, EasyABC, RSimpactHelper)
 #data file to read
