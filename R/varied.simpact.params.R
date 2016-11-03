@@ -1,3 +1,4 @@
+#!/usr/bin/env/ Rscript
 #' Select the parameters that need to be calibrated to meet the target statistics.
 #' This will also include the parameters that where set to be equal in the \code{\link{simpact.config.inputs()}} stage.
 #'
