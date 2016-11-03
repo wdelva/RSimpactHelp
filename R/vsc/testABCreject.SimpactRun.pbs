@@ -1,7 +1,7 @@
 #!/bin/bash -l
 #
 #
-#PBS -N simpact.wrapper.easyABC.run.8000
+#PBS -N simpact.wrapper.easyABC.run.100
 #PBS -l nodes=1:ppn=all
 #PBS -l walltime=00:30:00
 #PBS -m e
@@ -15,4 +15,4 @@ module load scripts
 module load R/3.2.3-intel-2016a
 cd /user/data/gent/vsc400/vsc40070/simpact-test/code/
 
-Rscript simpact.wrapper.easyABC.run.R 1 
+Rscript simpact.wrapper.easyABC.run.R 1
