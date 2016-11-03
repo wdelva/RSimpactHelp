@@ -3,7 +3,8 @@
 pacman::p_load(dplyr, EasyABC, RSimpactHelper)
 #data file to read
 dirname <- getwd()
-main.filename <- "INPUT.df-10Points10Par2016-11-02.csv" #Read the file produced by varying parameters *design.points
+# There may be ways to make line 6 dynamic: so the file name does not need to be manually updated
+main.filename <- "INPUT.df-100Points10Par2016-11-02.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
@@ -17,7 +18,7 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 sim_repeat <- 10
-ncluster.use <- 5 # number of cores per node
+ncluster.use <- 8 # number of cores per node
 
 ## In case you need more target statistics you can add here. The default are 13. Remember to change
 ## in the target.variables in the main file as well.
