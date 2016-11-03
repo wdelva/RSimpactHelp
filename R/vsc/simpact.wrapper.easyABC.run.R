@@ -10,13 +10,16 @@ inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = "
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 10
+max.chunk <- 100
 inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
+
+#make sure there are no empty rows
+inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 sim_repeat <- 10
 ncluster.use <- 5 # number of cores per node
 
-## In case you need more target statistics you can add here. The default are 13. Rember to change
+## In case you need more target statistics you can add here. The default are 13. Remember to change
 ## in the target.variables in the main file as well.
 target.variables <- select.summary.params()[[1]]
 
