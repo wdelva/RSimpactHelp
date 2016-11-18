@@ -4,21 +4,21 @@ pacman::p_load(dplyr, EasyABC, RSimpactHelper)
 #data file to read
 dirname <- getwd()
 # There may be ways to make line 6 dynamic: so the file name does not need to be manually updated
-main.filename <- "INPUT.df-100Points10Par2016-11-02.csv" #Read the file produced by varying parameters *design.points
+main.filename <- "INPUT.df-1000Points10Par2016-11-04.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 100
+max.chunk <- 1000
 inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 
 #make sure there are no empty rows
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
-sim_repeat <- 10
-ncluster.use <- 8 # number of cores per node
+sim_repeat <- 5
+ncluster.use <- 5 # number of cores per node
 
 ## In case you need more target statistics you can add here. The default are 13. Remember to change
 ## in the target.variables in the main file as well.
@@ -104,16 +104,14 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     if(length(chunk.datalist.test)>1){
       #get the summary statistics for each run
       out.statistics <- output.summary.maker(datalist = chunk.datalist.test,
-                                             growth.rate=list(timewindow.min = 0, timewindow.max = unique(chunk.datalist.test$itable$population.simtime)),
-                                             agemix.maker=list(agegroup.min = 15, agegroup.max=30, timepoint =30,
-                                                               timewindow = 1, start=FALSE, gender = "female"),
-                                             prev.15.25 = list(age.group.min=15, age.group.max=25, timepoint = 35, gender = "men"),
-                                             prev.25.50 = list(age.group.min=25, age.group.max=50, timepoint = 35, gender = "men"),
-                                             art.coverage = list(age.group.min=15, age.group.max=50, timepoint = 34, gender = "men"),
-                                             inc.15.30 = list(age.group.min=15, age.group.max=30, timewindow.min = 30,
-                                                              timewindow.max = 40, gender = "women", only.active = "Harling"),
-                                             partner.degree = list(age.group.min=15, age.group.max=30, hivstatus = 0, survey.time = 30,
-                                                                   window.width = 1, gender="female", only.new = FALSE))
+                                             growth.rate=list(timewindow=c(0, timewindow.max=unique(chunk.datalist.test$itable$population.simtime))),
+                                             agemix.maker=list(agegroup=c(15,30), timepoint=30, timewindow=1, start=FALSE, gender="female"),
+                                             prev.15.25=list(age.group=c(15,25), timepoint=35, gender="men"),
+                                             prev.25.50=list(age.group=c(25,50), timepoint=35, gender="men"),
+                                             art.coverage=list(age.group=c(15,50), timepoint=34, gender="men"),
+                                             inc.15.30=list(age.group=c(15,30), timewindow=c(30,40), gender="women", only.active="Harling"),
+                                             partner.degree=list(age.group=c(15,30), hivstatus=0, survey.time=30,
+                                                                   window.width=1, gender="female", only.new=FALSE))
       ##get the summary statistics as indicated by target.variables
       out.statistic.no.degree <- out.statistics[,target.variables]
       ##out.test.degree <- out.statistic[[2]]
@@ -165,7 +163,10 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
 
 }
 
-write.csv(chunk.summary.stats.df, file =paste0("SummaryOutPut-inANDout.df.chunk-",min.chunk,"-",max.chunk,"-",Sys.Date(),
+inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk, by = "sim.id")
+
+
+write.csv(inputANDoutput.chunk.df, file =paste0("SummaryOutPut-inANDout.df.chunk-",min.chunk,"-",max.chunk,"-",Sys.Date(),
                                                ".csv"), row.names = FALSE)
 end.chunk.time <- proc.time() - start.chunk.time
 
