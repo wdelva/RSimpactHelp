@@ -4,7 +4,7 @@ pacman::p_load(lhs)
 #Set working directory
 dirname <- getwd()
 #Set the number of design points
-design.points <- 100
+design.points <- 10
 
 
 #Set the number of input simpact params to vary (these will the parameters that we seek to calibrate).
@@ -66,6 +66,10 @@ lhs.df$person.eagerness.woman.dist.gamma.b <- lhs.df$person.eagerness.man.dist.g
 lhs.df$formation.hazard.agegapry.numrel_woman <- lhs.df$formation.hazard.agegapry.numrel_man
 lhs.df$formation.hazard.agegapry.gap_factor_woman_exp <- lhs.df$formation.hazard.agegapry.gap_factor_man_exp
 #lhs.df$success.rows <- NA
+
+#Name the xdesign dataframe
+rlhs <- data.frame(rlhs)
+names(rlhs) <- paste0("xdesign",1:length(rlhs))
 
 ##This will create the input file for the simpact
 inPUT.df <- cbind.data.frame(sim.id = 1:design.points, rlhs, lhs.df)
