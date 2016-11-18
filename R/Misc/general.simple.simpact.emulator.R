@@ -2,30 +2,41 @@
 rm(list=ls())
 pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactci,
                nlme, ggplot2,survival, KMsurv, tidyr, expoTree, sna, intergraph,
-               igraph,lhs, GGally, emulator, multivator, tidyr)
+               igraph,lhs, GGally, emulator, multivator, tidyr, psych)
 
 ## mem_used() Check what the memory is. library(pryr)
 ## gc(TRUE)
 ## sort(sapply(mget(ls()),object.size)) size of objects that are in the environment
 
-dirname <- getwd()
+dirname <- "/home/trust/Documents/GIT_Projects/RSimpactHelp/"# getwd()
 ## Simple Simpact emulator
 
-#file.name.csv <-"~RSimpactHelp/data/inANDout.df2016-09-27.csv" #6param.varied
-#file.name.csv <-"~/RSimpactHelp/data/inANDout.df12016-10-01.csv" #2param.varied
-#file.name.csv <-"~/RSimpactHelp/data/succRows.df.sim16.2016-09-28.csv" #2param.varied
-file.name.csv <-paste(dirname, "/data/RowUpdate-2826Points10Par_Partial2016-10-19.csv", sep = "") #10param.varied
+all.chunks.processed <- c("SummaryOutPut-inANDout.df.chunk-1-1000-2016-11-05-2.csv",
+                          "SummaryOutPut-inANDout.df.chunk-1-1000-2016-11-05-3.csv")
 
-#Read the output file from running simpact many times.
-inANDout.df <- read.csv(file = file.name.csv, header = TRUE, sep = ",")
+file.name.csv <- paste0(dirname, "SummaryOutPut-inANDout.df.chunk-1-1000-2016-11-05-1.csv") # param.varied
+# Read the output file from running simpact many times.
+inputANDoutput.complete <- read.csv(file = file.name.csv, header = TRUE)
+for (chunk.df in all.chunks.processed){
+  chuck.df.filename <- paste0(dirname, chunk.df) # param.varied
+  chunk.df.data <- read.csv(chuck.df.filename)
+  chunk.df.data <- data.frame(chunk.df.data)
+
+  inputANDoutput.complete <- rbind(inputANDoutput.complete, chunk.df.data)
+}
+
+## House keeping to know how many of the variables are being tracked.
+summary.count <- which(colnames(inputANDoutput.complete)=="sim.id") - 1
+xdesign.count <- length(names(dplyr::select(inputANDoutput.complete, contains("xdesign"))))
+simpact.par.count <- length(inputANDoutput.complete) - summary.count - xdesign.count - 1
+
+repetition.count <- nrow(inputANDoutput.complete[inputANDoutput.complete$sim.id==1,])
+
 
 # The x variables (model parameters) that were varied:
-#x.variables = c("eagerness.a", "eagerness.b")
-x.variables <- c("person.eagerness.man.dist.gamma.a", "person.eagerness.man.dist.gamma.b", "conception.alpha_base",
-                 "formation.hazard.agegapry.numrel_man", "formation.hazard.agegapry.eagerness_diff",
-                 "formation.hazard.agegapry.gap_factor_man_exp", "person.agegap.man.dist.normal.mu",
-                 "person.agegap.woman.dist.normal.mu","person.agegap.man.dist.normal.sigma",
-                 "person.agegap.woman.dist.normal.sigma")
+x.variables <- varied.simpact.params()[[1]]
+
+
 x.variables.boundaries <- list(person.eagerness.man.dist.gamma.a.min =0.1, person.eagerness.man.dist.gamma.a.max =2,
                     person.eagerness.man.dist.gamma.b.min = 5, person.eagerness.man.dist.gamma.b.max = 60,
                     conception.alpha_base.min = -3.6, conception.alpha_base.max = -1.2,
@@ -41,41 +52,39 @@ x.variables.boundaries <- list(person.eagerness.man.dist.gamma.a.min =0.1, perso
 z.variables <- c("growth.rate", "median.AD", "Q1.AD", "Q3.AD", "prev.men.15.25", "prev.men.25.50",
                  "ART.cov.15.50")
 
-##Rows repeat statistics for each run (saving for house keeping)
-repeat.20.sum.stats.df <- data.frame(matrix(NA, nrow = 1, ncol = length(z.variables)))
-names(repeat.20.sum.stats.df) <- target.variables
-repeat.20.sum.stats.df$sim.id <- NA
-
 #Set the targets for the summary statistics.
 targets <- c(0.014, 3, 2, 5, 0.08, 0.25, 0.3)
 
 #, "incid.wom.15.30", "frac.degreeGT1.wom.15.30"
 
 ## Decide if we want to keep only rows without NA or
-simpact.inANDout.df <- dplyr::filter(inANDout.df,
-                                     complete.cases(inANDout.df[,z.variables]),
-                                     prev.15.25 > 0.05)
+inputANDoutput.select <- dplyr::filter(inputANDoutput.complete,
+                                     complete.cases(inputANDoutput.complete[,z.variables]),
+                                     prev.men.15.25 > 0.05)
+
+# remove all rows which do not have sim.id occurring the number of repeat times.
+freq.sim.id <- plyr::count(inputANDoutput.select,"sim.id")
+#get all the average in all the columns in the selected df
+inputANDoutput.select <- aggregate(inputANDoutput.select, by = list(inputANDoutput.select$sim.id), FUN = "mean")
+inputANDoutput.select <- left_join(freq.sim.id, inputANDoutput.select, by = "sim.id")
+inputANDoutput.select <- inputANDoutput.select[inputANDoutput.select$freq == repetition.count,]
 
 #Select the first 250 testing the optiomal_paras()
 #You can also select a fraction of simulated dataset set round(dim(simpact.inANDout.df)[1]*0.10, digits=0)
-simpact.inANDout.df <- head(simpact.inANDout.df, 250)
+simpact.inANDout.df <- head(inputANDoutput.select, 250)
 
 ### Check is z.variables and x.variables are in inANDout.df ####
 
 try(if(length(targets)!=length(z.variables)) stop("Target values are not equal to the variables set"))
 
 #select the x model param values (model parameters)
-simpact.x <- dplyr::select_(simpact.inANDout.df,.dots=x.variables) %>% as.matrix()
+simpact.x <- dplyr::select_(inputANDoutput.select,.dots=x.variables) %>% as.matrix()
 #select the z model param values (summary statistics)
-simpact.z <- dplyr::select_(simpact.inANDout.df,.dots=z.variables)
+simpact.z <- dplyr::select_(inputANDoutput.select,.dots=z.variables)
 
 #Creating the Latin Hypercube Sample (LHS) for each of the parameters
-x.design.name <- as.character(c(2:(length(x.variables)+1)))
-x.design <- dplyr::select_(simpact.inANDout.df,.dots=x.design.name)
-for( i in 1:length(x.variables)) {
-  colnames(x.design)[i] <- paste("x",i,".design", sep="")
-}
-
+x.design.name <- names(dplyr::select(inputANDoutput.select, contains("xdesign")))
+x.design <- dplyr::select_(inputANDoutput.select,.dots=x.design.name)
 
 sum(duplicated(simpact.x)) # Should be zero
 
@@ -96,26 +105,29 @@ z_obs <- as.vector(unlist(simpact.z))
 z.df <- simpact.z
 sq.array <- as.data.frame(t(apply(z.df, 1, function(x) (x - t(targets))^2)))
 SumSq <- as.numeric(rowSums(sq.array))
-which.min(SumSq)
-z.df[which.min(SumSq), ]
-targets
+#which.min(SumSq)
+sim.best.summary <- z.df[which.min(SumSq), ]
 #### And most importantly, the best estimate for the model parameters:
 x.estimate <- as.numeric(simpact.x[which.min(SumSq), ])
 
+p.stats <- rbind(sim.best.summary, targets)
+rownames(p.stats) <- c("Summary Statistics","Targets")
+
+p.stats
+
 #Do principle componet on the summary statistics
 z.pc <- princomp(z.df, scores = TRUE, cor = TRUE)
-summary(z.pc) # The first 4 components capture 94% of the total variance. That's perhaps sufficient?
+cum.prop.var <- summary(z.pc) # The first 4 components capture 94% of the total variance. That's perhaps sufficient?
 comp.number.to.use <- 4 #change this if 5 which captures 98% is better.
 plot(z.pc)
-biplot(z.pc)
-z.pc$loadings
+#biplot(z.pc)
+#z.pc$loadings
 z.pc.df <- data.frame(z.pc$scores)
 z.pc.obs <- as.vector(unlist(z.pc.df[ ,1:comp.number.to.use]))
 
 ## Decide if you will drop some of the summary statics
 x.design.pc.long <- x.design[rep(1:nrow(x.design),comp.number.to.use),]
 x.design.pc.long <- as.matrix(x.design.pc.long)
-
 
 #### Creating the multivator objects for the PCA-based analysis
 RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df)[1:comp.number.to.use], each = dim(simpact.z)[1]))
@@ -173,16 +185,12 @@ ggplot(melt(comp4.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=var
 
 
 #### Creating the multivator objects for a non-PCA-based analysis
-#RS_mdm <- mdm(x.design.long, types = rep(c("growth.rate", "prev.15.50.end"), each = design.points))
 RS.mdm <- mdm(x.design.long, types = rep(z.variables, each = dim(simpact.z)[1]))
 RS.expt <- experiment(mm = RS.mdm, obs = z_obs)
-#RS_opt <- optimal_params(RS_expt, option="a", verbose = TRUE)
 
 optima.starttime <- proc.time()
 RS.opt.a <- optimal_params(RS.expt, option="a")
 optima.endtime <- proc.time() - optima.starttime
-
-
 
 comp1.B <- data.frame(t(diag(B(RS.opt.a)[,,1])),"a")
 comp2.B <- data.frame(t(diag(B(RS.opt.a)[,,2])),"a")
@@ -200,30 +208,7 @@ optim.check <- proc.time()
 
 ## Use the loop to get iterate through different values. So the optimasation process is faster.
 
-for (iter in seq(100,700, 100)){
-  print (paste("Working on iteration number: ", iter, sep=" "))
-  RS.opt.b.var.iter <- optimal_params(RS.expt, option="b", start_hp = RS.opt.var, control = list(maxit=iter))
-  RS.opt.var <- RS.opt.b.var.iter
 
-  comp1.B.var <- data.frame(t(diag(B(RS.opt.b.var.iter)[,,1])),paste("b",iter,sep = ""))
-  comp2.B.var <- data.frame(t(diag(B(RS.opt.b.var.iter)[,,2])),paste("b",iter,sep = ""))
-  comp3.B.var <- data.frame(t(diag(B(RS.opt.b.var.iter)[,,3])),paste("b",iter,sep = ""))
-  comp4.B.var <- data.frame(t(diag(B(RS.opt.b.var.iter)[,,4])),paste("b",iter,sep = ""))
-
-  names(comp1.B.var)[11] <- "run.type"
-  names(comp2.B.var)[11] <- "run.type"
-  names(comp3.B.var)[11] <- "run.type"
-  names(comp4.B.var)[11] <- "run.type"
-
-  comp1.B <- rbind(comp1.B, comp1.B.var)
-  comp2.B <- rbind(comp2.B, comp2.B.var)
-  comp3.B <- rbind(comp3.B, comp3.B.var)
-  comp4.B <- rbind(comp4.B, comp4.B.var)
-}
-#check how long this took.
-RS.opt.b <- RS.opt.var
-
-optim.check.conv <- proc.time() - optim.check
 
 #See the plot of convergency in the B matrix of coefficients.
 ggplot(melt(comp1.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point()
@@ -331,7 +316,7 @@ x.estimate.a <- as.numeric(x.new[pred.a$x.estimate.row, ])
 x.estimate.b <- as.numeric(x.new[pred.b$x.estimate.row, ])
 ####x.estimate.pc.b <- as.numeric(x.pc.new[pred.pc.b$x.estimate.row, ])
 # As an example: the value of the first PC for the target statistics:
-# as.numeric(as.numeric(z.pc$loadings[, 1]) %*% ((as.numeric(as.dataframe(targets) - z.pc$center) / z.pc$scale) )
+as.numeric(as.numeric(z.pc$loadings[, 1])) %*% ((as.numeric(as.data.frame(targets) - z.pc$center) / z.pc$scale) )
 
 
 ####################################################################
@@ -447,15 +432,13 @@ succInANDOut.pred.df<- function(design.points=10){
       datalist.test <- tryCatch(simpact4emulation.pred(sim.id,j), error = errFunction)
       if(length(datalist.test)>1){
         #get the summary statistics for each run
-        out.test <- output.summary.maker(datalist.test, growth.rate=list(timewindow.min = 0, timewindow.max = 20),
-                     agemix.maker=list(agegroup.min = 15, agegroup.max=30, timepoint =30,
-                                       timewindow = 1, start=FALSE, gender = "female"),
-                     prev.15.25 = list(age.group.min=15, age.group.max=25, timepoint = 35, gender = "men"),
-                     prev.25.50 = list(age.group.min=25, age.group.max=50, timepoint = 35, gender = "men"),
-                     art.coverage = list(age.group.min=15, age.group.max=50, timepoint = 35, gender = "men"),
-                     inc.15.30 = list(age.group.min=15, age.group.max=30, timewindow.min = 30,
-                                      timewindow.max = 40, gender = "women", only.active = "No"),
-                     partner.degree = list(age.group.min=15, age.group.max=30, hivstatus = 0, survey.time = 30,
+        out.test <- output.summary.maker(datalist.test, growth.rate=list(timewindow =c(0,20)),
+                     agemix.maker=list(agegroup=c(15,30), timepoint =30, timewindow = 1, start=FALSE, gender = "female"),
+                     prev.15.25 = list(age.group=c(15,25), timepoint = 35, gender = "men"),
+                     prev.25.50 = list(age.group=c(25,50), timepoint = 35, gender = "men"),
+                     art.coverage = list(age.group=c(15,50), timepoint = 35, gender = "men"),
+                     inc.15.30 = list(age.group=c(15,30), timewindow=c(30,40), gender = "women", only.active = "No"),
+                     partner.degree = list(age.group=c(15,30), hivstatus = 0, survey.time = 30,
                                            window.width = 1, gender="female", only.new = FALSE))
         out.test <- out.test[,z.variables]
       }else{out.test <- rep(NA,length(z.variables))}
