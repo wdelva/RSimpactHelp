@@ -43,6 +43,14 @@ incidence.calculator <- function(datalist = datalist,
   datalist$ptable$incident.case <- infection.in.timewindow
   datalist$ptable$exposure.times <- exposure.time
 
+  # For code testing: we create a dataset with only the people who contribute exposure time:
+  # You must be HIV negative at the time that you qualify the minumum for age range and time range.
+  ptable.contributors <- filter(datalist$ptable,
+                                exposure.times > 0)
+
+
+
+
   raw.df <- data.frame(datalist$ptable)
   raw.plus.df <- raw.df
 
