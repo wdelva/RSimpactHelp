@@ -18,15 +18,13 @@
 #' out.test <- output.summary.maker(datalist.test, growth.rate=list(0,20), agemix.maker=list(15,30,30,1,FALSE,female),
 #' prev.15.25 = list(15,25,35,men), prev.25.50 = list(25,50,35,men), art.coverage = list(15,50,35,men), inc.15.30=list())
 
-output.summary.maker <- function(datalist = datalist.test, growth.rate=list(timewindow.min = 0, timewindow.max = 20),
-                                   agemix.maker=list(agegroup.min = 15, agegroup.max=30, timepoint =30,
-                                                     timewindow = 1, start=FALSE, gender = "female"),
-                                   prev.15.25 = list(age.group.min=15, age.group.max=25, timepoint = 35, gender = "men"),
-                                   prev.25.50 = list(age.group.min=25, age.group.max=50, timepoint = 35, gender = "men"),
-                                   art.coverage = list(age.group.min=15, age.group.max=50, timepoint = 34, gender = "men"),
-                                   inc.15.30 = list(age.group.min=15, age.group.max=30, timewindow.min = 30,
-                                                      timewindow.max = 40, gender = "men", only.active = "No"),
-                                   partner.degree = list(age.group.min=15, age.group.max=30, hivstatus = 0, survey.time = 30,
+output.summary.maker <- function(datalist = datalist.test, growth.rate=list(timewindow= c(0, 20)),
+                                   agemix.maker=list(agegroup = c(15,30), timepoint =30, timewindow = 1, start=FALSE, gender = "female"),
+                                   prev.15.25 = list(age.group=c(15,25), timepoint = 35, gender = "men"),
+                                   prev.25.50 = list(age.group=c(25,50), timepoint = 35, gender = "men"),
+                                   art.coverage = list(age.group=c(15,50), timepoint = 34, gender = "men"),
+                                   inc.15.30 = list(age.group=c(15,30), timewindow=c(30,40), gender = "men", only.active = "No"),
+                                   partner.degree = list(age.group=c(15,30), hivstatus = 0, survey.time = 30,
                                                          window.width = 1, gender="female", only.new = FALSE)){
 
   prev.15.25.gender.index = 1
@@ -43,11 +41,11 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
   #summary statistics #################
   # 1. Population growth
   growth.rate <- pop.growth.calculator(datalist = datalist,
-                                       timewindow = c(growth.rate$timewindow.min, growth.rate$timewindow.max))
+                                       timewindow = c(growth.rate$timewindow[1], growth.rate$timewindow[2]))
   # 2. Median age difference in most recent relationships (target 2-5 years)
   agemix.df <- agemix.df.maker(datalist)
   pattern <- pattern.modeller(dataframe = agemix.df,
-                              agegroup = c(agemix.maker$agegroup.min,agemix.maker$agegroup.max),
+                              agegroup = c(agemix.maker$agegroup[1],agemix.maker$agegroup[2]),
                               timepoint = agemix.maker$timepoint,
                               timewindow = agemix.maker$timewindow,
                               start = agemix.maker$start)
@@ -60,25 +58,25 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
   #IQR.AD <- agedifmedtable$Q3[2] - agedifmedtable$Q1[2] # IQR as reported by women
 
   # 4. HIV prevalence in the window among men 15-25 (target 5% - 10%)
-  prev <- prevalence.calculator(datalist = datalist, agegroup = c(prev.15.25$age.group.min,
-                                                                       prev.15.25$age.group.max), timepoint = prev.15.25$timepoint)
+  prev <- prevalence.calculator(datalist = datalist, agegroup = c(prev.15.25$age.group[1],
+                                                                       prev.15.25$age.group[2]), timepoint = prev.15.25$timepoint)
   prev.men.15.25 <- prev$pointprevalence[prev.15.25.gender.index] # among men
 
   # 5. HIV prevalence in the window among men 25-50 (target 10% - 30%)
-  prev <- prevalence.calculator(datalist = datalist, agegroup = c(prev.25.50$age.group.min,
-                                                                       prev.25.50$age.group.max), timepoint = prev.25.50$timepoint)
+  prev <- prevalence.calculator(datalist = datalist, agegroup = c(prev.25.50$age.group[1],
+                                                                       prev.25.50$age.group[2]), timepoint = prev.25.50$timepoint)
   prev.men.25.50 <- prev$pointprevalence[prev.25.50.gender.index] # among men
 
   # 6. Point prevalence of concurrency. postsim function to be converted to RSimpactHelper function
 
   # 7. ART coverage among all HIV+ people aged 15-50 (target 15% - 40% in 2011)
-  ARTcov <- ART.coverage.calculator(datalist = datalist, agegroup = c(art.coverage$age.group.min,
-                                                                           art.coverage$age.group.max), timepoint = art.coverage$timepoint) # 2011 is 34 years after 1977
+  ARTcov <- ART.coverage.calculator(datalist = datalist, agegroup = c(art.coverage$age.group[1], art.coverage$age.group[2]),
+                                    timepoint = c(art.coverage$timepoint,art.coverage$timepoint), site="All") # 2011 is 34 years after 1977
   ART.cov.15.50 <- ARTcov$ART.coverage[art.coverage.gender.index] # among men and women
 
   # 8. HIV incidence among women 15 <= x < 30 in the window 20-30 years after HIV introduction
-  inc <- incidence.calculator(datalist = datalist, agegroup = c(inc.15.30$age.group.min, inc.15.30$age.group.max),
-                              timewindow = c(inc.15.30$timewindow.min, inc.15.30$timewindow.max), only.active = inc.15.30$only.active)
+  inc <- incidence.calculator(datalist = datalist, agegroup = c(inc.15.30$age.group[1], inc.15.30$age.group[2]),
+                              timewindow = c(inc.15.30$timewindow[1], inc.15.30$timewindow[2]), only.active = inc.15.30$only.active)
   incid.wom.15.30 <- inc$incidence[inc.15.30.gender.index] # among women
 
   # NOTE: We may want to also calculate a different type of HIV incidence, more in line with the Harling paper:
@@ -86,7 +84,7 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
   # For now, this (correct) HIV incidence measure suffices
 
   # 9. % of women who had > 1 partner in the past 12 months
-  degree.df <- degree.df.maker(agemix.df, agegroup = c(partner.degree$age.group.min, partner.degree$age.group.max),
+  degree.df <- degree.df.maker(agemix.df, agegroup = c(partner.degree$age.group[1], partner.degree$age.group[2]),
                               hivstatus = partner.degree$hivstatus, survey.time = partner.degree$survey.time,
                               window.width = partner.degree$window.width, gender =  partner.degree$gender,
                               only.new = partner.degree$only.new)
