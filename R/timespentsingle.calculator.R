@@ -92,6 +92,8 @@ timespentsingle.calculator <- function(datalist = datalist,
   women.no.rels.plus.clean$norels.end.surveytime <- floor(women.no.rels.plus.clean$norels.end.real) + fract.survey - move.to.last.survey
   women.no.rels.plus.clean$norels.timespent.Harling <- pmax(0, women.no.rels.plus.clean$norels.end.surveytime - women.no.rels.plus.clean$norels.start.surveytime) # Only counting time spent single in whole calendar year blocks
 
+  women.no.rels.plus.clean %>% mutate(norels.timespent.Harling = pmax(0, norels.end.surveytime - norels.start.surveytime)) # Only counting time spent single in whole calendar year blocks
+
 
   if (type == "Strict"){
     # Now we sum the true time spent being single in the exposure time window, per woman
