@@ -15,15 +15,18 @@ life.years.lived <- function(datalist = datalist, agegroup = c(15,30),
   gender.id <-1
   if(gender!="Male"){gender.id = 0}
 
-  person.alive.timewindow <- age.group.time.window(datalist = datalist, 
+  person.alive.timewindow <- age.group.time.window(datalist = datalist,
                                                    agegroup = agegroup, timewindow = timewindow, site="All")
 
-  person.alive.timewindow <- subset(person.alive.timewindow, Gender == gender.id) #HIV negative individuals
-  
-  person.alive.timewindow <- person.alive.negative %>% mutate(lifeyears = pmin(timewindow[2],MaxAgeTW2) - MinAgeTW1)
-  
-  ## Sum time lived within this time window
-  lifeyears.lived <- with(person.alive.timewindow, sum(lifeyears))
+  person.alive.timewindow <- person.alive.timewindow %>% mutate(exposure.end.Alive = pmin(exposure.end,TOD))
+  person.alive.timewindow <- person.alive.timewindow %>% mutate(exposure.time.Alive = exposure.end.Alive - exposure.start)
+
+
+  person.alive.timewindow <- subset(person.alive.timewindow, exposure.time.Alive > 0 & Gender == gender.id)
+
+  ## Sum all negative people's contibution ages
+  lifeyears.lived <- with(person.alive.timewindow, sum(exposure.time.Alive))
+
 
   return(lifeyears.lived)
 
