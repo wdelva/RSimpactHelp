@@ -14,16 +14,19 @@ hiv.negative.lifeyears <- function(datalist = datalist, agegroup = c(15, 30),
                                    timewindow = c(15, 30), gender = "Male", site = "All"){
   gender.id <-1
   if(gender!="Male"){gender.id = 0}
-  
-  person.alive.negative <- age.group.time.window(datalist = datalist, 
+
+  person.alive.negative <- age.group.time.window(datalist = datalist,
                                                  agegroup = agegroup, timewindow = timewindow ,site="All")
-  
-  person.alive.negative <- subset(person.alive.negative, InfectTime > timewindow[1] & Gender == gender.id) #HIV negative individuals
-  
-  person.alive.negative <- person.alive.negative %>% mutate(lifeyears = pmin(timewindow[2],MaxAgeTW2,(InfectTime-TOB)) - MinAgeTW1)
-  
-  ## Sum all negative people's ages
-  hiv.neg.lifeyears <- with(person.alive.negative, sum(lifeyears))
+
+
+  person.alive.negative <- person.alive.negative %>% mutate(exposure.end.Neg = pmin(exposure.end,InfectTime))
+  person.alive.negative <- person.alive.negative %>% mutate(exposure.time.Neg = exposure.end.Neg - exposure.start)
+
+
+  person.alive.negative <- subset(person.alive.negative, exposure.time.Neg > 0 & Gender == gender.id) #HIV negative individuals
+
+  ## Sum all negative people's contibution ages
+  hiv.neg.lifeyears <- with(person.alive.negative, sum(exposure.time.Neg))
 
   return(hiv.neg.lifeyears)
 
