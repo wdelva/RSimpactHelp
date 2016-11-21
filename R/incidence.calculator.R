@@ -12,7 +12,7 @@
 #' @return a dataframe with cases, exposure time, incidence estimate and surrounding confidence bounds,
 #' for the specified time window and age group, overall, and stratified by gender
 #' @examples
-#' incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(15, 30), only.active="No")
+#' incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 40), only.active="No")
 #'
 #' @import exactci
 #' @import dplyr
