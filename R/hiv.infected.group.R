@@ -7,7 +7,7 @@
 #' @param site Select only the particular site from the study, if all ignore site/use all sites.
 #' @return a list with the transmission network data, as required by the epi2tree function.
 #' @examples
-#' hiv.infected <- hiv.infected.group(datalist = datalist, agegroup=c(15,30), timewindow=c(10,40), gender="Male", site="All")
+#' hiv.infected <- hiv.infected.group(datalist = datalist, agegroup=c(15,30), timewindow=c(20,40), gender="Male", site="All")
 
 hiv.infected.group <- function(datalist = datalist,
                                 agegroup = c(15,30),
@@ -20,8 +20,10 @@ hiv.infected.group <- function(datalist = datalist,
   person.alive.infected <- age.group.time.window(datalist = datalist,
                                                  agegroup = agegroup, timewindow = timewindow,site="All")
 
-  person.alive.infected <- subset(person.alive.infected, timewindow[1] < InfectTime &
-                                    InfectTime < timewindow[2] & Gender== gender.id & TOD==Inf)
+  person.alive.infected <- subset(person.alive.infected, InfectTime!=Inf)
+
+  person.alive.infected <- subset(person.alive.infected, InfectTime>exposure.start &
+                                    InfectTime<=exposure.end & Gender== gender.id) #include TOD but this should be excluded already
 
   hiv.infect.count <- nrow(person.alive.infected)
 
