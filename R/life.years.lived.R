@@ -2,48 +2,35 @@
 #' time for a particular age group and gender
 #'
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
-#' @param timewindow alive people within this simulation time e.g timewindow = 30.
-#' @param gender alive gender.
+#' @param timewindow alive people within this simulation time e.g timewindow = c(15, 30).
 #' @param agegroup alive people within this agegroup.
 #' @param site Select only the particular site from the study, if all ignore site/use all sites.
-#' @return the total number of life-years lived.
+#' @return the total number of life-years lived aggregated by gender.
 #' @examples
-#' life.years.lived <- life.years.lived(datalist = datalist, agegroup=c(15,30), timewindow=c(15,30), gender="Male", site="All")
+#' life.years.lived <- life.years.lived(datalist = datalist, agegroup=c(15, 30), timewindow=c(15, 30), site="All")
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
 
-life.years.lived <- function(datalist = datalist, agegroup = c(15,30),
-                             timewindow = c(15,30), gender = "Male", site="All"){
-  gender.id <-1
-  if(gender!="Male"){gender.id = 0}
+life.years.lived <- function(datalist = datalist, agegroup = c(15, 30), timewindow = c(15, 30), site="All"){
 
   person.alive.timewindow <- age.group.time.window(datalist = datalist,
                                                    agegroup = agegroup, timewindow = timewindow, site="All")
 
-  person.alive.timewindow <- person.alive.timewindow %>% mutate(exposure.end.Alive = pmin(exposure.end,TOD))
-  person.alive.timewindow <- person.alive.timewindow %>% mutate(exposure.time.Alive = exposure.end.Alive - exposure.start)
 
+  person.alive.timewindow <- person.alive.timewindow %>% mutate(exposure.time.Alive = exposure.end - exposure.start)
+  person.alive.timewindow <- subset(person.alive.timewindow, exposure.time.Alive > 0)
 
-  person.alive.timewindow <- subset(person.alive.timewindow, exposure.time.Alive > 0 & Gender == gender.id)
+  ## Sum all people's contibution years
 
-  ## Sum all negative people's contibution ages
-  lifeyears.lived <- with(person.alive.timewindow, sum(exposure.time.Alive))
+  lifeyears.lived <- data.frame(dplyr::summarise(dplyr::group_by(person.alive.timewindow, Gender),
+                                                   TotalExposed = n(),
+                                                   LifeYearsLived = sum(exposure.time.Alive) ))
 
+  lifeyears.lived$Gender[lifeyears.lived$Gender==0] <- "Woman"
+  lifeyears.lived$Gender[lifeyears.lived$Gender==1] <- "Man"
 
   return(lifeyears.lived)
 
 }
-
-
-### Disability Adjusted Life Years
-## DALY = YLL + YLD (YLL - Years of Life Lost, YLD - Years Lost due to Disability)
-#YLL = N*L (N number of deaths and L stardard life expectancy at age of death in years)
-#YLD = P * DW (P number of prevalent cases and DW is the Disability Weight ) (healthmetricsandevaluation.org/gbd)
-#HIV/AIDS    Average disability weight    Range               Source
-#HIV cases                 0.135          0.123 - 0.136         GBD 1990(c) varies with age
-#AIDS cases not on ART     0.505                                GBD 1990
-#AIDS case on ART         0.167           0.145 - 0.469         GBD 2004
-
-
-
-
-
 
