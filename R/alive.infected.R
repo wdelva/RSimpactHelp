@@ -6,6 +6,10 @@
 #' @return a data.table that only includes people who were alive at the timepoint and that records their HIV status.
 #' @examples
 #' alive.twenty.dt <- alive.infected(DT = datalist, timepoint = 20)
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
+
 
 alive.infected <- function(datalist = datalist,
                            timepoint = 40, site="All"){ # arguments are the personlog data.table and a point in time
@@ -14,14 +18,13 @@ alive.infected <- function(datalist = datalist,
     DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint)
   }else{
     facilities.df <- read.cv(datalist$itable$facilities.geo.coords)
-    facilities.df <- filter(facilities.df, Facility = site[1])
+    facilities.df <- filter(facilities.df, Facility = site)
     DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint
                       & XCoord==facilities.df$Longitude
                       & YCoord==facilities.df$Latitude)
   }
 
-  #DTalive$Infected <- timepoint >= DTalive$InfectTime # Now we allocate infection status to all people in our table of living people
-
+  # Now we allocate infection status to all people in our table of living people
   DTalive <- DTalive %>%  mutate(Infected = (timepoint >= InfectTime))
   return(DTalive)
 }
