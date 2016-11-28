@@ -12,7 +12,7 @@
 #' @return a dataframe with cases, exposure time, incidence estimate and surrounding confidence bounds,
 #' for the specified time window and age group, overall, and stratified by gender
 #' @examples
-#' incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 40), only.active="No")
+#' incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30))
 #'
 #' @import exactci
 #' @import dplyr
@@ -28,7 +28,7 @@ incidence.calculator <- function(datalist = datalist,
   time.of.upperbound.timewind <- timewindow[2]
   time.of.HIV.infection <- datalist$ptable$InfectTime
 
-  exposure.end <- pmin(pmin(time.of.HIV.infection, pmin(time.of.upperbound.agegroup, time.of.upperbound.timewind)), datalist$ptable$TOD)
+  exposure.end <- pmin(time.of.HIV.infection, pmin(time.of.upperbound.agegroup, time.of.upperbound.timewind))
   exposure.time <- exposure.end - exposure.start # This is the naive exposure time, before tidying up
   real.exposure.time <- exposure.time > 0 # We create a vector to see who REALLY had exposure time
   exposure.time[real.exposure.time == FALSE] <- 0

@@ -17,8 +17,8 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 #make sure there are no empty rows
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
-sim_repeat <- 5
-ncluster.use <- 5 # number of cores per node
+sim_repeat <- 2
+ncluster.use <- 8 # number of cores per node
 
 ## In case you need more target statistics you can add here. The default are 13. Remember to change
 ## in the target.variables in the main file as well.
