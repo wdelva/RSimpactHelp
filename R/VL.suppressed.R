@@ -1,19 +1,18 @@
-#' A function that returns the percentage of clients that are virally suppressed 6 or more months
+#' A function that returns the percentage of clients who are alive and are virally suppressed 6 or more months
 #' after ART initiation, at a paticular point in the simulation time
 #'
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param timepoint alive people within this simulation time e.g timewindow = 30.
-#' @param gender alive gender.
-#' @param vlcutoff viral load below this threshold e.g <200 copies/mL is defined as suppressed
+#' @param vlcutoff viral load below this threshold e.g <1000 copies/mL is defined as suppressed
+#' @param lessmonths months from which time point viral load suppression is sort e.g 6 or more months after ART initiation
 #' @param site Select only the particular site from the study, if all ignore site/use all sites.
-#' @return the total number of of people whose VL at ART initiation are within a given threshold
+#' @return the total number and percentage of people who are virally suppressed 6 or more months after ART initiation
+#' at one timepoint
 #' @examples
-#' vl.suppressed <- vl.suppressed(datalist = datalist, agegr, timewindow=c(15,30), viralload=c(3,4), gender="Male", site="All")
+#' vl.suppressed <- vl.suppressed(datalist = datalist, timepoint=40, vlcutoff=800, lessmonths = 6, site="All")
 
-vl.suppressed <- function(datalist = datalist, timepoint = 40, vlcutoff = 200, gender = "Male", site="All"){
+vl.suppressed <- function(datalist = datalist, timepoint = 30, vlcutoff = 1000, lessmonths = 6, site="All"){
 
-  gender.id <-1
-  if(gender!="Male"){gender.id = 0}
 
   DTalive.infected <- datalist$ptable
   if(site=="All"){
@@ -26,66 +25,44 @@ vl.suppressed <- function(datalist = datalist, timepoint = 40, vlcutoff = 200, g
                       & YCoord==facilities.df$Latitude)
   }
 
-  vlcutoff <- log10(200)
-  six.months <- timepoint - 0.5
+  vl.cutoff <- log10(vlcutoff)
+  six.months <- timepoint - lessmonths/12
 
   DTalive.infected <- DTalive.infected %>%  mutate(ARTLess6mnths = (TreatTime <= six.months))
   raw.df <- data.frame(DTalive.infected)
 
-  #calculate the VL from time of treatment start to now
-  #log10[VL(sp,new)] = k * log10[VL(sp)]  (where is the time factor)?
+  InfectedOnTreatment <- subset(raw.df, ARTLess6mnths==TRUE)
 
-  #Check if any of these individuals dropped out of treatment during treatment time
-  event.df <- subset(datalist$etable, p1ID %in% raw.df$ID & eventname %in% c("dropout","chronicstage", "aidsstage","finalaidsstage")
-                     & eventtime <= six.months )
+  #Check the vl information of these individuals
+  VLevent.df <- subset(datalist$vltable, ID %in% InfectedOnTreatment$ID )
 
-  #acute stage - 2-4weeks
-  #chornic stage period when the virus is living
-  #aids stage - immune syste is badly damaged
+  #Visualise the VL points
+  q <- ggplot()
+  q <- q + geom_point(data=VLevent.df, aes(x=VLTimeLog, y=Log10VL, group=ID, colour = Description))
+  q <- q + geom_line(data=VLevent.df, aes(x=VLTimeLog, y=Log10VL, group=ID, colour = Description))
+  q <- q + geom_hline(yintercept=vl.cutoff)
+
+  #Get the last recorded VL and the desc
+  #if StartedART and below vl.cutoff then suppressed otherwise NOT suppressed
+
+  ##VLevent.df <- ddply(VLevent.df,.(ID), tail,1)
+  VLevent.df <- VLevent.df[, .SD[c(.N)], by=ID]
+
+  VLevent.df <- VLevent.df %>% mutate(VL.Suppressed.Timepoint = (Description=="Started ART" & Log10VL < vl.cutoff))
+
+  # Now we apply the left_join dplyr function to add the VL status to raw.df.
+  InfectedOnTreatment <- left_join(x = InfectedOnTreatment, y = VLevent.df, by = c("ID"))
 
 
-  #What if they dropped out? Is it after the time point or before? Did they start treatment again?
-  art.df <- subset(datalist$ttable, ID %in% raw.df$ID & TStart <= six.months)
+  vlSuppressedSixmonthLessTP <- data.frame(dplyr::summarise(dplyr::group_by(InfectedOnTreatment, Gender),
+                                                            TotalCases = n(),
+                                                            VLSuppressed6TP = sum(VL.Suppressed.Timepoint),
+                                                            Percentage = sum(VL.Suppressed.Timepoint)/n()))
 
-  #get
-
-  # Now we apply the left_join dplyr function to add the ART status to raw.df.
-  raw.df <- left_join(x = raw.df, y = art.df, by = c("ID", "Gender"))
+  vlSuppressedSixmonthLessTP$Gender[vlSuppressedSixmonthLessTP$Gender==0] <- "Woman"
+  vlSuppressedSixmonthLessTP$Gender[vlSuppressedSixmonthLessTP$Gender==1] <- "Man"
 
 
-
-  # Should we correct for dropout and restart [Simpact simply uses the Set-Point Viral Load]
-  # log10SPVL is not affected by treatment
-
-  vl.atARTinit <- nrow(vl.atARTinit)
-
-  return(vl.atARTinit)
+  return(vlSuppressedSixmonthLessTP)
 }
-
-# C <- 1325.05
-# k <- -0.49
-# logVL <- seq(2,6,by=2)
-# logTS <- log10(C)+k*logVL
-# filteredPersons <- subset(checkinf,InfectType == 1 & TOD < Inf & TreatTime == Inf)
-# survTime <- log10(filteredPersons$TOD - filteredPersons$InfectTime)
-# SPVL <- filteredPersons$log10SPVL
-# plot(SPVL, survTime, type = "p", col = "blue",xlim=c(2,6.5),ylim=c(0,2.5))
-# lines(logVL,logTS,col="green")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
