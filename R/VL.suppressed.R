@@ -36,11 +36,17 @@ vl.suppressed <- function(datalist = datalist, timepoint = 30, vlcutoff = 1000, 
   #Check the vl information of these individuals
   VLevent.df <- subset(datalist$vltable, ID %in% InfectedOnTreatment$ID )
 
+  yaxis <- vl.cutoff + 0.2
+
   #Visualise the VL points
   q <- ggplot()
   q <- q + geom_point(data=VLevent.df, aes(x=VLTimeLog, y=Log10VL, group=ID, colour = Description))
   q <- q + geom_line(data=VLevent.df, aes(x=VLTimeLog, y=Log10VL, group=ID, colour = Description))
-  q <- q + geom_hline(yintercept=vl.cutoff)
+  q <- q + geom_hline(yintercept=vl.cutoff) + annotate("text", datalist$itable$hivseed.time[1], vl.cutoff + 0.2, label = "  VLCutoff")
+  q <- q +theme_bw() + theme(legend.position = "right") +
+    theme(panel.background = element_blank(),panel.grid.major.x = element_blank(),panel.grid.minor.x = element_blank(),
+          panel.grid.minor.y = element_blank(), panel.grid.major.y = element_blank(), panel.ontop = TRUE) +
+    theme(legend.background = element_rect(colour = "black"))
 
   #Get the last recorded VL and the desc
   #if StartedART and below vl.cutoff then suppressed otherwise NOT suppressed
