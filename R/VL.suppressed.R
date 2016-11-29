@@ -9,18 +9,18 @@
 #' @return the total number and percentage of people who are virally suppressed 6 or more months after ART initiation
 #' at one timepoint
 #' @examples
-#' vl.suppressed <- vl.suppressed(datalist = datalist, timepoint=40, vlcutoff=800, lessmonths = 6, site="All")
+#' vl.suppressed <- vl.suppressed(datalist = datalist, timepoint=40, vlcutoff=1000, lessmonths = 6, site="All")
 
 vl.suppressed <- function(datalist = datalist, timepoint = 30, vlcutoff = 1000, lessmonths = 6, site="All"){
 
 
   DTalive.infected <- datalist$ptable
   if(site=="All"){
-    DTalive.infected <- subset(DTalive.infected, TOB <= timepoint & TOD > timepoint & InfectTime!=Inf & Gender == gender.id)
+    DTalive.infected <- subset(DTalive.infected, TOB <= timepoint & TOD > timepoint & InfectTime!=Inf)
   }else{
     facilities.df <- read.cv(datalist$itable$facilities.geo.coords)
     facilities.df <- filter(facilities.df, Facility = site)
-    DTalive.infected <- subset(DTalive.infected, TOB <= timepoint & TOD > timepoint & InfectTime!=Inf & Gender == gender.id
+    DTalive.infected <- subset(DTalive.infected, TOB <= timepoint & TOD > timepoint & InfectTime!=Inf
                       & XCoord==facilities.df$Longitude
                       & YCoord==facilities.df$Latitude)
   }
