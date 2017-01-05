@@ -37,6 +37,15 @@ names(chunk.summary.stats.df) <- c(target.variables, "sim.id")
 
 simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   pacman::p_load(RSimpactHelper)
+  target.variables <- c("growth.rate","prev.men.15.50")
+  err.functionSWAZI <- function(e){
+    if (length(grep("MAXEVENTS",e$message)) != 0)
+      return(chunk.summary.stats = rep(NA,length(target.variables)))
+    if (length(grep("internal event time",e$message)) != 0)
+      return(chunk.summary.stats = rep(NA,length(target.variables)))
+    stop(e)
+  }
+  
   simpact.chunk.run <- function(input.chunk.params){
 
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr,lhs,data.table, dplyr, magrittr, exactci,
@@ -69,14 +78,14 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       assign.chunk.cfg.value <- input.chunk.params[j]
       cfg.chunk[cfg.chunk.par][[1]] <- assign.chunk.cfg.value
     }
-
+    
     ## Keep the files produced in subfolders
     generate.filename <- function(how.long){
       chars <- c(letters, LETTERS)
       paste0(sample(chars,how.long), collapse = "")
     }
-
-    print(cfg.chunk)
+    
+    #print(cfg.chunk)
 
     sub.dir.sim.id <- generate.filename(8)
     sub.dir.rename <- paste0("temp/",sub.dir.sim.id,"/")
@@ -119,21 +128,21 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   }
 
   chunk.summary.stats <- tryCatch(simpact.chunk.run(simpact.chunk.prior),
-                                  error = err.function)
+                                  error = err.functionSWAZI)
 }
 
 
 start.chunk.time <- proc.time()
 for (chunk.sim.id in inANDout.df.chunk$sim.id){
-
+  
   simpact.chunk.prior = list()
 
   for (i in preprior.names.chunk){
 
     #col.index <- which(colnames(preprior.names.chunk)==i)
 
-    prior.chunk.val <- list(c("runif",1,as.numeric(inANDout.df.chunk[chunk.sim.id,i]),
-                              as.numeric(inANDout.df.chunk[chunk.sim.id,i])), c("dunif",0,1))
+    prior.chunk.val <- list(c("runif",1,as.numeric(inANDout.df.chunk[inANDout.df.chunk$sim.id==chunk.sim.id,i]),
+                              as.numeric(inANDout.df.chunk[inANDout.df.chunk$sim.id==chunk.sim.id,i])), c("dunif",0,1))
     simpact.chunk.prior[[length(simpact.chunk.prior)+1]] <- prior.chunk.val
   }
 
