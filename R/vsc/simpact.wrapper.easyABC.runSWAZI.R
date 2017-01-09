@@ -8,7 +8,6 @@ main.filename <- "SWAZIINPUT.df-100Points2Par2016-12-01.csv" #Read the file prod
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
-
 #Select a chunk to send to process
 min.chunk <- 1
 max.chunk <- 100
