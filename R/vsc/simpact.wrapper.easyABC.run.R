@@ -1,6 +1,6 @@
 #!/usr/bin/env/ Rscript
 #get the necessary libraries
-pacman::p_load(dplyr, EasyABC, RSimpactHelper)
+pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper)
 #data file to read
 dirname <- getwd()
 # There may be ways to make line 6 dynamic: so the file name does not need to be manually updated
