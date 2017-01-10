@@ -43,6 +43,7 @@ vl.suppressed <- function(datalist = datalist, timepoint = 30, vlcutoff = 1000, 
   q <- q + geom_point(data=VLevent.df, aes(x=VLTimeLog, y=Log10VL, group=ID, colour = Description))
   q <- q + geom_line(data=VLevent.df, aes(x=VLTimeLog, y=Log10VL, group=ID, colour = Description))
   q <- q + geom_hline(yintercept=vl.cutoff) + annotate("text", datalist$itable$hivseed.time[1], vl.cutoff + 0.2, label = "  VLCutoff")
+  q <- q + geom_vline(xintercept=timepoint-0.5, colour = "blue") + annotate("text", timepoint, max(VLevent.df$Log10VL), label = "  TimePoint")
   q <- q +theme_bw() + theme(legend.position = "right") +
     theme(panel.background = element_blank(),panel.grid.major.x = element_blank(),panel.grid.minor.x = element_blank(),
           panel.grid.minor.y = element_blank(), panel.grid.major.y = element_blank(), panel.ontop = TRUE) +
