@@ -1,17 +1,15 @@
 #!/usr/bin/env/ Rscript
 #get the necessary libraries
-pacman::p_load(dplyr, EasyABC, RSimpactHelper)
+pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper)
 #data file to read
 
 comp <- "win" #lin #mac
 
 if(comp == "win"){
   dirname <- "~/MaxART/RSimpactHelp"
-}
-else if(comp=="lin"){
+}else if(comp=="lin"){
   dirname <- "~/Documents/GIT_Projects/RSimpactHelp"
-}
-else{dirname <- "~/Documents/RSimpactHelp"} #mac directory here
+}else{dirname <- "~/Documents/RSimpactHelp"} #mac directory here
 
 # There may be ways to make line 6 dynamic: so the file name does not need to be manually updated
 main.filename <- "SWAZIINPUT.df-100Points2Par2016-12-01.csv" #Read the file produced by varying parameters *design.points
@@ -54,7 +52,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       return(chunk.summary.stats = rep(NA,length(target.variables)))
     stop(e)
   }
-  
+
   simpact.chunk.run <- function(input.chunk.params){
 
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr,lhs,data.table, dplyr, magrittr, exactci,
@@ -87,13 +85,13 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       assign.chunk.cfg.value <- input.chunk.params[j]
       cfg.chunk[cfg.chunk.par][[1]] <- assign.chunk.cfg.value
     }
-    
+
     ## Keep the files produced in subfolders
     generate.filename <- function(how.long){
       chars <- c(letters, LETTERS)
       paste0(sample(chars,how.long), collapse = "")
     }
-    
+
     #print(cfg.chunk)
 
     sub.dir.sim.id <- generate.filename(8)
@@ -143,7 +141,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
 start.chunk.time <- proc.time()
 for (chunk.sim.id in inANDout.df.chunk$sim.id){
-  
+
   simpact.chunk.prior = list()
 
   for (i in preprior.names.chunk){
