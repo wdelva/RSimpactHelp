@@ -23,6 +23,7 @@ readthedata <- function(modeloutput){
   inputparamlogfilename <- paste0(DestDir, outputID, "settingslog.csv")
   periodiclogfilename <- paste0(DestDir, outputID, "periodiclog.csv")
   viralloadlogfilename <- paste0(DestDir, outputID, "hivviralloadlog.csv")
+  facilitiesxylogfilename <- paste0(DestDir, outputID, "facilitypositions.csv")
 
   ptable <- data.table::fread(personlogfilename, sep = ",", skip = 0)
   vltable <- data.table::fread(viralloadlogfilename, sep = ",", skip = 0)
@@ -43,12 +44,27 @@ readthedata <- function(modeloutput){
 
   data.table::setnames(vltable, vltable.colnames, c("VLTimeLog", "ID", "Description","Log10SPVL", "Log10VL"))
 
-  if (file.exists(periodiclogfilename)){
+  if (file.exists(periodiclogfilename) && file.exists(facilitiesxylogfilename) ){
+    ltable <- data.table::fread(periodiclogfilename, sep = ",", skip = 0)
+    ftable <- data.table::fread(facilitiesxylogfilename, sep = ",", skip = 0)
+    outputtables <- list(ptable = ptable, rtable = rtable, etable = etable, ttable = ttable, itable = itable, ltable = ltable, vltable = vltable, ftable = ftable)
+    outputtables <- list(ptable = ptable, rtable = rtable, etable = etable, ttable = ttable, itable = itable, ltable = ltable, vltable = vltable)
+  }
+  else if(file.exists(facilitiesxylogfilename) && !file.exists(periodiclogfilename)){
+    ftable <- data.table::fread(facilitiesxylogfilename, sep = ",", skip = 0)
+    outputtables <- list(ptable = ptable, rtable = rtable, etable = etable, ttable = ttable, itable = itable, vltable = vltable, ftable = ftable)
+
+  }
+  else if(!file.exists(facilitiesxylogfilename) && file.exists(periodiclogfilename) ){
     ltable <- data.table::fread(periodiclogfilename, sep = ",", skip = 0)
     outputtables <- list(ptable = ptable, rtable = rtable, etable = etable, ttable = ttable, itable = itable, ltable = ltable, vltable = vltable)
-  } else {
+
+  }
+  else {
     outputtables <- list(ptable = ptable, rtable = rtable, etable = etable, ttable = ttable, itable = itable, vltable = vltable)
   }
+
+
   return(outputtables)
 
 }
