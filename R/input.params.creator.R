@@ -60,7 +60,7 @@
 #' @param hivseed.time The time within the simulation when the HIV seeding is to take place (10) e.g after 10 years in the simulation
 #' @param diagnosis.baseline Baseline parameter for the diagnosis event (-100)
 #' @param monitoring.cd4.threshold The value of cd4 that triggers eligibility for treatment if below this value
-#' @param simulation.type To distinguish parameters that vary from the type of simulation being perfomed (simpactcyan) e.g you can use maxart as well
+#' @param simulation.type To distinguish parameters that vary from the type of simulation being perfomed (simpact-cyan) e.g you can use maxart as well
 #' @return a list of model parameters that can be used as input for simpact.run()
 #' @examples
 #' cfg.list <- input.params.creator(conception.alpha_base = -3,
@@ -123,8 +123,8 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  hivtransmission.param.f2 = log(log(2.5) / log(5)) / 5,
                                  conception.alpha_base = -2.35, #-3
                                  diagnosis.baseline = -100,
-                                 monitoring.cd4.threshold = 350,
-                                 simulation.type = "simpactcyan"
+                                 monitoring.cd4.threshold = 0.1,#250
+                                 simulation.type = "simpact-cyan"
                                  ){
   input.params.list <- list()
   input.params.list$mortality.normal.weibull.shape <- mortality.normal.weibull.shape
@@ -184,7 +184,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params.list$conception.alpha_base <- conception.alpha_base
   input.params.list$diagnosis.baseline <- diagnosis.baseline
 
-  if(simulation.type == "simpactcyan"){
+  if(simulation.type == "simpact-cyan"){
     input.params.list$monitoring.cd4.threshold <- monitoring.cd4.threshold
   }else{
     input.params.list$facilities.outfile.facilityxypos <- "${SIMPACT_OUTPUT_PREFIX}facilitypositions.csv"
