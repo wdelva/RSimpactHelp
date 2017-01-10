@@ -19,7 +19,7 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactc
 
 
 ```{r getmodelready, echo=FALSE, message = FALSE, cache = FALSE}
-# simpact.set.simulation("simpact-cyan")#("maxart")
+simpact.set.simulation("maxart")#("simpact-cyan")#
 
 agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 
@@ -124,7 +124,6 @@ iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
-                          intervention = iv,
                           seed = 1)
 ```
 
