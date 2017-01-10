@@ -5,26 +5,36 @@
 #' @param site Select only the particular site from the study, if all ignore site/use all sites.
 #' @return a data.table that only includes people who were alive at the timepoint and that records their HIV status.
 #' @examples
-#' alive.twenty.dt <- alive.infected(DT = datalist, timepoint = 20)
+#' alive.twenty.dt <- alive.infected(datalist = datalist.test, timepoint = 20, site = "Siphocosini Clinic")
 #'
 #' @importFrom magrittr %>%
 #' @import dplyr
 
-
 alive.infected <- function(datalist = datalist,
-                           timepoint = 40, site="All"){ # arguments are the personlog data.table and a point in time
+                           timepoint = 40,
+                           site = "All") {
+  # arguments are the personlog data.table and a point in time
   DT <- datalist$ptable
-  if(site=="All"){
+  DT$pfacility <- "NA"
+  pf.index <- which(colnames(DT)=="pfacility") #person.facility.index
+
+  if (site == "All") {
     DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint)
-  }else{
-    facilities.df <- read.cv(datalist$itable$facilities.geo.coords)
-    facilities.df <- filter(facilities.df, Facility = site)
-    DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint
-                      & XCoord==facilities.df$Longitude
-                      & YCoord==facilities.df$Latitude)
+  } else{
+    facilities.df <- datalist.test$ftable
+    colnames(facilities.df) <- c("facility.xy", "XCoord", "YCoord")
+
+    for (i in 1:nrow(DT)) {
+      fc.id <-
+        which.min(sqrt((DT[i, XCoord] - facilities.df$XCoord)^2 + (DT[i, YCoord] - facilities.df$YCoord)^2
+        ))
+      DT[i, pf.index] <- facilities.df[fc.id, facility.xy]
+    }
+
+    DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint & pfacility == site)
   }
 
   # Now we allocate infection status to all people in our table of living people
-  DTalive <- DTalive %>%  mutate(Infected = (timepoint >= InfectTime))
+  DTalive <-  DTalive %>%  mutate(Infected = (timepoint >= InfectTime))
   return(DTalive)
 }
