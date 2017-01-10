@@ -5,3 +5,12 @@
 # x14 <-sqrt(x13)
 # test_mean <- (x11)/ x14
 # multi.hist(test_mean)
+
+
+#inputANDoutput.select <- inputANDoutput.select %>% dplyr::group_by(sim.id) %>% dplyr::summarise_each(funs(mean))
+
+
+
+
+
+
