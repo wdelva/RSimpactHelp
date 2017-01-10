@@ -59,6 +59,8 @@
 #' @param hivseed.age.max Maximum age at which HIV seeding will be infected (30)
 #' @param hivseed.time The time within the simulation when the HIV seeding is to take place (10) e.g after 10 years in the simulation
 #' @param diagnosis.baseline Baseline parameter for the diagnosis event (-100)
+#' @param monitoring.cd4.threshold The value of cd4 that triggers eligibility for treatment if below this value
+#' @param simulation.type To distinguish parameters that vary from the type of simulation being perfomed (simpactcyan) e.g you can use maxart as well
 #' @return a list of model parameters that can be used as input for simpact.run()
 #' @examples
 #' cfg.list <- input.params.creator(conception.alpha_base = -3,
@@ -180,8 +182,13 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params.list$hivtransmission.param.f1 <- hivtransmission.param.f1
   input.params.list$hivtransmission.param.f2 <- hivtransmission.param.f2
   input.params.list$conception.alpha_base <- conception.alpha_base
-  if(simulation.type == "simpactcyan"){input.params.list$monitoring.cd4.threshold <- monitoring.cd4.threshold}
-  input.params.list$diagnosis.baseline <- diagnosis.baseline ######### This will result in timing of HIV diagnosis way beyond the simulation
-  ######## period (until this parameter is overwritten when ART is introduced)
+  input.params.list$diagnosis.baseline <- diagnosis.baseline
+
+  if(simulation.type == "simpactcyan"){
+    input.params.list$monitoring.cd4.threshold <- monitoring.cd4.threshold
+  }else{
+    input.params.list$facilities.outfile.facilityxypos <- "${SIMPACT_OUTPUT_PREFIX}facilitypositions.csv"
+  }
+
   return(input.params.list)
 }
