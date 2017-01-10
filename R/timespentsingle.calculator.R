@@ -11,7 +11,9 @@
 #' @examples
 #' timespentsingle <- timespentsingle.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30), type = "Harling")
 #'
+#' @importFrom magrittr %>%
 #' @import dplyr
+
 
 timespentsingle.calculator <- function(datalist = datalist,
                                        agegroup = c(15, 30),

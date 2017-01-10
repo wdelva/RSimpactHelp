@@ -47,7 +47,8 @@ inputANDoutput.selectTTE <- inputANDoutput.select
 
 ##TEST WHICH OF THE ROWS ARE giving problems
 #Select a fraction of simulated dataset 
-inputANDoutput.select <- head(inputANDoutput.select,75) 
+nrow.sel <- 75
+inputANDoutput.select <- head(inputANDoutput.select, nrow.sel) 
 
 #select the x model param values (model parameters)
 simpact.x <- dplyr::select_(inputANDoutput.select,.dots=x.variables) %>% as.matrix()
@@ -72,8 +73,8 @@ x.design.long <- as.matrix(x.design.long)
 #### Computing model output at design points
 z_obs <- as.vector(unlist(simpact.z))
 
-
 ############################ creating the PCA part of the data #####################################
+z.df <- simpact.z
 z.pc <- princomp(z.df, scores = TRUE, cor = TRUE)
 summary(z.pc) 
 plot(z.pc)
@@ -115,7 +116,6 @@ for (iter in seq(100,700, 100)){
   
   comp1.pc.B <- rbind(comp1.pc.B, comp1.pc.B.var)
   comp2.pc.B <- rbind(comp2.pc.B, comp2.pc.B.var)
-  
 }
 #check how long this took.
 RS.pc.opt.b <- RS.pc.opt.var
@@ -149,6 +149,29 @@ optim.pc.check.conv <- proc.time() - optim.pc.check
 ggplot(melt(comp1.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 1")
 ggplot(melt(comp2.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 2")
 
+############### Testing if the prediction of the unused data can be recreated ######################################
+n.check <- nrow(inputANDoutput.select)-nrow.sel
+x.new.check <- tail(subset(inputANDoutput.selectTTE, select=c("xdesign1","xdesign2")), n.check)
+x.new.long.check <- x.new[rep(1:nrow(x.new.check),length(z.variables)),]
+x.new.long.check <- as.matrix(x.new.long.check)
+RS.new.mdm.check <- mdm(rbind(x.new.long.check), types = rep(z.variables, each = n.check))
+
+RS.pc.opt.a.check <- multem(x = RS.new.mdm.check, expt = RS.expt, hp = RS.pc.opt.a)
+RS.pc.a.df.check <- data.frame(matrix(RS.pc.opt.a.check, nrow = n.check,
+                                   dimnames = list(rownames = 1:n.check, colnames = paste0("a",names(z.df))[1:length(z.variables)])))
+
+RS.pc.opt.b.check <- multem(x = RS.new.mdm.check, expt = RS.expt, hp = RS.pc.opt.b)
+RS.pc.b.df.check <- data.frame(matrix(RS.pc.opt.b.check, nrow = n.check,
+                                   dimnames = list(rownames = 1:n.check, colnames = paste0("b",names(z.df))[1:length(z.variables)])))
+
+RS.pc.opt.c.check <- multem(x = RS.new.mdm.check, expt = RS.expt, hp = RS.opt.c)
+RS.pc.c.df.check <- data.frame(matrix(RS.pc.opt.c.check, nrow = n.check,
+                                   dimnames = list(rownames = 1:n.check, colnames = paste0("c",names(z.df))[1:length(z.variables)])))
+
+model.stats.check <- tail(subset(inputANDoutput.selectTTE, select=z.variables), n.check)
+model.stats.check <- cbind(model.stats.check, RS.pc.a.df.check, RS.pc.b.df.check, RS.pc.c.df.check)
+
+
 ############################ Using the Emulator to Explore the Parameter Space for the PCA Part to get the statistics
 n<-2000
 set.seed(1)
@@ -165,7 +188,11 @@ pred2pc.starttime <- proc.time()
 RS.prediction.pc.opt.b <- multem(x = RS.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.b)
 pred2pc.endtime <- proc.time() - pred2pc.starttime
 
-par(mfrow=c(2,length(z.variables))) # distribution of z.variable i with pc.opt.a then with pc.opt.b
+pred3pc.starttime <- proc.time()
+RS.prediction.pc.opt.c <- multem(x = RS.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.c)
+pred3pc.endtime <- proc.time() - pred3pc.starttime
+
+par(mfrow=c(3,length(z.variables))) # distribution of z.variable i with pc.opt.a then with pc.opt.b
 for (i in 1:length(z.variables)){
   hist(RS.prediction.pc.opt.a[((i-1)*n+1):(i*n)], main = paste("Dist of ",z.variables[i], sep = " "), xlab = "opt.a")
 }
@@ -174,20 +201,28 @@ for (i in 1:length(z.variables)){
   hist(RS.prediction.pc.opt.b[((i-1)*n+1):(i*n)], main = paste("Dist of ",z.variables[i], sep = " "), xlab = "opt.b")
 }
 
+for (i in 1:length(z.variables)){
+  hist(RS.prediction.pc.opt.c[((i-1)*n+1):(i*n)], main = paste("Dist of ",z.variables[i], sep = " "), xlab = "opt.c")
+}
+
 ##One way of efficiently comparing emulation output with target statistics is to reshape RS.prediction.* as a dataframe
 prediction.pc.a.df <- data.frame(matrix(RS.prediction.pc.opt.a, nrow = n,
                                      dimnames = list(rownames = 1:n, colnames = names(z.pc.df)[1:length(z.variables)])))
 prediction.pc.b.df <- data.frame(matrix(RS.prediction.pc.opt.b, nrow = n,
                                      dimnames = list(rownames = 1:n, colnames = names(z.pc.df)[1:length(z.variables)])))
+prediction.pc.c.df <- data.frame(matrix(RS.prediction.pc.opt.c, nrow = n,
+                                        dimnames = list(rownames = 1:n, colnames = names(z.pc.df)[1:length(z.variables)])))
 
 ## Predicting the PC values against the targets
 ######as.numeric(as.numeric(z.pc$loadings[, 1]) %*% ((as.numeric(targets.df) - z.pc$center) / z.pc$scale) )
 # All PCs for the target statistics:
-targets.df = data.frame(growth.rate = targets[1],
+z.df <- simpact.z
+z.pc <- princomp(z.df, scores = TRUE, cor = TRUE)
+
+targets.df <- data.frame(growth.rate = targets[1],
                         prev.men.15.50 = targets[2])
 targets.pc <- predict(z.pc, targets.df)
 targets.pc.vector <- as.numeric(targets.pc)[1:2]
-
 
 predicted.values <- function(prediction.df, pc = FALSE){
   sq.a.array <- as.data.frame(t(apply(prediction.df, 1, function(x) (x - t(targets.pc.vector))^2)))
@@ -217,7 +252,7 @@ for (j in x.variables){
   x.index <- x.index + 1
   min.var <- x.variables.boundaries[paste(j,".min",sep = "")][[1]]
   max.var <- x.variables.boundaries[paste(j,".max",sep = "")][[1]]
-  col.index <- which(colnames(par.estimated)==j)
+  col.index <- which(colnames(par.estimated.pc)==j)
   par.estimated.pc[1,col.index] <- qunif(x.estimate.pc.a[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
   par.estimated.pc[2,col.index] <- qunif(x.estimate.pc.b[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
   par.estimated.pc[3,col.index] <- qunif(x.estimate.pc.c[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
@@ -226,8 +261,6 @@ for (j in x.variables){
 par.estimated.pc[1,3] <- "a"
 par.estimated.pc[2,3] <- "b"
 par.estimated.pc[3,3] <- "c"
-
-
 
 ################################################ END #####################################################
 

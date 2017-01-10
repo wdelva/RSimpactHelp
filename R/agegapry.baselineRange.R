@@ -1,5 +1,10 @@
+### NOT sure who wrote this (but fixing the parameter initialisation for simpact)
+pacman::p_load(dplyr, RSimpactCyan, RSimpactHelper)
+
 #test the number range to use with the formation.hazard.agegapry.baseline (-5,5)
 #calculate growth rate and prevelance15-49yo
+
+testinput <- input.params.creator()
 
 res.agegapry <- data.frame(list(NA,NA,NA))
 names(res.agegapry) <- c("agegapry.baseline","pop.growth","prev15.49")

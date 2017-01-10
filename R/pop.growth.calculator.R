@@ -7,6 +7,9 @@
 #' @return population growth rate estimate, for the specified time window
 #' @examples
 #' growth.rate <- pop.growth.calculator(datalist = datalist, timewindow = c(0, 20))
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
 
 pop.growth.calculator <- function(datalist = datalist,
                                   timewindow = c(0, 20)){
