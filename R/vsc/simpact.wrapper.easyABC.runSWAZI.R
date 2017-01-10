@@ -2,7 +2,17 @@
 #get the necessary libraries
 pacman::p_load(dplyr, EasyABC, RSimpactHelper)
 #data file to read
-dirname <- "~/Documents/GIT_Projects/RSimpactHelp"
+
+comp <- "win" #lin #mac
+
+if(comp == "win"){
+  dirname <- "~/MaxART/RSimpactHelp"
+}
+else if(comp=="lin"){
+  dirname <- "~/Documents/GIT_Projects/RSimpactHelp"
+}
+else{dirname <- "~/Documents/RSimpactHelp"} #mac directory here
+
 # There may be ways to make line 6 dynamic: so the file name does not need to be manually updated
 main.filename <- "SWAZIINPUT.df-100Points2Par2016-12-01.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
@@ -11,7 +21,7 @@ inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = "
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 100
+max.chunk <- 2
 inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 
 #make sure there are no empty rows
