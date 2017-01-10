@@ -42,13 +42,12 @@ readthedata <- function(modeloutput){
   ttable <- data.table::fread(treatmentlogfilename, sep  = ",", skip = 0)
   itable <- data.table::fread(inputparamlogfilename, sep  = ",", skip = 0)
 
-  data.table::setnames(vltable, vltable.colnames, c("VLTimeLog", "ID", "Description","Log10SPVL", "Log10VL"))
+  #data.table::setnames(vltable, vltable.colnames, c("VLTimeLog", "ID", "Description","Log10SPVL", "Log10VL"))
 
   if (file.exists(periodiclogfilename) && file.exists(facilitiesxylogfilename) ){
     ltable <- data.table::fread(periodiclogfilename, sep = ",", skip = 0)
     ftable <- data.table::fread(facilitiesxylogfilename, sep = ",", skip = 0)
     outputtables <- list(ptable = ptable, rtable = rtable, etable = etable, ttable = ttable, itable = itable, ltable = ltable, vltable = vltable, ftable = ftable)
-    outputtables <- list(ptable = ptable, rtable = rtable, etable = etable, ttable = ttable, itable = itable, ltable = ltable, vltable = vltable)
   }
   else if(file.exists(facilitiesxylogfilename) && !file.exists(periodiclogfilename)){
     ftable <- data.table::fread(facilitiesxylogfilename, sep = ",", skip = 0)
