@@ -13,16 +13,24 @@
 
 vl.suppressed <- function(datalist = datalist, timepoint = 30, vlcutoff = 1000, lessmonths = 6, site="All"){
 
-
   DTalive.infected <- datalist$ptable
-  if(site=="All"){
+  DTalive.infected$pfacility <- "NA"
+  pf.index <- which(colnames(DTalive.infected)=="pfacility") #person.facility.index
+
+  if (site == "All") {
     DTalive.infected <- subset(DTalive.infected, TOB <= timepoint & TOD > timepoint & InfectTime!=Inf)
-  }else{
-    facilities.df <- read.cv(datalist$itable$facilities.geo.coords)
-    facilities.df <- filter(facilities.df, Facility = site)
-    DTalive.infected <- subset(DTalive.infected, TOB <= timepoint & TOD > timepoint & InfectTime!=Inf
-                      & XCoord==facilities.df$Longitude
-                      & YCoord==facilities.df$Latitude)
+  } else{
+    facilities.df <- datalist.test$ftable
+    colnames(facilities.df) <- c("facility.xy", "XCoord", "YCoord")
+
+    for (i in 1:nrow(DTalive.infected)) {
+      fc.id <-
+        which.min(sqrt((DTalive.infected[i, XCoord] - facilities.df$XCoord)^2 + (DTalive.infected[i, YCoord] - facilities.df$YCoord)^2
+        ))
+      DTalive.infected[i, pf.index] <- facilities.df[fc.id, facility.xy]
+    }
+
+    DTalive.infected <- subset(DTalive.infected, TOB <= timepoint & TOD > timepoint & pfacility == site & InfectTime!=Inf)
   }
 
   vl.cutoff <- log10(vlcutoff)
