@@ -6,50 +6,73 @@
 #'
 #' The function take in a list of paramenters set at intervals of cd4 count threshhold used to
 #' decide if a person can be offerd treatment
-#'
-#' @param time is the simulation time at which the modified setting should be introduced
-#' @param diagnosis.baseline is the initial setting at which the initial cd4 threshhold is set as a baseline value.
-#' @param monitoring.cd4.threshold is the cd4 value used to decide if teh person is offered treatment
-#' @param diagnosis.genderfactor this allows the hazard to take into account gender of the person
+#' @param simulation.type An indication of which of simpact simulation to perform.
 #' @return a list of lists containing intervention at different times. The first list sets the diagnosis.baseline value.
 #' @examples
 #' intervention.introduced <- intervention.introduced(list(27,0,100,2),list(30,200,1.5), list(33,350,1),list(36,500,0.5))
 
+intervention.introduced <- function(simulation.type = "simpact-cyan"){
 
-intervention.introduced <- function(art.intro = list(time = 27,diagnosis.baseline = 0,
-                                                     monitoring.cd4.threshold = 100,
-                                                     diagnosis.genderfactor = 2),
-                                    art.intro2 = list(time = 30, monitoring.cd4.threshold = 200,
-                                                      diagnosis.genderfactor = 1.5), ...){
+  if(simulation.type == "simpact-cyan"){
+    # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
+    art.intro <- list()
+    art.intro["time"] <- 27
+    art.intro["diagnosis.baseline"] <- 0 # Reset to zero, from its original value of -100 at the start of the simulatio
+    art.intro["monitoring.cd4.threshold"] <- 100
+    art.intro["diagnosis.genderfactor"] <- 2
 
-  arg.list <- list(art.intro, art.intro2,...)
+    # Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2013:500
 
-  iv <- list()
+    art.intro2 <- list()
+    art.intro2["time"] <- 30
+    art.intro2["monitoring.cd4.threshold"] <- 200
+    art.intro2["diagnosis.genderfactor"] <- 1.5
 
-  try(
-    if(length(arg.list[[1]])!=4) {
-      stop("Check if Diagnosis.baseline is set")
-      }
-      else{
-    for (i in 1:length(arg.list)){
-      #print(length(arg.list[[1]]))
-      if(i==1){
-        art.intro <- list()
-        art.intro["time"] <- arg.list[[i]][1]
-        art.intro["diagnosis.baseline"] <- arg.list[[i]][2]
-        art.intro["monitoring.cd4.threshold"] <- arg.list[[i]][3]
-        art.intro["diagnosis.genderfactor"] <- arg.list[[i]][4]
-      }else{
-      art.intro <- list()
-      art.intro["time"] <- arg.list[[i]][1]
-      art.intro["monitoring.cd4.threshold"] <- arg.list[[i]][2]
-      art.intro["diagnosis.genderfactor"] <- arg.list[[i]][3]
-      }
+    art.intro3 <- list()
+    art.intro3["time"] <- 33
+    art.intro3["monitoring.cd4.threshold"] <- 350
+    art.intro3["diagnosis.genderfactor"] <- 1
 
-      iv[[length(iv)+1]] <- art.intro
+    art.intro4 <- list()
+    art.intro4["time"] <- 36
+    art.intro4["monitoring.cd4.threshold"] <- 500
+    art.intro4["diagnosis.genderfactor"] <- 0.5
 
-    }
+    # person.art.accept.threshold.dist.fixed.value
 
-    return(iv)
-  })
+    iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
+
+  }else if(simulation.type == "maxart"){
+    # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
+    art.intro <- list()
+    art.intro["time"] <- 27
+    art.intro["diagnosis.baseline"] <- 0 # Reset to zero, from its original value of -100 at the start of the simulatio
+    art.intro["monitoring.cd4.threshold.prestudy"] <- 200
+    art.intro["diagnosis.genderfactor"] <- 2
+
+    # Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2014:500
+
+    art.intro2 <- list()
+    art.intro2["time"] <- 30
+    art.intro2["monitoring.cd4.threshold.prestudy"] <- 350
+    art.intro2["diagnosis.genderfactor"] <- 1.5
+
+    art.intro3 <- list()
+    art.intro3["time"] <- 33
+    art.intro3["monitoring.cd4.threshold.prestudy"] <- 350
+    art.intro3["diagnosis.genderfactor"] <- 1
+
+    art.intro4 <- list()
+    art.intro4["time"] <- 36
+    art.intro4["monitoring.cd4.threshold.prestudy"] <- 500
+    art.intro4["diagnosis.genderfactor"] <- 0.5
+
+    # person.art.accept.threshold.dist.fixed.value
+
+    iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
+  }else{
+    iv <-list()
+  }
+
+  return(iv)
 }
