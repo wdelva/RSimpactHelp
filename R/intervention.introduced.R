@@ -43,6 +43,8 @@ intervention.introduced <- function(simulation.type = "simpact-cyan"){
     iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
 
   }else if(simulation.type == "maxart"){
+    ### Eligibility increased from <200 to <350 in 2010 and then to <500 in 2015
+
     # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
     art.intro <- list()
     art.intro["time"] <- 27
@@ -63,7 +65,7 @@ intervention.introduced <- function(simulation.type = "simpact-cyan"){
     art.intro3["diagnosis.genderfactor"] <- 1
 
     art.intro4 <- list()
-    art.intro4["time"] <- 36
+    art.intro4["time"] <- 38
     art.intro4["monitoring.cd4.threshold.prestudy"] <- 500
     art.intro4["diagnosis.genderfactor"] <- 0.5
 
