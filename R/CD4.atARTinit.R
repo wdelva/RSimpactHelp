@@ -34,7 +34,7 @@ cd4.atARTinit <- function(datalist = datalist, agegroup = c(15, 30),
   # Now we apply the left_join dplyr function to add the ART status to raw.df.
   raw.df <- left_join(x = raw.df, y = art.df, by = c("ID", "Gender"))
 
-  #provide a summary of those that are on treatmen and those that started below a threshold
+  #provide a summary of those that are on treatment and those that started below a threshold
   cd4count.atARTInit <- data.frame(dplyr::summarise(dplyr::group_by(raw.df, Gender),
                                                     TotalCases = n(),
                                                     LessCD4initThreshold =sum(ART.start.CD4)))
