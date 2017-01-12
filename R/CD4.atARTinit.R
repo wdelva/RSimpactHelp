@@ -8,7 +8,7 @@
 #' @param site select only the particular site from the study, if all ignore site/use all sites.
 #' @return the total number of people whose CD4 count at ART initiation is within a was below this threshold
 #' @examples
-#' cd4.atARTinit <- cd4.atARTinit(datalist = datalist, agegroup=c(15, 30), timewindow=c(10, 40), cd4count=200, site="All")
+#' cd4.atARTinit <- cd4.atARTinit(datalist = datalist, agegroup=c(15, 30), timewindow=c(10, 40), cd4count=350, site="All")
 #'
 #' @importFrom magrittr %>%
 #' @import dplyr
