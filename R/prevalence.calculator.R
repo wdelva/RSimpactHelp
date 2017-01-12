@@ -9,12 +9,13 @@
 #' for the specified time point and age group, overall, and stratified by gender
 #' @examples
 #' prevalence.df <- prevalence.calculator(datalist = datalist, agegroup = c(15, 30), timepoint = 30)
+#' @import dplyr
 
 prevalence.calculator <- function(datalist = datalist,
                                   agegroup = c(15, 30),
                                   timepoint = 30){
-  DTP <- datalist$ptable
-  DTalive.infected <- alive.infected(DT = DTP, timepoint = timepoint) # First we only take the data of people who were alive at the timepoint
+  #DTP <- datalist$ptable
+  DTalive.infected <- alive.infected(datalist = datalist, timepoint = timepoint) # First we only take the data of people who were alive at the timepoint
   DTalive.infected.agegroup <- subset(DTalive.infected, TOB <= timepoint - agegroup[1] & TOB > timepoint - agegroup[2])
 
   raw.df <- data.frame(DTalive.infected.agegroup)
