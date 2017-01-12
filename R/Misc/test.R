@@ -1,7 +1,7 @@
 ## Testing the results from a simply simpact.run
 pacman::p_load(RSimpactCyan, RSimpactHelper)
 
-simulation.type <- "maxart"#"simpact-cyan"#
+simulation.type <- "simpact-cyan"#"maxart"#
 
 simpact.set.simulation(simulation.type)
 
@@ -17,7 +17,7 @@ testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
                           intervention = iv,
-                          seed = 20)
+                          seed = 1)
 
 datalist.test <- readthedata(testoutput)
 
