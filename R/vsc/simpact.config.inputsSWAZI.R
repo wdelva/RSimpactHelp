@@ -7,7 +7,7 @@ dirname <- getwd()
 design.points <- 100
 
 
-#Set the number of input simpact params to vary (these will the parameters that we seek to calibrate).
+#Set the number of input simpact params to vary (these will be the parameters that we seek to calibrate).
 input.varied.params <- c("conception.alpha_base", "formation.hazard.agegapry.baseline")
 
 
