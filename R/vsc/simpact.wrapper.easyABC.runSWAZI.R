@@ -9,7 +9,9 @@ if(comp == "win"){
   dirname <- "~/MaxART/RSimpactHelp"
 }else if(comp=="lin"){
   dirname <- "~/Documents/GIT_Projects/RSimpactHelp"
-}else{dirname <- "~/Documents/RSimpactHelp"} #mac directory here
+}else{
+  dirname <- "~/Documents/RSimpactHelp"  #mac directory here
+}
 
 # There may be ways to make line 6 dynamic: so the file name does not need to be manually updated
 main.filename <- "SWAZIINPUT.df-100Points2Par2016-12-01.csv" #Read the file produced by varying parameters *design.points
