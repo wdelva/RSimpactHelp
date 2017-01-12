@@ -10,7 +10,7 @@
 #' @param site Select only the particular site from the study, if all ignore site/use all sites.
 #' @return the total number of of people whose VL and CD4 count at ART initiation are given
 #' @examples
-#' cd4.vl.atARTinit <- cd4.vl.atARTinit(datalist = datalist, agegroup=c(15,30), timewindow=c(15,30), gender="Male", site="All")
+#' cd4.vl.atARTinit <- cd4.vl.atARTinit(datalist = datalist, agegroup=c(15,40), timewindow=c(15,40), gender="Male", site="All")
 
 cd4.vl.atARTinit <- function(datalist = datalist, agegroup = c(15,30),
                              timewindow = c(15,30), viralload=c(3,4), cd4count=c(350,500), gender = "Male", site="All"){
@@ -20,7 +20,7 @@ cd4.vl.atARTinit <- function(datalist = datalist, agegroup = c(15,30),
   cd4.vl.atARTinit <- age.group.time.window(datalist = datalist,
                                                    agegroup = agegroup, timewindow = timewindow, site="All")
 
-  cd4.vl.atARTinit <- subset(cd4.vl.atARTinit, TreatTime !=Inf & Gender == gender.id) #HIV positive Gender individuals
+  cd4.vl.atARTinit <- subset(cd4.vl.atARTinit, TreatTime !=Inf) #HIV positive individuals
 
   raw.df <- data.frame(cd4.vl.atARTinit)
   art.df <- subset(datalist$ttable, ID %in% cd4.vl.atARTinit$ID & TStart > timewindow[1] & TStart < timewindow[2])
@@ -28,13 +28,23 @@ cd4.vl.atARTinit <- function(datalist = datalist, agegroup = c(15,30),
   # Now we apply the left_join dplyr function to add the ART status to raw.df.
   raw.df <- left_join(x = raw.df, y = art.df, by = c("ID", "Gender"))
 
-  #select those individuals who started their treatment when their CD4 count what between the given threshold
+  #select those individuals who started their treatment when their CD4 count was between the given threshold
   cd4count.atARTInit <- subset(raw.df, cd4count[1] <= CD4atARTstart &  CD4atARTstart <= cd4count[2])
 
-  cl.atARTinit <- subset(raw.df, viralload[1] <= log10SPVL &  log10SPVL <= viralload[2])
+  #select those individuals who started their treatment when their vl was between the given threshold
+  vl.atARTinit <- subset(raw.df, viralload[1] <= log10SPVL &  log10SPVL <= viralload[2])
 
   cd4count.atARTInit <- nrow(cd4count.atARTInit)
   vl.atARTinit <- nrow(vl.atARTinit)
+
+  #provide a summary of those that are on treatment and those that started below a threshold
+  cd4count.atARTInit <- data.frame(dplyr::summarise(dplyr::group_by(raw.df, Gender),
+                                                    TotalCases = n(),
+                                                    LessCD4initThreshold =sum(ART.start.CD4)))
+
+  cd4count.atARTInit$Gender[cd4count.atARTInit$Gender==0] <- "Woman"
+  cd4count.atARTInit$Gender[cd4count.atARTInit$Gender==1] <- "Man"
+
 
   cd4.vl.atARTinit <- c(cd4count.atARTInit, vl.atARTinit)
 
