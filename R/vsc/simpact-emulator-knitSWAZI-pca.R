@@ -4,9 +4,17 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactc
                igraph,lhs, GGally, emulator, multivator, tidyr, psych)
 # install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
 
-dirname <- "~/Documents/GIT_Projects/RSimpactHelp/" #### Change this as needed
+comp <- "win" #lin #mac
 
-file.name.csv <- paste0(dirname, "SummaryOutPut-inANDout.df.chunk-1-100-2017-01-05.csv") # param.varied
+if(comp == "win"){
+  dirname <- "~/MaxART/RSimpactHelp"
+}else if(comp=="lin"){
+  dirname <- "~/Documents/GIT_Projects/RSimpactHelp"
+}else{
+  dirname <- "~/Documents/RSimpactHelp"  #mac directory here
+}
+
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-100-2017-01-05.csv") # param.varied
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
@@ -26,6 +34,9 @@ z.variables <- c("growth.rate", "prev.men.15.50")
 #Set the targets for the summary statistics.
 targets <- c(0.014, 0.32)
 
+try(if(length(targets)!=length(z.variables)) stop("Target values are not equal to the variables set"))
+
+
 # The x variables (model parameters) that were varied:
 x.variables <- c("conception.alpha_base","formation.hazard.agegapry.baseline")
 
@@ -39,16 +50,16 @@ inputANDoutput.select <- aggregate(inputANDoutput.complete, by = list(inputANDou
 inputANDoutput.select <- dplyr::filter(inputANDoutput.select,complete.cases(inputANDoutput.select[,z.variables]))
 
 ## some condition on the prev.men.14.50
-inputANDoutput.select <- dplyr::filter(inputANDoutput.select, prev.men.15.50 > 0.25)
-##inputANDoutput.select <- dplyr::filter(inputANDoutput.select, growth.rate > 0)
+##inputANDoutput.select <- dplyr::filter(inputANDoutput.select, prev.men.15.50 > 0.25)
+inputANDoutput.select <- dplyr::filter(inputANDoutput.select, growth.rate > 0)
 
 #Keep the full set of the data for testing later
 inputANDoutput.selectTTE <- inputANDoutput.select
 
 ##TEST WHICH OF THE ROWS ARE giving problems
-#Select a fraction of simulated dataset 
-nrow.sel <- 75
-inputANDoutput.select <- head(inputANDoutput.select, nrow.sel) 
+#Select a fraction of simulated dataset
+nrow.sel <- floor(nrow(inputANDoutput.select) * 75/100) # use 75% of the data always and use the 25% for validation)
+inputANDoutput.select <- head(inputANDoutput.select, nrow.sel)
 
 #select the x model param values (model parameters)
 simpact.x <- dplyr::select_(inputANDoutput.select,.dots=x.variables) %>% as.matrix()
@@ -58,11 +69,7 @@ simpact.z <- dplyr::select_(inputANDoutput.select,.dots=z.variables)
 x.design.name <- names(dplyr::select(inputANDoutput.select, contains("xdesign")))
 x.design <- dplyr::select_(inputANDoutput.select,.dots=x.design.name)
 
-### Check is z.variables and x.variables are in inANDout.df ####
-
-try(if(length(targets)!=length(z.variables)) stop("Target values are not equal to the variables set"))
-
-##The figure below shows the distribution of the summary data to be used. 
+##The figure below shows the distribution of the summary data to be used.
 ##We might need to transform any of the summary statistics should the histogram diverge from normaility.
 par(mfrow=c(1,1))
 multi.hist(simpact.z)
@@ -76,20 +83,23 @@ z_obs <- as.vector(unlist(simpact.z))
 ############################ creating the PCA part of the data #####################################
 z.df <- simpact.z
 z.pc <- princomp(z.df, scores = TRUE, cor = TRUE)
-summary(z.pc) 
+summary(z.pc)
 plot(z.pc)
 #biplot(z.pc)
 #z.pc$loadings
 z.pc.df <- data.frame(z.pc$scores)
 z.pc.obs <- as.vector(unlist(z.pc.df))
+
 x.design.pc.long <- x.design[rep(1:nrow(x.design),length(z.variables)),]  #You can do length(z.variables) - #PCA not to be used
 x.design.pc.long <- as.matrix(x.design.pc.long)
 
 ################ Creating the multivator objects for the PCA-based analysis
 RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df), each = dim(simpact.z)[1])) #You can do names(z.pc.df)[1:2] - #PCA not to be used
 RS.pc.expt <- experiment(mm = RS.pc.mdm, obs = z.pc.obs)
-#RS_opt <- optimal_params(RS_expt, option="a")
+
+optima.starttime.pc <- proc.time()
 RS.pc.opt.a <- optimal_params(RS.pc.expt, option="a")
+optima.endtime.pc <- proc.time() - optima.starttime.pc
 
 comp1.pc.B <- data.frame(t(diag(B(RS.pc.opt.a)[,,1])),"a")
 comp2.pc.B <- data.frame(t(diag(B(RS.pc.opt.a)[,,2])),"a")
@@ -101,19 +111,19 @@ RS.pc.opt.var <-  RS.pc.opt.a
 
 optim.pc.check <- proc.time()
 
-# Use the loop to get iterate through different values. So the optimasation process is faster.
+# Use the loop to iterate through different values. So the optimisation process is faster.
 
 for (iter in seq(100,700, 100)){
   print (paste("Working on pc iteration number: ", iter, sep=" "))
   RS.pc.opt.b.var.iter <- optimal_params(RS.pc.expt, option="b", start_hp = RS.pc.opt.var, control = list(maxit=iter))
   RS.pc.opt.var <- RS.pc.opt.b.var.iter
-  
+
   comp1.pc.B.var <- data.frame(t(diag(B(RS.pc.opt.b.var.iter)[,,1])),paste("b",iter,sep = ""))
   comp2.pc.B.var <- data.frame(t(diag(B(RS.pc.opt.b.var.iter)[,,2])),paste("b",iter,sep = ""))
-  
+
   names(comp1.pc.B.var)[3] <- "run.type"
   names(comp2.pc.B.var)[3] <- "run.type"
-  
+
   comp1.pc.B <- rbind(comp1.pc.B, comp1.pc.B.var)
   comp2.pc.B <- rbind(comp2.pc.B, comp2.pc.B.var)
 }
@@ -130,13 +140,13 @@ for (iter in seq(100,700, 100)){
   print (paste("Working on pc iteration number: ", iter, sep=" "))
   RS.pc.opt.c.var.iter <- optimal_params(RS.pc.expt, option="c", start_hp = RS.pc.opt.var, control = list(maxit=iter))
   RS.pc.opt.var <- RS.pc.opt.c.var.iter
-  
+
   comp1.pc.B.var <- data.frame(t(diag(B(RS.pc.opt.c.var.iter)[,,1])),paste("c",iter,sep = ""))
   comp2.pc.B.var <- data.frame(t(diag(B(RS.pc.opt.c.var.iter)[,,2])),paste("c",iter,sep = ""))
-  
+
   names(comp1.pc.B.var)[3] <- "run.type"
   names(comp2.pc.B.var)[3] <- "run.type"
-  
+
   comp1.pc.B <- rbind(comp1.pc.B, comp1.pc.B.var)
   comp2.pc.B <- rbind(comp2.pc.B, comp2.pc.B.var)
 }
@@ -150,30 +160,40 @@ ggplot(melt(comp1.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=var
 ggplot(melt(comp2.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 2")
 
 ############### Testing if the prediction of the unused data can be recreated ######################################
-n.check <- nrow(inputANDoutput.select)-nrow.sel
+n.check <- nrow(inputANDoutput.selectTTE)-nrow.sel
 x.new.check <- tail(subset(inputANDoutput.selectTTE, select=c("xdesign1","xdesign2")), n.check)
-x.new.long.check <- x.new[rep(1:nrow(x.new.check),length(z.variables)),]
+x.new.long.check <- x.new.check[rep(1:nrow(x.new.check),length(z.variables)),]
 x.new.long.check <- as.matrix(x.new.long.check)
-RS.new.mdm.check <- mdm(rbind(x.new.long.check), types = rep(z.variables, each = n.check))
+RS.new.mdm.check <- mdm(rbind(x.new.long.check), types = rep(names(z.pc.df), each = n.check))
 
-RS.pc.opt.a.check <- multem(x = RS.new.mdm.check, expt = RS.expt, hp = RS.pc.opt.a)
+
+RS.pc.opt.a.check <- multem(x = RS.new.mdm.check, expt = RS.pc.expt, hp = RS.pc.opt.a)
 RS.pc.a.df.check <- data.frame(matrix(RS.pc.opt.a.check, nrow = n.check,
-                                   dimnames = list(rownames = 1:n.check, colnames = paste0("a",names(z.df))[1:length(z.variables)])))
+                                   dimnames = list(rownames = 1:n.check, colnames = paste0("a",names(z.pc.df))[1:length(z.variables)])))
 
-RS.pc.opt.b.check <- multem(x = RS.new.mdm.check, expt = RS.expt, hp = RS.pc.opt.b)
+RS.pc.opt.b.check <- multem(x = RS.new.mdm.check, expt = RS.pc.expt, hp = RS.pc.opt.b)
 RS.pc.b.df.check <- data.frame(matrix(RS.pc.opt.b.check, nrow = n.check,
-                                   dimnames = list(rownames = 1:n.check, colnames = paste0("b",names(z.df))[1:length(z.variables)])))
+                                   dimnames = list(rownames = 1:n.check, colnames = paste0("b",names(z.pc.df))[1:length(z.variables)])))
 
-RS.pc.opt.c.check <- multem(x = RS.new.mdm.check, expt = RS.expt, hp = RS.opt.c)
+RS.pc.opt.c.check <- multem(x = RS.new.mdm.check, expt = RS.pc.expt, hp = RS.pc.opt.c)
 RS.pc.c.df.check <- data.frame(matrix(RS.pc.opt.c.check, nrow = n.check,
-                                   dimnames = list(rownames = 1:n.check, colnames = paste0("c",names(z.df))[1:length(z.variables)])))
+                                   dimnames = list(rownames = 1:n.check, colnames = paste0("c",names(z.pc.df))[1:length(z.variables)])))
 
-model.stats.check <- tail(subset(inputANDoutput.selectTTE, select=z.variables), n.check)
-model.stats.check <- cbind(model.stats.check, RS.pc.a.df.check, RS.pc.b.df.check, RS.pc.c.df.check)
+model.stats.check.pc <- tail(subset(inputANDoutput.selectTTE, select=z.variables), n.check)
+model.stats.check.pc <- predict(z.pc, model.stats.check.pc)
+model.stats.check.pc <- cbind(model.stats.check.pc, RS.pc.a.df.check, RS.pc.b.df.check, RS.pc.c.df.check)
+
+### Visualise the results
+growth.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.1"))
+prev.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.2"))
+matplot(growth.compare, pch = 20, cex = 2)
+legend("topleft", colnames(growth.compare.pc),col=seq_len(ncol(growth.compare.pc)),cex=0.8,fill=seq_len(ncol(growth.compare.pc)), bty = "n")
+matplot(prev.compare, pch = 20, cex = 2)
+legend("topleft", colnames(prev.compare.pc),col=seq_len(ncol(prev.compare.pc)),cex=0.8,fill=seq_len(ncol(prev.compare.pc)), bty = "n")
 
 
 ############################ Using the Emulator to Explore the Parameter Space for the PCA Part to get the statistics
-n<-2000
+n<-10000
 set.seed(1)
 x.new <- latin.hypercube(n, length(x.variables), names=colnames(x.design))
 x.new.long <- x.new[rep(1:nrow(x.new),length(z.variables)),]
@@ -224,7 +244,7 @@ targets.df <- data.frame(growth.rate = targets[1],
 targets.pc <- predict(z.pc, targets.df)
 targets.pc.vector <- as.numeric(targets.pc)[1:2]
 
-predicted.values <- function(prediction.df, pc = FALSE){
+predicted.values <- function(prediction.df){
   sq.a.array <- as.data.frame(t(apply(prediction.df, 1, function(x) (x - t(targets.pc.vector))^2)))
   names(sq.a.array) <- names(prediction.df)
   SumSq <- as.numeric(rowSums(sq.a.array))
