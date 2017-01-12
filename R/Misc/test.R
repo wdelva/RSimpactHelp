@@ -16,7 +16,7 @@ testinput <- input.params.creator(simulation.type = simulation.type)
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
-                          #intervention = iv,
+                          intervention = iv,
                           seed = 20)
 
 datalist.test <- readthedata(testoutput)
