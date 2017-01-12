@@ -10,7 +10,7 @@
 #' @examples
 #' agegroup.timewindow.df <- age.group.time.window(datalist = datalist, agegroup = c(15,30),timewindow = c(15,30),site="All")
 
-age.group.time.window <- function(datalist = datalist,
+age.group.time.window2 <- function(datalist = datalist,
                                   agegroup = c(15,30),
                                   timewindow = c(10,40),
                                   site="All"){
