@@ -47,6 +47,7 @@ intervention.introduced <- function(simulation.type = "simpact-cyan"){
 
     # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
     art.intro <- list()
+    art.intro$facilities.outfile.facilityxypos <- "" #reset the writing of the facilities.xy position to none.
     art.intro["time"] <- 27
     art.intro["diagnosis.baseline"] <- 0 # Reset to zero, from its original value of -100 at the start of the simulatio
     art.intro["monitoring.cd4.threshold.prestudy"] <- 200
