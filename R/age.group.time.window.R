@@ -7,7 +7,7 @@
 #' @param site Select only the particular site from the study, if all ignore site/use all sites.
 #' @return a data.table that only includes people who were alive at the timewindow and are within the agegroup
 #' @examples
-#' agegroup.timewindow.df <- age.group.time.window(datalist = datalist, agegroup = c(15, 30),timewindow = c(15, 30),site="All")
+#' agegroup.timewindow.df <- age.group.time.window(datalist = datalist, agegroup = c(15, 30),timewindow = c(10, 40),site="All")
 #'
 #' @importFrom magrittr %>%
 #' @import dplyr
