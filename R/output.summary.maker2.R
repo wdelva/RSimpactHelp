@@ -20,13 +20,13 @@
 
 output.summary.maker2 <- function(datalist = datalist.test,
                                   cd4.atART=list(timewindow= c(25,40), agegroup=c(15,30), cd4CutOff = 350, gender = "female"),
-                                  vl.atART=list(agegroup = c(15,30), timewindow =c(30,40), vl.threshold = C(2,3), start=FALSE, gender = "female"),
+                                  vl.atART=list(agegroup = c(15,30), timewindow =c(30,40), vl.threshold = c(2,3), start=FALSE, gender = "female"),
 
-                                   prev.15.25 = list(age.group=c(15,25), timepoint = 35, gender = "men"),
-                                   prev.25.50 = list(age.group=c(25,50), timepoint = 35, gender = "men"),
-                                   art.coverage = list(age.group=c(15,50), timepoint = 34, gender = "men"),
-                                   inc.15.30 = list(age.group=c(15,30), timewindow=c(30,40), gender = "men", only.active = "No"),
-                                   partner.degree = list(age.group=c(15,30), hivstatus = 0, survey.time = 30,
+                                  prev.15.25 = list(age.group=c(15,25), timepoint = 35, gender = "men"),
+                                  prev.25.50 = list(age.group=c(25,50), timepoint = 35, gender = "men"),
+                                  art.coverage = list(age.group=c(15,50), timepoint = 34, gender = "men"),
+                                  inc.15.30 = list(age.group=c(15,30), timewindow=c(30,40), gender = "men", only.active = "No"),
+                                  partner.degree = list(age.group=c(15,30), hivstatus = 0, survey.time = 30,
                                                          window.width = 1, gender="female", only.new = FALSE)){
 
   cd4.atART.gender.index = 1
