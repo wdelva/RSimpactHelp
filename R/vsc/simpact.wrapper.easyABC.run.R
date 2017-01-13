@@ -2,28 +2,49 @@
 #get the necessary libraries
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper)
 #data file to read
-dirname <- getwd()
-# There may be ways to make line 6 dynamic: so the file name does not need to be manually updated
-main.filename <- "INPUT.df-1000Points10Par2016-11-04.csv" #Read the file produced by varying parameters *design.points
+
+comp <- "win" #lin #mac
+
+if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
+  dirname <- "~/Documents/GIT_Projects/RSimpactHelp"}else{dirname <- "~/Documents/RSimpactHelp"  #mac directory here
+}
+
+# There may be ways to make main.filename dynamic: so the file name does not need to be manually updated
+main.filename <- "simpactInputParams.df-200Points11Par2017-01-13.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
+################################# YOU CAN EITHER RUNN THIS LINE BELOW or READ THE FILE SAVED ALREADY ############################
+# inPUT.df.complete <- simpact.config.inputs(design.points = 200, conception.alpha_base = c(-3.6, -1.2),
+#                                            formation.hazard.agegapry.baseline = c(1.5, 3),
+#                                            person.eagerness.man.dist.gamma.a = c(0.1, 2),
+#                                            person.eagerness.man.dist.gamma.b = c(5, 60),
+#                                            formation.hazard.agegapry.numrel_man = c(-1.5, -0.1),
+#                                            formation.hazard.agegapry.eagerness_diff = c(-0.1, 0),
+#                                            formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.4),
+#                                            person.agegap.man.dist.normal.mu = c(0, 4),
+#                                            person.agegap.woman.dist.normal.mu = c(0, 4),
+#                                            person.agegap.man.dist.normal.sigma = c(0.5, 2),
+#                                            person.agegap.woman.dist.normal.sigma = c(0.5, 2) )
+
+##################################################################################################################################
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 1000
+max.chunk <- 200
 inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 
 #make sure there are no empty rows
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
-sim_repeat <- 2
-ncluster.use <- 8 # number of cores per node
+sim_repeat <- 5
+ncluster.use <- 4 # number of cores per node
 
-## In case you need more target statistics you can add here. The default are 13. Remember to change
-## in the target.variables in the main file as well.
-target.variables <- select.summary.params()[[1]]
+#indicate the target statitics that you want to hit
+target.variables <- c("growth.rate", "inc.men.15.30", "inc.wom.15.30", "prev.men.15.25",
+                      "prev.wom.15.25","prev.men.25.50", "prev.wom.25.50", "ART.cov.men.15.50", "ART.cov.wom.15.50")
 
+##Each of these should be calculated after each run, else we give an NA
 
 #set the prior names - varied parameters
 preprior.chunk <- names(dplyr::select(inANDout.df.chunk, contains(".")))
@@ -36,28 +57,44 @@ names(chunk.summary.stats.df) <- c(target.variables, "sim.id")
 
 
 simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
+
+  #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
+  target.variables <- c("growth.rate", "inc.men.15.30", "inc.wom.15.30", "prev.men.15.25",
+                        "prev.wom.15.25","prev.men.25.50", "prev.wom.25.50", "ART.cov.men.15.50", "ART.cov.wom.15.50")
+  err.functionGEN <- function(e){
+    if (length(grep("MAXEVENTS",e$message)) != 0)
+      return(chunk.summary.stats = rep(NA,length(target.variables)))
+    if (length(grep("internal event time",e$message)) != 0)
+      return(chunk.summary.stats = rep(NA,length(target.variables)))
+    stop(e)
+  }
+
   simpact.chunk.run <- function(input.chunk.params){
 
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr,lhs,data.table, dplyr, magrittr, exactci,
                    nlme, ggplot2,survival, KMsurv, tidyr, expoTree, sna, intergraph,
-                   igraph,lhs, GGally, emulator, multivator, tidyr)
+                   igraph,lhs, GGally, tidyr)
 
+    ## Run preprior.names.chunk and copy the results here.
+    input.varied.params.plus <- c("conception.alpha_base", "formation.hazard.agegapry.baseline",
+                                  "person.eagerness.man.dist.gamma.a",  "person.eagerness.man.dist.gamma.b")
 
-    input.varied.params.plus <- varied.simpact.params()[[1]]
+    target.variables <- c("growth.rate", "inc.men.15.30", "inc.wom.15.30", "prev.men.15.25", "prev.wom.15.25","prev.men.25.50",
+                          "prev.wom.25.50", "ART.cov.men.15.50", "ART.cov.wom.15.50")
 
-    target.variables <- select.summary.params()[[1]]
-
-    simpact.set.simulation("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
+    simulation.type <- ("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
+    simpact.set.simulation(simulation.type)
     agedist.chunk.data.frame <- agedistr.creator(shape = 5, scale = 65)
 
     #### Set input params
     ##Specifying the initially chosen values for the simulation.
-    cfg.chunk <- input.params.creator(population.simtime = 40, population.numwomen = 500, population.nummen = 500)
+    cfg.chunk <- input.params.creator(population.simtime = 40, population.numwomen = 500, population.nummen = 500,
+                                      simulation.type = simulation.type)
 
     #intervention introduced See the intervention.introduced
     # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
-    iv.chunk <- intervention.introduced(list(27,0,100,2),list(30,200,1.5), list(33,350,1),list(36,500,0.5))
+    iv.chunk <- intervention.introduced(simulation.type = simulation.type)
 
     #The first parameter is set to be the seed value
     seed.chunk.id <- input.chunk.params[1]
@@ -103,30 +140,38 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     if(length(chunk.datalist.test)>1){
       #get the summary statistics for each run
-      out.statistics <- output.summary.maker(datalist = chunk.datalist.test,
-                                             growth.rate=list(timewindow=c(0, timewindow.max=unique(chunk.datalist.test$itable$population.simtime))),
-                                             agemix.maker=list(agegroup=c(15,30), timepoint=30, timewindow=1, start=FALSE, gender="female"),
-                                             prev.15.25=list(age.group=c(15,25), timepoint=35, gender="men"),
-                                             prev.25.50=list(age.group=c(25,50), timepoint=35, gender="men"),
-                                             art.coverage=list(age.group=c(15,50), timepoint=34, gender="men"),
-                                             inc.15.30=list(age.group=c(15,30), timewindow=c(30,40), gender="women", only.active="Harling"),
-                                             partner.degree=list(age.group=c(15,30), hivstatus=0, survey.time=30,
-                                                                   window.width=1, gender="female", only.new=FALSE))
+      growth.rate = pop.growth.calculator(datalist = chunk.datalist.test,
+                                          timewindow = c(0, timewindow.max=unique(chunk.datalist.test$itable$population.simtime)))
+
+      inc.15.30 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(15, 30), timewindow = c(20, 30), only.active = "No")
+      inc.men.15.30 <- inc.15.30$incidence[1]
+      inc.wom.15.30 <- inc.15.30$incidence[2]
+      prev.15.25 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(15, 25), timepoint = 35)
+      prev.men.15.25 = prev.15.25$pointprevalence[1]
+      prev.wom.15.25 = prev.15.25$pointprevalence[2]
+      prev.25.50 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(25, 50), timepoint = 35)
+      prev.men.25.50 = prev.25.50$pointprevalence[1]
+      prev.wom.25.50 = prev.25.50$pointprevalence[2]
+      ARTcov <- ART.coverage.calculator(datalist = chunk.datalist.test, agegroup = c(15, 50), timepoint =35, site="All")
+      ART.cov.men.15.50 <- ARTcov$ART.coverage[1]
+      ART.cov.wom.15.50 <- ARTcov$ART.coverage[2]
+
       ##get the summary statistics as indicated by target.variables
-      out.statistic.no.degree <- out.statistics[,target.variables]
+      out.statistic <- c(growth.rate, inc.men.15.30, inc.wom.15.30, prev.men.15.25, prev.wom.15.25,
+                         prev.men.25.50, prev.wom.25.50, ART.cov.men.15.50, ART.cov.wom.15.50)
       ##out.test.degree <- out.statistic[[2]]
     }else{
-      out.statistic.no.degree <- rep(NA,length(target.variables))
+      out.statistic <- rep(NA,length(target.variables))
       ##out.statistic.degree <- NA
     }
 
-    chunk.summary.stats <- out.statistic.no.degree
+    chunk.summary.stats <- out.statistic
 
     return(chunk.summary.stats)
   }
 
   chunk.summary.stats <- tryCatch(simpact.chunk.run(simpact.chunk.prior),
-                                  error = err.function)
+                                  error = err.functionGEN)
 }
 
 
@@ -144,7 +189,7 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
     simpact.chunk.prior[[length(simpact.chunk.prior)+1]] <- prior.chunk.val
   }
 
-
+  print(paste("Working on simulation number: ", chunk.sim.id, sep=" "))
   #invoke the ABC_rejection method repeating the number of simulation X* for each chunk row.
   ABC.chunk.result <- ABC_rejection(model = simpact4ABC.chunk.wrapper,
                                         prior = simpact.chunk.prior,
