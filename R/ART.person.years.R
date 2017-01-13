@@ -53,8 +53,5 @@ art.person.years <- function(datalist = datalist, agegroup =c(15, 30), timewindo
                                   sum.EverOnART = c(NA, NA), sum.EverOnARTyears = c(NA,NA))
   }
 
-  ART.coverage.df$Gender[ART.coverage.df$Gender==0] <- "Woman"
-  ART.coverage.df$Gender[ART.coverage.df$Gender==1] <- "Man"
-
   return(ART.coverage.df)
 }
