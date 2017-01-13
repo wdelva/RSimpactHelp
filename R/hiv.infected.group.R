@@ -22,9 +22,6 @@ hiv.infected.group <- function(datalist = datalist, agegroup = c(15, 30), timewi
   #aggregate by gender
   hiv.infect.count <- data.frame(dplyr::summarise(dplyr::group_by(person.alive.infected, Gender),
                                                   InfectedCount = n()))
-  #indicate the gender stats
-  hiv.infect.count$Gender[hiv.infect.count$Gender==0] <- "Woman"
-  hiv.infect.count$Gender[hiv.infect.count$Gender==1] <- "Man"
 
   return(hiv.infect.count)
 }
