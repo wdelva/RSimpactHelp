@@ -9,6 +9,9 @@
 #' @return a data.table that only includes people who were alive at the timepoint and that records their HIV status.
 #' @examples
 #' agegroup.timewindow.df <- age.group.time.window(datalist = datalist, agegroup = c(15,30),timewindow = c(15,30),site="All")
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
 
 age.group.time.window2 <- function(datalist = datalist,
                                   agegroup = c(15,30),
