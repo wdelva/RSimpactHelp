@@ -10,6 +10,9 @@
 #' at one timepoint
 #' @examples
 #' vl.suppressed <- vl.suppressed(datalist = datalist, timepoint=40, vlcutoff=1000, lessmonths = 6, site="All")
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
 
 vl.suppressed <- function(datalist = datalist, timepoint = 30, vlcutoff = 1000, lessmonths = 6, site="All"){
 
@@ -73,9 +76,6 @@ vl.suppressed <- function(datalist = datalist, timepoint = 30, vlcutoff = 1000, 
                                                             TotalCases = n(),
                                                             VLSuppressed6TP = sum(VL.Suppressed.Timepoint),
                                                             Percentage = sum(VL.Suppressed.Timepoint)/n()))
-
-  vlSuppressedSixmonthLessTP$Gender[vlSuppressedSixmonthLessTP$Gender==0] <- "Woman"
-  vlSuppressedSixmonthLessTP$Gender[vlSuppressedSixmonthLessTP$Gender==1] <- "Man"
 
 
   return(vlSuppressedSixmonthLessTP)
