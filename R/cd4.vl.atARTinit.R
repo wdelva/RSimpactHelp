@@ -10,6 +10,9 @@
 #' @return the total number of of people whose VL and CD4 count at ART initiation are given
 #' @examples
 #' cd4.vl.atARTinit <- cd4.vl.atARTinit(datalist = datalist.test, agegroup=c(15,40), timewindow=c(15,40), viralload=c(3,4), cd4count=c(350,500), site="All")
+#'
+#' @importFrom magrittr %>%
+#' @import dplyr
 
 cd4.vl.atARTinit <- function(datalist = datalist, agegroup = c(15,30),
                              timewindow = c(15,30), viralload=c(3,4), cd4count=c(350,500), site="All"){
@@ -36,10 +39,6 @@ cd4.vl.atARTinit <- function(datalist = datalist, agegroup = c(15,30),
                                                     TotalCases = n(),
                                                     cd4count.atARTInit = sum(cd4count.atARTInit),
                                                     vl.atARTinit = sum(vl.atARTinit)))
-
-  cd4.vl.atARTinit$Gender[cd4.vl.atARTinit$Gender==0] <- "Woman"
-  cd4.vl.atARTinit$Gender[cd4.vl.atARTinit$Gender==1] <- "Man"
-
 
   #cd4.vl.atARTinit <- c(cd4count.atARTInit, vl.atARTinit)
 
