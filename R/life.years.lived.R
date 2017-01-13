@@ -27,9 +27,6 @@ life.years.lived <- function(datalist = datalist, agegroup = c(15, 30), timewind
                                                    TotalExposed = n(),
                                                    LifeYearsLived = sum(exposure.time.Alive) ))
 
-  lifeyears.lived$Gender[lifeyears.lived$Gender==0] <- "Woman"
-  lifeyears.lived$Gender[lifeyears.lived$Gender==1] <- "Man"
-
   return(lifeyears.lived)
 
 }
