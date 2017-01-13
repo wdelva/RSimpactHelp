@@ -30,9 +30,6 @@ hiv.negative.lifeyears <- function(datalist = datalist, agegroup = c(15, 30),
                                                     TotalExposed = n(),
                                                     LifeYears = sum(exposure.time.Neg) ))
 
-  hiv.neg.lifeyears$Gender[hiv.neg.lifeyears$Gender==0] <- "Woman"
-  hiv.neg.lifeyears$Gender[hiv.neg.lifeyears$Gender==1] <- "Man"
-
   return(hiv.neg.lifeyears)
 
 }
