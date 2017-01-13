@@ -1,6 +1,6 @@
 #!/usr/bin/env/ Rscript
 #get the necessary libraries
-pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper)
+pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, lhs)
 #data file to read
 
 comp <- "win" #lin #mac
