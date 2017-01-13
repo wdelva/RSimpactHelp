@@ -39,9 +39,6 @@ cd4.atARTinit <- function(datalist = datalist, agegroup = c(15, 30),
                                                     TotalCases = n(),
                                                     LessCD4initThreshold =sum(ART.start.CD4)))
 
-  cd4count.atARTInit$Gender[cd4count.atARTInit$Gender==0] <- "Woman"
-  cd4count.atARTInit$Gender[cd4count.atARTInit$Gender==1] <- "Man"
-
   return(cd4count.atARTInit)
 }
 
