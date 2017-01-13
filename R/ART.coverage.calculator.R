@@ -17,7 +17,7 @@ ART.coverage.calculator <- function(datalist = datalist,
                                   agegroup = c(15, 30),
                                   timepoint = 30, site="All"){
   #DTP <- datalist$ptable
-  DTalive.infected <- alive.infected(DT = datalist, timepoint = timepoint, site = site)
+  DTalive.infected <- alive.infected(datalist = datalist, timepoint = timepoint, site = site)
 
   # First we only take the data of people who were alive at the timepoint
   DTalive.infected.agegroup <- subset(DTalive.infected, TOB <= timepoint - agegroup[1] & TOB > timepoint - agegroup[2])
