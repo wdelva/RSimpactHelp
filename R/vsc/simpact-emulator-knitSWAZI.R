@@ -30,7 +30,7 @@ summaryparameters <- names(inputANDoutput.complete[,1:summary.count])
 summaryparameters
 
 #summary statistics
-z.variables <- c("growth.rate", "prev.men.15.50")
+z.variables <- summaryparameters# c("growth.rate", "prev.men.15.50")
 #Set the targets for the summary statistics.
 targets <- c(0.014, 0.32)
 try(if(length(targets)!=length(z.variables)) stop("Target values are not equal to the variables set"))
@@ -138,7 +138,7 @@ ggplot(melt(comp1.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variab
 ggplot(melt(comp2.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 2")
 
 for (iter in seq(100,700, 100)){
-  print (paste("Working on pc iteration number: ", iter, sep=" "))
+  print (paste("Working on iteration number: ", iter, sep=" "))
   RS.opt.c.var.iter <- optimal_params(RS.expt, option="c", start_hp = RS.opt.var, control = list(maxit=iter))
   RS.opt.var <- RS.opt.c.var.iter
 
@@ -157,8 +157,8 @@ RS.opt.c <- RS.opt.var
 optim.check.conv <- proc.time() - optim.check
 
 #See the plot of convergency in the B matrix of coefficients. -->
-ggplot(melt(comp1.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 1")
-ggplot(melt(comp2.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 2")
+ggplot(melt(comp1.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 1")
+ggplot(melt(comp2.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 2")
 
 ############### Testing if the prediction of the unused data can be recreated ######################################
 n.check <- nrow(inputANDoutput.selectTTE)-nrow.sel
