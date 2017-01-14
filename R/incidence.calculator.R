@@ -60,6 +60,9 @@ incidence.calculator <- function(datalist = datalist,
 
   raw.plus.filtered.df <- dplyr::filter(raw.plus.df,
                         exposure.times >= 0)
+
+  if(nrow(raw.plus.filtered.df) > 0){
+
   # Now we apply some dplyr function to get the sum of cases and sum of exposure.time per gender.
   incidence.df <- dplyr::summarise(dplyr::group_by(raw.plus.filtered.df, Gender),
                                    sum.exposure.time = sum(exposure.times),
@@ -79,6 +82,15 @@ incidence.calculator <- function(datalist = datalist,
                                              incidence.95.ul = as.numeric(exactci::poisson.exact(x = sum(incident.case), T = sum(exposure.times))$conf.int)[2]
                             ))
   incidence.df <- rbind(incidence.df, incidence.all.df)
+  }else{
+    incidence.df <- data.frame(Gender = c(NA,NA,NA),
+                               sum.exposure.time = c(NA,NA,NA),
+                               sum.incident.cases = c(NA,NA,NA),
+                               incidence = c(NA,NA,NA),
+                               incidence.95.ll = c(NA,NA,NA),
+                               incidence.95.ul = c(NA,NA,NA)
+    )
+  }
   return(incidence.df)
 }
 
