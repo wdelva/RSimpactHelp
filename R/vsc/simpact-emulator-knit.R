@@ -4,7 +4,7 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactc
                igraph,lhs, GGally, emulator, multivator, tidyr, psych)
 # install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
 
-comp <- "win" #lin #mac
+comp <- "lin" #lin #mac
 
 if(comp == "win"){
   dirname <- "~/MaxART/RSimpactHelp"
@@ -14,7 +14,7 @@ if(comp == "win"){
   dirname <- "~/Documents/RSimpactHelp"  #mac directory here
 }
 
-file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-100-2017-01-05.csv") # param.varied
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-250-2017-01-14.csv") # param.varied
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
@@ -39,9 +39,6 @@ try(if(length(targets)!=length(z.variables)) stop("Target values are not equal t
 x.variables <- dplyr::select(inputANDoutput.complete, contains("."))
 x.variables <- x.variables[, !(colnames(x.variables) %in% z.variables)]
 x.variables <- names(x.variables[2:length(x.variables)])
-
-#### x.variables.boundaries <- list(conception.alpha_base.min = -3.6, conception.alpha_base.max = -1.2,
-###                               formation.hazard.agegapry.baseline.min = 1.5, formation.hazard.agegapry.baseline.max = 3)
 
 #get all the average in all the columns in the selected df
 inputANDoutput.select <- aggregate(inputANDoutput.complete, by = list(inputANDoutput.complete$sim.id), FUN = "mean")
@@ -123,8 +120,8 @@ for (iter in seq(100,700, 100)){
   comp1.B.var <- data.frame(t(diag(B(RS.opt.b.var.iter)[,,1])),paste("b",iter,sep = ""))
   comp2.B.var <- data.frame(t(diag(B(RS.opt.b.var.iter)[,,2])),paste("b",iter,sep = ""))
 
-  names(comp1.B.var)[3] <- "run.type"
-  names(comp2.B.var)[3] <- "run.type"
+  names(comp1.B.var)[length(comp1.B.var)] <- "run.type"
+  names(comp2.B.var)[length(comp1.B.var)] <- "run.type"
 
   comp1.B <- rbind(comp1.B, comp1.B.var)
   comp2.B <- rbind(comp2.B, comp2.B.var)
@@ -147,8 +144,8 @@ for (iter in seq(100,700, 100)){
   comp1.B.var <- data.frame(t(diag(B(RS.opt.c.var.iter)[,,1])),paste("c",iter,sep = ""))
   comp2.B.var <- data.frame(t(diag(B(RS.opt.c.var.iter)[,,2])),paste("c",iter,sep = ""))
 
-  names(comp1.B.var)[3] <- "run.type"
-  names(comp2.B.var)[3] <- "run.type"
+  names(comp1.B.var)[length(comp1.B.var)] <- "run.type"
+  names(comp2.B.var)[length(comp1.B.var)] <- "run.type"
 
   comp1.B <- rbind(comp1.B, comp1.B.var)
   comp2.B <- rbind(comp2.B, comp2.B.var)
@@ -185,12 +182,9 @@ model.stats.check <- tail(subset(inputANDoutput.selectTTE, select=z.variables), 
 model.stats.check <- cbind(model.stats.check, RS.a.df.check, RS.b.df.check, RS.c.df.check)
 
 ### Visualise the results (Choose one of the summary statistics to visualise how thy compare)
-stats.compare <- dplyr::select(model.stats.check, contains(z.variables[1]))
+stats.compare <- dplyr::select(model.stats.check, contains(z.variables[5]))
 matplot(stats.compare, pch = 20, cex = 2)
-legend("topleft", colnames(growth.compare),col=seq_len(ncol(growth.compare)),cex=0.8,fill=seq_len(ncol(growth.compare)), bty = "n")
-#prev.compare <- dplyr::select(model.stats.check, contains("prev.men"))
-#matplot(prev.compare, pch = 20, cex = 2)
-#legend("topleft", colnames(prev.compare),col=seq_len(ncol(prev.compare)),cex=0.8,fill=seq_len(ncol(prev.compare)), bty = "n")
+legend("topleft", colnames(stats.compare),col=seq_len(ncol(stats.compare)),cex=0.8,fill=seq_len(ncol(stats.compare)), bty = "n")
 
 ############## Using the Emulator to Explore the Parameter Space for the None PCA Part to get the statistics ###################
 n <- 10000
@@ -234,18 +228,24 @@ prediction.c.df <- data.frame(matrix(RS.prediction.opt.c, nrow = n,
                                      dimnames = list(rownames = 1:n, colnames = names(z.df)[1:length(z.variables)])))
 
 #### Get the min in sum of squared distances between model statistics and target statistics
-predicted.values <- function(prediction.df){
+predicted.values <- function(prediction.df, method){
   sq.a.array <- as.data.frame(t(apply(prediction.df, 1, function(x) (x - t(targets))^2)))
   names(sq.a.array) <- names(prediction.df)
   SumSq <- as.numeric(rowSums(sq.array))
   x.estimate.row <- which.min(SumSq)
-  pridicted.output.values <- cbind(x.estimate.row, prediction.df[x.estimate.row, ])
+  pridicted.output.values <- cbind(x.estimate.row, prediction.df[x.estimate.row, ], method = method)
   return(pridicted.output.values)
 }
 targets
-pred.a <- predicted.values(prediction.a.df)
-pred.b <- predicted.values(prediction.b.df)
-pred.c <- predicted.values(prediction.c.df)
+pred.a <- predicted.values(prediction.a.df, "a")
+pred.b <- predicted.values(prediction.b.df, "b")
+pred.c <- predicted.values(prediction.c.df, "c")
+
+targets.row <- data.frame(cbind("NA", t(targets), "target.pc"))
+names(targets.row) <- names(pred.a)
+
+##pred.all <- rbind(targets.row, pred.a, pred.b, pred.c)
+
 # #### And most importantly, the best estimate for the model parameters:
 x.estimate.a <- as.numeric(x.new[pred.a$x.estimate.row, ])
 x.estimate.b <- as.numeric(x.new[pred.b$x.estimate.row, ])
@@ -256,25 +256,34 @@ x.estimate.c <- as.numeric(x.new[pred.c$x.estimate.row, ])
 par.estimated <- data.frame(matrix(NA, nrow = 3, ncol = length(x.variables)+1))
 names(par.estimated) <- c(x.variables,"method")
 
-
 ###Give the boundaries for the parameters here;
-
+x.variables.boundaries <- simpact.params.boundaries()
 
 #Create the list of parameters with their min, max vlaue (all will sample from a unif distribution)
-# x.index <- 0
-# for (j in x.variables){
-#   x.index <- x.index + 1
-#   min.var <- x.variables.boundaries[paste(j,".min",sep = "")][[1]]
-#   max.var <- x.variables.boundaries[paste(j,".max",sep = "")][[1]]
-#   col.index <- which(colnames(par.estimated)==j)
-#   par.estimated[1,col.index] <- qunif(x.estimate.a[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
-#   par.estimated[2,col.index] <- qunif(x.estimate.b[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
-#   par.estimated[3,col.index] <- qunif(x.estimate.c[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
-# }
-#
-# par.estimated[1,3] <- "a"
-# par.estimated[2,3] <- "b"
-# par.estimated[3,3] <- "c"
+x.index <- 0
+for (j in x.variables){
+  x.index <- x.index + 1
+  col.index <- which(colnames(par.estimated)==j)
+  if(is.null(x.variables.boundaries[[j]])){
+    #if the boundary of the parameter is not set
+    par.estimated[1,col.index] <- "No bound set"
+    par.estimated[2,col.index] <- "No bound set"
+    par.estimated[3,col.index] <- "No bound set"
+  }else{
+    #otherwise compute the estimated parameter value
+    min.var <- x.variables.boundaries[[j]][1]
+    max.var <- x.variables.boundaries[[j]][2]
+    par.estimated[1,col.index] <- qunif(x.estimate.a[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
+    par.estimated[2,col.index] <- qunif(x.estimate.b[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
+    par.estimated[3,col.index] <- qunif(x.estimate.c[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
+  }
+}
+
+par.estimated[1,length(par.estimated)] <- "a"
+par.estimated[2,length(par.estimated)] <- "b"
+par.estimated[3,length(par.estimated)] <- "c"
+
+par.estimated  #The estimated parameters
 
 ################################################ END #####################################################
 
