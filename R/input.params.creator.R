@@ -7,6 +7,7 @@
 #' @param dissolution.alpha_0 Baseline parameter for relationship dissolution rate. (0.1)
 #' @param dissolution.alpha_4 Effect of increasing mean age of the  couple on  relationship dissolution rate (-0.05)
 #' @param formation.hazard.type Type of hazard function for relationship formation. Choose between "simple", "agegap" and "agegapry".
+#' @param person.art.accept.threshold.dist.fixed.value This specfies the ART acceptance threshold for each person
 #' @param formation.hazard.agegapry.gap_factor_man_const Baseline parameter for men (0).
 #' @param formation.hazard.agegapry.gap_factor_woman_const Baseline parameter for women (0).
 #' @param person.agegap.man.dist.type Distribution of preferred age differences for men ("normal")
@@ -74,6 +75,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  periodiclogging.interval = 1,
                                  syncrefyear.interval = 1,
                                  formation.hazard.type = "agegapry",
+                                 person.art.accept.threshold.dist.fixed.value = 0.5,
                                  person.eagerness.man.type = "independent",
                                  person.eagerness.woman.type = "independent",
                                  person.eagerness.man.dist.type = "gamma",
@@ -133,6 +135,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params.list$periodiclogging.interval <- periodiclogging.interval
   input.params.list$syncrefyear.interval <- syncrefyear.interval
   input.params.list$formation.hazard.type <- formation.hazard.type
+  input.params.list$person.art.accept.threshold.dist.fixed.value <- person.art.accept.threshold.dist.fixed.value
   input.params.list$person.eagerness.man.type <- person.eagerness.man.type
   input.params.list$person.eagerness.woman.type <- person.eagerness.woman.type
   input.params.list$person.eagerness.man.dist.type <- person.eagerness.man.dist.type
