@@ -4,7 +4,7 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactc
                igraph,lhs, GGally, emulator, multivator, tidyr, psych)
 # install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
 
-comp <- "win" #lin #mac
+comp <- "lin" #lin #mac
 
 if(comp == "win"){
   dirname <- "~/MaxART/RSimpactHelp"
@@ -186,9 +186,9 @@ model.stats.check.pc <- cbind(model.stats.check.pc, RS.pc.a.df.check, RS.pc.b.df
 ### Visualise the results
 growth.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.1"))
 prev.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.2"))
-matplot(growth.compare, pch = 20, cex = 2)
+matplot(growth.compare.pc, pch = 20, cex = 2)
 legend("topleft", colnames(growth.compare.pc),col=seq_len(ncol(growth.compare.pc)),cex=0.8,fill=seq_len(ncol(growth.compare.pc)), bty = "n")
-matplot(prev.compare, pch = 20, cex = 2)
+matplot(prev.compare.pc, pch = 20, cex = 2)
 legend("topleft", colnames(prev.compare.pc),col=seq_len(ncol(prev.compare.pc)),cex=0.8,fill=seq_len(ncol(prev.compare.pc)), bty = "n")
 
 
@@ -252,7 +252,7 @@ predicted.values <- function(prediction.df){
   pridicted.output.values <- cbind(x.estimate.row, prediction.df[x.estimate.row, ])
   return(pridicted.output.values)
 }
-targets
+targets.pc.vector
 pred.pc.a <- predicted.values(prediction.pc.a.df)
 pred.pc.b <- predicted.values(prediction.pc.b.df)
 pred.pc.c <- predicted.values(prediction.pc.c.df)
