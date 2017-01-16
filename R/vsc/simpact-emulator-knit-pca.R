@@ -32,7 +32,13 @@ summaryparameters
 #summary statistics
 z.variables <- summaryparameters
 #Set the targets for the summary statistics.
-targets <- c(0.014, 0.01, 0.02, 0.32, 0.32, 0.32, 0.32, 0.23, 0.24)
+targets <- c(0.015, 0.016, 0.043, 0.21, 0.47, 0.37, 0.54, 0.33, 0.34, 5)
+
+#target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
+#                      "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
+#                      "ART.cov.wom.18.50", "median.wom.18.50.AD")
+
+
 try(if(length(targets)!=length(z.variables)) stop("Target values are not equal to the variables set"))
 
 # The x variables (model parameters) that were varied:
