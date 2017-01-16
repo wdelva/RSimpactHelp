@@ -50,9 +50,9 @@ sim_repeat <- 5
 ncluster.use <- 4 # number of cores per node
 
 #indicate the target statitics that you want to hit
-target.variables <- c("growth.rate", "inc.men.20.24", "inc.wom.20.24", "prev.men.25.29",
-                      "prev.wom.25.29","prev.men.30.34", "prev.wom.30.34", "ART.cov.men.18.49",
-                      "ART.cov.wom.18.49", "median.wom.AD")
+target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
+                      "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
+                      "ART.cov.wom.18.50", "median.wom.18.50.AD")
 
 ##Each of these should be calculated after each run, else we give an NA
 
@@ -71,9 +71,9 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
-  target.variables <- c("growth.rate", "inc.men.20.24", "inc.wom.20.24", "prev.men.25.29",
-                        "prev.wom.25.29","prev.men.30.34", "prev.wom.30.34", "ART.cov.men.18.49",
-                        "ART.cov.wom.18.49", "median.wom.AD")
+  target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
+                        "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
+                        "ART.cov.wom.18.50", "median.wom.18.50.AD")
   err.functionGEN <- function(e){
     if (length(grep("MAXEVENTS",e$message)) != 0)
       return(chunk.summary.stats = rep(NA,length(target.variables)))
@@ -89,12 +89,18 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
                    igraph,lhs, GGally, tidyr)
 
     ## Run preprior.names.chunk and copy the results here.
-    input.varied.params.plus <- c("conception.alpha_base", "formation.hazard.agegapry.baseline",
-                                  "person.eagerness.man.dist.gamma.a",  "person.eagerness.man.dist.gamma.b")
+    input.varied.params.plus <- c("conception.alpha_base", "person.art.accept.threshold.dist.fixed.value",
+                                  "person.eagerness.man.dist.gamma.a", "person.eagerness.man.dist.gamma.b",
+                                  "person.eagerness.woman.dist.gamma.a", "person.eagerness.woman.dist.gamma.b",
+                                  "formation.hazard.agegapry.numrel_man", "formation.hazard.agegapry.numrel_woman",
+                                  "formation.hazard.agegapry.eagerness_diff", "formation.hazard.agegapry.gap_factor_man_exp",
+                                  "formation.hazard.agegapry.gap_factor_woman_exp", "person.agegap.man.dist.normal.mu",
+                                  "person.agegap.woman.dist.normal.mu", "person.agegap.man.dist.normal.sigma",
+                                  "person.agegap.woman.dist.normal.sigma")
 
-    target.variables <- c("growth.rate", "inc.men.20.24", "inc.wom.20.24", "prev.men.25.29",
-                          "prev.wom.25.29","prev.men.30.34", "prev.wom.30.34", "ART.cov.men.18.49",
-                          "ART.cov.wom.18.49", "median.wom.AD")
+    target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
+                          "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
+                          "ART.cov.wom.18.50", "median.wom.18.50.AD")
 
     simulation.type <- ("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
     simpact.set.simulation(simulation.type)
@@ -156,27 +162,27 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       growth.rate = pop.growth.calculator(datalist = chunk.datalist.test,
                                           timewindow = c(0, timewindow.max=unique(chunk.datalist.test$itable$population.simtime)))
 
-      inc.20.24 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 24), timewindow = c(32, 35), only.active = "No")
-      inc.men.20.24 <- inc.20.24$incidence[1]
-      inc.wom.20.24 <- inc.20.24$incidence[2]
-      prev.25.29 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(25, 29), timepoint = 35)
-      prev.men.25.29 = prev.25.29$pointprevalence[1]
-      prev.wom.25.29 = prev.25.29$pointprevalence[2]
-      prev.30.34 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(30, 34), timepoint = 35)
-      prev.men.30.34 = prev.30.34$pointprevalence[1]
-      prev.wom.30.34 = prev.30.34$pointprevalence[2]
-      ARTcov <- ART.coverage.calculator(datalist = chunk.datalist.test, agegroup = c(18, 49), timepoint = 35, site="All")
-      ART.cov.men.18.49 <- ARTcov$ART.coverage[1]
-      ART.cov.wom.18.49 <- ARTcov$ART.coverage[2]
+      inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25), timewindow = c(32, 35), only.active = "No")
+      inc.men.20.25 <- inc.20.25$incidence[1]
+      inc.wom.20.25 <- inc.20.25$incidence[2]
+      prev.25.30 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(25, 30), timepoint = 35)
+      prev.men.25.30 = prev.25.30$pointprevalence[1]
+      prev.wom.25.30 = prev.25.30$pointprevalence[2]
+      prev.30.35 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(30, 35), timepoint = 35)
+      prev.men.30.35 = prev.30.35$pointprevalence[1]
+      prev.wom.30.35 = prev.30.35$pointprevalence[2]
+      ARTcov <- ART.coverage.calculator(datalist = chunk.datalist.test, agegroup = c(18, 50), timepoint = 35, site="All")
+      ART.cov.men.18.50 <- ARTcov$ART.coverage[1]
+      ART.cov.wom.18.50 <- ARTcov$ART.coverage[2]
 
       agemix.df <- agemix.df.maker(chunk.datalist.test)
-      pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(15, 30),
+      pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(18, 50),
                                   timepoint = 35, timewindow = 1, start = FALSE)
-      median.wom.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))
+      median.wom.18.50.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))
 
       ##get the summary statistics as indicated by target.variables
-      out.statistic <- c(growth.rate, inc.men.20.24, inc.wom.20.24, prev.men.25.29, prev.wom.25.29,
-                         prev.men.30.34, prev.wom.30.34, ART.cov.men.18.49, ART.cov.wom.18.49, median.wom.AD)
+      out.statistic <- c(growth.rate, inc.men.20.25, inc.wom.20.25, prev.men.25.30, prev.wom.25.30,
+                         prev.men.30.35, prev.wom.30.35, ART.cov.men.18.50, ART.cov.wom.18.50, median.wom.18.50.AD)
       ##out.test.degree <- out.statistic[[2]]
     }else{
       out.statistic <- rep(NA,length(target.variables))
