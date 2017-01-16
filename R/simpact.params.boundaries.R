@@ -18,13 +18,13 @@ simpact.params.boundaries <- function(...){
                    formation.hazard.agegapry.numrel_man = c(-1.5, -0.1),
                    formation.hazard.agegapry.eagerness_diff = c(-0.1, 0),
                    formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.4),
+                   formation.hazard.agegapry.numrel_woman = c(-1.5, -0.1),
+                   formation.hazard.agegapry.gap_factor_woman_exp = c(-1.5, -0.4),
                    person.agegap.man.dist.normal.mu = c(0, 4),
                    person.agegap.woman.dist.normal.mu = c(0, 4),
                    person.agegap.man.dist.normal.sigma = c(0.5, 2),
                    person.agegap.woman.dist.normal.sigma = c(0.5, 2),
-                   formation.hazard.agegapry.numrel_woman = c(-1.5, -0.1),
-                   formation.hazard.agegapry.gap_factor_woman_exp = c(-1.5, -0.4),
-                   formation.hazard.agegapry.baseline = c(1.5, 3),
+                   person.art.accept.threshold.dist.fixed.value = c(0.4, 0.9),
                    ...)
 
   return(arg.list)
