@@ -15,23 +15,23 @@ file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name i
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 ################################# YOU CAN EITHER RUNN THIS LINE BELOW or READ THE FILE SAVED ALREADY ############################
-# inPUT.df.complete <- simpact.config.inputs(design.points = 200, conception.alpha_base = c(-3.6, -1.2),
-#                                            formation.hazard.agegapry.baseline = c(1.5, 3),
-#                                            person.eagerness.man.dist.gamma.a = c(0.1, 2),
-#                                            person.eagerness.man.dist.gamma.b = c(5, 60),
-#                                            formation.hazard.agegapry.numrel_man = c(-1.5, -0.1),
-#                                            formation.hazard.agegapry.eagerness_diff = c(-0.1, 0),
-#                                            formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.4),
-#                                            person.agegap.man.dist.normal.mu = c(0, 4),
-#                                            person.agegap.woman.dist.normal.mu = c(0, 4),
-#                                            person.agegap.man.dist.normal.sigma = c(0.5, 2),
-#                                            person.agegap.woman.dist.normal.sigma = c(0.5, 2) )
+inPUT.df.complete <- simpact.config.inputs(design.points = 250, conception.alpha_base = c(-3.6, -1.2),
+                                           formation.hazard.agegapry.baseline = c(1.5, 3),
+                                           person.eagerness.man.dist.gamma.a = c(0.1, 2),
+                                           person.eagerness.man.dist.gamma.b = c(5, 60),
+                                           formation.hazard.agegapry.numrel_man = c(-1.5, -0.1),
+                                           formation.hazard.agegapry.eagerness_diff = c(-0.1, 0),
+                                           formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.4),
+                                           person.agegap.man.dist.normal.mu = c(0, 4),
+                                           person.agegap.woman.dist.normal.mu = c(0, 4),
+                                           person.agegap.man.dist.normal.sigma = c(0.5, 2),
+                                           person.agegap.woman.dist.normal.sigma = c(0.5, 2) )
 
 ##################################################################################################################################
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 200
+max.chunk <- 250
 inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 
 #make sure there are no empty rows
