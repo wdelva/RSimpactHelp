@@ -14,7 +14,7 @@ if(comp == "win"){
   dirname <- "~/Documents/RSimpactHelp"  #mac directory here
 }
 
-file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-250-2017-01-14.csv") # param.varied
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-500-2017-01-17.csv") # param.varied
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
@@ -93,7 +93,7 @@ z.pc.summary <- summary(z.pc)
 #biplot(z.pc)
 #z.pc$loadings
 z.pc.cum.var <- cumsum((z.pc.summary$sdev)^2) / sum(z.pc.summary$sdev^2) #cummulative variance
-pc.select.number <- which.min(abs(z.pc.cum.var - 0.96))[[1]] # Want 96% of the variance to be explained by ....
+pc.select.number <- which.min(abs(z.pc.cum.var - 0.99))[[1]] # Want 96% of the variance to be explained by ....
 z.pc.df <- data.frame(z.pc$scores)
 
 z.pc.obs <- as.vector(unlist(z.pc.df[ ,1:pc.select.number]))
@@ -191,7 +191,7 @@ model.stats.check.pc <- predict(z.pc, model.stats.check.pc)
 model.stats.check.pc <- cbind(model.stats.check.pc[,1:pc.select.number], RS.pc.a.df.check, RS.pc.b.df.check, RS.pc.c.df.check)
 
 ### Visualise the results (Choose one of the summary statistics to visualise how they compare)
-stats.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.4"))
+stats.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.5"))
 matplot(stats.compare.pc, pch = 20, cex = 2)
 legend("topleft", colnames(stats.compare.pc),col=seq_len(ncol(stats.compare.pc)),cex=0.8,fill=seq_len(ncol(stats.compare.pc)), bty = "n")
 
@@ -282,9 +282,9 @@ for (j in x.variables){
 
   if(is.null(x.variables.boundaries[[j]])){
     #if the boundary of the parameter is not set
-    par.estimated[1,col.index] <- NA
-    par.estimated[2,col.index] <- NA
-    par.estimated[3,col.index] <- NA
+    par.estimated.pc[1,col.index] <- NA
+    par.estimated.pc[2,col.index] <- NA
+    par.estimated.pc[3,col.index] <- NA
   }else{
     min.var <- x.variables.boundaries[[j]][1]
     max.var <- x.variables.boundaries[[j]][2]
