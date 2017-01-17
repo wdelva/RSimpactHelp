@@ -15,7 +15,7 @@ file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name i
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 ################################# YOU CAN EITHER RUN THIS LINE BELOW or READ THE FILE SAVED ALREADY main.filename ###########
-inPUT.df.complete <- simpact.config.inputs(design.points = 3,
+inPUT.df.complete <- simpact.config.inputs(design.points = 500,
                                            conception.alpha_base = c(-3.6, -1.2),
                                            person.art.accept.threshold.dist.fixed.value = c(0.4, 0.9),
                                            person.eagerness.man.dist.gamma.a = c(0.1, 2),
@@ -37,7 +37,7 @@ inPUT.df.complete <- simpact.config.inputs(design.points = 3,
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 250
+max.chunk <- 500
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 
