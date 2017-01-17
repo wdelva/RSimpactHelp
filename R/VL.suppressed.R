@@ -47,7 +47,7 @@ vl.suppressed <- function(datalist = datalist, timepoint = 30, vlcutoff = 1000, 
   #Check the vl information of these individuals
   VLevent.df <- subset(datalist$vltable, ID %in% InfectedOnTreatment$ID )
 
-  yaxis <- vl.cutoff + 0.2
+  yaxis <- vl.cutoff + 0.2 # add the axis to make visual
 
   #Visualise the VL points
   q <- ggplot()
