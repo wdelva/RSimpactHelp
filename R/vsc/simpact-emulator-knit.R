@@ -14,7 +14,7 @@ if(comp == "win"){
   dirname <- "~/Documents/RSimpactHelp"  #mac directory here
 }
 
-file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-250-2017-01-14.csv") # param.varied
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-500-2017-01-17.csv") # param.varied
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
