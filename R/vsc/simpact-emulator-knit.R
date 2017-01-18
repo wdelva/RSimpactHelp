@@ -4,7 +4,7 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactc
                igraph,lhs, GGally, emulator, multivator, tidyr, psych)
 # install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
 
-comp <- "lin" #lin #mac
+comp <- "win" #lin #mac
 
 if(comp == "win"){
   dirname <- "~/MaxART/RSimpactHelp"
@@ -48,12 +48,16 @@ x.variables <- names(x.variables[2:length(x.variables)])
 #get all the average in all the columns in the selected df
 inputANDoutput.select <- aggregate(inputANDoutput.complete, by = list(inputANDoutput.complete$sim.id), FUN = "mean")
 
+#### This will generate pairs that with each parameter
+inputANDoutput.select$is.complete <- complete.cases(inputANDoutput.select)
+pair.plot <- pairs(inputANDoutput.select[, x.variables[1:5]],
+                   col = 1+inputANDoutput.select$is.complete, pch = 16, cex = 2)
+
 ## Remove all rows with NA in the summary statistic
 inputANDoutput.select <- dplyr::filter(inputANDoutput.select, complete.cases(inputANDoutput.select[,z.variables]))
 
-#impose some conditions on the prev.men.15.50, you can adject as needed
-##inputANDoutput.select <- dplyr::filter(inputANDoutput.select, prev.men.15.50 > 0.25)
-inputANDoutput.select <- dplyr::filter(inputANDoutput.select, growth.rate > 0)
+#impose some conditions on the target statistics as needed, you can adjust as needed
+##inputANDoutput.select <- dplyr::filter(inputANDoutput.select, growth.rate > 0)
 
 #Keep the full set of the data to use for validation later
 inputANDoutput.selectTTE <- inputANDoutput.select
@@ -71,9 +75,9 @@ x.design.name <- names(dplyr::select(inputANDoutput.select, contains("xdesign"))
 x.design <- dplyr::select_(inputANDoutput.select,.dots=x.design.name)
 
 ##The figure below shows the distribution of the summary data to be used.
-##We might need to transform any of the summary statistics should the histogram diverge from normaility.
+#If these divert from normalist PCA is the best option as it corrects for normality
 par(mfrow=c(1,1))
-multi.hist(simpact.z)
+simpact.z.plot <- multi.hist(simpact.z)
 
 ##Creating a LHS for each summary statistic
 x.design.long <- x.design[rep(1:nrow(x.design),length(z.variables)),]
@@ -116,10 +120,19 @@ RS.opt.var <-  RS.opt.a
 optim.check <- proc.time()
 
 # Use the loop to iterate through different values. So the optimisation process is faster.
+err.function.optim.param <- function(e){
+  if (length(grep("computationally singular",e$message)) != 0)
+  stop(e)
+}
+
 
 for (iter in seq(100,700, 100)){
-  print (paste("Working on iteration number: ", iter, sep=" "))
+  print (paste("Working on option b iteration number: ", iter, sep=" "))
   RS.opt.b.var.iter <- optimal_params(RS.expt, option="b", start_hp = RS.opt.var, control = list(maxit=iter))
+
+  #tryCatch(optimal_params(RS.expt, option="b", start_hp = RS.opt.var, control = list(maxit=iter)),
+   #                             error = err.function.optim.param)
+
   RS.opt.var <- RS.opt.b.var.iter
 
   comp1.B.var <- data.frame(t(diag(B(RS.opt.b.var.iter)[,,1])),paste("b",iter,sep = ""))
@@ -142,7 +155,7 @@ ggplot(melt(comp1.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variab
 ggplot(melt(comp2.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 2")
 
 for (iter in seq(100,700, 100)){
-  print (paste("Working on iteration number: ", iter, sep=" "))
+  print (paste("Working on option c iteration number: ", iter, sep=" "))
   RS.opt.c.var.iter <- optimal_params(RS.expt, option="c", start_hp = RS.opt.var, control = list(maxit=iter))
   RS.opt.var <- RS.opt.c.var.iter
 
@@ -161,8 +174,10 @@ RS.opt.c <- RS.opt.var
 optim.check.conv <- proc.time() - optim.check
 
 #See the plot of convergency in the B matrix of coefficients. -->
-ggplot(melt(comp1.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 1")
-ggplot(melt(comp2.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 2")
+par.conv.plot <- ggplot(melt(comp1.B,id.vars=c("run.type")),
+                        aes(x=run.type,y=value, color=variable))
+par.conv.plot <- par.conv.plot + geom_point() + ggtitle("Coeff 1") #change this to comp2 as needed.
+
 
 ############### Testing if the prediction of the unused data can be recreated ######################################
 n.check <- nrow(inputANDoutput.selectTTE)-nrow.sel
@@ -173,23 +188,28 @@ RS.new.mdm.check <- mdm(rbind(x.new.long.check), types = rep(z.variables, each =
 
 RS.opt.a.check <- multem(x = RS.new.mdm.check, expt = RS.expt, hp = RS.opt.a)
 RS.a.df.check <- data.frame(matrix(RS.opt.a.check, nrow = n.check,
-                                      dimnames = list(rownames = 1:n.check, colnames = paste0("a",names(z.df))[1:length(z.variables)])))
+                                      dimnames = list(rownames = 1:n.check,
+                                      colnames = paste0("a",names(z.df))[1:length(z.variables)])))
 
 RS.opt.b.check <- multem(x = RS.new.mdm.check, expt = RS.expt, hp = RS.opt.b)
 RS.b.df.check <- data.frame(matrix(RS.opt.b.check, nrow = n.check,
-                                      dimnames = list(rownames = 1:n.check, colnames = paste0("b",names(z.df))[1:length(z.variables)])))
+                                      dimnames = list(rownames = 1:n.check,
+                                      colnames = paste0("b",names(z.df))[1:length(z.variables)])))
 
 RS.opt.c.check <- multem(x = RS.new.mdm.check, expt = RS.expt, hp = RS.opt.c)
 RS.c.df.check <- data.frame(matrix(RS.opt.c.check, nrow = n.check,
-                                      dimnames = list(rownames = 1:n.check, colnames = paste0("c",names(z.df))[1:length(z.variables)])))
+                                      dimnames = list(rownames = 1:n.check,
+                                      colnames = paste0("c",names(z.df))[1:length(z.variables)])))
 
 model.stats.check <- tail(subset(inputANDoutput.selectTTE, select=z.variables), n.check)
 model.stats.check <- cbind(model.stats.check, RS.a.df.check, RS.b.df.check, RS.c.df.check)
 
 ### Visualise the results (Choose one of the summary statistics to visualise how thy compare)
-stats.compare <- dplyr::select(model.stats.check, contains(z.variables[5]))
-matplot(stats.compare, pch = 20, cex = 2)
-legend("topleft", colnames(stats.compare),col=seq_len(ncol(stats.compare)),cex=0.8,fill=seq_len(ncol(stats.compare)), bty = "n")
+par(mfrow=c(1,1))
+stats.compare <- dplyr::select(model.stats.check, contains(z.variables[2]))
+est.plot <- matplot(stats.compare, pch = 20, cex = 2)
+est.plot <- legend("topleft", colnames(stats.compare),col=seq_len(ncol(stats.compare)),
+       cex=0.8,fill=seq_len(ncol(stats.compare)), bty = "n")
 
 ############## Using the Emulator to Explore the Parameter Space for the None PCA Part to get the statistics ###################
 n <- 10000
