@@ -117,9 +117,25 @@ optim.check <- proc.time()
 
 # Use the loop to iterate through different values. So the optimisation process is faster.
 
+#Just incase the optimal function those in a singular error from solve.default
+
+error.functionOP <- function(e){
+  if(length(grep("computationally singular", e$message)) !=0){
+    return()
+  }
+}
+
+
+
+
+
+
 for (iter in seq(100,700, 100)){
   print (paste("Working on iteration number: ", iter, sep=" "))
+
   RS.opt.b.var.iter <- optimal_params(RS.expt, option="b", start_hp = RS.opt.var, control = list(maxit=iter))
+
+
   RS.opt.var <- RS.opt.b.var.iter
 
   comp1.B.var <- data.frame(t(diag(B(RS.opt.b.var.iter)[,,1])),paste("b",iter,sep = ""))
