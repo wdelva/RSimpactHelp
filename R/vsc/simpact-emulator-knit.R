@@ -268,7 +268,7 @@ pred.c <- predicted.values(prediction.c.df, "c")
 targets.row <- data.frame(cbind("NA", t(targets), "target.pc"))
 names(targets.row) <- names(pred.a)
 
-##pred.all <- rbind(targets.row, pred.a, pred.b, pred.c)
+pred.all <- rbind(pred.a, pred.b, pred.c, targets.row)
 
 # #### And most importantly, the best estimate for the model parameters:
 x.estimate.a <- as.numeric(x.new[pred.a$x.estimate.row, ])
