@@ -4,7 +4,7 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactc
                igraph,lhs, GGally, emulator, multivator, tidyr, psych)
 # install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
 
-comp <- "lin" #lin #mac
+comp <- "win" #lin #mac
 
 if(comp == "win"){
   dirname <- "~/MaxART/RSimpactHelp"
