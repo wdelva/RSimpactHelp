@@ -36,8 +36,8 @@ inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = "
 # ##################################################################################################################################
 
 #Select a chunk to send to process
-min.chunk <- 1
-max.chunk <- 274
+min.chunk <- 275
+max.chunk <- 500
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 
@@ -208,8 +208,8 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
 
     #col.index <- which(colnames(preprior.names.chunk)==i)
 
-    prior.chunk.val <- list(c("runif",1,as.numeric(inANDout.df.chunk[chunk.sim.id,i]),
-                              as.numeric(inANDout.df.chunk[chunk.sim.id,i])), c("dunif",0,1))
+    prior.chunk.val <- list(c("runif",1,as.numeric(inANDout.df.chunk[inANDout.df.chunk$sim.id==chunk.sim.id,i]),
+                              as.numeric(inANDout.df.chunk[inANDout.df.chunk$sim.id==chunk.sim.id,i])), c("dunif",0,1))
     simpact.chunk.prior[[length(simpact.chunk.prior)+1]] <- prior.chunk.val
   }
 
@@ -235,6 +235,8 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
 
 inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk, by = "sim.id")
 
+
+inputANDoutput.chunk.df.OLD <- inputANDoutput.chunk.df
 write.csv(inputANDoutput.chunk.df, file =paste0("SummaryOutPut-inANDout.df.chunk-",min.chunk,"-",max.chunk,"-",Sys.Date(),
                                                ".csv"), row.names = FALSE)
 end.chunk.time <- proc.time() - start.chunk.time
