@@ -15,16 +15,16 @@ file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name i
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 ################################# YOU CAN EITHER RUN THIS LINE BELOW or READ THE FILE SAVED ALREADY main.filename ###########
-inPUT.df.complete <- simpact.config.inputs(design.points = 500,
-                                           conception.alpha_base = c(-3.6, -1.2),
+inPUT.df.complete <- simpact.config.inputs(design.points = 1500,
+                                           conception.alpha_base = c(-3.2, -1.2),
                                            person.art.accept.threshold.dist.fixed.value = c(0.4, 0.9),
-                                           person.eagerness.man.dist.gamma.a = c(0.1, 2),
-                                           person.eagerness.man.dist.gamma.b = c(5, 60),
-                                           person.eagerness.woman.dist.gamma.a = c(0.1, 2),
-                                           person.eagerness.woman.dist.gamma.b = c(5, 60),
+                                           person.eagerness.man.dist.gamma.a = c(0.6, 1.9),
+                                           person.eagerness.man.dist.gamma.b = c(30, 60),
+                                           person.eagerness.woman.dist.gamma.a = c(0.6, 1.9),
+                                           person.eagerness.woman.dist.gamma.b = c(30, 60),
                                            formation.hazard.agegapry.numrel_man = c(-1.5, -0.1),
                                            formation.hazard.agegapry.numrel_woman = c(-1.5, -0.1),
-                                           formation.hazard.agegapry.eagerness_diff = c(-0.1, 0),
+                                           formation.hazard.agegapry.eagerness_diff = c(-0.06, 0),
                                            formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.4),
                                            formation.hazard.agegapry.gap_factor_woman_exp = c(-1.5, -0.4),
                                            person.agegap.man.dist.normal.mu = c(2, 6),
@@ -37,7 +37,7 @@ inPUT.df.complete <- simpact.config.inputs(design.points = 500,
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 500
+max.chunk <- 1500
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 

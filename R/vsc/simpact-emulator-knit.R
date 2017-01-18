@@ -125,7 +125,6 @@ err.function.optim.param <- function(e){
   stop(e)
 }
 
-
 for (iter in seq(100,700, 100)){
   print (paste("Working on option b iteration number: ", iter, sep=" "))
   RS.opt.b.var.iter <- optimal_params(RS.expt, option="b", start_hp = RS.opt.var, control = list(maxit=iter))
