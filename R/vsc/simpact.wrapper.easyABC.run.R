@@ -10,34 +10,34 @@ if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
 }
 
 # There may be ways to make main.filename dynamic: so the file name does not need to be manually updated
-main.filename <- "simpactInputParams.df-200Points11Par2017-01-13.csv" #Read the file produced by varying parameters *design.points
+main.filename <- "simpactInputParams.df-1500Points15Par2017-01-17.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 ################################# YOU CAN EITHER RUN THIS LINE BELOW or READ THE FILE SAVED ALREADY main.filename ###########
-inPUT.df.complete <- simpact.config.inputs(design.points = 1500,
-                                           conception.alpha_base = c(-3.2, -1.2),
-                                           person.art.accept.threshold.dist.fixed.value = c(0.4, 0.9),
-                                           person.eagerness.man.dist.gamma.a = c(0.6, 1.9),
-                                           person.eagerness.man.dist.gamma.b = c(30, 60),
-                                           person.eagerness.woman.dist.gamma.a = c(0.6, 1.9),
-                                           person.eagerness.woman.dist.gamma.b = c(30, 60),
-                                           formation.hazard.agegapry.numrel_man = c(-1.5, -0.1),
-                                           formation.hazard.agegapry.numrel_woman = c(-1.5, -0.1),
-                                           formation.hazard.agegapry.eagerness_diff = c(-0.06, 0),
-                                           formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.4),
-                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-1.5, -0.4),
-                                           person.agegap.man.dist.normal.mu = c(2, 6),
-                                           person.agegap.woman.dist.normal.mu = c(2, 6),
-                                           person.agegap.man.dist.normal.sigma = c(1, 2),
-                                           person.agegap.woman.dist.normal.sigma = c(1, 2)
-                                           )
-
-##################################################################################################################################
+# inPUT.df.complete <- simpact.config.inputs(design.points = 1500,
+#                                            conception.alpha_base = c(-3.2, -1.2),
+#                                            person.art.accept.threshold.dist.fixed.value = c(0.4, 0.9),
+#                                            person.eagerness.man.dist.gamma.a = c(0.6, 1.9),
+#                                            person.eagerness.man.dist.gamma.b = c(30, 60),
+#                                            person.eagerness.woman.dist.gamma.a = c(0.6, 1.9),
+#                                            person.eagerness.woman.dist.gamma.b = c(30, 60),
+#                                            formation.hazard.agegapry.numrel_man = c(-1.5, -0.1),
+#                                            formation.hazard.agegapry.numrel_woman = c(-1.5, -0.1),
+#                                            formation.hazard.agegapry.eagerness_diff = c(-0.06, 0),
+#                                            formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.4),
+#                                            formation.hazard.agegapry.gap_factor_woman_exp = c(-1.5, -0.4),
+#                                            person.agegap.man.dist.normal.mu = c(2, 6),
+#                                            person.agegap.woman.dist.normal.mu = c(2, 6),
+#                                            person.agegap.man.dist.normal.sigma = c(1, 2),
+#                                            person.agegap.woman.dist.normal.sigma = c(1, 2)
+#                                            )
+#
+# ##################################################################################################################################
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 1500
+max.chunk <- 274
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 
@@ -232,8 +232,8 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
 
 }
 
-inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk, by = "sim.id")
 
+inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk, by = "sim.id")
 
 write.csv(inputANDoutput.chunk.df, file =paste0("SummaryOutPut-inANDout.df.chunk-",min.chunk,"-",max.chunk,"-",Sys.Date(),
                                                ".csv"), row.names = FALSE)
