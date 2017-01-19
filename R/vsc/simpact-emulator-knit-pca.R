@@ -259,20 +259,23 @@ targets.pc.vector <- as.numeric(targets.pc)
 
 
 check.me.pc.a <- as.data.frame(t(apply(prediction.pc.a.df, 1, function(x) (x - t(targets.pc.vector))^2)))
-names(check.me.pc.a) <- summaryparameters
+names(check.me.pc.a) <- names(pred.pc.all)[3:length(pred.pc.all)-1]
 check.me.pc.b <- as.data.frame(t(apply(prediction.pc.b.df, 1, function(x) (x - t(targets.pc.vector))^2)))
-names(check.me.pc.b) <- summaryparameters
+names(check.me.pc.b) <- names(pred.pc.all)[3:length(pred.pc.all)-1]
 check.me.pc.c <- as.data.frame(t(apply(prediction.pc.c.df, 1, function(x) (x - t(targets.pc.vector))^2)))
-names(check.me.pc.c) <- summaryparameters
+names(check.me.pc.c) <- names(pred.pc.all)[3:length(pred.pc.all)-1]
 
-check.plot.multem <- multi.hist(check.me.pc.b)
+check.plot.multem <- multi.hist(check.me.pc.a)
 
 sum.square.df.pc.a <- transform(check.me.pc.a, sum=rowSums(check.me.pc.a))
 sum.square.df.pc.b <- transform(check.me.pc.b, sum=rowSums(check.me.pc.b))
 sum.square.df.pc.c <- transform(check.me.pc.c, sum=rowSums(check.me.pc.c))
 
 new.xdesign.ssd.pc.c <- data.frame(cbind(x.new, ssd.c=sum.square.df.pc.c$sum))
-new.xdesign.ssd.pc.c <- new.xdesign.ssd.c[order(new.xdesign.ssd.pc.c$ssd.c),]
+new.xdesign.ssd.pc.c <- new.xdesign.ssd.pc.c[order(new.xdesign.ssd.pc.c$ssd.c),]
+
+write.csv(head(new.xdesign.ssd.pc.c, 274), file =paste0("SummaryOutPut-inANDout.df.chunk-PCA-emu",Sys.Date(),
+                                                ".csv"), row.names = FALSE)
 
 par(mfrow=c(3,1))
 hist(sum.square.df.pc.a$sum, 100)
