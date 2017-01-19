@@ -332,6 +332,8 @@ par.estimated[3,length(par.estimated)] <- "c"
 
 par.estimated  #The estimated parameters
 
+##save.image("~/MaxART/RSimpactHelp/data/PCA-emulator-run2017-01-19.RData")
+
 ################################################ END #####################################################
 
 

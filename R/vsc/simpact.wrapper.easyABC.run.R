@@ -10,7 +10,7 @@ if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
 }
 
 # There may be ways to make main.filename dynamic: so the file name does not need to be manually updated
-main.filename <- "simpactInputParams.df-1500Points15Par2017-01-17.csv" #Read the file produced by varying parameters *design.points
+main.filename <- "simpactInputParams.df.EmuBest-274Points15Par2017-01-18.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
@@ -37,7 +37,7 @@ inPUT.df.complete <- simpact.config.inputs.from.emulator(datalist = new.xdesign.
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 274
+max.chunk <- 500
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 

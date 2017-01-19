@@ -14,7 +14,7 @@ if(comp == "win"){
   dirname <- "~/Documents/RSimpactHelp"  #mac directory here
 }
 
-file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-500-2017-01-17.csv") # param.varied
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-274-2017-01-18.csv") # param.varied
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
@@ -28,6 +28,8 @@ repetition.count <- nrow(inputANDoutput.complete[inputANDoutput.complete$sim.id=
 names(inputANDoutput.complete[,(summary.count+xdesign.count+2):length(inputANDoutput.complete)])
 summaryparameters <- names(inputANDoutput.complete[,1:summary.count])
 summaryparameters
+
+predpc.starttime.All <- proc.time()
 
 #summary statistics
 z.variables <- summaryparameters
@@ -46,24 +48,24 @@ x.variables <- dplyr::select(inputANDoutput.complete, contains("."))
 x.variables <- x.variables[, !(colnames(x.variables) %in% z.variables)]
 x.variables <- names(x.variables[2:length(x.variables)])
 
-#x.variables.boundaries <- list(conception.alpha_base.min = -3.6, conception.alpha_base.max = -1.2,
-#                              formation.hazard.agegapry.baseline.min = 1.5, formation.hazard.agegapry.baseline.max = 3)
-
 #get all the average in all the columns in the selected df
 inputANDoutput.select <- aggregate(inputANDoutput.complete, by = list(inputANDoutput.complete$sim.id), FUN = "mean")
+
+inputANDoutput.select$is.complete <- complete.cases(inputANDoutput.select)
 
 ## Remove all rows with NA in the summary statistic
 inputANDoutput.select <- dplyr::filter(inputANDoutput.select,complete.cases(inputANDoutput.select[,z.variables]))
 
+
 ## some condition on the prev.men.15.50 e.g
 ##inputANDoutput.select <- dplyr::filter(inputANDoutput.select, prev.men.15.50 > 0.25)
-inputANDoutput.select <- dplyr::filter(inputANDoutput.select, growth.rate > 0)
+##inputANDoutput.select <- dplyr::filter(inputANDoutput.select, growth.rate > 0)
 
 #Keep the full set of the data for testing later
 inputANDoutput.selectTTE <- inputANDoutput.select
 
 #Select a fraction of simulated dataset
-nrow.sel <- floor(nrow(inputANDoutput.select) * 75/100) # use 75% of the data always and use the 25% for validation)
+nrow.sel <- floor(nrow(inputANDoutput.select) * 85/100) # use 85% of the data always and use the 25% for validation)
 inputANDoutput.select <- head(inputANDoutput.select, nrow.sel)
 
 #select the x model param values (model parameters)
@@ -93,7 +95,7 @@ z.pc.summary <- summary(z.pc)
 #biplot(z.pc)
 #z.pc$loadings
 z.pc.cum.var <- cumsum((z.pc.summary$sdev)^2) / sum(z.pc.summary$sdev^2) #cummulative variance
-pc.select.number <- which.min(abs(z.pc.cum.var - 0.99))[[1]] # Want 96% of the variance to be explained by ....
+pc.select.number <- which.min(abs(z.pc.cum.var - 0.98))[[1]] # Want 96% of the variance to be explained by ....
 z.pc.df <- data.frame(z.pc$scores)
 
 z.pc.obs <- as.vector(unlist(z.pc.df[ ,1:pc.select.number]))
@@ -103,6 +105,10 @@ x.design.pc.long <- as.matrix(x.design.pc.long)
 ################ Creating the multivator objects for the PCA-based analysis
 RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df)[1:pc.select.number], each = dim(simpact.z)[1])) #You can do names(z.pc.df)[1:2] - #PCA not to be used
 RS.pc.expt <- experiment(mm = RS.pc.mdm, obs = z.pc.obs)
+
+
+RS.pc.opt.b.var.iter.Test <- optimal_params(RS.pc.expt, option="c", start_hp = RS.pc.opt.b.var.iter.Test, control = list(maxit=400))
+
 
 optima.starttime.pc <- proc.time()
 RS.pc.opt.a <- optimal_params(RS.pc.expt, option="a")
@@ -121,7 +127,7 @@ optim.pc.check <- proc.time()
 # Use the loop to iterate through different values. So the optimisation process is faster.
 
 for (iter in seq(100,700, 100)){
-  print (paste("Working on pc iteration number: ", iter, sep=" "))
+  print (paste("Working on b pc iteration number: ", iter, sep=" "))
   RS.pc.opt.b.var.iter <- optimal_params(RS.pc.expt, option="b", start_hp = RS.pc.opt.var, control = list(maxit=iter))
   RS.pc.opt.var <- RS.pc.opt.b.var.iter
 
@@ -144,7 +150,7 @@ ggplot(melt(comp1.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=var
 ggplot(melt(comp2.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 2")
 
 for (iter in seq(100,700, 100)){
-  print (paste("Working on pc iteration number: ", iter, sep=" "))
+  print (paste("Working on c pc iteration number: ", iter, sep=" "))
   RS.pc.opt.c.var.iter <- optimal_params(RS.pc.expt, option="c", start_hp = RS.pc.opt.var, control = list(maxit=iter))
   RS.pc.opt.var <- RS.pc.opt.c.var.iter
 
@@ -163,8 +169,15 @@ RS.pc.opt.c <- RS.pc.opt.var
 optim.pc.check.conv <- proc.time() - optim.pc.check
 
 #See the plot of convergency in the B matrix of coefficients. -->
-ggplot(melt(comp1.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 1")
-ggplot(melt(comp2.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 2")
+ggplot(melt(head(comp1.pc.B,8),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
+  geom_point(aes(size = 2)) + ggtitle("Coeff pc B 1")
+ggplot(melt(tail(comp1.pc.B,7),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
+  geom_point() + ggtitle("Coeff pc C 1")
+
+ggplot(melt(head(comp2.pc.B,8),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
+  geom_point(aes(size = 2)) + ggtitle("Coeff pc B 2")
+ggplot(melt(tail(comp2.pc.B,7),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
+  geom_point(aes(size = 2)) + ggtitle("Coeff pc C 2")
 
 ############### Testing if the prediction of the unused data can be recreated ######################################
 n.check <- nrow(inputANDoutput.selectTTE)-nrow.sel
@@ -191,7 +204,7 @@ model.stats.check.pc <- predict(z.pc, model.stats.check.pc)
 model.stats.check.pc <- cbind(model.stats.check.pc[,1:pc.select.number], RS.pc.a.df.check, RS.pc.b.df.check, RS.pc.c.df.check)
 
 ### Visualise the results (Choose one of the summary statistics to visualise how they compare)
-stats.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.5"))
+stats.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.1"))
 matplot(stats.compare.pc, pch = 20, cex = 2)
 legend("topleft", colnames(stats.compare.pc),col=seq_len(ncol(stats.compare.pc)),cex=0.8,fill=seq_len(ncol(stats.compare.pc)), bty = "n")
 
@@ -259,7 +272,7 @@ pred.pc.c <- data.frame(predicted.values(prediction.pc.c.df, "c"))
 targets.pc.vector.row <- data.frame(cbind("NA", t(targets.pc.vector), "target.pc"))
 names(targets.pc.vector.row) <- names(pred.pc.a)
 
-##pred.pc.all <- rbind(targets.pc.vector.row, pred.pc.a, pred.pc.b, pred.pc.c)
+pred.pc.all <- rbind(pred.pc.a, pred.pc.b, pred.pc.c, targets.pc.vector.row)
 
 # #### And most importantly, the best estimate for the model parameters from the none PC part
 x.estimate.pc.a <- as.numeric(x.new[pred.pc.a$x.estimate.row, ])
@@ -299,6 +312,10 @@ par.estimated.pc[2,length(par.estimated.pc)] <- "b"
 par.estimated.pc[3,length(par.estimated.pc)] <- "c"
 
 par.estimated.pc  #The estimated parameters
+
+predpc.starttime.FIN <-  proc.time() - predpc.starttime.All
+
+##save.image("~/MaxART/RSimpactHelp/data/PCA-emulator-run2017-01-19.RData")
 
 ################################################ END #####################################################
 
