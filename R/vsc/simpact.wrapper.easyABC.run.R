@@ -3,7 +3,7 @@
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, lhs)
 #data file to read
 
-comp <- "lin" #lin #mac
+comp <- "win" #lin #mac
 
 if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
   dirname <- "~/Documents/GIT_Projects/RSimpactHelp"}else{dirname <- "~/Documents/RSimpactHelp"  #mac directory here
@@ -15,23 +15,23 @@ file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name i
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 ################################# YOU CAN EITHER RUN THIS LINE BELOW or READ THE FILE SAVED ALREADY main.filename ###########
-# inPUT.df.complete <- simpact.config.inputs(design.points = 1500,
-#                                            conception.alpha_base = c(-3.2, -1.2),
-#                                            person.art.accept.threshold.dist.fixed.value = c(0.4, 0.9),
-#                                            person.eagerness.man.dist.gamma.a = c(0.6, 1.9),
-#                                            person.eagerness.man.dist.gamma.b = c(30, 60),
-#                                            person.eagerness.woman.dist.gamma.a = c(0.6, 1.9),
-#                                            person.eagerness.woman.dist.gamma.b = c(30, 60),
-#                                            formation.hazard.agegapry.numrel_man = c(-1.5, -0.1),
-#                                            formation.hazard.agegapry.numrel_woman = c(-1.5, -0.1),
-#                                            formation.hazard.agegapry.eagerness_diff = c(-0.06, 0),
-#                                            formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.4),
-#                                            formation.hazard.agegapry.gap_factor_woman_exp = c(-1.5, -0.4),
-#                                            person.agegap.man.dist.normal.mu = c(2, 6),
-#                                            person.agegap.woman.dist.normal.mu = c(2, 6),
-#                                            person.agegap.man.dist.normal.sigma = c(1, 2),
-#                                            person.agegap.woman.dist.normal.sigma = c(1, 2)
-#                                            )
+inPUT.df.complete <- simpact.config.inputs.from.emulator(datalist = new.xdesign.ssd.c,
+                                           conception.alpha_base = c(-3.2, -1.2),
+                                           person.art.accept.threshold.dist.fixed.value = c(0.4, 0.9),
+                                           person.eagerness.man.dist.gamma.a = c(0.6, 1.9),
+                                           person.eagerness.man.dist.gamma.b = c(30, 60),
+                                           person.eagerness.woman.dist.gamma.a = c(0.6, 1.9),
+                                           person.eagerness.woman.dist.gamma.b = c(30, 60),
+                                           formation.hazard.agegapry.numrel_man = c(-1.5, -0.1),
+                                           formation.hazard.agegapry.numrel_woman = c(-1.5, -0.1),
+                                           formation.hazard.agegapry.eagerness_diff = c(-0.06, 0),
+                                           formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.4),
+                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-1.5, -0.4),
+                                           person.agegap.man.dist.normal.mu = c(2, 6),
+                                           person.agegap.woman.dist.normal.mu = c(2, 6),
+                                           person.agegap.man.dist.normal.sigma = c(1, 2),
+                                           person.agegap.woman.dist.normal.sigma = c(1, 2)
+                                           )
 #
 # ##################################################################################################################################
 
@@ -208,8 +208,8 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
 
     #col.index <- which(colnames(preprior.names.chunk)==i)
 
-    prior.chunk.val <- list(c("runif",1,as.numeric(inANDout.df.chunk[chunk.sim.id,i]),
-                              as.numeric(inANDout.df.chunk[chunk.sim.id,i])), c("dunif",0,1))
+    prior.chunk.val <- list(c("runif",1,as.numeric(inANDout.df.chunk[inANDout.df.chunk$sim.id==chunk.sim.id,i]),
+                              as.numeric(inANDout.df.chunk[inANDout.df.chunk$sim.id==chunk.sim.id,i])), c("dunif",0,1))
     simpact.chunk.prior[[length(simpact.chunk.prior)+1]] <- prior.chunk.val
   }
 
@@ -237,6 +237,8 @@ inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk,
 
 write.csv(inputANDoutput.chunk.df, file =paste0("SummaryOutPut-inANDout.df.chunk-",min.chunk,"-",max.chunk,"-",Sys.Date(),
                                                ".csv"), row.names = FALSE)
+
+
 end.chunk.time <- proc.time() - start.chunk.time
 
 
