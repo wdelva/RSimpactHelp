@@ -14,7 +14,7 @@ if(comp == "win"){
   dirname <- "~/Documents/RSimpactHelp"  #mac directory here
 }
 
-file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-500-2017-01-17.csv") # param.varied
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-274-2017-01-18.csv") # param.varied
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
@@ -50,7 +50,8 @@ inputANDoutput.select <- aggregate(inputANDoutput.complete, by = list(inputANDou
 
 #### This will generate pairs that with each parameter
 inputANDoutput.select$is.complete <- complete.cases(inputANDoutput.select)
-pair.plot <- pairs(inputANDoutput.select[, x.variables[1:5]],
+sum(inputANDoutput.select$is.complete)
+pair.plot <- pairs(inputANDoutput.select[, x.variables[1:8]],
                    col = 1+inputANDoutput.select$is.complete, pch = 16, cex = 2)
 
 ## Remove all rows with NA in the summary statistic
@@ -63,7 +64,7 @@ inputANDoutput.select <- dplyr::filter(inputANDoutput.select, complete.cases(inp
 inputANDoutput.selectTTE <- inputANDoutput.select
 
 #Select part of the data for use on multivator - emulator
-nrow.sel <- round(nrow(inputANDoutput.select) * 75/100,0) # use 75% of the data always and use the 25% for validation)
+nrow.sel <- round(nrow(inputANDoutput.select) * 85/100,0) # use 85% of the data always and use the 15% for validation)
 inputANDoutput.select <- head(inputANDoutput.select, nrow.sel)
 
 #select the x model param values (model parameters)
@@ -205,7 +206,7 @@ model.stats.check <- cbind(model.stats.check, RS.a.df.check, RS.b.df.check, RS.c
 
 ### Visualise the results (Choose one of the summary statistics to visualise how thy compare)
 par(mfrow=c(1,1))
-stats.compare <- dplyr::select(model.stats.check, contains(z.variables[2]))
+stats.compare <- dplyr::select(model.stats.check, contains(z.variables[4]))
 est.plot <- matplot(stats.compare, pch = 20, cex = 2)
 est.plot <- legend("topleft", colnames(stats.compare),col=seq_len(ncol(stats.compare)),
        cex=0.8,fill=seq_len(ncol(stats.compare)), bty = "n")
@@ -251,6 +252,28 @@ prediction.b.df <- data.frame(matrix(RS.prediction.opt.b, nrow = n,
 prediction.c.df <- data.frame(matrix(RS.prediction.opt.c, nrow = n,
                                      dimnames = list(rownames = 1:n, colnames = names(z.df)[1:length(z.variables)])))
 
+check.me.a <- as.data.frame(t(apply(prediction.a.df, 1, function(x) (x - t(targets))^2)))
+names(check.me.a) <- summaryparameters
+check.me.b <- as.data.frame(t(apply(prediction.b.df, 1, function(x) (x - t(targets))^2)))
+names(check.me.b) <- summaryparameters
+check.me.c <- as.data.frame(t(apply(prediction.c.df, 1, function(x) (x - t(targets))^2)))
+names(check.me.c) <- summaryparameters
+
+check.plot.multem <- multi.hist(check.me.b)
+
+sum.square.df.a <- transform(check.me.a, sum=rowSums(check.me.a))
+sum.square.df.b <- transform(check.me.b, sum=rowSums(check.me.b))
+sum.square.df.c <- transform(check.me.c, sum=rowSums(check.me.c))
+
+new.xdesign.ssd.c <- data.frame(cbind(x.new, ssd.c=sum.square.df.c$sum))
+new.xdesign.ssd.c <- new.xdesign.ssd.c[order(new.xdesign.ssd.c$ssd.c),]
+
+par(mfrow=c(3,1))
+hist(sum.square.df.a$sum, 100)
+hist(sum.square.df.b$sum, 100)
+hist(sum.square.df.c$sum, 100)
+
+
 #### Get the min in sum of squared distances between model statistics and target statistics
 predicted.values <- function(prediction.df, method){
   sq.a.array <- as.data.frame(t(apply(prediction.df, 1, function(x) (x - t(targets))^2)))
@@ -265,7 +288,7 @@ pred.a <- predicted.values(prediction.a.df, "a")
 pred.b <- predicted.values(prediction.b.df, "b")
 pred.c <- predicted.values(prediction.c.df, "c")
 
-targets.row <- data.frame(cbind("NA", t(targets), "target.pc"))
+targets.row <- data.frame(cbind("NA", t(targets), "target"))
 names(targets.row) <- names(pred.a)
 
 pred.all <- rbind(pred.a, pred.b, pred.c, targets.row)
