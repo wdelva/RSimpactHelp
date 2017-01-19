@@ -257,6 +257,29 @@ names(targets.df) <- z.variables
 targets.pc <- predict(z.pc, targets.df)[,1:pc.select.number]
 targets.pc.vector <- as.numeric(targets.pc)
 
+
+check.me.pc.a <- as.data.frame(t(apply(prediction.pc.a.df, 1, function(x) (x - t(targets.pc.vector))^2)))
+names(check.me.pc.a) <- summaryparameters
+check.me.pc.b <- as.data.frame(t(apply(prediction.pc.b.df, 1, function(x) (x - t(targets.pc.vector))^2)))
+names(check.me.pc.b) <- summaryparameters
+check.me.pc.c <- as.data.frame(t(apply(prediction.pc.c.df, 1, function(x) (x - t(targets.pc.vector))^2)))
+names(check.me.pc.c) <- summaryparameters
+
+check.plot.multem <- multi.hist(check.me.pc.b)
+
+sum.square.df.pc.a <- transform(check.me.pc.a, sum=rowSums(check.me.pc.a))
+sum.square.df.pc.b <- transform(check.me.pc.b, sum=rowSums(check.me.pc.b))
+sum.square.df.pc.c <- transform(check.me.pc.c, sum=rowSums(check.me.pc.c))
+
+new.xdesign.ssd.pc.c <- data.frame(cbind(x.new, ssd.c=sum.square.df.pc.c$sum))
+new.xdesign.ssd.pc.c <- new.xdesign.ssd.c[order(new.xdesign.ssd.pc.c$ssd.c),]
+
+par(mfrow=c(3,1))
+hist(sum.square.df.pc.a$sum, 100)
+hist(sum.square.df.pc.b$sum, 100)
+hist(sum.square.df.pc.c$sum, 100)
+
+
 predicted.values <- function(prediction.df, method){
   sq.a.array <- as.data.frame(t(apply(prediction.df, 1, function(x) (x - t(targets.pc.vector))^2)))
   names(sq.a.array) <- names(prediction.df)
