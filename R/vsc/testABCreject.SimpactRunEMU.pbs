@@ -1,0 +1,18 @@
+#!/bin/bash -l
+#
+#
+#PBS -N simpact-emulator-knit-pca-CLUSTER
+#PBS -l nodes=1:ppn=all
+#PBS -l walltime=07:30:00
+#PBS -m e
+#BPS -M wimdelva@me.com
+
+source /user/home/gent/vsc400/vsc40070/SimpactCyanBuild/simpactpack/bin/activatesimpact.sh
+
+ulimit -s unlimited
+module load scripts
+
+module load R/3.3.1-intel-2016b
+cd /user/data/gent/vsc400/vsc40070/simpact-test/code/
+
+Rscript simpact-emulator-knit-pca-CLUSTER.R 1
