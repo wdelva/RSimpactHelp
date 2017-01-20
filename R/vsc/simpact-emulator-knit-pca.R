@@ -79,7 +79,7 @@ x.design <- dplyr::select_(inputANDoutput.select,.dots=x.design.name)
 ##The figure below shows the distribution of the summary data to be used.
 ##We might need to transform any of the summary statistics should the histogram diverge from normaility.
 par(mfrow=c(1,1))
-multi.hist(simpact.z)
+simpact.z.pc.plot <- multi.hist(simpact.z)
 
 ##Creating a LHS for each summary statistic
 x.design.long <- x.design[rep(1:nrow(x.design),length(z.variables)),]
@@ -146,8 +146,8 @@ RS.pc.opt.b <- RS.pc.opt.var
 optim.pc.check.conv <- proc.time() - optim.pc.check
 
 #See the plot of convergency in the B matrix of coefficients. -->
-ggplot(melt(comp1.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 1")
-ggplot(melt(comp2.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 2")
+gg.B1.pca.plot <- ggplot(melt(comp1.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 1")
+gg.B2.pca.plot <- ggplot(melt(comp2.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 2")
 
 for (iter in seq(100,700, 100)){
   print (paste("Working on c pc iteration number: ", iter, sep=" "))
@@ -169,14 +169,14 @@ RS.pc.opt.c <- RS.pc.opt.var
 optim.pc.check.conv <- proc.time() - optim.pc.check
 
 #See the plot of convergency in the B matrix of coefficients. -->
-ggplot(melt(head(comp1.pc.B,8),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
+gg.B1b.pca.plot <- ggplot(melt(head(comp1.pc.B,8),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
   geom_point(aes(size = 2)) + ggtitle("Coeff pc B 1")
-ggplot(melt(tail(comp1.pc.B,7),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
+gg.B1c.pca.plot <-ggplot(melt(tail(comp1.pc.B,7),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
   geom_point() + ggtitle("Coeff pc C 1")
 
-ggplot(melt(head(comp2.pc.B,8),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
+gg.B2b.pca.plot <- ggplot(melt(head(comp2.pc.B,8),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
   geom_point(aes(size = 2)) + ggtitle("Coeff pc B 2")
-ggplot(melt(tail(comp2.pc.B,7),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
+gg.B2c.pca.plot <- ggplot(melt(tail(comp2.pc.B,7),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
   geom_point(aes(size = 2)) + ggtitle("Coeff pc C 2")
 
 ############### Testing if the prediction of the unused data can be recreated ######################################
@@ -205,11 +205,11 @@ model.stats.check.pc <- cbind(model.stats.check.pc[,1:pc.select.number], RS.pc.a
 
 ### Visualise the results (Choose one of the summary statistics to visualise how they compare)
 stats.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.1"))
-matplot(stats.compare.pc, pch = 20, cex = 2)
+matplot.pc <- matplot(stats.compare.pc, pch = 20, cex = 2)
 legend("topleft", colnames(stats.compare.pc),col=seq_len(ncol(stats.compare.pc)),cex=0.8,fill=seq_len(ncol(stats.compare.pc)), bty = "n")
 
 ############################ Using the Emulator to Explore the Parameter Space for the PCA Part to get the statistics
-n<-10000
+n <- 10000
 set.seed(1)
 x.new <- latin.hypercube(n, length(x.variables), names=colnames(x.design))
 x.new.long <- x.new[rep(1:nrow(x.new),pc.select.number),]
@@ -274,13 +274,12 @@ sum.square.df.pc.c <- transform(check.me.pc.c, sum=rowSums(check.me.pc.c))
 new.xdesign.ssd.pc.c <- data.frame(cbind(x.new, ssd.c=sum.square.df.pc.c$sum))
 new.xdesign.ssd.pc.c <- new.xdesign.ssd.pc.c[order(new.xdesign.ssd.pc.c$ssd.c),]
 
-write.csv(head(new.xdesign.ssd.pc.c, 274), file =paste0("SummaryOutPut-inANDout.df.chunk-PCA-emu",Sys.Date(),
-                                                ".csv"), row.names = FALSE)
+write.csv(head(new.xdesign.ssd.pc.c, nrow(inputANDoutput.select)), file =paste0("SummaryOutPut-inANDout.df.chunk-PCA-BEST-emu",Sys.Date(),".csv"), row.names = FALSE)
 
 par(mfrow=c(3,1))
-hist(sum.square.df.pc.a$sum, 100)
-hist(sum.square.df.pc.b$sum, 100)
-hist(sum.square.df.pc.c$sum, 100)
+sum.square.df.pc.a.sum <- hist(sum.square.df.pc.a$sum, 100)
+sum.square.df.pc.b.sum <- hist(sum.square.df.pc.b$sum, 100)
+sum.square.df.pc.c.sum <- hist(sum.square.df.pc.c$sum, 100)
 
 
 predicted.values <- function(prediction.df, method){
@@ -341,7 +340,7 @@ par.estimated.pc  #The estimated parameters
 
 predpc.starttime.FIN <-  proc.time() - predpc.starttime.All
 
-##save.image("~/MaxART/RSimpactHelp/data/PCA-emulator-run2017-01-19.RData")
+save.image("~/MaxART/RSimpactHelp/data/PCA-emulator-run-2017-01-20-Cluster-WIM.RData")
 
 ################################################ END #####################################################
 
