@@ -3,14 +3,14 @@
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, lhs)
 #data file to read
 
-comp <- "win" #lin #mac
+comp <- "lin" #lin #mac
 
 if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
   dirname <- "~/Documents/GIT_Projects/RSimpactHelp"}else{dirname <- "~/Documents/RSimpactHelp"  #mac directory here
 }
 
 # There may be ways to make main.filename dynamic: so the file name does not need to be manually updated
-main.filename <- "simpactInputParams.df.EmuBest-274Points15Par2017-01-18.csv" #Read the file produced by varying parameters *design.points
+main.filename <- "SummaryOutPut-inANDout.df.chunk-PCA-emu2017-01-19.csv" #Read the file produced by varying parameters *design.points
 file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
 inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
