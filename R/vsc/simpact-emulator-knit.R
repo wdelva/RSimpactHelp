@@ -14,7 +14,7 @@ if(comp == "win"){
   dirname <- "~/Documents/RSimpactHelp"  #mac directory here
 }
 
-file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-274-2017-01-18.csv") # param.varied
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-500-2017-01-18.csv") # param.varied
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
@@ -96,10 +96,6 @@ x.estimate <- as.numeric(simpact.x[which.min(SumSq), ])
 
 p.stats <- rbind(sim.best.summary, targets)
 rownames(p.stats) <- c("Summary Statistics","Targets")
-p.stats
-
-##And the simpact parameters are:
-x.estimate
 
 
 ########################################### Creating the multivator objects for a non-PCA-based analysis
@@ -151,8 +147,8 @@ RS.opt.b <- RS.opt.var
 optim.check.conv <- proc.time() - optim.check
 
  #See the plot of convergency in the B matrix of coefficients. -->
-ggplot(melt(comp1.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 1")
-ggplot(melt(comp2.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 2")
+gg.B1.plot <- ggplot(melt(comp1.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 1")
+gg.B2.plot <- ggplot(melt(comp2.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff 2")
 
 for (iter in seq(100,700, 100)){
   print (paste("Working on option c iteration number: ", iter, sep=" "))
@@ -268,10 +264,12 @@ sum.square.df.c <- transform(check.me.c, sum=rowSums(check.me.c))
 new.xdesign.ssd.c <- data.frame(cbind(x.new, ssd.c=sum.square.df.c$sum))
 new.xdesign.ssd.c <- new.xdesign.ssd.c[order(new.xdesign.ssd.c$ssd.c),]
 
+write.csv(head(new.xdesign.ssd.c, nrow(inputANDoutput.select)), file =paste0("SummaryOutPut-inANDout.df.chunk-NONPCA-BEST-emu",Sys.Date(),".csv"), row.names = FALSE)
+
 par(mfrow=c(3,1))
-hist(sum.square.df.a$sum, 100)
-hist(sum.square.df.b$sum, 100)
-hist(sum.square.df.c$sum, 100)
+sum.square.df.a.sum <- hist(sum.square.df.a$sum, 100)
+sum.square.df.b.sum <- hist(sum.square.df.b$sum, 100)
+sum.square.df.c.sum <- hist(sum.square.df.c$sum, 100)
 
 
 #### Get the min in sum of squared distances between model statistics and target statistics
@@ -332,7 +330,7 @@ par.estimated[3,length(par.estimated)] <- "c"
 
 par.estimated  #The estimated parameters
 
-##save.image("~/MaxART/RSimpactHelp/data/PCA-emulator-run2017-01-19.RData")
+save.image("~/MaxART/RSimpactHelp/data/PCA-emulator-run2017-01-20-Cluster-WIM.RData")
 
 ################################################ END #####################################################
 
