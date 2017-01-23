@@ -5,7 +5,10 @@ pacman::p_load(data.table, dplyr, magrittr, exactci,
 
 pred.starttime.All.time <- proc.time()
 
-file.name.csv <- paste0("/","SummaryOutPut-inANDout.df.chunk-PCA-emu2017-01-19.csv") # param.varied
+dirname <- "/mnt/lustre/users/tchibawara/MaxART/data"
+
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-100-2017-01-05.csv") # param.varied
+
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
@@ -54,7 +57,7 @@ inputANDoutput.select <- dplyr::filter(inputANDoutput.select, complete.cases(inp
 inputANDoutput.selectTTE <- inputANDoutput.select
 
 #Select part of the data for use on multivator - emulator
-nrow.sel <- round(nrow(inputANDoutput.select) * 85/100,0) # use 85% of the data always and use the 15% for validation)
+nrow.sel <- round(nrow(inputANDoutput.select) * 70/100,0) # use 85% of the data always and use the 15% for validation)
 inputANDoutput.select <- head(inputANDoutput.select, nrow.sel)
 
 #select the x model param values (model parameters)
@@ -198,7 +201,7 @@ est.plot <- legend("topleft", colnames(stats.compare),col=seq_len(ncol(stats.com
        cex=0.8,fill=seq_len(ncol(stats.compare)), bty = "n")
 
 ############## Using the Emulator to Explore the Parameter Space for the None PCA Part to get the statistics ###################
-n <- 10000
+n <- 30000
 set.seed(1)
 x.new <- latin.hypercube(n, length(x.variables), names=colnames(x.design))
 x.new.long <- x.new[rep(1:nrow(x.new),length(z.variables)),]
@@ -322,7 +325,7 @@ write.csv(head(new.xdesign.ssd.c, nrow(inputANDoutput.select)), file =paste0("Su
 
 predpc.starttime.FIN.time <-  proc.time() - pred.starttime.All.time
 
-save.image("~/MaxART/RSimpactHelp/data/NONEPCA-emulator-run2017-01-20-Cluster-WIM.RData")
+output.sim <- save.image("/mnt/lustre/users/tchibawara/MaxART/data/PCA-emulator-run-2017-01-20-Cluster-WIM.RData")
 
 ################################################ END #####################################################
 
