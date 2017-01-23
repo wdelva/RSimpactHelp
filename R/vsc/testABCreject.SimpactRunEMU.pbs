@@ -12,7 +12,7 @@ source /user/home/gent/vsc400/vsc40070/SimpactCyanBuild/simpactpack/bin/activate
 ulimit -s unlimited
 module load scripts
 
-module load R/3.3.1-intel-2016b
+module load chpc/R/3.3.2-intel16.0.1
 cd /user/data/gent/vsc400/vsc40070/simpact-test/code/
 
 Rscript simpact-emulator-knit-pca-CLUSTER.R 1
