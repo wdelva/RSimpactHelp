@@ -5,7 +5,7 @@ pacman::p_load(data.table, dplyr, magrittr, exactci,
 
 dirname <- "/mnt/lustre/users/tchibawara/MaxART/data"
 
-file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-100-2017-01-05.csv") # param.varied
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-WIM-1-500-2017-01-20.csv") # param.varied
 
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
@@ -55,7 +55,7 @@ inputANDoutput.select <- dplyr::filter(inputANDoutput.select,complete.cases(inpu
 inputANDoutput.selectTTE <- inputANDoutput.select
 
 #Select a fraction of simulated dataset
-nrow.sel <- floor(nrow(inputANDoutput.select) * 70/100) # use 85% of the data always and use the 25% for validation)
+nrow.sel <- floor(nrow(inputANDoutput.select) * 85/100) # use 85% of the data always and use the 25% for validation)
 inputANDoutput.select <- head(inputANDoutput.select, nrow.sel)
 
 #select the x model param values (model parameters)
@@ -194,7 +194,7 @@ matplot.pc <- matplot(stats.compare.pc, pch = 20, cex = 2)
 legend("topleft", colnames(stats.compare.pc),col=seq_len(ncol(stats.compare.pc)),cex=0.8,fill=seq_len(ncol(stats.compare.pc)), bty = "n")
 
 ############################ Using the Emulator to Explore the Parameter Space for the PCA Part to get the statistics
-n <- 30000
+n <- 40000
 set.seed(1)
 x.new <- latin.hypercube(n, length(x.variables), names=colnames(x.design))
 x.new.long <- x.new[rep(1:nrow(x.new),pc.select.number),]
@@ -213,18 +213,18 @@ pred3pc.starttime <- proc.time()
 RS.prediction.pc.opt.c <- multem(x = RS.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.c)
 pred3pc.endtime <- proc.time() - pred3pc.starttime
 
-# par(mfrow=c(3,pc.select.number)) # distribution of z.variable i with pc.opt.a then with pc.opt.b
-# for (i in 1:pc.select.number){
-#   hist(RS.prediction.pc.opt.a[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.a")
-# }
-#
-# for (i in 1:pc.select.number){
-#   hist(RS.prediction.pc.opt.b[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.b")
-# }
-#
-# for (i in 1:pc.select.number){
-#   hist(RS.prediction.pc.opt.c[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.c")
-# }
+par(mfrow=c(3,pc.select.number)) # distribution of z.variable i with pc.opt.a then with pc.opt.b
+for (i in 1:pc.select.number){
+  hist(RS.prediction.pc.opt.a[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.a")
+}
+
+for (i in 1:pc.select.number){
+  hist(RS.prediction.pc.opt.b[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.b")
+}
+
+for (i in 1:pc.select.number){
+  hist(RS.prediction.pc.opt.c[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.c")
+}
 
 ##One way of efficiently comparing emulation output with target statistics is to reshape RS.prediction.* as a dataframe
 prediction.pc.a.df <- data.frame(matrix(RS.prediction.pc.opt.a, nrow = n,
@@ -241,6 +241,28 @@ targets.df <- data.frame(t(targets))
 names(targets.df) <- z.variables
 targets.pc <- predict(z.pc, targets.df)[,1:pc.select.number]
 targets.pc.vector <- as.numeric(targets.pc)
+
+predicted.values <- function(prediction.df, method){
+  sq.a.array <- as.data.frame(t(apply(prediction.df, 1, function(x) (x - t(targets.pc.vector))^2)))
+  names(sq.a.array) <- names(prediction.df)
+  SumSq <- as.numeric(rowSums(sq.a.array))
+  x.estimate.row <- which.min(SumSq)
+  pridicted.output.values <- data.frame(cbind(x.estimate.row, prediction.df[x.estimate.row, ], method = method))
+  return(pridicted.output.values)
+}
+
+pred.pc.a <- data.frame(predicted.values(prediction.pc.a.df, "a"))
+pred.pc.b <- data.frame(predicted.values(prediction.pc.b.df, "b"))
+pred.pc.c <- data.frame(predicted.values(prediction.pc.c.df, "c"))
+targets.pc.vector.row <- data.frame(cbind("NA", t(targets.pc.vector), "target.pc"))
+names(targets.pc.vector.row) <- names(pred.pc.a)
+
+pred.pc.all <- rbind(pred.pc.a, pred.pc.b, pred.pc.c, targets.pc.vector.row)
+
+# #### And most importantly, the best estimate for the model parameters from the none PC part
+x.estimate.pc.a <- as.numeric(x.new[pred.pc.a$x.estimate.row, ])
+x.estimate.pc.b <- as.numeric(x.new[pred.pc.b$x.estimate.row, ])
+x.estimate.pc.c <- as.numeric(x.new[pred.pc.c$x.estimate.row, ])
 
 
 check.me.pc.a <- as.data.frame(t(apply(prediction.pc.a.df, 1, function(x) (x - t(targets.pc.vector))^2)))
@@ -261,71 +283,55 @@ new.xdesign.ssd.pc.c <- new.xdesign.ssd.pc.c[order(new.xdesign.ssd.pc.c$ssd.c),]
 
 write.csv(head(new.xdesign.ssd.pc.c, nrow(inputANDoutput.select)), file =paste0("SummaryOutPut-inANDout.df.chunk-PCA-BEST-emu",Sys.Date(),".csv"), row.names = FALSE)
 
-# par(mfrow=c(3,1))
-# sum.square.df.pc.a.sum <- hist(sum.square.df.pc.a$sum, 100)
-# sum.square.df.pc.b.sum <- hist(sum.square.df.pc.b$sum, 100)
-# sum.square.df.pc.c.sum <- hist(sum.square.df.pc.c$sum, 100)
-#
-#
-# predicted.values <- function(prediction.df, method){
-#   sq.a.array <- as.data.frame(t(apply(prediction.df, 1, function(x) (x - t(targets.pc.vector))^2)))
-#   names(sq.a.array) <- names(prediction.df)
-#   SumSq <- as.numeric(rowSums(sq.a.array))
-#   x.estimate.row <- which.min(SumSq)
-#   pridicted.output.values <- data.frame(cbind(x.estimate.row, prediction.df[x.estimate.row, ], method = method))
-#   return(pridicted.output.values)
-# }
-#
-# pred.pc.a <- data.frame(predicted.values(prediction.pc.a.df, "a"))
-# pred.pc.b <- data.frame(predicted.values(prediction.pc.b.df, "b"))
-# pred.pc.c <- data.frame(predicted.values(prediction.pc.c.df, "c"))
-# targets.pc.vector.row <- data.frame(cbind("NA", t(targets.pc.vector), "target.pc"))
-# names(targets.pc.vector.row) <- names(pred.pc.a)
-#
-# pred.pc.all <- rbind(pred.pc.a, pred.pc.b, pred.pc.c, targets.pc.vector.row)
-#
-# # #### And most importantly, the best estimate for the model parameters from the none PC part
-# x.estimate.pc.a <- as.numeric(x.new[pred.pc.a$x.estimate.row, ])
-# x.estimate.pc.b <- as.numeric(x.new[pred.pc.b$x.estimate.row, ])
-# x.estimate.pc.c <- as.numeric(x.new[pred.pc.c$x.estimate.row, ])
+par(mfrow=c(3,1))
+sum.square.df.pc.a.sum <- hist(sum.square.df.pc.a$sum, 100)
+sum.square.df.pc.b.sum <- hist(sum.square.df.pc.b$sum, 100)
+sum.square.df.pc.c.sum <- hist(sum.square.df.pc.c$sum, 100)
+
 
 ############ Compute the final estimated parameters to use with SIMPACT ##################
 #Select the config parameters that will be varied from the input config
-# par.estimated.pc <- data.frame(matrix(NA, nrow = 3, ncol = length(x.variables)+1))
-# names(par.estimated.pc) <- c(x.variables,"method")
+par.estimated.pc <- data.frame(matrix(NA, nrow = 3, ncol = length(x.variables)+1))
+names(par.estimated.pc) <- c(x.variables,"method")
 
 ###Give the boundaries for the parameters here;
-# x.variables.boundaries <- simpact.params.boundaries()
-#
-# #Create the list of parameters with their min, max vlaue (all will sample from a unif distribution)
-# x.index <- 0
-# for (j in x.variables){
-#   x.index <- x.index + 1
-#   col.index <- which(colnames(par.estimated.pc)==j)
-#
-#   if(is.null(x.variables.boundaries[[j]])){
-#     #if the boundary of the parameter is not set
-#     par.estimated.pc[1,col.index] <- NA
-#     par.estimated.pc[2,col.index] <- NA
-#     par.estimated.pc[3,col.index] <- NA
-#   }else{
-#     min.var <- x.variables.boundaries[[j]][1]
-#     max.var <- x.variables.boundaries[[j]][2]
-#     par.estimated.pc[1,col.index] <- qunif(x.estimate.pc.a[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
-#     par.estimated.pc[2,col.index] <- qunif(x.estimate.pc.b[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
-#     par.estimated.pc[3,col.index] <- qunif(x.estimate.pc.c[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
-#   }
-# }
-#
-# par.estimated.pc[1,length(par.estimated.pc)] <- "a"
-# par.estimated.pc[2,length(par.estimated.pc)] <- "b"
-# par.estimated.pc[3,length(par.estimated.pc)] <- "c"
-#
-# par.estimated.pc  #The estimated parameters
+x.variables.boundaries <- simpact.params.boundaries()
+
+#Create the list of parameters with their min, max vlaue (all will sample from a unif distribution)
+x.index <- 0
+for (j in x.variables){
+  x.index <- x.index + 1
+  col.index <- which(colnames(par.estimated.pc)==j)
+
+  if(is.null(x.variables.boundaries[[j]])){
+    #if the boundary of the parameter is not set
+    par.estimated.pc[1,col.index] <- NA
+    par.estimated.pc[2,col.index] <- NA
+    par.estimated.pc[3,col.index] <- NA
+  }else{
+    min.var <- x.variables.boundaries[[j]][1]
+    max.var <- x.variables.boundaries[[j]][2]
+    par.estimated.pc[1,col.index] <- qunif(x.estimate.pc.a[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
+    par.estimated.pc[2,col.index] <- qunif(x.estimate.pc.b[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
+    par.estimated.pc[3,col.index] <- qunif(x.estimate.pc.c[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
+  }
+}
+
+par.estimated.pc[1,length(par.estimated.pc)] <- "a"
+par.estimated.pc[2,length(par.estimated.pc)] <- "b"
+par.estimated.pc[3,length(par.estimated.pc)] <- "c"
 
 predpc.starttime.FIN <-  proc.time() - predpc.starttime.All
 
-save.image("~/MaxART/RSimpactHelp/data/PCA-emulator-run-2017-01-20-Cluster-WIM.RData")
+save(predpc.starttime.All,
+     z.variables, simpact.z.pc.plot, z.pc.summary, gg.B1b.pca.plot,
+     gg.B1c.pca.plot, gg.B2b.pca.plot, gg.B2c.pca.plot,
+     model.stats.check.pc, matplot.pc, pred.pc.all,
+     x.estimate.pc.a, x.estimate.pc.b, x.estimate.pc.c,
+     check.plot.multem, prediction.pc.a.df, prediction.pc.b.df, prediction.pc.c.df,
+     par.estimated.pc, predpc.starttime.FIN,
+     file = "PCA-emulator-run-2017-01-20-Cluster-WIM.RData")
+
 
 ################################################ END #####################################################
 
