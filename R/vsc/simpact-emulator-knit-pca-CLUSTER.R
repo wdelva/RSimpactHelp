@@ -1,7 +1,6 @@
 #set the packages that we need
-pacman::p_load(data.table, dplyr, magrittr, exactci,
-               nlme, ggplot2,survival, KMsurv, tidyr, expoTree, sna, intergraph,
-               igraph,lhs, GGally, emulator, multivator, tidyr, psych)
+pacman::p_load(data.table, dplyr, magrittr,
+               ggplot2, tidyr,lhs, emulator, multivator, tidyr, psych)
 
 dirname <- "/mnt/lustre/users/tchibawara/MaxART/data"
 
@@ -85,7 +84,7 @@ z.pc.summary <- summary(z.pc)
 #biplot(z.pc)
 #z.pc$loadings
 z.pc.cum.var <- cumsum((z.pc.summary$sdev)^2) / sum(z.pc.summary$sdev^2) #cummulative variance
-pc.select.number <- which.min(abs(z.pc.cum.var - 1))[[1]] # Want 98% of the variance to be explained by ....
+pc.select.number <- which.min(abs(z.pc.cum.var - 98))[[1]] # Want 98% of the variance to be explained by ....
 z.pc.df <- data.frame(z.pc$scores)
 
 z.pc.obs <- as.vector(unlist(z.pc.df[ ,1:pc.select.number]))
@@ -129,7 +128,7 @@ for (iter in seq(100,700, 100)){
 #check how long this took.
 RS.pc.opt.b <- RS.pc.opt.var
 
-optim.pc.check.conv <- proc.time() - optim.pc.check
+optim.pc.check.conv.b <- proc.time() - optim.pc.check
 
 #See the plot of convergency in the B matrix of coefficients. -->
 gg.B1.pca.plot <- ggplot(melt(comp1.pc.B,id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) + geom_point() + ggtitle("Coeff pc 1")
@@ -152,7 +151,7 @@ for (iter in seq(100,700, 100)){
 #check how long this took.
 RS.pc.opt.c <- RS.pc.opt.var
 
-optim.pc.check.conv <- proc.time() - optim.pc.check
+optim.pc.check.conv.c <- proc.time() - optim.pc.check.conv.b
 
 #See the plot of convergency in the B matrix of coefficients. -->
 gg.B1b.pca.plot <- ggplot(melt(head(comp1.pc.B,8),id.vars=c("run.type")), aes(x=run.type,y=value, color=variable)) +
@@ -189,9 +188,12 @@ model.stats.check.pc <- predict(z.pc, model.stats.check.pc)
 model.stats.check.pc <- cbind(model.stats.check.pc[,1:pc.select.number], RS.pc.a.df.check, RS.pc.b.df.check, RS.pc.c.df.check)
 
 ### Visualise the results (Choose one of the summary statistics to visualise how they compare)
-stats.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.1"))
+
+for (i in 1:pc.select.number){
+stats.compare.pc <- dplyr::select(model.stats.check.pc, contains(paste0("Comp.", i)))
 matplot.pc <- matplot(stats.compare.pc, pch = 20, cex = 2)
 legend("topleft", colnames(stats.compare.pc),col=seq_len(ncol(stats.compare.pc)),cex=0.8,fill=seq_len(ncol(stats.compare.pc)), bty = "n")
+}
 
 ############################ Using the Emulator to Explore the Parameter Space for the PCA Part to get the statistics
 n <- 40000
@@ -213,17 +215,17 @@ pred3pc.starttime <- proc.time()
 RS.prediction.pc.opt.c <- multem(x = RS.new.mdm, expt = RS.pc.expt, hp = RS.pc.opt.c)
 pred3pc.endtime <- proc.time() - pred3pc.starttime
 
-par(mfrow=c(3,pc.select.number)) # distribution of z.variable i with pc.opt.a then with pc.opt.b
+#par(mfrow=c(3,pc.select.number)) # distribution of z.variable i with pc.opt.a then with pc.opt.b
 for (i in 1:pc.select.number){
-  hist(RS.prediction.pc.opt.a[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.a")
+ hist.pc.a <- hist(RS.prediction.pc.opt.a[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.a")
 }
 
 for (i in 1:pc.select.number){
-  hist(RS.prediction.pc.opt.b[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.b")
+  hist.pc.b <- hist(RS.prediction.pc.opt.b[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.b")
 }
 
 for (i in 1:pc.select.number){
-  hist(RS.prediction.pc.opt.c[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.c")
+  hist.pc.c <-hist(RS.prediction.pc.opt.c[((i-1)*n+1):(i*n)], main = paste("Dist of ",names(z.pc.df)[i], sep = " "), xlab = "opt.c")
 }
 
 ##One way of efficiently comparing emulation output with target statistics is to reshape RS.prediction.* as a dataframe
@@ -283,7 +285,7 @@ new.xdesign.ssd.pc.c <- new.xdesign.ssd.pc.c[order(new.xdesign.ssd.pc.c$ssd.c),]
 
 write.csv(head(new.xdesign.ssd.pc.c, nrow(inputANDoutput.select)), file =paste0("SummaryOutPut-inANDout.df.chunk-PCA-BEST-emu",Sys.Date(),".csv"), row.names = FALSE)
 
-par(mfrow=c(3,1))
+#par(mfrow=c(3,1))
 sum.square.df.pc.a.sum <- hist(sum.square.df.pc.a$sum, 100)
 sum.square.df.pc.b.sum <- hist(sum.square.df.pc.b$sum, 100)
 sum.square.df.pc.c.sum <- hist(sum.square.df.pc.c$sum, 100)
@@ -291,46 +293,45 @@ sum.square.df.pc.c.sum <- hist(sum.square.df.pc.c$sum, 100)
 
 ############ Compute the final estimated parameters to use with SIMPACT ##################
 #Select the config parameters that will be varied from the input config
-par.estimated.pc <- data.frame(matrix(NA, nrow = 3, ncol = length(x.variables)+1))
-names(par.estimated.pc) <- c(x.variables,"method")
-
-###Give the boundaries for the parameters here;
-x.variables.boundaries <- simpact.params.boundaries()
-
-#Create the list of parameters with their min, max vlaue (all will sample from a unif distribution)
-x.index <- 0
-for (j in x.variables){
-  x.index <- x.index + 1
-  col.index <- which(colnames(par.estimated.pc)==j)
-
-  if(is.null(x.variables.boundaries[[j]])){
-    #if the boundary of the parameter is not set
-    par.estimated.pc[1,col.index] <- NA
-    par.estimated.pc[2,col.index] <- NA
-    par.estimated.pc[3,col.index] <- NA
-  }else{
-    min.var <- x.variables.boundaries[[j]][1]
-    max.var <- x.variables.boundaries[[j]][2]
-    par.estimated.pc[1,col.index] <- qunif(x.estimate.pc.a[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
-    par.estimated.pc[2,col.index] <- qunif(x.estimate.pc.b[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
-    par.estimated.pc[3,col.index] <- qunif(x.estimate.pc.c[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
-  }
-}
-
-par.estimated.pc[1,length(par.estimated.pc)] <- "a"
-par.estimated.pc[2,length(par.estimated.pc)] <- "b"
-par.estimated.pc[3,length(par.estimated.pc)] <- "c"
+# par.estimated.pc <- data.frame(matrix(NA, nrow = 3, ncol = length(x.variables)+1))
+# names(par.estimated.pc) <- c(x.variables,"method")
+#
+# ###Give the boundaries for the parameters here;
+# x.variables.boundaries <- simpact.params.boundaries()
+#
+# #Create the list of parameters with their min, max vlaue (all will sample from a unif distribution)
+# x.index <- 0
+# for (j in x.variables){
+#   x.index <- x.index + 1
+#   col.index <- which(colnames(par.estimated.pc)==j)
+#
+#   if(is.null(x.variables.boundaries[[j]])){
+#     #if the boundary of the parameter is not set
+#     par.estimated.pc[1,col.index] <- NA
+#     par.estimated.pc[2,col.index] <- NA
+#     par.estimated.pc[3,col.index] <- NA
+#   }else{
+#     min.var <- x.variables.boundaries[[j]][1]
+#     max.var <- x.variables.boundaries[[j]][2]
+#     par.estimated.pc[1,col.index] <- qunif(x.estimate.pc.a[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
+#     par.estimated.pc[2,col.index] <- qunif(x.estimate.pc.b[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
+#     par.estimated.pc[3,col.index] <- qunif(x.estimate.pc.c[x.index], min = as.numeric(min.var), max = as.numeric(max.var))
+#   }
+# }
+#
+# par.estimated.pc[1,length(par.estimated.pc)] <- "a"
+# par.estimated.pc[2,length(par.estimated.pc)] <- "b"
+# par.estimated.pc[3,length(par.estimated.pc)] <- "c"
 
 predpc.starttime.FIN <-  proc.time() - predpc.starttime.All
 
 save(predpc.starttime.All,
-     z.variables, simpact.z.pc.plot, z.pc.summary, gg.B1b.pca.plot,
-     gg.B1c.pca.plot, gg.B2b.pca.plot, gg.B2c.pca.plot,
-     model.stats.check.pc, matplot.pc, pred.pc.all,
-     x.estimate.pc.a, x.estimate.pc.b, x.estimate.pc.c,
-     check.plot.multem, prediction.pc.a.df, prediction.pc.b.df, prediction.pc.c.df,
-     par.estimated.pc, predpc.starttime.FIN,
-     file = "PCA-emulator-run-2017-01-20-Cluster-WIM.RData")
+     z.variables, z.pc.summary,
+     model.stats.check.pc, pred.pc.all,
+     x.estimate.pc.a, x.estimate.pc.b, x.estimate.pc.c, optima.endtime.pc,
+     prediction.pc.a.df, prediction.pc.b.df, prediction.pc.c.df, optim.pc.check.conv.b, optim.pc.check.conv.c,
+     predpc.starttime.FIN, predpc.endtime, pred2pc.endtime, pred3pc.endtime,
+     file = "PCA-emulator-run-2017-01-25-Cluster-WIM.RData")
 
 
 ################################################ END #####################################################
