@@ -15,8 +15,8 @@
 #' @param partner.degree  parameters used  by \code{\link{degree.df.maker()}}
 #' @return a matrix with summary statistics segregated by age and gender and different time points within the simulation period
 #' @examples
-#' out.test <- output.summary.maker(datalist.test, growth.rate=list(0,20), agemix.maker=list(15,30,30,1,FALSE,female),
-#' prev.15.25 = list(15,25,35,men), prev.25.50 = list(25,50,35,men), art.coverage = list(15,50,35,men), inc.15.30=list())
+#' out.test <- output.summary.maker(datalist.test, growth.rate=list(0,20), agemix.maker=list(15,30,30,1,FALSE,"female"),
+#' prev.15.25 = list(15,25,35,"men"), prev.25.50 = list(25,50,35,"men"), art.coverage = list(15,50,35,"men"), inc.15.30=list())
 
 output.summary.maker <- function(datalist = datalist.test, growth.rate=list(timewindow= c(0, 20)),
                                    agemix.maker=list(agegroup = c(15,30), timepoint =30, timewindow = 1, start=FALSE, gender = "female"),
@@ -27,16 +27,16 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
                                    partner.degree = list(age.group=c(15,30), hivstatus = 0, survey.time = 30,
                                                          window.width = 1, gender="female", only.new = FALSE)){
 
-  prev.15.25.gender.index = 1
-  prev.25.50.gender.index = 1
-  inc.15.30.gender.index = 1
-  art.coverage.gender.index = 1
+  prev.15.25.gender.index = 0
+  prev.25.50.gender.index = 0
+  inc.15.30.gender.index = 0
+  art.coverage.gender.index = 0
 
-  if(prev.15.25$gender!="men"){prev.15.25.gender.index = 2}
-  if(prev.25.50$gender!="men"){prev.25.50.gender.index = 2}
-  if(inc.15.30$gender!="men"){inc.15.30.gender.index = 2}
+  if(prev.15.25$gender!="men"){prev.15.25.gender.index = 1}
+  if(prev.25.50$gender!="men"){prev.25.50.gender.index = 1}
+  if(inc.15.30$gender!="men"){inc.15.30.gender.index = 1}
   #if(agemix.maker$gender!="female"){agemix.gender = "male"}
-  if(art.coverage$gender!="men"){art.coverage.gender.index = 2}
+  if(art.coverage$gender!="men"){art.coverage.gender.index = 1}
 
   #summary statistics #################
   # 1. Population growth
@@ -57,15 +57,6 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
   Q3.AD <- as.numeric(summary(pattern[[1]]$AgeGap[pattern[[1]]$Gender == agemix.maker$gender])[5])
   #IQR.AD <- agedifmedtable$Q3[2] - agedifmedtable$Q1[2] # IQR as reported by women
 
-  # 4. HIV prevalence in the window among men 15-25 (target 5% - 10%)
-  prev <- prevalence.calculator(datalist = datalist, agegroup = c(prev.15.25$age.group[1],
-                                                                       prev.15.25$age.group[2]), timepoint = prev.15.25$timepoint)
-  prev.men.15.25 <- prev$pointprevalence[prev.15.25.gender.index] # among men
-
-  # 5. HIV prevalence in the window among men 25-50 (target 10% - 30%)
-  prev <- prevalence.calculator(datalist = datalist, agegroup = c(prev.25.50$age.group[1],
-                                                                       prev.25.50$age.group[2]), timepoint = prev.25.50$timepoint)
-  prev.men.25.50 <- prev$pointprevalence[prev.25.50.gender.index] # among men
 
   # 6. Point prevalence of concurrency. postsim function to be converted to RSimpactHelper function
 
@@ -117,15 +108,6 @@ output.summary.maker <- function(datalist = datalist.test, growth.rate=list(time
                       "incid.men.15.30", "frac.degreeGT1.wom.15.30","mean.degree", "median.degree", "Q1.degree",
                       "Q3.degree"))) # summary statistics
 
-  if(prev.15.25$gender!="men"){
-    colnames(out.test)[colnames(out.test)=="prev.men.15.25"] <- "prev.wom.15.25"
-  }
-  if(prev.25.50$gender!="men"){
-    colnames(out.test)[colnames(out.test)=="prev.men.25.50"] <- "prev.wom.25.50"
-  }
-  if(inc.15.30$gender!="men"){
-    colnames(out.test)[colnames(out.test)=="incid.men.15.30"] <- "incid.wom.15.30"
-  }
 
   return(out.test)
 }

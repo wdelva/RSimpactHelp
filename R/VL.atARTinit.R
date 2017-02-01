@@ -29,8 +29,6 @@ vl.atARTinit <- function(datalist = datalist, agegroup = c(15, 30),
                                                     TotalCases = n(),
                                                     VLatARTinitThreshold =sum(VLThresholdatARTinit)))
 
-  vl.atARTinit.Count$Gender[vl.atARTinit.Count$Gender==0] <- "Woman"
-  vl.atARTinit.Count$Gender[vl.atARTinit.Count$Gender==1] <- "Man"
 
   return(vl.atARTinit.Count)
 }

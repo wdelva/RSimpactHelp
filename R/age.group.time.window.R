@@ -7,7 +7,7 @@
 #' @param site Select only the particular site from the study, if all ignore site/use all sites.
 #' @return a data.table that only includes people who were alive at the timewindow and are within the agegroup
 #' @examples
-#' agegroup.timewindow.df <- age.group.time.window(datalist = datalist, agegroup = c(15, 30),timewindow = c(15, 30),site="All")
+#' agegroup.timewindow.df <- age.group.time.window(datalist = datalist, agegroup = c(15, 30),timewindow = c(10, 40),site="All")
 #'
 #' @importFrom magrittr %>%
 #' @import dplyr
@@ -15,12 +15,21 @@
 age.group.time.window <- function(datalist = datalist, agegroup = c(15, 30), timewindow = c(15, 30), site="All"){
 
   DT <- datalist$ptable
+  DT$pfacility <- "NA"
+  pf.index <- which(colnames(DT)=="pfacility")
+
   if(site=="All"){
     DTexists.timewindow <- DT
   }else{
-    facilities.df <- read.cv(datalist$itable$facilities.geo.coords)
-    facilities.df <- filter(facilities.df, Facility = site[1])
-    DTexists.timewindow <- subset(DT, XCoord==facilities.df$Longitude & YCoord==facilities.df$Latitude)
+    facilities.df <- datalist.test$ftable
+    colnames(facilities.df) <- c("facility.xy","XCoord","YCoord")
+
+    for(i in nrow(DT)){
+      fc.id <- which.min(sqrt((DT[i,XCoord] - facilities.df$XCoord)^2 + (DT[i,YCoord] - facilities.df$YCoord)^2))
+      DT[i, pf.index] <- facilities.df[fc.id, facility.xy]
+    }
+
+    DTexists.timewindow <- subset(DT, pfacility==site)
   }
 
   #Convert lower age of interest into time

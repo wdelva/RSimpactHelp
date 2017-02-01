@@ -16,10 +16,13 @@
 ART.coverage.calculator <- function(datalist = datalist,
                                   agegroup = c(15, 30),
                                   timepoint = 30, site="All"){
-  #DTP <- datalist$ptable
-  DTalive.infected <- alive.infected(DT = datalist, timepoint = timepoint, site = site)
 
   # First we only take the data of people who were alive at the timepoint
+  DTalive.infected <- alive.infected(datalist = datalist, timepoint = timepoint, site = site)
+
+  DTalive.infected <- subset(DTalive.infected, Infected==TRUE)
+
+  #Limit the list to the one that match the age group.
   DTalive.infected.agegroup <- subset(DTalive.infected, TOB <= timepoint - agegroup[1] & TOB > timepoint - agegroup[2])
 
   raw.df <- data.frame(DTalive.infected.agegroup)
@@ -39,11 +42,12 @@ ART.coverage.calculator <- function(datalist = datalist,
                                      sum.cases = sum(Infected),
                                      sum.onART = sum(onART),
                                      pointprevalence = sum(Infected) / length(Gender),
-                                     pointprevalence.95.ll = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[1],
-                                     pointprevalence.95.ul = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[2],
-                                     ART.coverage = sum(onART) / sum(Infected),
-                                     ART.coverage.95.ll = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[1],
-                                     ART.coverage.95.ul = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[2])
+                                     #pointprevalence.95.ll = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[1],
+                                     #pointprevalence.95.ul = as.numeric(binom.test(x = sum(Infected), n = length(Gender))$conf.int)[2],
+                                     ART.coverage = sum(onART) / sum(Infected)
+                                     #ART.coverage.95.ll = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[1],
+                                     #ART.coverage.95.ul = as.numeric(binom.test(x = sum(onART), n = sum(Infected))$conf.int)[2]
+                                     )
 
     #ART.coverage.df <- ART.coverage.all.df #rbind(ART.coverage.df, ART.coverage.all.df)
   } else {
@@ -52,11 +56,12 @@ ART.coverage.calculator <- function(datalist = datalist,
                                   sum.cases = NA,
                                   sum.onART = NA,
                                   pointprevalence = NA,
-                                  pointprevalence.95.ll = NA,
-                                  pointprevalence.95.ul = NA,
-                                  ART.coverage = NA,
-                                  ART.coverage.95.ll = NA,
-                                  ART.coverage.95.ul = NA)
+                                  #pointprevalence.95.ll = NA,
+                                  #pointprevalence.95.ul = NA,
+                                  ART.coverage = NA
+                                  #ART.coverage.95.ll = NA,
+                                  #ART.coverage.95.ul = NA
+                                  )
   }
   return(ART.coverage.df)
 }

@@ -8,7 +8,7 @@
 #' @param site select only the particular site from the study, if all ignore site/use all sites.
 #' @return the total number of people whose CD4 count at ART initiation is within a was below this threshold
 #' @examples
-#' cd4.atARTinit <- cd4.atARTinit(datalist = datalist, agegroup=c(15, 30), timewindow=c(10, 40), cd4count=200, site="All")
+#' cd4.atARTinit <- cd4.atARTinit(datalist = datalist, agegroup=c(15, 30), timewindow=c(10, 40), cd4count=350, site="All")
 #'
 #' @importFrom magrittr %>%
 #' @import dplyr
@@ -34,13 +34,10 @@ cd4.atARTinit <- function(datalist = datalist, agegroup = c(15, 30),
   # Now we apply the left_join dplyr function to add the ART status to raw.df.
   raw.df <- left_join(x = raw.df, y = art.df, by = c("ID", "Gender"))
 
-  #provide a summary of those that are on treatmen and those that started below a threshold
+  #provide a summary of those that are on treatment and those that started below a threshold
   cd4count.atARTInit <- data.frame(dplyr::summarise(dplyr::group_by(raw.df, Gender),
                                                     TotalCases = n(),
                                                     LessCD4initThreshold =sum(ART.start.CD4)))
-
-  cd4count.atARTInit$Gender[cd4count.atARTInit$Gender==0] <- "Woman"
-  cd4count.atARTInit$Gender[cd4count.atARTInit$Gender==1] <- "Man"
 
   return(cd4count.atARTInit)
 }

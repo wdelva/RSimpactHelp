@@ -19,7 +19,7 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactc
 
 
 ```{r getmodelready, echo=FALSE, message = FALSE, cache = FALSE}
-# simpact.set.simulation("simpact-cyan")#("maxart")
+simpact.set.simulation("maxart")#("simpact-cyan")#
 
 agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 
@@ -73,6 +73,7 @@ testinput$hivtransmission.param.f2 <- log(log(2.5) / log(5)) / 5
 testinput$conception.alpha_base <- -2.35 #-3
 testinput$diagnosis.baseline <- -100 # This will result in timing of HIV diagnosis way beyond the simulation period (until this parameter is overwritten when ART is introduced)
 testinput$monitoring.cd4.threshold <- 0.01
+
 ```
 
 ```{r ARTintervention, echo=FALSE, message = FALSE, cache = FALSE}
@@ -124,8 +125,8 @@ iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
-                          intervention = iv,
                           seed = 1)
+
 ```
 
 ```{r testoutput, echo=TRUE, message = FALSE, cache = FALSE}
