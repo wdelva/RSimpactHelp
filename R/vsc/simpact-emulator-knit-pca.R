@@ -4,7 +4,7 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, dplyr, magrittr, exactc
                igraph,lhs, GGally, emulator, multivator, tidyr, psych)
 # install.packages("readcsvcolumns", repos="http://193.190.10.42/jori/")
 
-comp <- "win" #lin #mac
+comp <- "lin" #lin #mac
 
 if(comp == "win"){
   dirname <- "~/MaxART/RSimpactHelp"
@@ -14,7 +14,7 @@ if(comp == "win"){
   dirname <- "~/Documents/RSimpactHelp"  #mac directory here
 }
 
-file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-1-274-2017-01-18.csv") # param.varied
+file.name.csv <- paste0(dirname, "/","SummaryOutPut-inANDout.df.chunk-WIM-1-500-2017-01-20.csv") # param.varied
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
@@ -105,10 +105,6 @@ x.design.pc.long <- as.matrix(x.design.pc.long)
 ################ Creating the multivator objects for the PCA-based analysis
 RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df)[1:pc.select.number], each = dim(simpact.z)[1])) #You can do names(z.pc.df)[1:2] - #PCA not to be used
 RS.pc.expt <- experiment(mm = RS.pc.mdm, obs = z.pc.obs)
-
-
-RS.pc.opt.b.var.iter.Test <- optimal_params(RS.pc.expt, option="c", start_hp = RS.pc.opt.b.var.iter.Test, control = list(maxit=400))
-
 
 optima.starttime.pc <- proc.time()
 RS.pc.opt.a <- optimal_params(RS.pc.expt, option="a")
@@ -203,8 +199,14 @@ model.stats.check.pc <- tail(subset(inputANDoutput.selectTTE, select=z.variables
 model.stats.check.pc <- predict(z.pc, model.stats.check.pc)
 model.stats.check.pc <- cbind(model.stats.check.pc[,1:pc.select.number], RS.pc.a.df.check, RS.pc.b.df.check, RS.pc.c.df.check)
 
+# All PCs for the target statistics:
+targets.df <- data.frame(t(targets))
+names(targets.df) <- z.variables
+targets.pc <- predict(z.pc, targets.df)[,1:pc.select.number]
+targets.pc.vector <- as.numeric(targets.pc)
+
 ### Visualise the results (Choose one of the summary statistics to visualise how they compare)
-stats.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.1"))
+stats.compare.pc <- dplyr::select(model.stats.check.pc, contains("Comp.5"))
 matplot.pc <- matplot(stats.compare.pc, pch = 20, cex = 2)
 legend("topleft", colnames(stats.compare.pc),col=seq_len(ncol(stats.compare.pc)),cex=0.8,fill=seq_len(ncol(stats.compare.pc)), bty = "n")
 
@@ -251,12 +253,6 @@ prediction.pc.c.df <- data.frame(matrix(RS.prediction.pc.opt.c, nrow = n,
 
 ## Predicting the PC values against the targets
 ######as.numeric(as.numeric(z.pc$loadings[, 1]) %*% ((as.numeric(targets.df) - z.pc$center) / z.pc$scale) )
-# All PCs for the target statistics:
-targets.df <- data.frame(t(targets))
-names(targets.df) <- z.variables
-targets.pc <- predict(z.pc, targets.df)[,1:pc.select.number]
-targets.pc.vector <- as.numeric(targets.pc)
-
 
 check.me.pc.a <- as.data.frame(t(apply(prediction.pc.a.df, 1, function(x) (x - t(targets.pc.vector))^2)))
 names(check.me.pc.a) <- names(pred.pc.all)[3:length(pred.pc.all)-1]
