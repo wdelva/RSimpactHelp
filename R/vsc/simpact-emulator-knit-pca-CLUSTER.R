@@ -3,7 +3,16 @@ pacman::p_load(data.table, dplyr, magrittr, exactci,
                nlme, ggplot2,survival, KMsurv, tidyr, expoTree, sna, intergraph,
                igraph,lhs, GGally, emulator, multivator, tidyr, psych)
 
-file.name.csv <- paste0("/","SummaryOutPut-inANDout.df.chunk-1-274-2017-01-18.csv") # param.varied
+comp <- "lin" #lin #mac
+
+if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
+  dirname <- "~/Documents/GIT_Projects/RSimpactHelp"}else if(comp=="chpc"){
+    dirname <- "/mnt/lustre/users/tchibawara/MaxART/data"}else if(comp=="gent"){
+      dirname <- "/user/data/gent/vsc400/vsc40070/simpact-test/data"}else{dirname <- "~/Documents/RSimpactHelp"  #mac directory here
+      }
+
+
+file.name.csv <- paste0(dirname,"/","SummaryOutPut-inANDout.df.chunk-1-1000-2017-02-12.csv") # param.varied
 # Read the output file from running simpact many times.
 inputANDoutput.complete <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
@@ -52,7 +61,7 @@ inputANDoutput.select <- dplyr::filter(inputANDoutput.select,complete.cases(inpu
 inputANDoutput.selectTTE <- inputANDoutput.select
 
 #Select a fraction of simulated dataset
-nrow.sel <- floor(nrow(inputANDoutput.select) * 85/100) # use 85% of the data always and use the 25% for validation)
+nrow.sel <- floor(nrow(inputANDoutput.select) * 90/100) # use 85% of the data always and use the 25% for validation)
 inputANDoutput.select <- head(inputANDoutput.select, nrow.sel)
 
 #select the x model param values (model parameters)
@@ -92,9 +101,6 @@ x.design.pc.long <- as.matrix(x.design.pc.long)
 ################ Creating the multivator objects for the PCA-based analysis
 RS.pc.mdm <- mdm(x.design.pc.long, types = rep(names(z.pc.df)[1:pc.select.number], each = dim(simpact.z)[1])) #You can do names(z.pc.df)[1:2] - #PCA not to be used
 RS.pc.expt <- experiment(mm = RS.pc.mdm, obs = z.pc.obs)
-
-
-RS.pc.opt.b.var.iter.Test <- optimal_params(RS.pc.expt, option="c", start_hp = RS.pc.opt.b.var.iter.Test, control = list(maxit=400))
 
 
 optima.starttime.pc <- proc.time()
@@ -196,7 +202,7 @@ matplot.pc <- matplot(stats.compare.pc, pch = 20, cex = 2)
 legend("topleft", colnames(stats.compare.pc),col=seq_len(ncol(stats.compare.pc)),cex=0.8,fill=seq_len(ncol(stats.compare.pc)), bty = "n")
 
 ############################ Using the Emulator to Explore the Parameter Space for the PCA Part to get the statistics
-n <- 10000
+n <- 30000
 set.seed(1)
 x.new <- latin.hypercube(n, length(x.variables), names=colnames(x.design))
 x.new.long <- x.new[rep(1:nrow(x.new),pc.select.number),]
