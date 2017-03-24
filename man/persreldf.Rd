@@ -10,14 +10,14 @@
   the unique ID for the male partner (first) and the female partner (second)
   in the relaitonship} \item{episodeorder}{The order in which episodes
   occure are numbered in ascending order} \item{agerelform}{The age of the
-  person when when the relationship began. In other words, the age at the
+  person when the relationship began. In other words, the age at the
   first episode} \item{pagerelform}{The age of their partner when the
   relationship began.} }}
 \source{
 \url{http://research.edm.uhasselt.be/jori/simpact/0.19.0/simpact_cyan.html}
 }
 \usage{
-persreldf
+data(persreldf)
 }
 \description{
 A  dataframe from Simpact simulation output that keeps columns from the
@@ -31,4 +31,3 @@ gender. For relationships where there is more than one episode, there will be
 multiple rows.
 }
 \keyword{datasets}
-

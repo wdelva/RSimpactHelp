@@ -4,140 +4,228 @@
 \alias{input.params.creator}
 \title{Create a default parameter configuration list.}
 \usage{
-input.params.creator(population.eyecap.fraction = 0.5,
-  population.simtime = 40, population.numwomen = 200,
-  population.nummen = 200, periodiclogging.interval = 1,
-  periodiclogging.starttime = 0, syncrefyear.interval = 1,
-  syncpopstats.interval = 1, hivseed.time = 10, hivseed.type = "amount",
-  hivseed.amount = 10, hivseed.age.min = 20, hivseed.age.max = 30,
-  conception.alpha_base = -3, conception.alpha_agewoman = 0,
-  dissolution.alpha_0 = 0.1, dissolution.alpha_4 = -0.05,
-  formation.hazard.type = "agegapry",
-  formation.hazard.agegapry.gap_factor_man_const = 0,
-  formation.hazard.agegapry.gap_factor_woman_const = 0,
+input.params.creator(mortality.normal.weibull.shape = 5,
+  mortality.normal.weibull.scale = 65,
+  mortality.normal.weibull.genderdiff = 0, periodiclogging.interval = 1,
+  syncrefyear.interval = 1, formation.hazard.type = "agegapry",
+  person.art.accept.threshold.dist.fixed.value = 0.5,
+  person.eagerness.man.type = "independent",
+  person.eagerness.woman.type = "independent",
+  person.eagerness.man.dist.type = "gamma",
+  person.eagerness.woman.dist.type = "gamma",
+  person.eagerness.man.dist.gamma.a = 0.231989836885,
+  person.eagerness.man.dist.gamma.b = 45,
+  person.eagerness.woman.dist.gamma.a = 0.231989836885,
+  person.eagerness.woman.dist.gamma.b = 45,
   person.agegap.man.dist.type = "normal",
   person.agegap.woman.dist.type = "normal",
-  person.agegap.man.dist.normal.mu = -4,
-  person.agegap.woman.dist.normal.mu = -4,
-  person.agegap.man.dist.normal.sigma = 3,
-  person.agegap.woman.dist.normal.sigma = 3,
-  formation.hazard.agegapry.baseline = 0,
-  formation.hazard.agegapry.numrel_scale_man = 0,
-  formation.hazard.agegapry.numrel_scale_woman = 0,
-  formation.hazard.agegapry.gap_agescale_man = 0.3,
-  formation.hazard.agegapry.gap_agescale_woman = 0.3,
-  person.eagerness.dist.type = "gamma",
-  formation.hazard.agegapry.eagerness_sum = 1,
-  transmission.param.a = -1.0352239, transmission.param.b = -89.339994,
-  transmission.param.c = 0.4948478, transmission.param.d1 = 0,
-  transmission.param.d2 = 0, transmission.param.f1 = log(5),
-  transmission.param.f2 = log(log(2.5)/log(5))/5, person.vsp.toacute.x = 10,
-  person.vsp.toaids.x = 7, person.vsp.tofinalaids.x = 12,
-  formation.hazard.agegapry.numrel_man = -0.2,
-  formation.hazard.agegapry.numrel_woman = -0.2,
-  formation.hazard.agegapry.numrel_diff = -0.1,
-  person.eagerness.dist.gamma.a = 0.125, person.eagerness.dist.gamma.b = 8,
-  formation.hazard.agegapry.eagerness_diff = -1,
-  formation.hazard.agegapry.gap_factor_man_exp = -0.2,
-  formation.hazard.agegapry.gap_factor_woman_exp = -0.2,
+  person.agegap.man.dist.normal.mu = 0,
+  person.agegap.woman.dist.normal.mu = 0,
+  person.agegap.man.dist.normal.sigma = 1,
+  person.agegap.woman.dist.normal.sigma = 1,
+  formation.hazard.agegapry.numrel_man = -0.5,
+  formation.hazard.agegapry.numrel_woman = -0.5,
+  formation.hazard.agegapry.gap_factor_man_exp = -0.35,
+  formation.hazard.agegapry.gap_factor_woman_exp = -0.35,
   formation.hazard.agegapry.gap_factor_man_age = 0.05,
   formation.hazard.agegapry.gap_factor_woman_age = 0.05,
-  formation.hazard.agegapry.meanage = -0.1)
+  formation.hazard.agegapry.meanage = -0.1,
+  formation.hazard.agegapry.numrel_diff = -0.1,
+  formation.hazard.agegapry.gap_factor_man_const = 0,
+  formation.hazard.agegapry.gap_factor_woman_const = 0,
+  formation.hazard.agegapry.gap_agescale_man = 0.23,
+  formation.hazard.agegapry.gap_agescale_woman = 0.1,
+  formation.hazard.agegapry.eagerness_sum = 0.1,
+  person.vsp.tofinalaids.x = 12, person.vsp.toaids.x = 7,
+  formation.hazard.agegapry.eagerness_diff = -0.048,
+  dissolution.alpha_0 = -0.52, dissolution.alpha_4 = -0.05,
+  debut.debutage = 14, population.simtime = 40, population.nummen = 500,
+  population.numwomen = 500, population.eyecap.fraction = 0.2,
+  hivseed.type = "amount", hivseed.amount = 20, hivseed.age.min = 20,
+  hivseed.age.max = 30, hivseed.time = 10,
+  hivtransmission.param.a = -1.0352239,
+  hivtransmission.param.b = -89.339994, hivtransmission.param.c = 0.4948478,
+  hivtransmission.param.f1 = log(5),
+  hivtransmission.param.f2 = log(log(2.5)/log(5))/5,
+  conception.alpha_base = -2.35, diagnosis.baseline = -100,
+  monitoring.cd4.threshold = 0.1, simulation.type = "simpact-cyan")
 }
 \arguments{
-\item{conception.alpha_base}{Baseline parameter for conception rate. (-3)}
+\item{mortality.normal.weibull.shape}{Specifies the shape of a Weibull distribution to make
+sure everyone has a limited lifespan (5)}
 
-\item{conception.alpha_agewoman}{The Effect of the age of the woman on the conception rate. (0)}
+\item{mortality.normal.weibull.scale}{Specifies the scale parameter to base the Weibull
+distribution on (65)}
 
-\item{dissolution.alpha_0}{Baseline parameter for relationship dissolution rate. (0.1)}
+\item{mortality.normal.weibull.genderdiff}{Specifies if the gender needs to be taken into
+account for the scale parameter of the Weibull distribution (0)}
 
-\item{dissolution.alpha_4}{Effect of increasing mean age of the  couple on  relationship dissolution rate (-0.05)}
+\item{periodiclogging.interval}{Allow the periodic log of the events and write teh output
+to a csv file (1)}
 
-\item{formation.hazard.type}{Type of hazard function for relationship formation. Choose between "simple", "agegap" and "agegapry".}
+\item{syncrefyear.interval}{Specifies the time interval with which a reference simulation
+time should be saved (1)}
 
-\item{formation.hazard.agegapry.gap_factor_man_const}{Baseline parameter for men (0).}
+\item{formation.hazard.type}{Type of hazard function for relationship formation.
+Choose between "simple", "agegap" and "agegapry".}
 
-\item{formation.hazard.agegapry.gap_factor_woman_const}{Baseline parameter for women (0).}
+\item{person.art.accept.threshold.dist.fixed.value}{This specfies the ART acceptance
+threshold for each person}
 
-\item{person.agegap.man.dist.type}{Distribution of preferred age differences for men ("normal")}
+\item{person.eagerness.man.type}{Type of man distribution for "eagerness" (~ sexual activity)
+in the population ("independent")}
 
-\item{person.agegap.woman.dist.type}{Distribution of preferred age differences for women ("normal")}
+\item{person.eagerness.woman.type}{Type of man distribution for "eagerness" (~ sexual activity)
+in the population ("independent")}
 
-\item{person.agegap.man.dist.normal.mu}{Mean of preferred age differences distribution for men (-4)}
+\item{person.eagerness.man.dist.type}{Type of man distribution for "eagerness"
+(~ sexual activity) in the population ("gamma")}
 
-\item{person.agegap.woman.dist.normal.mu}{Mean of preferred age differences distribution for women (-4)}
+\item{person.eagerness.woman.dist.type}{Type of women distribution for "eagerness"
+(~ sexual activity) in the population ("gamma")}
 
-\item{person.agegap.man.dist.normal.sigma}{Standard deviation of preferred age differences distribution for men (3)}
+\item{person.eagerness.man.dist.gamma.a}{Shape parameter (kappa parameter on wiki page) of
+Gamma distribution of "eagerness" (0.125)}
 
-\item{person.agegap.woman.dist.normal.sigma}{Standard deviation of preferred age differences distribution for women (3)}
+\item{person.eagerness.man.dist.gamma.b}{Scale parameter (theta parameter on wiki page) of
+Gamma distribution of "eagerness" (8)}
 
-\item{formation.hazard.agegapry.baseline}{Baseline parameter for relationship formation rate (0)}
+\item{person.eagerness.woman.dist.gamma.a}{Shape parameter (kappa parameter on wiki page) of
+Gamma distribution of "eagerness" (0.125)}
 
-\item{formation.hazard.agegapry.numrel_scale_man}{Effect of the number of relationships on the penalty for deviation from preferred age difference for men (0)}
+\item{person.eagerness.woman.dist.gamma.b}{Scale parameter (theta parameter on wiki page) of
+Gamma distribution of "eagerness" (8)}
 
-\item{formation.hazard.agegapry.numrel_scale_woman}{Effect of the number of relationships on the penalty for deviation from preferred age difference for women (0)}
+\item{person.agegap.man.dist.type}{Distribution of preferred age differences
+for men ("normal")}
 
-\item{formation.hazard.agegapry.gap_agescale_man}{Effect of male age on preferred age difference (~ 1 - slope in regression model FemaleAge ~ MaleAge) (0.3)}
+\item{person.agegap.woman.dist.type}{Distribution of preferred age differences
+for women ("normal")}
 
-\item{formation.hazard.agegapry.gap_agescale_woman}{Effect of male age on preferred age difference (~ 1 - slope in regression model FemaleAge ~ MaleAge) (0.3)}
+\item{person.agegap.man.dist.normal.mu}{Mean of preferred age differences distribution
+for men (-4)}
 
-\item{person.eagerness.dist.type}{Type of distribution for "eagerness" (~ sexual activity) in the population ("gamma")}
+\item{person.agegap.woman.dist.normal.mu}{Mean of preferred age differences distribution
+for women (-4)}
 
-\item{formation.hazard.agegapry.eagerness_sum}{Effect of the sum of eagerness values in both partners on the relationship formation rate (1)}
+\item{person.agegap.man.dist.normal.sigma}{Standard deviation of preferred age differences
+distribution for men (3)}
 
-\item{transmission.param.a}{Baseline parameter for HIV transmission rate in serodiscordant couples (-1.0352239)}
+\item{person.agegap.woman.dist.normal.sigma}{Standard deviation of preferred age
+differences distribution for women (3)}
 
-\item{transmission.param.b}{Parameter "b" for the linear component of the effect of viral load on the HIV transmission rate in serodiscordant couples (-89.339994)}
+\item{formation.hazard.agegapry.numrel_man}{Effect of number of ongoing relationships on
+the relationship formation rate for men (-0.2)}
 
-\item{transmission.param.c}{Parameter "c" for the exponential component of the effect of viral load on the HIV transmission rate in serodiscordant couples (0.4948478)}
+\item{formation.hazard.agegapry.numrel_woman}{Effect of number of ongoing relationships
+on the relationship formation rate for women (-0.2)}
 
-\item{transmission.param.d1}{Parameter "d1" for effect of number of ongoing relationships the the male partner (coital dilution) (0)}
+\item{formation.hazard.agegapry.gap_factor_man_exp}{Effect of deviation from preferred age
+difference on the relationship formation rate for men (-0.2)}
 
-\item{transmission.param.d2}{Parameter "d2" for effect of number of ongoing relationships the the female partner (coital dilution) (0)}
-
-\item{transmission.param.f1}{Effect of youngest age on HIV susceptibility (log(5) ~1.6 such that the hazard is x 5 in 15 year olds)}
-
-\item{transmission.param.f2}{Effect of female age on HIV susceptibility (log(log(2.5) / log(5)) / 5 ~-0.11 such that the hazard is x 2.5 in 20 year olds, compared to the reference (>>25 year olds)}
-
-\item{person.vsp.toacute.x}{Effect of acute versus chronic HIV infection on infectiousness (10)}
-
-\item{person.vsp.toaids.x}{Effect of "initial" AIDS stage versus chronic HIV infection on infectiousness (7)}
-
-\item{person.vsp.tofinalaids.x}{Effect of "final" AIDS stage versus chronic HIV infection on infectiousness (12)}
-
-\item{formation.hazard.agegapry.numrel_man}{Effect of number of ongoing relationships on the relationship formation rate for men (-0.2)}
-
-\item{formation.hazard.agegapry.numrel_woman}{Effect of number of ongoing relationships on the relationship formation rate for women (-0.2)}
-
-\item{formation.hazard.agegapry.numrel_diff}{Effect of absolute difference in number of ongoing relationships on the relationship formation rate (-0.1)}
-
-\item{person.eagerness.dist.gamma.a}{Shape parameter (kappa parameter on wiki page) of Gamma distribution of "eagerness" (0.125)}
-
-\item{person.eagerness.dist.gamma.b}{Scale parameter (theta parameter on wiki page) of Gamma distribution of "eagerness" (8)}
-
-\item{formation.hazard.agegapry.eagerness_diff}{Effect of absolute difference in eagerness on the relationship formation rate (-1)}
-
-\item{formation.hazard.agegapry.gap_factor_man_exp}{Effect of deviation from preferred age difference on the relationship formation rate for men (-0.2)}
-
-\item{formation.hazard.agegapry.gap_factor_woman_exp}{Effect of deviation from preferred age difference on the relationship formation rate for women (-0.2)}
+\item{formation.hazard.agegapry.gap_factor_woman_exp}{Effect of deviation from preferred
+age difference on the relationship formation rate for women (-0.2)}
 
 \item{formation.hazard.agegapry.gap_factor_man_age}{Funnel effect in men (0.05)}
 
 \item{formation.hazard.agegapry.gap_factor_woman_age}{Funnel effect in women (0.05)}
 
-\item{formation.hazard.agegapry.meanage}{Effect of increasing mean age of the candidate couple on the relationship formation rate (-0.1)}
+\item{formation.hazard.agegapry.meanage}{Effect of increasing mean age of the candidate
+couple on the relationship formation rate (-0.1)}
+
+\item{formation.hazard.agegapry.numrel_diff}{Effect of absolute difference in number of
+ongoing relationships on the relationship formation rate (-0.1)}
+
+\item{formation.hazard.agegapry.gap_factor_man_const}{Baseline parameter for men (0).}
+
+\item{formation.hazard.agegapry.gap_factor_woman_const}{Baseline parameter for women (0).}
+
+\item{formation.hazard.agegapry.gap_agescale_man}{Effect of male age on preferred age
+difference (~ 1 - slope in regression model FemaleAge ~ MaleAge) (0.3)}
+
+\item{formation.hazard.agegapry.gap_agescale_woman}{Effect of male age on preferred
+age difference (~ 1 - slope in regression model FemaleAge ~ MaleAge) (0.3)}
+
+\item{formation.hazard.agegapry.eagerness_sum}{Effect of the sum of eagerness values
+in both partners on the relationship formation rate (1)}
+
+\item{person.vsp.tofinalaids.x}{Effect of "final" AIDS stage versus chronic HIV
+infection on infectiousness (12)}
+
+\item{person.vsp.toaids.x}{Effect of "initial" AIDS stage versus chronic HIV infection
+on infectiousness (7)}
+
+\item{formation.hazard.agegapry.eagerness_diff}{Effect of absolute difference in eagerness
+on the relationship formation rate (-1)}
+
+\item{dissolution.alpha_0}{Baseline parameter for relationship dissolution rate. (0.1)}
+
+\item{dissolution.alpha_4}{Effect of increasing mean age of the  couple on  relationship
+dissolution rate (-0.05)}
+
+\item{debut.debutage}{The age a person must have to become sexually active.(14)}
+
+\item{population.simtime}{Indication of how many year should the simulation run for.(40)
+e.g 40 years}
+
+\item{population.nummen}{Indication of how many men should be in the initial seeded
+population (500) e.g 500 men}
+
+\item{population.numwomen}{Indication of how many women should be in the initial seeded
+population (500) e.g 500 women}
+
+\item{population.eyecap.fraction}{Allow for the indication of how many people can a person
+possible engage in a relation with. (0.2)}
+
+\item{hivseed.type}{Allows for a selection of method on seeding HIV. (amount) e.g if amount
+number of people else if fraction then a fraction will be set to HIV+}
+
+\item{hivseed.amount}{These number of people will be seeded to be HIV+ (20)}
+
+\item{hivseed.age.min}{This allows for the minimal age to be set seeded as HIV+ (20)}
+
+\item{hivseed.age.max}{Maximum age at which HIV seeding will be infected (30)}
+
+\item{hivseed.time}{The time within the simulation when the HIV seeding is to take
+place (10) e.g after 10 years in the simulation}
+
+\item{hivtransmission.param.a}{Baseline parameter for HIV transmission rate in serodiscordant
+couples (-1.0352239)}
+
+\item{hivtransmission.param.b}{Parameter "b" for the linear component of the effect of viral
+load on the HIV transmission rate in serodiscordant couples (-89.339994)}
+
+\item{hivtransmission.param.c}{Parameter "c" for the exponential component of the effect of
+viral load on the HIV transmission rate in serodiscordant couples (0.4948478)}
+
+\item{hivtransmission.param.f1}{Effect of youngest age on HIV susceptibility (log(5) ~1.6
+such that the hazard is x 5 in 15 year olds)}
+
+\item{hivtransmission.param.f2}{Effect of female age on HIV susceptibility
+(log(log(2.5) / log(5)) / 5 ~-0.11 such that the hazard is x 2.5 in 20 year olds,
+compared to the reference (>>25 year olds)}
+
+\item{conception.alpha_base}{Baseline parameter for conception rate. (-3)}
+
+\item{diagnosis.baseline}{Baseline parameter for the diagnosis event (-100)}
+
+\item{monitoring.cd4.threshold}{The value of cd4 that triggers eligibility for treatment
+if below this value}
+
+\item{simulation.type}{To distinguish parameters that vary from the type of simulation
+being perfomed (simpact-cyan) e.g you can use maxart as well}
 }
 \value{
 a list of model parameters that can be used as input for simpact.run()
 }
 \description{
-Create a default parameter configuration list as a starting point for a parameter optimisation algorithm.
+Create a default parameter configuration list as a starting point for a parameter
+optimisation algorithm.
 At this stage, only the most relevant parameters are modifiable.
 }
 \examples{
 cfg.list <- input.params.creator(conception.alpha_base = -3,
 formation.hazard.type = "agegapry",
 formation.hazard.agegapry.numrel_man = -1,
-formation.hazard.agegapry.numrel_woman = -1, ...)
+formation.hazard.agegapry.numrel_woman = -1)
 }
-

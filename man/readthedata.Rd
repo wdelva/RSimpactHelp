@@ -7,19 +7,13 @@
 readthedata(modeloutput)
 }
 \arguments{
-\item{modeloutput}{The object that is produced by \code{\link{RSimpactCyan::simpact.run()}}}
+\item{modeloutput}{The object that is produced by RSimpactCyan::simpact.run.}
 }
 \value{
 A list, containing dataframes for the output of the model run:
 ptable (people), rtable (relationships), etable (events), ttable (HIV treatment episodes),
-itable (input parameters), and ltable (bookkeeping log) if created
+itable (input parameters), ltable (bookkeeping log) if created and vltable (HIV viral load)
 }
 \description{
 Read the .csv files and combine them into one list.
 }
-\examples{
-cfg <- initiate()
-modeloutput <- simpact.run(configParams = cfg, destDir = "~TMP")
-datalist <- readthedata(modeloutput)
-}
-

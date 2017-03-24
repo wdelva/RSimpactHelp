@@ -12,12 +12,14 @@ agedistr.creator(shape = 5, scale = 65)
 \item{scale}{The scale parameter for the Weibull distribution function (default is 65)}
 }
 \value{
-a data.frame with Age, Percent.Male and Percent.Female as variables, and 101 rows (0.5 to 100.5 years old). Nobody gets older than 100 years old.
+a data.frame with Age, Percent.Male and Percent.Female as variables, and 101
+rows (0.5 to 100.5 years old). Nobody gets older than 100 years old.
 }
 \description{
-Create an age distribution, consistent with a Weibull survival distribution in the absence of HIV-related mortality, for the population at the start of the simulation.
+Create an age distribution, consistent with a Weibull survival distribution in
+the absence of HIV-related mortality, for the population at the start of the simulation.
 }
 \examples{
 agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
+agedist.data.frame
 }
-

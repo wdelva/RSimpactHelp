@@ -7,7 +7,7 @@
 pattern.modeller(dataframe, agegroup, timepoint, timewindow, start = FALSE)
 }
 \arguments{
-\item{dataframe}{The dataframe that is produced by \code{\link{agemix.df.maker()}}}
+\item{dataframe}{The dataframe that is produced by \code{\link{agemix.df.maker}}}
 
 \item{agegroup}{Boundaries of the age group that should be retained, e.g.
 c(15, 30). The interval is closed on the left and open on the right.}
@@ -33,7 +33,7 @@ user specifies a time point, time window, and age group for which they would
 like to obtain a summary of the age-mixing pattern.
 }
 \details{
-The \code{pattern.modeller()} function uses the \code{link[nlme]{lme}}
+The \code{pattern.modeller} function uses the \code{link[nlme]{lme}}
 function to build a linear mixed effects model regressing the partner's age
 at the time the relationship started on his/her own age at the beginning of
 the relationship. The models are stratified by gender. Each person can have
@@ -54,12 +54,14 @@ These outputs can be found in the second dataframe:
 \item{slope}{Also known as the beta-coefficient, this is the
 change in partner age for each year increase in age. It represents how fast
 the average age differences grow in the population.}
-\item{intercept}{This is the average partner age for the first age in the specified interval.}
+\item{intercept}{This is the average partner age for the first age in the
+specified interval.}
 \item{power}{This represents how fast the variance in partner ages grows with
 increasing age.}
 \item{lowerpower}{This is the lower limit of the 95%
 confidence interval for the power coefficient.}
-\item{upperpower}{This is the upper limit of the 95% confidence interval for the power coefficient.
+\item{upperpower}{This is the upper limit of the 95% confidence interval for
+the power coefficient.
 }
 \item{bvar}{This is the between-subject variance from the model.}
 \item{wvar}{Also known as the residual error, this represents the amount of
@@ -67,8 +69,8 @@ within-subject variance from the model.}
 }
 }
 \examples{
-load(persreldf)
-agemixpatdat <- pattern.modeller(dataframe = persreldf, agegroup = c(15, 30), timewindow = 1, timepoint = 30)
+data(persreldf)
+agemixpatdat <- pattern.modeller(dataframe = persreldf, agegroup = c(15, 30),
+timewindow = 1, timepoint = 30)
 
 }
-

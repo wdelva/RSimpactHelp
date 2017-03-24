@@ -2,22 +2,30 @@
 % Please edit documentation in R/alive.infected.R
 \name{alive.infected}
 \alias{alive.infected}
-\title{Subset the datalist ptable to people alive at a point in time and add HIV status.}
+\title{Subset the datalist ptable to include only people who were alive at a point
+ in time and add their HIV status at that point in time.}
 \usage{
-alive.infected(DT = datalist$ptable, timepoint = 20)
+alive.infected(datalist = datalist, timepoint = 40, site = "All")
 }
 \arguments{
-\item{DT}{The person table (ptable) that is produced by \code{\link{readthedata()}}}
+\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
 
-\item{timepoint}{Point in time at which the subset should be created and HIV status should be evaluated.}
+\item{timepoint}{Point in time at which the subset should be created and HIV status
+should be evaluated.}
+
+\item{site}{Select only the particular site from the study, if all ignore site/use all sites.}
 }
 \value{
-a data.table that only includes people who were alive at the timepoint and that records their HIV status.
+a data.table that only includes people who were alive at the timepoint and that
+records their HIV status.
 }
 \description{
-Subset the datalist ptable to include only people who were alive at a point in time and add their HIV status at that point in time.
+Subset the datalist ptable to include only people who were alive at a point
+ in time and add their HIV status at that point in time.
 }
 \examples{
-alive.twenty.dt <- alive.infected(DT = datalist$ptable, timepoint = 20)
-}
+data(datalist)
+alive.at.twenty.dt <- alive.infected(datalist = datalist, timepoint = 20,
+site = "All")
 
+}

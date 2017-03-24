@@ -8,14 +8,18 @@ timespentsingle.calculator(datalist = datalist, agegroup = c(15, 30),
   timewindow = c(20, 30), type = "Strict")
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
+\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)}
+\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound)
+that should be retained, e.g. c(15, 30)}
 
-\item{timewindow}{Boundaries of the time window (lower bound < time <= upper bound) that should be retained, e.g. c(20, 30)}
+\item{timewindow}{Boundaries of the time window (lower bound < time <= upper bound)
+that should be retained, e.g. c(20, 30)}
 
-\item{type}{If type is "Strict", all time spent being not being in any relationship will be excluded from exposure time.
-If type is "Harling", time will be excluded from exposure time in blocks of one year, if the person spent that entire block not in any relationship.}
+\item{type}{If type is "Strict", all time spent being not being in any relationship
+will be excluded from exposure time.
+If type is "Harling", time will be excluded from exposure time in blocks of one year,
+if the person spent that entire block not in any relationship.}
 }
 \value{
 a vector with time spent not being in any relationships, per person.
@@ -24,7 +28,9 @@ a vector with time spent not being in any relationships, per person.
 Calculate the time spent not being in any relationships.
 }
 \examples{
-timespentsingle <- timespentsingle.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30), type = "Harling")
+data(datalist)
+timespentsingle <- timespentsingle.calculator(datalist = datalist,
+agegroup = c(15, 30), timewindow = c(20, 30), type = "Strict")
+timespentsingle
 
 }
-

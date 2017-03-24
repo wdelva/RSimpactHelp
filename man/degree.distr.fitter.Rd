@@ -7,7 +7,7 @@
 degree.distr.fitter(dataframe = degree.df)
 }
 \arguments{
-\item{degree.df}{The dataframe that is produced by \code{\link{degree.df.maker()}}}
+\item{dataframe}{The dataframe that is produced by \code{\link{degree.df.maker}}}
 }
 \value{
 A table of the empirical estimate of the three considered goodness-of-fit statistics.
@@ -18,9 +18,3 @@ compare their goodness of fit.To choose on the best fitting distribution,
 a table is returned giving the empirical estimate of the three considered
 goodness-of-fit statistics.
 }
-\examples{
-load(dataframe)
-bestfit <- degree.distr.fitter(dataframe = degree.df)
-
-}
-
