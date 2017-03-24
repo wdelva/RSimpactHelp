@@ -1,4 +1,5 @@
 #!/usr/bin/env/ Rscript
+
 #get the necessary libraries
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, lhs)
 #data file to read
@@ -6,47 +7,55 @@ pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, lhs)
 comp <- "lin" #lin #mac
 
 if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
-  dirname <- "~/Documents/GIT_Projects/RSimpactHelp"}else{dirname <- "~/Documents/RSimpactHelp"  #mac directory here
+    dirname <- "~/Documents/GIT_Projects/RSimpactHelp"}else if(comp=="chpc"){
+    dirname <- "/mnt/lustre/users/tchibawara/MaxART/data"}else if(comp=="gent"){
+    dirname <- "/user/data/gent/vsc400/vsc40070/simpact-test/data"}else{dirname <- "~/Documents/RSimpactHelp"  #mac directory here
 }
 
 # There may be ways to make main.filename dynamic: so the file name does not need to be manually updated
-main.filename <- "SummaryOutPut-inANDout.df.chunk-PCA-emu2017-01-19.csv" #Read the file produced by varying parameters *design.points
-file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
-inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
+#main.filename <- "simpactInputParams.df-1000Points15Par2017-02-08.csv" #Read the file produced by varying parameters *design.points
+#file.chunk.name.csv <-paste0(dirname, "/", main.filename) #### Input file name is produced from the .sh script
+#inPUT.df.complete <- read.csv(file = file.chunk.name.csv, header = TRUE, sep = ",")
 
 ################################# YOU CAN EITHER RUN THIS LINE BELOW or READ THE FILE SAVED ALREADY main.filename ###########
-inPUT.df.complete <- simpact.config.inputs(design.points = 500,
+inPUT.df.complete <- simpact.config.inputs(design.points = 2,
                                            conception.alpha_base = c(-4, -1.5),
                                            person.art.accept.threshold.dist.fixed.value = c(0.55, 0.99),
-                                           person.eagerness.man.dist.gamma.a = c(0.6, 1.9),
-                                           person.eagerness.man.dist.gamma.b = c(30, 90),
-                                           person.eagerness.woman.dist.gamma.a = c(0.6, 1.9),
-                                           person.eagerness.woman.dist.gamma.b = c(20, 60),
-                                           formation.hazard.agegapry.numrel_man = c(-1, -0.1),
-                                           formation.hazard.agegapry.numrel_woman = c(-1.8, -0.8),
-                                           formation.hazard.agegapry.gap_factor_man_exp = c(-1.5, -0.2),
-                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-1.8, -0.4),
-                                           person.agegap.man.dist.normal.mu = c(3, 7),
-                                           person.agegap.woman.dist.normal.mu = c(0.5, 4),
-                                           person.agegap.man.dist.normal.sigma = c(1, 4),
-                                           person.agegap.woman.dist.normal.sigma = c(0.7, 1)
+                                           person.eagerness.man.dist.gamma.a = c(0.3, 1.5),
+                                           person.eagerness.man.dist.gamma.b = c(10, 50),
+                                           person.eagerness.woman.dist.gamma.a = c(0.3, 1.5),
+                                           formation.hazard.agegapry.eagerness_diff =  c(-0.1, 0),
+                                           person.eagerness.woman.dist.gamma.b = c(10, 50),
+                                           formation.hazard.agegapry.numrel_man = c(-2, -0.1),
+                                           formation.hazard.agegapry.numrel_woman = c(-2, -0.1),
+                                           formation.hazard.agegapry.gap_factor_man_exp = c(-2, -0.1),
+                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-2, -0.1),
+                                           person.agegap.man.dist.normal.mu = c(1, 5),
+                                           person.agegap.woman.dist.normal.mu = c(1, 5),
+                                           person.agegap.man.dist.normal.sigma = c(0.5, 3.5),
+                                           person.agegap.woman.dist.normal.sigma = c(0.5, 3.5),
+                                           hivtransmission.param.f1 = c(log(2), log(3.5))
                                            )
-#
+# #
 # ##################################################################################################################################
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 250
+max.chunk <- 1
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
+if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}
 
 inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 
 #make sure there are no empty rows
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
-sim_repeat <- 5
-ncluster.use <- 4 # number of cores per node
+#set how many time the single row will be repeated
+sim_repeat <- 3
+
+# number of cores per node
+ncluster.use <- 4
 
 #indicate the target statitics that you want to hit
 target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
@@ -61,7 +70,7 @@ preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
 
 #rbind all the results for this chunk to be merged after
 #Create a dataframe with NA for the summary statistics Will collect all the chunks with the sim.id to link back
-chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 0, ncol = length(target.variables)+1))
+chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 0, ncol = length(target.variables)+2))
 names(chunk.summary.stats.df) <- c(target.variables, "sim.id")
 
 ############   MAIN Simulation is here #######################
@@ -83,19 +92,17 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   simpact.chunk.run <- function(input.chunk.params){
 
-    pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr,lhs,data.table, dplyr, magrittr, exactci,
-                   nlme, ggplot2,survival, KMsurv, tidyr, expoTree, sna, intergraph,
-                   igraph,lhs, GGally, tidyr)
+    pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr)
 
     ## Run preprior.names.chunk and copy the results here.
     input.varied.params.plus <- c("conception.alpha_base", "person.art.accept.threshold.dist.fixed.value",
                                   "person.eagerness.man.dist.gamma.a", "person.eagerness.man.dist.gamma.b",
-                                  "person.eagerness.woman.dist.gamma.a", "person.eagerness.woman.dist.gamma.b",
-                                  "formation.hazard.agegapry.numrel_man", "formation.hazard.agegapry.numrel_woman",
-                                  "formation.hazard.agegapry.eagerness_diff", "formation.hazard.agegapry.gap_factor_man_exp",
+                                  "person.eagerness.woman.dist.gamma.a", "formation.hazard.agegapry.eagerness_diff",
+                                  "person.eagerness.woman.dist.gamma.b", "formation.hazard.agegapry.numrel_man",
+                                  "formation.hazard.agegapry.numrel_woman", "formation.hazard.agegapry.gap_factor_man_exp",
                                   "formation.hazard.agegapry.gap_factor_woman_exp", "person.agegap.man.dist.normal.mu",
                                   "person.agegap.woman.dist.normal.mu", "person.agegap.man.dist.normal.sigma",
-                                  "person.agegap.woman.dist.normal.sigma")
+                                  "person.agegap.woman.dist.normal.sigma", "hivtransmission.param.f1")
 
     target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
                           "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
@@ -123,6 +130,12 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       j <- j + 1
       assign.chunk.cfg.value <- input.chunk.params[j]
       cfg.chunk[cfg.chunk.par][[1]] <- assign.chunk.cfg.value
+      #setting up a value that is depended on the other input (we can do this for many other as needed)
+      if(cfg.chunk.par == "hivtransmission.param.f1"){
+        f2.num <- log((1+assign.chunk.cfg.value)/2)
+        f2.den <- log(assign.chunk.cfg.value)
+        cfg.chunk["hivtransmission.param.f2"][[1]] <- log(f2.num / f2.den)/5
+      }
     }
 
     ## Keep the files produced in subfolders
@@ -130,8 +143,6 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       chars <- c(letters, LETTERS)
       paste0(sample(chars,how.long), collapse = "")
     }
-
-    print(cfg.chunk)
 
     sub.dir.sim.id <- generate.filename(8)
     sub.dir.rename <- paste0("temp/",sub.dir.sim.id,"/")
@@ -156,9 +167,15 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     }
     chunk.datalist.test <- readthedata(testoutput)
 
+    #save each of the run output.
+    #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",sub.dir.sim.id,".rda"))
+
+    #delete all the file created during the current simulation
+    unlink(paste0("temp/",sub.dir.sim.id), recursive = TRUE)
+
     if(length(chunk.datalist.test)>1){
       #get the summary statistics for each run
-      growth.rate = pop.growth.calculator(datalist = chunk.datalist.test,
+      growth.rate <- pop.growth.calculator(datalist = chunk.datalist.test,
                                           timewindow = c(0, timewindow.max=unique(chunk.datalist.test$itable$population.simtime)))
 
       inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25), timewindow = c(32, 35), only.active = "No")
@@ -231,13 +248,10 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
 
 }
 
-
 inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk, by = "sim.id")
 
-write.csv(inputANDoutput.chunk.df, file =paste0("SummaryOutPut-inANDout.df.chunk-",min.chunk,"-",max.chunk,"-",Sys.Date(),
-                                               ".csv"), row.names = FALSE)
-
-
+write.csv(inputANDoutput.chunk.df, file =paste0(dirname,"/","SummaryOutPut-inANDout.df.chunk-",
+                                                min.chunk,"-",max.chunk,"-",Sys.Date(),".csv"), row.names = FALSE)
 end.chunk.time <- proc.time() - start.chunk.time
 
 
