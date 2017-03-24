@@ -17,7 +17,7 @@
 #' overall calculation, examines only unique relationships in the entire
 #' population.
 #'
-#' @param df The dataframe that is produced by \code{\link{agemix.df.maker()}}
+#' @param df The dataframe that is produced by \code{\link{agemix.df.maker}}
 #' @param agegroup Boundaries of the age group that should be retained, e.g.
 #'   c(15, 30). The interval is closed on the left and open on the right.
 #' @param timepoint Point in time during the simulation to be used in the
@@ -38,18 +38,17 @@
 #' # between the ages of 18 and 49. Furthermore, the are asked only about
 #' # the relationships that happened in the previous 2 years.
 #'
-#' load(dataframe)
-#' agedifmedtable <- agedif.median(df = dataframe, agegroup = c(18, 50), timewindow = 2, timepoint = 40)
+#load(dataframe)
+#agedifmedtable <- agedif.median(df = dataframe, agegroup = c(18, 50),
+#timewindow = 2, timepoint = 40)
 #'
 #' @importFrom magrittr %>%
+#' @importFrom stats median
 #' @import dplyr
+#' @export
 
-
-agedif.median <- function(df,
-                          agegroup,
-                          timepoint,
-                          timewindow,
-                          start = FALSE) {
+agedif.median <- function(df, agegroup, timepoint,
+                          timewindow, start = FALSE) {
 
   #Warnings
   if (!is.data.frame(df)) {
@@ -77,8 +76,8 @@ agedif.median <- function(df,
   if (start == TRUE) {
 
     subdf <- df %>%
-      mutate(age = time - TOB) %>%
-      filter((FormTime <= time & FormTime >= window) &
+      dplyr::mutate(age = time - TOB) %>%
+      dplyr::filter((FormTime <= time & FormTime >= window) &
                age >= lwrage &
                age < uprage &
                TOD > time) %>%
@@ -87,8 +86,8 @@ agedif.median <- function(df,
   } else {
 
     subdf <- df %>%
-      mutate(age = time - TOB) %>%
-      filter(FormTime <= time &
+      dplyr::mutate(age = time - TOB) %>%
+      dplyr::filter(FormTime <= time &
                DisTime > window &
                age >= lwrage &
                age < uprage &
@@ -102,7 +101,7 @@ agedif.median <- function(df,
 
   # Calculate median age difference by gender
   adbygender <- subdf2 %>%
-    group_by(Gender) %>%
+    dplyr::group_by(Gender) %>%
     dplyr::summarise(n = n(),
               median = median(AgeGap),
               Q1 = as.numeric(summary(AgeGap)["1st Qu."]),
@@ -117,8 +116,8 @@ agedif.median <- function(df,
 
 
   #Combine tables
-  adtable <- bind_rows(adbygender, adoverall) %>%
-    mutate(Gender = as.factor(ifelse(is.na(Gender),
+  adtable <- dplyr::bind_rows(adbygender, adoverall) %>%
+    dplyr::mutate(Gender = as.factor(ifelse(is.na(Gender),
                                      "Overall",
                                      ifelse(Gender == "male",
                                             "Men",
