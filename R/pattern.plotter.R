@@ -10,18 +10,18 @@
 #' mixed effects model in \code{\link{pattern.modeller}}.
 #'
 #'
-#' @param dl The datalist that is produced by \code{\link{pattern.modeller()}}
+#' @param dl The datalist that is produced by \code{\link{pattern.modeller}}
 #'
 #' @return a large ggplot object of the age-mixing pattern
 #'
-#' @examples
-#' load(obs)
-#' amp <- pattern.plotter(dl = pat)
-#' amp
+# @examples
+# load(obs)
+# amp <- pattern.plotter(dl = pat)
+# amp
 #'
 #' @importFrom magrittr %>%
-#' @import dplyr
 #' @import ggplot2
+#' @export
 
 
 pattern.plotter <- function(dl) {
