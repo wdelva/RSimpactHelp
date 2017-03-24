@@ -1,0 +1,18 @@
+#!/bin/bash -l
+#
+#
+#PBS -N delete.temp.folder
+#PBS -l nodes=1:ppn=all
+#PBS -l walltime=00:30:00
+#PBS -m e
+#BPS -M wimdelva@me.com
+
+source /user/home/gent/vsc400/vsc40070/SimpactCyanBuild/simpactpack/bin/activatesimpact.sh
+
+ulimit -s unlimited
+module load scripts
+
+module load R/3.3.1-intel-2016b
+cd /user/data/gent/vsc400/vsc40070/simpact-test/code/
+
+Rscript delete.folder.R 1
