@@ -2,20 +2,30 @@
 #'
 #' Calculate the HIV incidence in a time window and for specific age groups and gender strata.
 #'
-#' @param datalist The datalist that is produced by \code{\link{readthedata()}}
-#' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)
-#' @param timewindow Boundaries of the time window (lower bound < time <= upper bound) that should be retained, e.g. c(20, 30)
-#' @param only.active Should only women who are in sexual relationships contribute exposure time (~ Harling)?
-#' If "Strict", all time spent being not being in any relationship will be excluded from exposure time.
-#' If "Harling", time will be excluded from exposure time in blocks of one year, if the person spent that entire block not in any relationship.
+#' @param datalist The datalist that is produced by \code{\link{readthedata}}
+#' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that
+#' should be retained, e.g. c(15, 30)
+#' @param timewindow Boundaries of the time window (lower bound < time <= upper bound)
+#' that should be retained, e.g. c(20, 30)
+#' @param only.active Should only women who are in sexual relationships contribute
+#' exposure time (~ Harling)?
+#' If "Strict", all time spent being not being in any relationship will be excluded
+#' from exposure time.
+#' If "Harling", time will be excluded from exposure time in blocks of one year, if the
+#' person spent that entire block not in any relationship.
 #' If "No", exposure time is being contributed, even while not in any relationships.
-#' @return a dataframe with cases, exposure time, incidence estimate and surrounding confidence bounds,
+#' @return a dataframe with cases, exposure time, incidence estimate and
+#' surrounding confidence bounds,
 #' for the specified time window and age group, overall, and stratified by gender
 #' @examples
-#' incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30))
+#' data(datalist)
+#' incidence.df <- incidence.calculator(datalist = datalist,
+#'  agegroup = c(15, 30), timewindow = c(20, 30))
+#' incidence.df
 #'
-#' @import exactci
+#' @importFrom exactci poisson.exact
 #' @import dplyr
+#' @export
 
 incidence.calculator <- function(datalist = datalist,
                                  agegroup = c(15, 30),
@@ -28,9 +38,10 @@ incidence.calculator <- function(datalist = datalist,
   time.of.upperbound.timewind <- timewindow[2]
   time.of.HIV.infection <- datalist$ptable$InfectTime
 
-  exposure.end <- pmin(time.of.HIV.infection, pmin(time.of.upperbound.agegroup, time.of.upperbound.timewind))
-  exposure.time <- exposure.end - exposure.start # This is the naive exposure time, before tidying up
-  real.exposure.time <- exposure.time > 0 # We create a vector to see who REALLY had exposure time
+  exposure.end <- pmin(time.of.HIV.infection,
+                       pmin(time.of.upperbound.agegroup, time.of.upperbound.timewind))
+  exposure.time <- exposure.end - exposure.start #This is naive exposure time, before tidying up
+  real.exposure.time <- exposure.time > 0 #We create a vector to see who REALLY had exposure time
   exposure.time[real.exposure.time == FALSE] <- 0
 
   # Now we check who of the people with the real exposure time had the event
@@ -51,15 +62,14 @@ incidence.calculator <- function(datalist = datalist,
                                                       agegroup = agegroup,
                                                       timewindow = timewindow,
                                                       type = only.active)
-    raw.plus.df <- left_join(x = raw.df,
+    raw.plus.df <- dplyr::left_join(x = raw.df,
                              y = norels.timespent.df,
                              by = c("ID" = "woman.ID"))
     raw.plus.df$sum.norels.timespent[is.na(raw.plus.df$sum.norels.timespent)] <- 0
     raw.plus.df$exposure.times <- raw.plus.df$exposure.times - raw.plus.df$sum.norels.timespent
   }
 
-  raw.plus.filtered.df <- dplyr::filter(raw.plus.df,
-                        exposure.times >= 0)
+  raw.plus.filtered.df <- dplyr::filter(raw.plus.df, exposure.times >= 0)
 
   if(nrow(raw.plus.filtered.df) > 0){
 
@@ -68,19 +78,30 @@ incidence.calculator <- function(datalist = datalist,
                                    sum.exposure.time = sum(exposure.times),
                                    sum.incident.cases = sum(incident.case),
                                    incidence = sum(incident.case) / sum(exposure.times),
-                                   incidence.95.ll = as.numeric(exactci::poisson.exact(x = sum(incident.case), T = sum(exposure.times))$conf.int)[1],
-                                   incidence.95.ul = as.numeric(exactci::poisson.exact(x = sum(incident.case), T = sum(exposure.times))$conf.int)[2]
+                                   incidence.95.ll = as.numeric(
+                                     exactci::poisson.exact(x=sum(incident.case),
+                                                            T=sum(exposure.times))$conf.int)[1],
+                                   incidence.95.ul = as.numeric(
+                                     exactci::poisson.exact(x=sum(incident.case),
+                                                            T=sum(exposure.times))$conf.int)[2]
                                    )
 
   # Now we add the overall incidence to this dataframe
-  incidence.all.df <- cbind(Gender = NA,
-                            dplyr::summarise(raw.plus.filtered.df,
-                                             sum.exposure.time = sum(exposure.times),
-                                             sum.incident.cases = sum(incident.case),
-                                             incidence = sum(incident.case) / sum(exposure.times),
-                                             incidence.95.ll = as.numeric(exactci::poisson.exact(x = sum(incident.case), T = sum(exposure.times))$conf.int)[1],
-                                             incidence.95.ul = as.numeric(exactci::poisson.exact(x = sum(incident.case), T = sum(exposure.times))$conf.int)[2]
-                            ))
+  incidence.all.df <- dplyr::summarise(raw.plus.filtered.df,
+                                  sum.exposure.time = sum(exposure.times),
+                                  sum.incident.cases = sum(incident.case),
+                                  incidence = sum(incident.case) / sum(exposure.times),
+                                  incidence.95.ll = as.numeric(
+                                    exactci::poisson.exact(x = sum(incident.case),
+                                                           T=sum(exposure.times))$conf.int)[1],
+                                  incidence.95.ul = as.numeric(
+                                    exactci::poisson.exact(x = sum(incident.case),
+                                                           T=sum(exposure.times))$conf.int)[2]
+                            )
+
+
+  incidence.all.df <- cbind(Gender = NA,incidence.all.df)
+
   incidence.df <- rbind(incidence.df, incidence.all.df)
   }else{
     incidence.df <- data.frame(Gender = c(NA,NA,NA),
