@@ -5,16 +5,17 @@
 #' a table is returned giving the empirical estimate of the three considered
 #' goodness-of-fit statistics.
 #'
-#' @param degree.df The dataframe that is produced by \code{\link{degree.df.maker()}}
+#' @param dataframe The dataframe that is produced by \code{\link{degree.df.maker}}
 #'
 #'
 #' @return A table of the empirical estimate of the three considered goodness-of-fit statistics.
 #'
-#' @examples
-#' load(dataframe)
-#' bestfit <- degree.distr.fitter(dataframe = degree.df)
+# @examples
+# load(dataframe)
+#bestfit <- degree.distr.fitter(dataframe = degree.df)
 #'
 #' @import fitdistrplus
+#' @export
 
 
 # Fitting the parametric distributions to the Degree data by
