@@ -14,21 +14,21 @@ if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
 ####  This will create the varied parameter space ###################################################
 #Use when generating simulation from scratch
 inPUT.df.complete <- simpact.config.inputs(design.points = 200,
-                                           conception.alpha_base = c(-5, -0.1), #c(-4, -1.5)
-                                           person.art.accept.threshold.dist.fixed.value = c(0.65, 0.99), #good
-                                           person.eagerness.man.dist.gamma.a = c(0.3, 1.5), #good
-                                           person.eagerness.man.dist.gamma.b = c(10, 60), #c(10,50)
-                                           person.eagerness.woman.dist.gamma.a = c(0.8, 1.5), #c(0.3, 1.5)
-                                           formation.hazard.agegapry.eagerness_diff = c(-0.02, -0.013), #c(-0.1, 0),
-                                           person.eagerness.woman.dist.gamma.b = c(10, 60), #good
-                                           formation.hazard.agegapry.numrel_man = c(-1.3, -0.6), #c(-2, -0.1)
+                                           conception.alpha_base = c(-3, -0), #c(-4, -1.5)
+                                           person.art.accept.threshold.dist.fixed.value = c(0.65, 0.85), #good
+                                           person.eagerness.man.dist.gamma.a = c(0.4, 1.3), #good
+                                           person.eagerness.man.dist.gamma.b = c(30, 60), #c(10,50)
+                                           person.eagerness.woman.dist.gamma.a = c(0.9, 1.4), #c(0.3, 1.5)
+                                           formation.hazard.agegapry.eagerness_diff =  c(-0.02, -0.013), #c(-0.1, 0),
+                                           person.eagerness.woman.dist.gamma.b = c(10, 45), #good
+                                           formation.hazard.agegapry.numrel_man = c(-1.2, -0.6), #c(-2, -0.1)
                                            formation.hazard.agegapry.numrel_woman = c(-1.3, -1.0), #c(-2, -0.1),
-                                           formation.hazard.agegapry.gap_factor_man_exp = c(-0.4, -0.1),#c(-2, -0.1),
-                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-0.4, -0.01),#c(-2, -0.1),
-                                           person.agegap.man.dist.normal.mu = c(2.7, 5), #c(1, 5),
-                                           person.agegap.woman.dist.normal.mu = c(3.2, 4), #c(1, 5),
-                                           person.agegap.man.dist.normal.sigma = c(1.5, 2.9), #c(0.5, 3.5),
-                                           person.agegap.woman.dist.normal.sigma = c(1.5, 2.6), #c(0.5, 3.5),
+                                           formation.hazard.agegapry.gap_factor_man_exp = c(-0.41, -0.2),#c(-2, -0.1),
+                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-0.4, -0.1),#c(-2, -0.1),
+                                           person.agegap.man.dist.normal.mu = c(3, 5), #c(1, 5),
+                                           person.agegap.woman.dist.normal.mu = c(3.2, 3.8), #c(1, 5),
+                                           person.agegap.man.dist.normal.sigma = c(1.9, 2.9), #c(0.5, 3.5),
+                                           person.agegap.woman.dist.normal.sigma = c(1.7, 2.5), #c(0.5, 3.5),
                                            hivtransmission.param.f1 = c(log(2), log(3.5))
                                            )
 ################################################################################################

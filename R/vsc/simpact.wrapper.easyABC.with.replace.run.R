@@ -17,21 +17,21 @@ all.sim.start <- proc.time()
 
 ###### Generate the input parameters for the simulation ###############################################
 inPUT.df.complete <- simpact.config.inputs(design.points = 10, resample.count = 1,
-                                           conception.alpha_base = c(-5, -1), #c(-4, -1.5)
-                                           person.art.accept.threshold.dist.fixed.value = c(0.65, 0.99), #good
-                                           person.eagerness.man.dist.gamma.a = c(0.3, 1.5), #good
-                                           person.eagerness.man.dist.gamma.b = c(10, 50), #c(10,50)
-                                           person.eagerness.woman.dist.gamma.a = c(0.2, 1.2), #c(0.3, 1.5)
-                                           formation.hazard.agegapry.eagerness_diff =  c(-0.02, 0), #c(-0.1, 0),
-                                           person.eagerness.woman.dist.gamma.b = c(10, 50), #good
-                                           formation.hazard.agegapry.numrel_man = c(-1.3, -0.6), #c(-2, -0.1)
-                                           formation.hazard.agegapry.numrel_woman = c(-1.3, -0.6), #c(-2, -0.1),
-                                           formation.hazard.agegapry.gap_factor_man_exp = c(-0.4, -0.1),#c(-2, -0.1),
-                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-1.5, -0.1),#c(-2, -0.1),
-                                           person.agegap.man.dist.normal.mu = c(1, 4), #c(1, 5),
-                                           person.agegap.woman.dist.normal.mu = c(2, 3.5), #c(1, 5),
-                                           person.agegap.man.dist.normal.sigma = c(2.5, 3.5), #c(0.5, 3.5),
-                                           person.agegap.woman.dist.normal.sigma = c(1.5, 2.6), #c(0.5, 3.5),
+                                           conception.alpha_base = c(-3, -0), #c(-4, -1.5)
+                                           person.art.accept.threshold.dist.fixed.value = c(0.65, 0.85), #good
+                                           person.eagerness.man.dist.gamma.a = c(0.4, 1.3), #good
+                                           person.eagerness.man.dist.gamma.b = c(30, 60), #c(10,50)
+                                           person.eagerness.woman.dist.gamma.a = c(0.9, 1.4), #c(0.3, 1.5)
+                                           formation.hazard.agegapry.eagerness_diff =  c(-0.02, -0.013), #c(-0.1, 0),
+                                           person.eagerness.woman.dist.gamma.b = c(10, 45), #good
+                                           formation.hazard.agegapry.numrel_man = c(-1.2, -0.6), #c(-2, -0.1)
+                                           formation.hazard.agegapry.numrel_woman = c(-1.3, -1.0), #c(-2, -0.1),
+                                           formation.hazard.agegapry.gap_factor_man_exp = c(-0.41, -0.2),#c(-2, -0.1),
+                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-0.4, -0.1),#c(-2, -0.1),
+                                           person.agegap.man.dist.normal.mu = c(3, 5), #c(1, 5),
+                                           person.agegap.woman.dist.normal.mu = c(3.2, 3.8), #c(1, 5),
+                                           person.agegap.man.dist.normal.sigma = c(1.9, 2.9), #c(0.5, 3.5),
+                                           person.agegap.woman.dist.normal.sigma = c(1.7, 2.5), #c(0.5, 3.5),
                                            hivtransmission.param.f1 = c(log(2), log(3.5))
                                            )
 #
@@ -53,21 +53,21 @@ while(count.match < 150){
 
     inPUT.df.complete <- simpact.config.inputs.add.sample(datalist = inputANDoutput.chunk.df,
                                         resample.points = rep.sample.number, set.seed.new = set.new.seed,
-                                        conception.alpha_base = c(-5, -0.1), #c(-4, -1.5)
-                                        person.art.accept.threshold.dist.fixed.value = c(0.65, 0.99), #good
-                                        person.eagerness.man.dist.gamma.a = c(0.3, 1.5), #good
-                                        person.eagerness.man.dist.gamma.b = c(10, 60), #c(10,50)
-                                        person.eagerness.woman.dist.gamma.a = c(0.8, 1.5), #c(0.3, 1.5)
-                                        formation.hazard.agegapry.eagerness_diff = c(-0.02, -0.013), #c(-0.1, 0),
-                                        person.eagerness.woman.dist.gamma.b = c(10, 60), #good
-                                        formation.hazard.agegapry.numrel_man = c(-1.3, -0.6), #c(-2, -0.1)
+                                        conception.alpha_base = c(-3, -0), #c(-4, -1.5)
+                                        person.art.accept.threshold.dist.fixed.value = c(0.65, 0.85), #good
+                                        person.eagerness.man.dist.gamma.a = c(0.4, 1.3), #good
+                                        person.eagerness.man.dist.gamma.b = c(30, 60), #c(10,50)
+                                        person.eagerness.woman.dist.gamma.a = c(0.9, 1.4), #c(0.3, 1.5)
+                                        formation.hazard.agegapry.eagerness_diff =  c(-0.02, -0.013), #c(-0.1, 0),
+                                        person.eagerness.woman.dist.gamma.b = c(10, 45), #good
+                                        formation.hazard.agegapry.numrel_man = c(-1.2, -0.6), #c(-2, -0.1)
                                         formation.hazard.agegapry.numrel_woman = c(-1.3, -1.0), #c(-2, -0.1),
-                                        formation.hazard.agegapry.gap_factor_man_exp = c(-0.4, -0.1),#c(-2, -0.1),
-                                        formation.hazard.agegapry.gap_factor_woman_exp = c(-0.4, -0.01),#c(-2, -0.1),
-                                        person.agegap.man.dist.normal.mu = c(2.7, 5), #c(1, 5),
-                                        person.agegap.woman.dist.normal.mu = c(3.2, 4), #c(1, 5),
-                                        person.agegap.man.dist.normal.sigma = c(1.5, 2.9), #c(0.5, 3.5),
-                                        person.agegap.woman.dist.normal.sigma = c(1.5, 2.6), #c(0.5, 3.5),
+                                        formation.hazard.agegapry.gap_factor_man_exp = c(-0.41, -0.2),#c(-2, -0.1),
+                                        formation.hazard.agegapry.gap_factor_woman_exp = c(-0.4, -0.1),#c(-2, -0.1),
+                                        person.agegap.man.dist.normal.mu = c(3, 5), #c(1, 5),
+                                        person.agegap.woman.dist.normal.mu = c(3.2, 3.8), #c(1, 5),
+                                        person.agegap.man.dist.normal.sigma = c(1.9, 2.9), #c(0.5, 3.5),
+                                        person.agegap.woman.dist.normal.sigma = c(1.7, 2.5), #c(0.5, 3.5),
                                         hivtransmission.param.f1 = c(log(2), log(3.5))
                                         )
 
@@ -89,9 +89,9 @@ while(count.match < 150){
   ncluster.use <- 4
 
   #indicate the target statitics that you want to hit
-  target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
-                        "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
-                        "ART.cov.wom.18.50", "median.wom.18.50.AD")
+  target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "inc.men.30.35", "inc.wom.30.35",
+                        "prev.men.18.20", "prev.wom.18.20", "prev.men.25.30", "prev.wom.25.30","prev.men.35.40",
+                        "prev.wom.35.40", "ART.cov.men.18.50", "ART.cov.wom.18.50", "median.wom.18.50.AD")
 
   ##Each of these should be calculated after each run, else we give an NA
 
@@ -110,9 +110,9 @@ while(count.match < 150){
 
     #This needs to be read by each processor
     pacman::p_load(RSimpactHelper)
-    target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
-                          "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
-                          "ART.cov.wom.18.50", "median.wom.18.50.AD")
+    target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "inc.men.30.35", "inc.wom.30.35",
+                          "prev.men.18.20", "prev.wom.18.20", "prev.men.25.30", "prev.wom.25.30","prev.men.35.40",
+                          "prev.wom.35.40", "ART.cov.men.18.50", "ART.cov.wom.18.50", "median.wom.18.50.AD")
     err.functionGEN <- function(e){
       if (length(grep("MAXEVENTS",e$message)) != 0)
         return(chunk.summary.stats = rep(NA,length(target.variables)))
@@ -135,9 +135,9 @@ while(count.match < 150){
                                     "person.agegap.woman.dist.normal.mu", "person.agegap.man.dist.normal.sigma",
                                     "person.agegap.woman.dist.normal.sigma", "hivtransmission.param.f1")
 
-      target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
-                            "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
-                            "ART.cov.wom.18.50", "median.wom.18.50.AD")
+      target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "inc.men.30.35", "inc.wom.30.35",
+                            "prev.men.18.20", "prev.wom.18.20", "prev.men.25.30", "prev.wom.25.30","prev.men.35.40",
+                            "prev.wom.35.40", "ART.cov.men.18.50", "ART.cov.wom.18.50", "median.wom.18.50.AD")
 
       simulation.type <- ("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
       simpact.set.simulation(simulation.type)
@@ -211,31 +211,47 @@ while(count.match < 150){
                                             timewindow = c(0, timewindow.max = end.time.wind))
 
         inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25),
-                                          timewindow = c(32, 35), only.active = "No")
+                                          timewindow = c(32, 34), only.active = "No")
         inc.men.20.25 <- inc.20.25$incidence[1]
         inc.wom.20.25 <- inc.20.25$incidence[2]
+
+        inc.30.35 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(30, 35),
+                                          timewindow = c(32, 34), only.active = "No")
+        inc.men.30.35 <- inc.30.35$incidence[1]
+        inc.wom.30.35 <- inc.30.35$incidence[2]
+
+        prev.18.20 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(18, 20),
+                                           timepoint = 34)
+        prev.men.18.20 = prev.18.20$pointprevalence[1]
+        prev.wom.18.20 = prev.18.20$pointprevalence[2]
+
         prev.25.30 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(25, 30),
-                                           timepoint = 35)
+                                           timepoint = 34)
         prev.men.25.30 = prev.25.30$pointprevalence[1]
         prev.wom.25.30 = prev.25.30$pointprevalence[2]
-        prev.30.35 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(30, 35),
-                                           timepoint = 35)
-        prev.men.30.35 = prev.30.35$pointprevalence[1]
-        prev.wom.30.35 = prev.30.35$pointprevalence[2]
+
+        prev.35.40 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(35, 40),
+                                           timepoint = 34)
+        prev.men.35.40 = prev.35.40$pointprevalence[1]
+        prev.wom.35.40 = prev.35.40$pointprevalence[2]
+
         ARTcov <- ART.coverage.calculator(datalist = chunk.datalist.test, agegroup = c(18, 50),
-                                          timepoint = 35, site="All")
+                                          timepoint = 34, site="All")
         ART.cov.men.18.50 <- ARTcov$ART.coverage[1]
         ART.cov.wom.18.50 <- ARTcov$ART.coverage[2]
 
         agemix.df <- agemix.df.maker(chunk.datalist.test)
         pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(18, 50),
-                                    timepoint = 35, timewindow = 1, start = FALSE)
+                                    timepoint = 34, timewindow = 1, start = FALSE)
         median.wom.18.50.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))
 
         ##get the summary statistics as indicated by target.variables
-        out.statistic <- c(growth.rate, inc.men.20.25, inc.wom.20.25, prev.men.25.30, prev.wom.25.30,
-                           prev.men.30.35, prev.wom.30.35, ART.cov.men.18.50,
-                           ART.cov.wom.18.50, median.wom.18.50.AD)
+        out.statistic <- c(growth.rate,
+                           inc.men.20.25, inc.wom.20.25, inc.men.30.35, inc.wom.30.35,
+                           prev.men.18.20, prev.wom.18.20, prev.men.25.30, prev.wom.25.30,
+                           prev.men.35.40, prev.wom.35.40,
+                           ART.cov.men.18.50, ART.cov.wom.18.50,
+                           median.wom.18.50.AD)
         ##out.test.degree <- out.statistic[[2]]
       }else{
         out.statistic <- rep(NA,length(target.variables))
@@ -285,36 +301,44 @@ while(count.match < 150){
 
   }
 
-  #target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
-  #                      "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
-  #                      "ART.cov.wom.18.50", "median.wom.18.50.AD")
-  target.stats <- c(0.015, 0.016, 0.043, 0.21, 0.47, 0.37, 0.54, 0.33, 0.34, 5)
+  # target.variables <- c("growth.rate",
+  #                       "inc.men.20.25", "inc.wom.20.25", "inc.men.30.35", "inc.wom.30.35",
+  #                       "prev.men.18.20", "prev.wom.18.20", "prev.men.25.30", "prev.wom.25.30","prev.men.35.40",
+  #                       "prev.wom.35.40",
+  #                       "ART.cov.men.18.50", "ART.cov.wom.18.50",
+  #                       "median.wom.18.50.AD")
 
+  target.stats <- c(0.015, #gr
+                    0.016, 0.043, 0.031, 0.027,  #inc
+                    0.008, 0.143, 0.21, 0.47, 0.47, 0.538, #prev
+                    0.33, 0.34, #art
+                    5) #ad
 
-  #chunk.summary.stats.df <- aggregate(chunk.summary.stats.df,
-  #                               by = list(chunk.summary.stats.df$sim.id), FUN = "mean", na.rm = TRUE)
-
-  chunk.summary.stats.df <- subset(chunk.summary.stats.df, select = -c(Group.1))
-
+  #compute sum difference of squares
   sum.square.df <- subset(chunk.summary.stats.df, select=-c(sim.id))
 
-  #compute sum differnce of squares
-  sum.square.df <- rowSums(as.data.frame(t(apply(sum.square.df, 1, function(x) (x - t(target.stats))^2))))
+  sum.square.df <- rowSums(as.data.frame(t(apply(sum.square.df, 1,
+                                                 function(x) ( (x - t(target.stats))^2/t(target.stats) )))))
+  sum.square.df <- sqrt(sum.square.df/length(target.stats))
   sum.square.df <- as.data.frame(sum.square.df)
+
+  chunk.summary.stats.df <- cbind(chunk.summary.stats.df, sum.square.df)
+
+  chunk.summary.stats.df <- aggregate(chunk.summary.stats.df,
+                                 by = list(chunk.summary.stats.df$sim.id), FUN = "mean", na.rm = TRUE)
+
+  chunk.summary.stats.df <- subset(chunk.summary.stats.df, select = -c(Group.1))
 
   #Discard Low sum difference of squares due to zeros in summary of results
   less.zeros.df <- rowSums(chunk.summary.stats.df==0)  < 2
 
-  chunk.summary.stats.df <- cbind(chunk.summary.stats.df, sum.square.df)
-
   chunk.summary.stats.df$match <- chunk.summary.stats.df$sum.square.df <= 0.25 & less.zeros.df
-
 
   inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk, by = "sim.id")
 
 
   if(count.match ==0) {
-    rand.string <- paste0(sample(c(LETTERS,letters), 6), collapse = "")
+    rand.string <- paste0(sample(c(LETTERS,letters), 8), collapse = "")
 
     filename.run <- paste0(dirname,"/","SummaryOutPut.df.ReSample-",
                            rand.string,"-",set.new.seed,".csv")
@@ -344,23 +368,29 @@ end.chunk.time <- proc.time() - start.chunk.time
 all.sim.end <- proc.time() - all.sim.start
 
 #use when you have a file that was generated from wrapper with.replace.run
-file.name.csv <- paste0(dirname,"/","SummaryOutPut.df.ReSample-iPUwps-pairs.csv")
+file.name.csv <- paste0(dirname,"/","SummaryOutPut.df.ReSample-iPUwpslj-1-WimCourse-pairs.csv")
 complete.results.res <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
-
-#Analysis of results
-#complete.results.res <- subset(complete.results.res, complete.results.res$match == TRUE)
-
-start.pair <- length(complete.results.res)-29
-end.pair <- length(complete.results.res)-31
+#start.pair <- length(complete.results.res)-2
+#end.pair <- length(complete.results.res)
 
 #use this to check the range of the varied parameters
-pairs(complete.results.res[start.pair:end.pair],  col = 1+complete.results.res$match, pch = 16, cex = 2)
+#pairs(complete.results.res[start.pair:end.pair],  col = 1+complete.results.res$match, pch = 16, cex = 2)
 
 
+##### ADHOC TEST
+file.name.ADHOC.csv <- paste0(dirname,"/","SummaryOutPut.df.ReSample-iPUwpslj-1-WimCourse-pairs.csv")
+complete.results.res <- data.frame(read.csv(file = file.name.ADHOC.csv, header = TRUE))
 
+complete.results.res <- subset(complete.results.res, complete.results.res$ss.match != FALSE)
 
+start.pair <- 6#length(complete.results.res)-2
+end.pair <- 10#length(complete.results.res)
 
+#use this to check the range of the varied parameters
+pairs(complete.results.res[start.pair:end.pair],  col = 1+complete.results.res$id.match, pch = 16, cex = 2)
+
+####### END of TEST #############
 
 
 

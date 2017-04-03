@@ -1,18 +1,18 @@
 #!/bin/bash -l
 #
-#PBS -N simpact.wrapper.easyABC.run.100
+#PBS -N simpact.wrapper.easyABC.run.1
 #PBS -P CBBI0949
 #PBS -q normal
-#PBS -l select=2:ncpus=24:mpiproc=24
-#PBS -l walltime=00:30:00
-#PBS -m abe
+#PBS -l select=2:ncpus=24:mpiprocs=24:nodetype=haswell_reg
+#PBS -l walltime=00:10:00
+#PBS -m be
 #BPS -M trust@aims.ac.za
 
 source /home/tchibawara/SimpactCyanBuild/simpactpack/bin/activatesimpact.sh
 
 ulimit -s unlimited
 
-module load R/3.3.2-gcc6.2.0
+module add /apps/chpc/scripts/modules/bio/app/simpact-cyan/0.21.0
 
 cd /mnt/lustre/users/tchibawara/MaxART/code/
 

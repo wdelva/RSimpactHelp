@@ -23,17 +23,17 @@ testoutput <- simpact.run(configParams = testinput,
                           intervention = iv,
                           seed = 2)
 
-datalist <- readthedata(testoutput)
+datalist.test <- readthedata(testoutput)
 
 pop.growth.calculator(datalist = datalist.test,
                       timewindow = c(0,
                           timewindow.max=unique(datalist.test$itable$population.simtime)))
 
 incidence.calculator(datalist = datalist.test, agegroup = c(20, 25),
-                     timewindow = c(32, 35), only.active = "No")
+                     timewindow = c(32, 34), only.active = "No")
 
-prevalence.calculator(datalist = datalist.test, agegroup = c(15, 50),
-                    timepoint = 30)
+prevalence.calculator(datalist = datalist.test, agegroup = c(18, 20),
+                    timepoint = 34)
 
 #Example of Latin hypercube sample (each row and column is filled
 #with one point)
@@ -44,8 +44,8 @@ prevalence.calculator(datalist = datalist.test, agegroup = c(15, 50),
 #Sampling is random in each grid
 #Generate higher dimmension sampling similarly
 #Avoid the propabaility that all sampling points come from the same local region
-set.seed(50)
-n.points <- 10
+set.seed(1)
+n.points <- 20000
 rlhs.test <- randomLHS(n.points, 2)
 break.point = 1/n.points
 axis.range <- seq(0,1,break.point)
