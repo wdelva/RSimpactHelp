@@ -12,28 +12,28 @@ if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
 }
 
 ####  This will create the varied parameter space ###################################################
-inPUT.df.complete <- simpact.config.inputs(design.points = 200,
-                                           conception.alpha_base = c(-5, -0.1), #c(-4, -1.5)
-                                           person.art.accept.threshold.dist.fixed.value = c(0.65, 0.99), #good
-                                           person.eagerness.man.dist.gamma.a = c(0.3, 1.5), #good
-                                           person.eagerness.man.dist.gamma.b = c(10, 60), #c(10,50)
-                                           person.eagerness.woman.dist.gamma.a = c(0.8, 1.5), #c(0.3, 1.5)
-                                           formation.hazard.agegapry.eagerness_diff = c(-0.02, -0.013), #c(-0.1, 0),
-                                           person.eagerness.woman.dist.gamma.b = c(10, 60), #good
-                                           formation.hazard.agegapry.numrel_man = c(-1.3, -0.6), #c(-2, -0.1)
+inPUT.df.complete <- simpact.config.inputs(design.points = 20000,
+                                           conception.alpha_base = c(-5, -0), #c(-4, -1.5)
+                                           person.art.accept.threshold.dist.fixed.value = c(0.65, 0.85), #good
+                                           person.eagerness.man.dist.gamma.a = c(0.4, 1.3), #good
+                                           person.eagerness.man.dist.gamma.b = c(30, 60), #c(10,50)
+                                           person.eagerness.woman.dist.gamma.a = c(0.9, 1.4), #c(0.3, 1.5)
+                                           formation.hazard.agegapry.eagerness_diff =  c(-0.02, -0.013), #c(-0.1, 0),
+                                           person.eagerness.woman.dist.gamma.b = c(10, 45), #good
+                                           formation.hazard.agegapry.numrel_man = c(-1.2, -0.6), #c(-2, -0.1)
                                            formation.hazard.agegapry.numrel_woman = c(-1.3, -1.0), #c(-2, -0.1),
-                                           formation.hazard.agegapry.gap_factor_man_exp = c(-0.4, -0.1),#c(-2, -0.1),
-                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-0.4, -0.01),#c(-2, -0.1),
-                                           person.agegap.man.dist.normal.mu = c(2.7, 5), #c(1, 5),
-                                           person.agegap.woman.dist.normal.mu = c(3.2, 4), #c(1, 5),
-                                           person.agegap.man.dist.normal.sigma = c(1.5, 2.9), #c(0.5, 3.5),
-                                           person.agegap.woman.dist.normal.sigma = c(1.5, 2.6), #c(0.5, 3.5),
+                                           formation.hazard.agegapry.gap_factor_man_exp = c(-0.41, -0.2),#c(-2, -0.1),
+                                           formation.hazard.agegapry.gap_factor_woman_exp = c(-0.4, -0.1),#c(-2, -0.1),
+                                           person.agegap.man.dist.normal.mu = c(3, 5), #c(1, 5),
+                                           person.agegap.woman.dist.normal.mu = c(3.2, 3.8), #c(1, 5),
+                                           person.agegap.man.dist.normal.sigma = c(1.9, 2.9), #c(0.5, 3.5),
+                                           person.agegap.woman.dist.normal.sigma = c(1.7, 2.5), #c(0.5, 3.5),
                                            hivtransmission.param.f1 = c(log(2), log(3.5))
                                            )
 
 ################################################################################################
 #use when you have a file that was generated from wrapper with.replace.run
-file.name.csv <- paste0(dirname,"/","SummaryOutPut.df.ReSample-iPUwps-1.csv")
+file.name.csv <- paste0(dirname,"/","SummaryOutPut.df.ReSample-iPUwpslj-1-WimCourse.csv")
 complete.results <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 complete.results <- complete.results[order(complete.results$sum.square.df),]
 match.true <- subset(complete.results, complete.results$match == TRUE)
@@ -53,7 +53,7 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #set how many time the single row will be repeated
-sim_repeat <- 5
+sim_repeat <- 50
 
 # number of cores per node
 ncluster.use <- 4
@@ -174,7 +174,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     chunk.datalist.test <- readthedata(testoutput)
 
     #save each of the run output.
-    #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",sub.dir.sim.id,".rda"))
+    save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",sub.dir.sim.id,".rda"))
 
     #delete all the file created during the current simulation
     unlink(paste0("temp/",sub.dir.sim.id), recursive = TRUE)
@@ -186,25 +186,25 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
                                           timewindow.max=unique(chunk.datalist.test$itable$population.simtime)))
 
       inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25),
-                                        timewindow = c(32, 35), only.active = "No")
+                                        timewindow = c(32, 34), only.active = "No")
       inc.men.20.25 <- inc.20.25$incidence[1]
       inc.wom.20.25 <- inc.20.25$incidence[2]
       prev.25.30 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(25, 30),
-                                         timepoint = 35)
+                                         timepoint = 34)
       prev.men.25.30 = prev.25.30$pointprevalence[1]
       prev.wom.25.30 = prev.25.30$pointprevalence[2]
       prev.30.35 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(30, 35),
-                                         timepoint = 35)
+                                         timepoint = 34)
       prev.men.30.35 = prev.30.35$pointprevalence[1]
       prev.wom.30.35 = prev.30.35$pointprevalence[2]
       ARTcov <- ART.coverage.calculator(datalist = chunk.datalist.test, agegroup = c(18, 50),
-                                        timepoint = 35, site="All")
+                                        timepoint = 34, site="All")
       ART.cov.men.18.50 <- ARTcov$ART.coverage[1]
       ART.cov.wom.18.50 <- ARTcov$ART.coverage[2]
 
       agemix.df <- agemix.df.maker(chunk.datalist.test)
       pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(18, 50),
-                                  timepoint = 35, timewindow = 1, start = FALSE)
+                                  timepoint = 34, timewindow = 1, start = FALSE)
       median.wom.18.50.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))
 
       ##get the summary statistics as indicated by target.variables
@@ -346,7 +346,7 @@ end.chunk.time <- proc.time() - start.chunk.time
 
 rand.string <- paste0(sample(c(LETTERS,letters), 5), collapse="")
 
-write.csv(inputANDoutput.chunk.df, file = paste0(dirname,"/","SummaryOutPut-inANDout.df.chunk-Age-",
+write.csv(inputANDoutput.chunk.df, file = paste0(dirname,"/","SummaryOutPut-inANDout.df.chunk-Age-WIMCourse",
                                                  rand.string,".csv"),
                                                 row.names = FALSE)
 
@@ -414,11 +414,11 @@ selected.year <- 24
 #prev select for plot
 prev.select.sum.plot <- dplyr::filter(prev.inci.select.sum, plot.type == "prev",
                                       sum.type == "Point", year.time == selected.year,
-                                      Gender != "Total")
+                                      Gender == "Total")
 #inci select for plot
 inci.select.sum.plot <- dplyr::filter(prev.inci.select.sum, plot.type=="inci",
                                       sum.type == "Point", year.time == selected.year,
-                                      Gender != "Total")
+                                      Gender == "Total")
 
 year.plot.selection <- 1977 + selected.year + 10 #start of the simulation plus yrs after start
 
@@ -426,8 +426,10 @@ inc.plot <- ggplot(inci.select.sum.plot,
                    aes(x=age.group.point, y=prev.inc, group=interaction(sim.id.unique, Gender))) +
   geom_point() + geom_line() + aes(colour = Gender)  +
   xlim("18-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49") +
-  facet_grid(sim.id~plot.type) + xlab(paste0(year.plot.selection," Age Group")) +
-  ylab(" HIV Incidence") +
+  #facet_grid(sim.id~plot.type) + xlab(paste0(year.plot.selection," Age Group")) +
+  #ylab(" HIV Incidence") +
+  labs(title = paste0(year.plot.selection, "Model HIV Incidence in Swaziland"),
+       x = "Age Group", y = "") +
   theme_bw() +
   theme(axis.text.x  = element_text(vjust=0.5, size=14),
         axis.title.x = element_text(size=16)) +
