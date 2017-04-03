@@ -33,8 +33,20 @@ inPUT.df.complete <- simpact.config.inputs(design.points = 200,
 
 ################################################################################################
 #use when you have a file that was generated from wrapper with.replace.run
-file.name.csv <- paste0(dirname,"/","SummaryOutPut.df.ReSample-iPUwps-1.csv")
+file.name.csv <- paste0(dirname,"/","SummaryOutPut-df-16001-18000.csv")
 complete.results <- data.frame(read.csv(file = file.name.csv, header = TRUE))
+
+#### WIM Course PLACE holder
+complete.results <- complete.results[complete.results$sim.id==16334,]
+complete.results <- aggregate(complete.results,
+                                    by = list(complete.results$sim.id), FUN = "mean", na.rm = TRUE)
+#remove the name produced by mean grouping
+complete.results <- subset(complete.results, select=-c(Group.1))
+
+complete.results$match <- TRUE
+complete.results$sum.square.df <- 0.00954522
+##################
+
 complete.results <- complete.results[order(complete.results$sum.square.df),]
 match.true <- subset(complete.results, complete.results$match == TRUE)
 inPUT.df.complete <- simpact.config.inputs.par.select(datalist = match.true)
@@ -53,7 +65,7 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #set how many time the single row will be repeated
-sim_repeat <- 5
+sim_repeat <- 24
 
 # number of cores per node
 ncluster.use <- 4
@@ -174,7 +186,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     chunk.datalist.test <- readthedata(testoutput)
 
     #save each of the run output.
-    #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",sub.dir.sim.id,".rda"))
+    save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",sub.dir.sim.id,".rda"))
 
     #delete all the file created during the current simulation
     unlink(paste0("temp/",sub.dir.sim.id), recursive = TRUE)
@@ -186,25 +198,25 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
                                           timewindow.max=unique(chunk.datalist.test$itable$population.simtime)))
 
       inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25),
-                                        timewindow = c(32, 35), only.active = "No")
+                                        timewindow = c(32, 34), only.active = "No")
       inc.men.20.25 <- inc.20.25$incidence[1]
       inc.wom.20.25 <- inc.20.25$incidence[2]
       prev.25.30 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(25, 30),
-                                         timepoint = 35)
+                                         timepoint = 34)
       prev.men.25.30 = prev.25.30$pointprevalence[1]
       prev.wom.25.30 = prev.25.30$pointprevalence[2]
       prev.30.35 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(30, 35),
-                                         timepoint = 35)
+                                         timepoint = 34)
       prev.men.30.35 = prev.30.35$pointprevalence[1]
       prev.wom.30.35 = prev.30.35$pointprevalence[2]
       ARTcov <- ART.coverage.calculator(datalist = chunk.datalist.test, agegroup = c(18, 50),
-                                        timepoint = 35, site="All")
+                                        timepoint = 34, site="All")
       ART.cov.men.18.50 <- ARTcov$ART.coverage[1]
       ART.cov.wom.18.50 <- ARTcov$ART.coverage[2]
 
       agemix.df <- agemix.df.maker(chunk.datalist.test)
       pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(18, 50),
-                                  timepoint = 35, timewindow = 1, start = FALSE)
+                                  timepoint = 34, timewindow = 1, start = FALSE)
       median.wom.18.50.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))
 
       ##get the summary statistics as indicated by target.variables
@@ -409,29 +421,87 @@ prev.inci.select.sum$sum.type[grep(".ul",prev.inci.select.sum$point.est)] <- "Up
 
 #Select year to plot the age distribution start year 1977 <- 10 - 40 yrs
 # then 2011 is year 33
-selected.year <- 24
+selected.year <- 25
+target.plot.list <- c("Women", "Men")
 
-#prev select for plot
+#prev select for plot # Gender != "Total"  ## sum.type == "Point",
 prev.select.sum.plot <- dplyr::filter(prev.inci.select.sum, plot.type == "prev",
                                       sum.type == "Point", year.time == selected.year,
-                                      Gender != "Total")
+                                      Gender  %in% target.plot.list)
 #inci select for plot
 inci.select.sum.plot <- dplyr::filter(prev.inci.select.sum, plot.type=="inci",
                                       sum.type == "Point", year.time == selected.year,
-                                      Gender != "Total")
+                                      Gender  %in% target.plot.list)
 
-year.plot.selection <- 1977 + selected.year + 10 #start of the simulation plus yrs after start
+if(selected.year == 25){
+  shims.prev.men <- list(c(rep(prev.select.sum.plot$sim.id[1],7)),
+                     c(rep(prev.select.sum.plot$sim.id.unique[1],7)),
+                     c(rep("prev.age.n",7)),
+                     c(0.8, 6.6, 21.3, 36.6,47,45.5,42.5), c(1:7),
+                     c(1820, 2025, 2530, 3035, 3540, 4045, 4550),
+                     c(rep(25, 7)), c(rep("prev",7)), c(rep("SHIMS-Men", 7)),
+                     c(rep("Point",7)))
+
+  shims.prev.men <- as.data.frame(shims.prev.men)
+  names(shims.prev.men) <- names(prev.select.sum.plot)
+
+  shims.prev.women <- list(c(rep(prev.select.sum.plot$sim.id[1],7)),
+                         c(rep(prev.select.sum.plot$sim.id.unique[1],7)),
+                         c(rep("prev.age.n",7)),
+                         c(14.3, 31.5, 46.7, 53.8, 49.1,39.7, 31.6), c(1:7),
+                         c(1820, 2025, 2530, 3035, 3540, 4045, 4550),
+                         c(rep(25, 7)), c(rep("prev",7)), c(rep("SHIMS-Wom", 7)),
+                         c(rep("Point",7)))
+
+  shims.prev.women <- as.data.frame(shims.prev.women)
+  names(shims.prev.women) <- names(prev.select.sum.plot)
+
+  prev.select.sum.plot <- rbind(prev.select.sum.plot, shims.prev.women, shims.prev.men)
+
+  shims.inc.men <- list(c(rep(inci.select.sum.plot$sim.id[1],7)),
+                        c(rep(inci.select.sum.plot$sim.id.unique[1],7)),
+                        c(rep("inci.age.n",7)),
+                        c(0.8, 1.6, 2.6, 3.1, 0.4, 1.2, NA), c(1:7),
+                        c(1820, 2025, 2530, 3035, 3540, 4045, 4550),
+                        c(rep(25, 7)), c(rep("inci",7)), c(rep("SHIMS-Men", 7)),
+                        c(rep("Point",7)))
+
+  shims.inc.men <- as.data.frame(shims.inc.men)
+  names(shims.inc.men) <- names(inci.select.sum.plot)
+
+
+  shims.inc.women <- list(c(rep(inci.select.sum.plot$sim.id[1],7)),
+                        c(rep(inci.select.sum.plot$sim.id.unique[1],7)),
+                        c(rep("inci.age.n",7)),
+                        c(3.8, 4.3, 2.0, 2.7, 4.0, 2.1, 1.2), c(1:7),
+                        c(1820, 2025, 2530, 3035, 3540, 4045, 4550),
+                        c(rep(25, 7)), c(rep("inci",7)), c(rep("SHIMS-Wom", 7)),
+                        c(rep("Point",7)))
+
+  shims.inc.women <- as.data.frame(shims.inc.women)
+  names(shims.inc.women) <- names(inci.select.sum.plot)
+
+  inci.select.sum.plot <- rbind(inci.select.sum.plot, shims.inc.women, shims.inc.men)
+}
+
+
+
+year.plot.selection <- 1976 + selected.year + 10 #start of the simulation plus yrs after start
 
 inc.plot <- ggplot(inci.select.sum.plot,
                    aes(x=age.group.point, y=prev.inc, group=interaction(sim.id.unique, Gender))) +
   geom_point() + geom_line() + aes(colour = Gender)  +
   xlim("18-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49") +
-  facet_grid(sim.id~plot.type) + xlab(paste0(year.plot.selection," Age Group")) +
-  ylab(" HIV Incidence") +
+  #facet_grid(sim.id~plot.type) + xlab(paste0(year.plot.selection," Age Group")) +
+  #ylab(" HIV Incidence") +
+  labs(title = paste0(year.plot.selection, " Model HIV Incidence in Swaziland"),
+       x = "Age Group", y = " HIV Incidence") +
   theme_bw() +
-  theme(axis.text.x  = element_text(vjust=0.5, size=14),
+  theme( panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x  = element_text(vjust=0.5, size=10),
         axis.title.x = element_text(size=16)) +
-  theme(axis.text.y  = element_text(vjust=0.5, size=14),
+  theme(axis.text.y  = element_text(vjust=0.5, size=10),
         axis.title.y = element_text(size=16))
 
 
@@ -440,15 +510,18 @@ prev.plot <- ggplot(prev.select.sum.plot,
   geom_point() + geom_line() + aes(colour = Gender) +
   geom_text(aes(label=prev.inc), size=4, vjust=-.8, show.legend = FALSE) +
   xlim("18-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49") +
+  ylim(0,65) +
   #facet_grid(sim.id~plot.type) +
   #xlab(paste0(year.plot.selection," Age Group")) +
   #ylab(" HIV Prevalence") +
-  labs(title = paste0(year.plot.selection, "Model HIV Prevalence in Swaziland"),
-       x = "Age Group", y = "") +
+  labs(title = paste0(year.plot.selection, " Model HIV Prevalence in Swaziland"),
+       x = "Age Group", y = " HIV Prevalence") +
   theme_bw()+
-  theme(axis.text.x  = element_text(vjust=0.5, size=14),
+  theme( panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x  = element_text(vjust=0.5, size=10),
         axis.title.x = element_text(size=16)) +
-  theme(axis.text.y  = element_text(vjust=0.5, size=14),
+  theme(axis.text.y  = element_text(vjust=0.5, size=10),
         axis.title.y = element_text(size=16)) +
   theme(plot.title = element_text(hjust = 0.5, size=16))
   #+ theme(legend.position="none")
@@ -456,6 +529,64 @@ prev.plot <- ggplot(prev.select.sum.plot,
 
 #have prev and inc on the same plot.
 grid.arrange(inc.plot, prev.plot, ncol = 1 )
+
+# Use semi-transparent fill
+inci.bar.plot <- ggplot(inci.select.sum.plot, aes(x=age.group.point, y=prev.inc, fill=Gender, color=Gender))
+
+inci.bar.plot <- inci.bar.plot + geom_bar(stat = "identity", position = position_dodge(0.9))
+
+#geom_errorbar(aes(ymax = ), position = position_dodge(0.9),
+#              width = 0.25)
+
+inci.bar.plot <- inci.bar.plot + xlim("18-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49") +
+  ylim(0,6) + labs(title = paste0(year.plot.selection, " Model HIV Incidence in Swaziland"),
+       x = "Age Group", y = " HIV Incidence") +
+  theme_bw()+
+  theme( panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x  = element_text(vjust=0.5, size=10),
+        axis.title.x = element_text(size=16)) +
+  theme(axis.text.y  = element_text(vjust=0.5, size=10),
+        axis.title.y = element_text(size=16)) +
+  theme(plot.title = element_text(hjust = 0.5, size=16)) +
+  theme(
+    legend.position = c(0.99, 0.9),
+    legend.justification = c("right", "top")
+  )
+
+
+#PrevHist
+target.plot.hist <- c("Men", "SHIMS-Men")
+
+#prev select for plot # Gender != "Total"  ## sum.type == "Point",
+prev.select.hist.plot <- dplyr::filter(prev.select.sum.plot,
+                                      sum.type == "Point",
+                                      Gender  %in% target.plot.hist)
+
+# Use semi-transparent fill
+prev.bar.plot <- ggplot(prev.select.hist.plot, aes(x=age.group.point, y=prev.inc, fill=Gender, color=Gender))
+
+prev.bar.plot <- prev.bar.plot + geom_bar(stat = "identity", position = position_dodge(0.9))
+
+prev.bar.plot <- prev.bar.plot + xlim("18-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49") +
+  labs(title = paste0(year.plot.selection, " Model HIV Prevalence in Swaziland"),
+                   x = "Age Group", y = " HIV Prevalence") +
+  theme_bw()+
+  theme( panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x  = element_text(vjust=0.5, size=10),
+        axis.title.x = element_text(size=16)) +
+  theme(axis.text.y  = element_text(vjust=0.5, size=10),
+        axis.title.y = element_text(size=16)) +
+  theme(plot.title = element_text(hjust = 0.5, size=16)) +
+  theme(
+    legend.position = c(0.9, 0.3),
+    legend.justification = c("right", "top")
+  )
+
+
+
+
 
 #one with confident interval
 #geom_ribbon(data = prev.inci.select.sum, aes(ymin=Lower, ymax=upper), alpha=0.3)
