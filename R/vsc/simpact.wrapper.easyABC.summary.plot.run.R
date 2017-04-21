@@ -41,8 +41,16 @@ inPUT.df.complete <- simpact.config.inputs.par.select(datalist = match.true)
 # ################################################################################################
 
 #Select a chunk to send to process
-min.chunk <- 1
-max.chunk <- 1
+#min.chunk <- 17
+#max.chunk <- 17
+
+id.col <- c(17, 36, 90, 46, 34, 85, 15)
+
+
+for (r in id.col){
+
+  min.chunk <- r
+  max.chunk <- r
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}
@@ -53,7 +61,7 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #set how many time the single row will be repeated
-sim_repeat <- 4
+sim_repeat <- 12
 
 # number of cores per node
 ncluster.use <- 4
@@ -99,14 +107,16 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr)
 
     ## Run preprior.names.chunk and copy the results here.
-    input.varied.params.plus <- c("conception.alpha_base", "person.art.accept.threshold.dist.fixed.value",
+    input.varied.params.plus <- c("conception.alpha_base",
+                                  #"person.art.accept.threshold.dist.fixed.value",
                                   "person.eagerness.man.dist.gamma.a", "person.eagerness.man.dist.gamma.b",
                                   "person.eagerness.woman.dist.gamma.a", "formation.hazard.agegapry.eagerness_diff",
-                                  "person.eagerness.woman.dist.gamma.b", "formation.hazard.agegapry.numrel_man",
+                                  "person.eagerness.woman.dist.gamma.b", #"formation.hazard.agegapry.numrel_man",
                                   "formation.hazard.agegapry.numrel_woman", "formation.hazard.agegapry.gap_factor_man_exp",
-                                  "formation.hazard.agegapry.gap_factor_woman_exp", "person.agegap.man.dist.normal.mu",
+                                  "formation.hazard.agegapry.gap_factor_woman_exp", #"person.agegap.man.dist.normal.mu",
                                   "person.agegap.woman.dist.normal.mu", "person.agegap.man.dist.normal.sigma",
-                                  "person.agegap.woman.dist.normal.sigma", "hivtransmission.param.f1")
+                                  #"person.agegap.woman.dist.normal.sigma",
+                                  "hivtransmission.param.f1")
 
     target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
                           "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
@@ -123,7 +133,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     #intervention introduced See the intervention.introduced
     # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
-    iv.chunk <- intervention.introduced(simulation.type = simulation.type)
+    ### iv.chunk <- intervention.introduced(simulation.type = simulation.type)
 
     #The first parameter is set to be the seed value
     seed.chunk.id <- input.chunk.params[1]
@@ -141,7 +151,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
         cfg.chunk["hivtransmission.param.f2"][[1]] <- log(f2.num / f2.den)/5
       }
     }
-
+    cfg.chunk["person.art.accept.threshold.dist.fixed.value"][[1]] <- 0
     ## Keep the files produced in subfolders
     generate.filename <- function(how.long){
       chars <- c(letters, LETTERS)
@@ -154,7 +164,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     testoutput <- simpact.run(configParams = cfg.chunk,
                               destDir = sub.dir.rename,
                               agedist = agedist.chunk.data.frame,
-                              intervention = iv.chunk,
+                              ##intervention = iv.chunk,
                               identifierFormat = paste0("%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r_",
                                                         sub.dir.sim.id,"-"),
                               seed = seed.chunk.id)
@@ -185,25 +195,25 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
                                           timewindow.max=unique(chunk.datalist.test$itable$population.simtime)))
 
       inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25),
-                                        timewindow = c(32, 35), only.active = "No")
+                                        timewindow = c(32, 34), only.active = "No")
       inc.men.20.25 <- inc.20.25$incidence[1]
       inc.wom.20.25 <- inc.20.25$incidence[2]
       prev.25.30 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(25, 30),
-                                         timepoint = 35)
+                                         timepoint = 34)
       prev.men.25.30 = prev.25.30$pointprevalence[1]
       prev.wom.25.30 = prev.25.30$pointprevalence[2]
       prev.30.35 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(30, 35),
-                                         timepoint = 35)
+                                         timepoint = 34)
       prev.men.30.35 = prev.30.35$pointprevalence[1]
       prev.wom.30.35 = prev.30.35$pointprevalence[2]
       ARTcov <- ART.coverage.calculator(datalist = chunk.datalist.test, agegroup = c(18, 50),
-                                        timepoint = 35, site="All")
+                                        timepoint = 34, site="All")
       ART.cov.men.18.50 <- ARTcov$ART.coverage[1]
       ART.cov.wom.18.50 <- ARTcov$ART.coverage[2]
 
       agemix.df <- agemix.df.maker(chunk.datalist.test)
       pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(18, 50),
-                                  timepoint = 35, timewindow = 1, start = FALSE)
+                                  timepoint = 34, timewindow = 1, start = FALSE)
       median.wom.18.50.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))
 
       ##get the summary statistics as indicated by target.variables
@@ -330,9 +340,9 @@ inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk,
 #Calculate how much time the simulation took
 end.chunk.time <- proc.time() - start.chunk.time
 
-write.csv(inputANDoutput.chunk.df, file = paste0(dirname,"/","SummaryOutPut-inANDout.df.chunk-",
-                                                min.chunk,"-",max.chunk,"-",Sys.Date(),".csv"),
-                                                row.names = FALSE)
+#write.csv(inputANDoutput.chunk.df, file = paste0(dirname,"/","SummaryOutPut-inANDout.df.chunk-",
+#                                                min.chunk,"-",max.chunk,"-",Sys.Date(),".csv"),
+#                                                row.names = FALSE)
 
 #Read the file for summary plot UNCOMMENT ONCE TESTING IS DONE
 #file.name.csv <- paste0(dirname,"/","SummaryOutPut.df.ReSample-iPUwps-1.csv")
@@ -343,8 +353,8 @@ write.csv(inputANDoutput.chunk.df, file = paste0(dirname,"/","SummaryOutPut-inAN
 inputANDoutput.chunk.plot.df <- inputANDoutput.chunk.df
 
 ############ Doing the mean comment below if needed  ######################################
-inputANDoutput.chunk.plot.df <- aggregate(inputANDoutput.chunk.plot.df,
-                               by = list(inputANDoutput.chunk.plot.df$sim.id), FUN = "mean")
+#inputANDoutput.chunk.plot.df <- aggregate(inputANDoutput.chunk.plot.df,
+#                               by = list(inputANDoutput.chunk.plot.df$sim.id), FUN = "mean")
 
 # Prepare and generate inc and prev plots
 prev.inci.select.sum <- dplyr::select(inputANDoutput.chunk.plot.df, contains(".overal"))
@@ -376,7 +386,7 @@ prev.inci.select.sum$prev.inc <- round(100* prev.inci.select.sum$prev.inc, 2)
 #gender
 prev.inci.select.sum$Gender <- NA
 prev.inci.select.sum$Gender[grep(".overalt",prev.inci.select.sum$point.est) ] <- "Total"
-prev.inci.select.sum$Gender[grep(".overalm",prev.inci.select.sum$point.est) ] <- "Man"
+prev.inci.select.sum$Gender[grep(".overalm",prev.inci.select.sum$point.est) ] <- "Men"
 prev.inci.select.sum$Gender[grep(".overalw",prev.inci.select.sum$point.est) ] <- "Women"
 
 #point, lci, uci
@@ -394,18 +404,73 @@ inci.select.sum.plot <- dplyr::filter(prev.inci.select.sum, plot.type=="inci",
 
 min.year <- 1977 # year HIV was seeded 10yrs after
 
+inci.select.sum.plot$uniq.inc <- paste0(inci.select.sum.plot$year.time,inci.select.sum.plot$Gender)
+
+inci.select.sum.plotMean <- subset(inci.select.sum.plot, select=c(prev.inc, uniq.inc))
+
+inci.select.sum.plotMean <- aggregate(inci.select.sum.plotMean,
+                                      by = list(inci.select.sum.plotMean$uniq.inc), FUN = "mean")
+
+inci.select.sum.plotMean <- subset(inci.select.sum.plotMean, select=-c(uniq.inc))
+names(inci.select.sum.plotMean)[names(inci.select.sum.plotMean)=="Group.1"] <- "uniq.inc"
+
+inci.select.sum.plotMean <- inci.select.sum.plotMean %>%
+  dplyr::left_join(inci.select.sum.plot, by = "uniq.inc")
+
+
+inci.select.sum.plotMean <- subset(inci.select.sum.plotMean,
+                                   select=c(sim.id, sim.id.unique, point.est, prev.inc.x,
+                                            year.time, plot.type, Gender, sum.type, uniq.inc))
+
+inci.select.sum.plotMean$Gender[inci.select.sum.plotMean$Gender == "Total"] <- "MeanTotal"
+inci.select.sum.plotMean$Gender[inci.select.sum.plotMean$Gender == "Men"] <- "MeanMale"
+inci.select.sum.plotMean$Gender[inci.select.sum.plotMean$Gender == "Women"] <- "MeanFemale"
+
+names(inci.select.sum.plotMean)[names(inci.select.sum.plotMean)=="prev.inc.x"] <- "prev.inc"
+
+
+inci.select.sum.plot <- rbind(inci.select.sum.plot, inci.select.sum.plotMean)
+
+
 inc.plot <- ggplot(inci.select.sum.plot,
                    aes(x=year.time+min.year, y=prev.inc,
                        group=interaction(sim.id.unique, Gender))) +
   geom_point() + geom_line() + aes(colour = Gender)  +
   scale_x_continuous(breaks = seq(min(prev.inci.select.sum$year.time+min.year),
                                   max(prev.inci.select.sum$year.time+min.year), 1)) +
-  facet_grid(sim.id~plot.type) + xlab("Simulation time") + ylab(" HIV Incidence") +
+  scale_y_continuous(breaks = seq(min(prev.inci.select.sum$prev.inc),
+                                  max(prev.inci.select.sum$prev.inc+1), 0.5)) +
+  facet_grid(sim.id~plot.type) + xlab("Simulation time") + ylab(" HIV Incidence (no treatment)") +
   theme_bw() +
   theme(axis.text.x  = element_text(vjust=0.5, size=9),
         axis.title.x = element_text(size=16)) +
   theme(axis.text.y  = element_text(vjust=0.5, size=9),
         axis.title.y = element_text(size=16))
+
+ggsave(filename= paste0(dirname,"/incnoint", min.chunk,".png"), width =15, height = 6)
+
+########
+prev.select.sum.plot$uniq.prev <- paste0(prev.select.sum.plot$year.time,prev.select.sum.plot$Gender)
+prev.select.sum.plotMean <- subset(prev.select.sum.plot, select=c(prev.inc, uniq.prev))
+prev.select.sum.plotMean <- aggregate(prev.select.sum.plotMean,
+                                      by = list(prev.select.sum.plotMean$uniq.prev), FUN = "mean")
+
+prev.select.sum.plotMean <- subset(prev.select.sum.plotMean, select=-c(uniq.prev))
+names(prev.select.sum.plotMean)[names(prev.select.sum.plotMean)=="Group.1"] <- "uniq.prev"
+
+prev.select.sum.plotMean <- prev.select.sum.plotMean %>%
+  dplyr::left_join(prev.select.sum.plot, by = "uniq.prev")
+
+prev.select.sum.plotMean <- subset(prev.select.sum.plotMean,
+                                   select=c(sim.id, sim.id.unique, point.est, prev.inc.x,
+                                            year.time, plot.type, Gender, sum.type, uniq.prev))
+
+prev.select.sum.plotMean$Gender[prev.select.sum.plotMean$Gender == "Total"] <- "MeanTotal"
+prev.select.sum.plotMean$Gender[prev.select.sum.plotMean$Gender == "Men"] <- "MeanMale"
+prev.select.sum.plotMean$Gender[prev.select.sum.plotMean$Gender == "Women"] <- "MeanFemale"
+names(prev.select.sum.plotMean)[names(prev.select.sum.plotMean)=="prev.inc.x"] <- "prev.inc"
+
+prev.select.sum.plot <- rbind(prev.select.sum.plot, prev.select.sum.plotMean)
 
 prev.plot <- ggplot(prev.select.sum.plot,
                     aes(x=year.time+min.year, y=prev.inc,
@@ -413,19 +478,24 @@ prev.plot <- ggplot(prev.select.sum.plot,
   geom_point() + geom_line() + aes(colour = Gender) +
   scale_x_continuous(breaks = seq(min(prev.inci.select.sum$year.time+min.year),
                                   max(prev.inci.select.sum$year.time+min.year), 1)) +
-  facet_grid(sim.id~plot.type) + xlab("Simulation time") + ylab(" HIV Prevalence") +
+  scale_y_continuous(breaks = seq(min(prev.inci.select.sum$prev.inc),
+                                  max(prev.inci.select.sum$prev.inc+1), 3)) +
+  facet_grid(sim.id~plot.type) + xlab("Simulation time") + ylab(" HIV Prevalence (no treatment)") +
   theme_bw() +
   theme(axis.text.x  = element_text(vjust=0.5, size=9),
         axis.title.x = element_text(size=16)) +
   theme(axis.text.y  = element_text(vjust=0.5, size=9),
         axis.title.y = element_text(size=16))
 
-#have prev and inc on the same plot.
-grid.arrange(inc.plot, prev.plot, ncol = 1 )
 
+#have prev and inc on the same plot.
+#grid.arrange(inc.plot, prev.plot, ncol = 1 )
+
+ggsave(filename= paste0(dirname,"/prevnoint", min.chunk,".png"), width =15, height = 6)
+}
 
 #one with confident interval
 #geom_ribbon(data = prev.inci.select.sum, aes(ymin=Lower, ymax=upper), alpha=0.3)
 #
 
-
+#load(paste0(dirname,"/temp/chunk.datalist.AtoLmiBW.rda"))
