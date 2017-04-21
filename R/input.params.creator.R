@@ -110,6 +110,9 @@
 #' if below this value
 #' @param simulation.type To distinguish parameters that vary from the type of simulation
 #' being perfomed (simpact-cyan) e.g you can use maxart as well
+#' @param mortality.aids.survtime.C HIV-based time of death parameter
+#' @param mortality.aids.survtime.k HIV-based time of death parameter
+#' @param monitoring.fraction.log_viralload the setpoint viral load will be dropped by this fraction
 #' @return a list of model parameters that can be used as input for simpact.run()
 #' @examples
 #' cfg.list <- input.params.creator(conception.alpha_base = -3,
@@ -172,9 +175,12 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  hivtransmission.param.c = 0.4948478,
                                  hivtransmission.param.f1 = log(5), #~1.6 =>hazard is x5 in 15yo
                                  hivtransmission.param.f2 = log(log(2.5) / log(5)) / 5,
+                                 mortality.aids.survtime.C = 62,
+                                 mortality.aids.survtime.k = -0.2,
                                  conception.alpha_base = -2.35, #-3
                                  diagnosis.baseline = -100,
                                  monitoring.cd4.threshold = 0.1,#250
+                                 monitoring.fraction.log_viralload = 0.3,
                                  simulation.type = "simpact-cyan"
                                  ){
   input.params <- list()
@@ -233,7 +239,10 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$hivtransmission.param.c <- hivtransmission.param.c
   input.params$hivtransmission.param.f1 <- hivtransmission.param.f1
   input.params$hivtransmission.param.f2 <- hivtransmission.param.f2
+  input.params$mortality.aids.survtime.k <- mortality.aids.survtime.k
+  input.params$mortality.aids.survtime.C <- mortality.aids.survtime.C
   input.params$conception.alpha_base <- conception.alpha_base
+  input.params$monitoring.fraction.log_viralload <- monitoring.fraction.log_viralload
   input.params$diagnosis.baseline <- diagnosis.baseline
 
   if(simulation.type == "simpact-cyan"){
