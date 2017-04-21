@@ -28,5 +28,7 @@
 #library(PerformanceAnalytics)
 #chart.Correlation(mydata, histogram=TRUE, pch=19)
 
-
+#rle produces two vectors (lengths and values ). The length of values vector gives you the number of unique values.
+#x<-c(1,2,3,1,2,3,4,6)
+#length(rle(sort(x))$values)
 
