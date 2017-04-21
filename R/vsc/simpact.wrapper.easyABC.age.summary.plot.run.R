@@ -33,28 +33,38 @@ inPUT.df.complete <- simpact.config.inputs(design.points = 20000,
 
 ################################################################################################
 #use when you have a file that was generated from wrapper with.replace.run
-file.name.csv <- paste0(dirname,"/","SummaryOutPut-df-16001-18000.csv")
+file.name.csv <- paste0(dirname,"/","inputANDoutput.SSE.df.csv")
 complete.results <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
 #### WIM Course PLACE holder
-complete.results <- complete.results[complete.results$sim.id==16334,]
+complete.results <- complete.results[complete.results$sim.id==6994,]
 complete.results <- aggregate(complete.results,
                                     by = list(complete.results$sim.id), FUN = "mean", na.rm = TRUE)
 #remove the name produced by mean grouping
 complete.results <- subset(complete.results, select=-c(Group.1))
 
 complete.results$match <- TRUE
-complete.results$sum.square.df <- 0.00954522
+complete.results$sum.square.df <- 0.006369786
 ##################
 
-complete.results <- complete.results[order(complete.results$sum.square.df),]
+################ MICE METHOD  #######
+complete.results <- mice.df.out[,15:26]
+xdesign <- data.frame(matrix(NA, nrow = nrow(complete.results), ncol = ncol(complete.results) + 1))
+names(xdesign) <- c("sim.id", paste0("xdesign",1:(length(xdesign)-1)))
+xdesign$sim.id <- 1:nrow(complete.results)
+complete.results <- cbind(xdesign, complete.results)
+
+################
+complete.results$match <- TRUE
+complete.results$sum.square.df <- 0.006369786
+#complete.results <- complete.results[order(complete.results$sum.square.df),]
 match.true <- subset(complete.results, complete.results$match == TRUE)
 inPUT.df.complete <- simpact.config.inputs.par.select(datalist = match.true)
 ################################################################################################
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 1
+max.chunk <- 100
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}
@@ -65,7 +75,7 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #set how many time the single row will be repeated
-sim_repeat <- 24
+sim_repeat <- 4
 
 # number of cores per node
 ncluster.use <- 4
@@ -112,14 +122,16 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr)
 
     ## Run preprior.names.chunk and copy the results here.
-    input.varied.params.plus <- c("conception.alpha_base", "person.art.accept.threshold.dist.fixed.value",
+    input.varied.params.plus <- c("conception.alpha_base",
+                                  #"person.art.accept.threshold.dist.fixed.value",
                                   "person.eagerness.man.dist.gamma.a", "person.eagerness.man.dist.gamma.b",
                                   "person.eagerness.woman.dist.gamma.a", "formation.hazard.agegapry.eagerness_diff",
-                                  "person.eagerness.woman.dist.gamma.b", "formation.hazard.agegapry.numrel_man",
+                                  "person.eagerness.woman.dist.gamma.b", #"formation.hazard.agegapry.numrel_man",
                                   "formation.hazard.agegapry.numrel_woman", "formation.hazard.agegapry.gap_factor_man_exp",
-                                  "formation.hazard.agegapry.gap_factor_woman_exp", "person.agegap.man.dist.normal.mu",
+                                  "formation.hazard.agegapry.gap_factor_woman_exp", #"person.agegap.man.dist.normal.mu",
                                   "person.agegap.woman.dist.normal.mu", "person.agegap.man.dist.normal.sigma",
-                                  "person.agegap.woman.dist.normal.sigma", "hivtransmission.param.f1")
+                                  #"person.agegap.woman.dist.normal.sigma",
+                                  "hivtransmission.param.f1")
 
     target.variables <- c("growth.rate", "inc.men.20.25", "inc.wom.20.25", "prev.men.25.30",
                           "prev.wom.25.30","prev.men.30.35", "prev.wom.30.35", "ART.cov.men.18.50",
@@ -366,11 +378,28 @@ write.csv(inputANDoutput.chunk.df, file = paste0(dirname,"/","SummaryOutPut-inAN
 #file.name.csv <- paste0(dirname,"/","SummaryOutPut.df.ReSample-iPUwps-1.csv")
 #inputANDoutput.chunk.plot.df <- data.frame(read.csv(file = file.name.csv, header = TRUE))
 
+
 inputANDoutput.chunk.plot.df <- inputANDoutput.chunk.df
+inputANDoutput.chunk.plot.df <- subset(inputANDoutput.chunk.df, sim.id == 59)
+
 
 ############ Doing the mean comment below if needed  ######################################
 inputANDoutput.chunk.plot.df <- aggregate(inputANDoutput.chunk.plot.df,
                                by = list(inputANDoutput.chunk.plot.df$sim.id), FUN = "mean")
+
+inputANDoutput.chunk.plot.df <- subset(inputANDoutput.chunk.plot.df, select=-c(Group.1))
+##################################################################################################
+
+#Set the targets for the summary statistics.
+target.stats <- c(0.015, 0.016, 0.043, 0.21, 0.47, 0.37, 0.54, 0.33, 0.34, 5)
+
+mean.sum.square.df <- inputANDoutput.chunk.plot.df[,1:10]
+#compute mean sum of difference squared
+mean.sse <- rowSums(as.data.frame(t(apply(mean.sum.square.df[,4:7], 1,
+                                          function(x) (((x - t(target.stats[4:7]) )^2)  ) ) ) ) )
+mean.sse <- as.data.frame(mean.sse)
+##################################################################################################
+
 
 # Prepare and generate inc and prev plots
 prev.inci.select.sum <- dplyr::select(inputANDoutput.chunk.plot.df, contains(".overal"))
@@ -422,7 +451,7 @@ prev.inci.select.sum$sum.type[grep(".ul",prev.inci.select.sum$point.est)] <- "Up
 #Select year to plot the age distribution start year 1977 <- 10 - 40 yrs
 # then 2011 is year 33
 selected.year <- 25
-target.plot.list <- c("Women", "Men")
+target.plot.list <- c("Women")
 
 #prev select for plot # Gender != "Total"  ## sum.type == "Point",
 prev.select.sum.plot <- dplyr::filter(prev.inci.select.sum, plot.type == "prev",
