@@ -41,9 +41,17 @@ intervention.introduced <- function(simulation.type = "simpact-cyan"){
     art.intro4["monitoring.cd4.threshold"] <- 500
     art.intro4["diagnosis.genderfactor"] <- 0.5
 
+    hivseed.int1 <- list()
+    hivseed.int1["time"] <- 15
+    hivseed.int1["hivseed.amount"] <- 100
+
+    hivseed.int2 <- list()
+    hivseed.int2["time"] <- 35
+    hivseed.int2["hivseed.amount"] <- 100
+
     # person.art.accept.threshold.dist.fixed.value
 
-    iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
+    iv <- list(art.intro, art.intro2, art.intro3, art.intro4, hivseed.int1, hivseed.int2)
 
   }else if(simulation.type == "maxart"){
     ### Eligibility increased from <200 to <350 in 2010 and then to <500 in 2015
@@ -74,8 +82,15 @@ intervention.introduced <- function(simulation.type = "simpact-cyan"){
     art.intro4["diagnosis.genderfactor"] <- 0.5
 
     # person.art.accept.threshold.dist.fixed.value
+    hivseed.int1 <- list()
+    hivseed.int1["time"] <- 15
+    hivseed.int1["hivseed.amount"] <- 100
 
-    iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
+    hivseed.int2 <- list()
+    hivseed.int2["time"] <- 35
+    hivseed.int2["hivseed.amount"] <- 100
+
+    iv <- list(art.intro, art.intro2, art.intro3, art.intro4, hivseed.int1, hivseed.int2)
   }else{
     iv <-list()
   }
