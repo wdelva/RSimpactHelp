@@ -47,6 +47,7 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   hivtransmission.param.b = -89.339994, hivtransmission.param.c = 0.4948478,
   hivtransmission.param.f1 = log(5),
   hivtransmission.param.f2 = log(log(2.5)/log(5))/5,
+  mortality.aids.survtime.C = 62, mortality.aids.survtime.k = -0.2,
   conception.alpha_base = -2.35, diagnosis.baseline = -100,
   monitoring.cd4.threshold = 0.1, simulation.type = "simpact-cyan")
 }
@@ -204,6 +205,10 @@ such that the hazard is x 5 in 15 year olds)}
 \item{hivtransmission.param.f2}{Effect of female age on HIV susceptibility
 (log(log(2.5) / log(5)) / 5 ~-0.11 such that the hazard is x 2.5 in 20 year olds,
 compared to the reference (>>25 year olds)}
+
+\item{mortality.aids.survtime.C}{HIV-based time of death parameter}
+
+\item{mortality.aids.survtime.k}{HIV-based time of death parameter}
 
 \item{conception.alpha_base}{Baseline parameter for conception rate. (-3)}
 
