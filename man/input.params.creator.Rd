@@ -8,7 +8,9 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   mortality.normal.weibull.scale = 65,
   mortality.normal.weibull.genderdiff = 0, periodiclogging.interval = 1,
   syncrefyear.interval = 1, formation.hazard.type = "agegapry",
-  person.art.accept.threshold.dist.fixed.value = 0.5,
+  person.art.accept.threshold.dist.type = "uniform",
+  person.art.accept.threshold.dist.uniform.min = 0.5,
+  person.art.accept.threshold.dist.uniform.max = 0.5,
   person.eagerness.man.type = "independent",
   person.eagerness.woman.type = "independent",
   person.eagerness.man.dist.type = "gamma",
@@ -49,7 +51,8 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   hivtransmission.param.f2 = log(log(2.5)/log(5))/5,
   mortality.aids.survtime.C = 62, mortality.aids.survtime.k = -0.2,
   conception.alpha_base = -2.35, diagnosis.baseline = -100,
-  monitoring.cd4.threshold = 0.1, simulation.type = "simpact-cyan")
+  monitoring.cd4.threshold = 0.1, monitoring.fraction.log_viralload = 0.3,
+  birth.boygirlratio = 0.5024876, simulation.type = "simpact-cyan")
 }
 \arguments{
 \item{mortality.normal.weibull.shape}{Specifies the shape of a Weibull distribution to make
@@ -70,8 +73,12 @@ time should be saved (1)}
 \item{formation.hazard.type}{Type of hazard function for relationship formation.
 Choose between "simple", "agegap" and "agegapry".}
 
-\item{person.art.accept.threshold.dist.fixed.value}{This specfies the ART acceptance
-threshold for each person}
+\item{person.art.accept.threshold.dist.type}{This specfies the ART acceptance distribution
+for each person}
+
+\item{person.art.accept.threshold.dist.uniform.min}{The minimal value for the uniform distr}
+
+\item{person.art.accept.threshold.dist.uniform.max}{The maximum value for the uniform distr}
 
 \item{person.eagerness.man.type}{Type of man distribution for "eagerness" (~ sexual activity)
 in the population ("independent")}
@@ -216,6 +223,10 @@ compared to the reference (>>25 year olds)}
 
 \item{monitoring.cd4.threshold}{The value of cd4 that triggers eligibility for treatment
 if below this value}
+
+\item{monitoring.fraction.log_viralload}{the setpoint viral load will be dropped by this fraction}
+
+\item{birth.boygirlratio}{the probability of a newly born to be boy}
 
 \item{simulation.type}{To distinguish parameters that vary from the type of simulation
 being perfomed (simpact-cyan) e.g you can use maxart as well}
