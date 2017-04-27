@@ -14,7 +14,7 @@ if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
 ####  This will create the varied parameter space ###################################################
 #Use when generating simulation from scratch
 inPUT.df.complete <- simpact.config.inputs(design.points = 200,
-                                           conception.alpha_base = c(-3, -0), #c(-4, -1.5)
+                                           conception.alpha_base = c(-3, -0.1), #c(-4, -1.5)
                                            person.art.accept.threshold.dist.fixed.value = c(0.65, 0.85), #good
                                            person.eagerness.man.dist.gamma.a = c(0.4, 1.3), #good
                                            person.eagerness.man.dist.gamma.b = c(30, 60), #c(10,50)
@@ -498,4 +498,4 @@ ggsave(filename= paste0(dirname,"/prevnoint", min.chunk,".png"), width =15, heig
 #geom_ribbon(data = prev.inci.select.sum, aes(ymin=Lower, ymax=upper), alpha=0.3)
 #
 
-#load(paste0(dirname,"/temp/chunk.datalist.AtoLmiBW.rda"))
+#load(paste0(dirname,"/temp/chunk.datalist.vzcWMhxJ.rda"))
