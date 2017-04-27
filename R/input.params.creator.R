@@ -10,8 +10,10 @@
 #' dissolution rate (-0.05)
 #' @param formation.hazard.type Type of hazard function for relationship formation.
 #' Choose between "simple", "agegap" and "agegapry".
-#' @param person.art.accept.threshold.dist.fixed.value This specfies the ART acceptance
-#'  threshold for each person
+#' @param person.art.accept.threshold.dist.type This specfies the ART acceptance distribution
+#' for each person
+#' @param person.art.accept.threshold.dist.uniform.min The minimal value for the uniform distr
+#' @param person.art.accept.threshold.dist.uniform.max The maximum value for the uniform distr
 #' @param formation.hazard.agegapry.gap_factor_man_const Baseline parameter for men (0).
 #' @param formation.hazard.agegapry.gap_factor_woman_const Baseline parameter for women (0).
 #' @param person.agegap.man.dist.type Distribution of preferred age differences
@@ -113,6 +115,7 @@
 #' @param mortality.aids.survtime.C HIV-based time of death parameter
 #' @param mortality.aids.survtime.k HIV-based time of death parameter
 #' @param monitoring.fraction.log_viralload the setpoint viral load will be dropped by this fraction
+#' @param birth.boygirlratio the probability of a newly born to be boy
 #' @return a list of model parameters that can be used as input for simpact.run()
 #' @examples
 #' cfg.list <- input.params.creator(conception.alpha_base = -3,
@@ -127,7 +130,9 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  periodiclogging.interval = 1,
                                  syncrefyear.interval = 1,
                                  formation.hazard.type = "agegapry",
-                                 person.art.accept.threshold.dist.fixed.value = 0.5,
+                                 person.art.accept.threshold.dist.type = "uniform",
+                                 person.art.accept.threshold.dist.uniform.min = 0.5,
+                                 person.art.accept.threshold.dist.uniform.max = 0.5,
                                  person.eagerness.man.type = "independent",
                                  person.eagerness.woman.type = "independent",
                                  person.eagerness.man.dist.type = "gamma",
@@ -160,7 +165,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  formation.hazard.agegapry.eagerness_diff = -0.048,#-0.110975
                                  dissolution.alpha_0 = -0.52,#-0.1 # baseline
                                  dissolution.alpha_4 = -0.05,
-                                 debut.debutage = 14,
+                                 debut.debutage = 15,
                                  population.simtime = 40,
                                  population.nummen = 500, #1000 #2000
                                  population.numwomen = 500, #1000 #2000
@@ -179,8 +184,9 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  mortality.aids.survtime.k = -0.2,
                                  conception.alpha_base = -2.35, #-3
                                  diagnosis.baseline = -100,
-                                 monitoring.cd4.threshold = 0.1,#250
+                                 monitoring.cd4.threshold = 0.1,#Treatment will not start before schedule
                                  monitoring.fraction.log_viralload = 0.3,
+                                 birth.boygirlratio = 0.5024876, #101:100
                                  simulation.type = "simpact-cyan"
                                  ){
   input.params <- list()
@@ -190,7 +196,9 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$periodiclogging.interval <- periodiclogging.interval
   input.params$syncrefyear.interval <- syncrefyear.interval
   input.params$formation.hazard.type <- formation.hazard.type
-  input.params$person.art.accept.threshold.dist.fixed.value <- person.art.accept.threshold.dist.fixed.value
+  input.params$person.art.accept.threshold.dist.type <- person.art.accept.threshold.dist.type
+  input.params$person.art.accept.threshold.dist.uniform.min <- person.art.accept.threshold.dist.uniform.min
+  input.params$person.art.accept.threshold.dist.uniform.max <- person.art.accept.threshold.dist.uniform.max
   input.params$person.eagerness.man.type <- person.eagerness.man.type
   input.params$person.eagerness.woman.type <- person.eagerness.woman.type
   input.params$person.eagerness.man.dist.type <- person.eagerness.man.dist.type
@@ -225,7 +233,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$population.simtime <- population.simtime
   input.params$population.nummen <- population.nummen
   input.params$population.numwomen <- population.numwomen
-  input.params$population.maxevents <- population.simtime * population.nummen * 4 #4events/person
+  input.params$population.maxevents <-  population.simtime * population.nummen * 4 #4events/person
   input.params$population.eyecap.fraction <- population.eyecap.fraction
   input.params$hivseed.type <- hivseed.type
   input.params$hivseed.amount <- hivseed.amount
@@ -244,6 +252,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$conception.alpha_base <- conception.alpha_base
   input.params$monitoring.fraction.log_viralload <- monitoring.fraction.log_viralload
   input.params$diagnosis.baseline <- diagnosis.baseline
+  input.params$birth.boygirlratio <- birth.boygirlratio
 
   if(simulation.type == "simpact-cyan"){
     input.params$monitoring.cd4.threshold <- monitoring.cd4.threshold
