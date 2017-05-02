@@ -34,7 +34,7 @@ tail(complet.df.wo.na,1)
 
 
 input.sets <- 100
-mice.imputted.out <- mice(complete.wna.df, m=input.sets, maxit = 100, method = 'pmm', seed = 500)
+mice.imputted.out <- mice(complete.wna.df, m=input.sets, maxit = 100, method = 'pmm', seed = 556798)
 #summary(mice.imputted.out)
 complete.mice.wo.na <- complete(mice.imputted.out,1)
 #collect all the imputed sets
