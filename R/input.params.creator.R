@@ -12,8 +12,7 @@
 #' Choose between "simple", "agegap" and "agegapry".
 #' @param person.art.accept.threshold.dist.type This specfies the ART acceptance distribution
 #' for each person
-#' @param person.art.accept.threshold.dist.uniform.min The minimal value for the uniform distr
-#' @param person.art.accept.threshold.dist.uniform.max The maximum value for the uniform distr
+#' @param person.art.accept.threshold.dist.fixed.value The value for the fixed distribution
 #' @param formation.hazard.agegapry.gap_factor_man_const Baseline parameter for men (0).
 #' @param formation.hazard.agegapry.gap_factor_woman_const Baseline parameter for women (0).
 #' @param person.agegap.man.dist.type Distribution of preferred age differences
@@ -130,9 +129,8 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  periodiclogging.interval = 1,
                                  syncrefyear.interval = 1,
                                  formation.hazard.type = "agegapry",
-                                 person.art.accept.threshold.dist.type = "uniform",
-                                 person.art.accept.threshold.dist.uniform.min = 0.5,
-                                 person.art.accept.threshold.dist.uniform.max = 0.5,
+                                 person.art.accept.threshold.dist.type = "fixed",
+                                 person.art.accept.threshold.dist.fixed.value = 0.5,
                                  person.eagerness.man.type = "independent",
                                  person.eagerness.woman.type = "independent",
                                  person.eagerness.man.dist.type = "gamma",
@@ -197,8 +195,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$syncrefyear.interval <- syncrefyear.interval
   input.params$formation.hazard.type <- formation.hazard.type
   input.params$person.art.accept.threshold.dist.type <- person.art.accept.threshold.dist.type
-  input.params$person.art.accept.threshold.dist.uniform.min <- person.art.accept.threshold.dist.uniform.min
-  input.params$person.art.accept.threshold.dist.uniform.max <- person.art.accept.threshold.dist.uniform.max
+  input.params$person.art.accept.threshold.dist.fixed.value <- person.art.accept.threshold.dist.fixed.value
   input.params$person.eagerness.man.type <- person.eagerness.man.type
   input.params$person.eagerness.woman.type <- person.eagerness.woman.type
   input.params$person.eagerness.man.dist.type <- person.eagerness.man.dist.type
@@ -233,7 +230,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$population.simtime <- population.simtime
   input.params$population.nummen <- population.nummen
   input.params$population.numwomen <- population.numwomen
-  input.params$population.maxevents <-  population.simtime * population.nummen * 4 #4events/person
+  input.params$population.maxevents <-  population.simtime * population.nummen * 5 #4events/person
   input.params$population.eyecap.fraction <- population.eyecap.fraction
   input.params$hivseed.type <- hivseed.type
   input.params$hivseed.amount <- hivseed.amount
