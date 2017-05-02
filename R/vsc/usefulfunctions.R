@@ -32,3 +32,9 @@
 #x<-c(1,2,3,1,2,3,4,6)
 #length(rle(sort(x))$values)
 
+#values in a list
+#vc <- c(1,2,3,10)
+#dt[dt$id %in% vc,]
+#dplyr::filter(df, fct %in% vc)
+
+
