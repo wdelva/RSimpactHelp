@@ -1,17 +1,24 @@
 # in Igraph
 
-# Clsuter and degree distribution
+# 1. Clsuter and degree distribution
 
 cluster.distribution(graph)
 
 degree.distribution(graph)
+
+# Histogram of the degree
+hist(degree(ga.graph))
+
+
+
+# 2. Cherries and tree balance: tree spectrum
 
 spectrum.treeshape(tree) #  sequence containing the number of subtrees of size n, n-1, ..., 3, 2
 # where n is the size of the tree. The 'k'th element of the sequence
 # is the number of subtrees of size n-k+1 in the tree, where n is the number of tips of the tree.
 
 # fit.stat.slope
-
+# library(apTreeshape)
 fit.stat.slope <- function(tree=tree11){
 
   a <- as.phylo(tree)
@@ -19,26 +26,36 @@ fit.stat.slope <- function(tree=tree11){
   numb.tips <- length(tips.labels)
   d <- rev(seq(from = 2, to = numb.tips, by = 1)) # sequence of sizes of subtrees (number of tips)
 
-  s <- spectrum.treeshape(tree) # sequence of number of subtrees
+  tree1 <- tree# as.treeshape(tree)
+  s <- spectrum.treeshape(tree1) # sequence of number of subtrees
+
+  # delete blank values
+  nonzero.position = which(s != 0)
+  s = s[nonzero.position]
+  d = d[nonzero.position]
 
   reg <- lm(log(s) ~ log(d))
   cozf = coef(reg)
+
+  # we expect the sizes of subtrees to decrease follwoing power-law hypothetically
   power.law.fit = function(x) exp(cozf[[1]] + cozf[[2]] * log(x))
   alpha = -cozf[[2]]
   R.square = summary(reg)$r.squared
   print(paste("Alpha =", round(alpha, 3)))
   print(paste("R square =", round(R.square, 3)))
+
   # plot
-  plot(s ~ d)
+  plot(s ~ d, log = "xy", xlab = "Subtree size (log)", ylab = "Number of subtree (log)",
+       col = 1, main = "Degree Distribution")
   curve(power.law.fit, col = "red", add = T, n = length(d))
 
 }
 
+fit.stat.slope(tree=tree11)
 
 
 
-# Histogram of the degree
-hist(degree(ga.graph))
+# 3. Degree distribution of a graph
 
 
 # write a function to plot the degree distribution
@@ -59,6 +76,8 @@ plot_degree_distribution = function(graph) {
 
 plot_degree_distribution(graph = ga.graph)
 
+
+# 4. Fitting degree distribution with power-law distribution
 
 # plot and fit the power law distribution
 fit_power_law = function(graph) {
