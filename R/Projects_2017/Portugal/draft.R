@@ -176,7 +176,7 @@ rels.gender.ratio <- function(datalist = datalist,
 
   rels.ratio <- vector("list", length(c(0,1)))
 
-  for(i in 1:3){
+  for(i in 1:2){
     rels.ratio$men <- (numb.rels.men/numb.rels)  #/diff(timewindow)
     rels.ratio$women <- (numb.rels.women/numb.rels)  #/diff(timewindow)
   }
