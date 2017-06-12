@@ -5,14 +5,14 @@
 #' @param endtime Only transmission events that took place before this point in simulation time, are captured in the output.
 #' @return a list with the transmission network data (each of them considering same sampling/removal date), as required by the epi2tree function.
 #' @examples
-#' transm.ls <- transm.network.builder(datalist = datalist,endpoint = 40)
+#' transm.ls <- transmNetworkBuilder.baseline(datalist = datalist,endpoint = 40)
 #' @note
 #' transm.ls[[1]] is the transmission network (epi object) of seed 1
 #' @import igraph
 
 # Build a transmission network data per seed to be handled by epi2tree function of expotree package
 
-transm.network.builder <- function(datalist = datalist, endpoint = 40){
+transmNetworkBuilder.baseline <- function(datalist = datalist, endpoint = 40){
 
     # 1. Table of donors and recipients and time of infection
 
