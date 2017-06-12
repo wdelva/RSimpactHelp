@@ -5,7 +5,7 @@
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param endtime Only relationships events that took place before this point in simulation time, are captured in the output.
 #' @return A graph object for relationships network data with difference between gender and HIV status
-#' men are represented by square, women by sphere, HIV positive with red color and HIV negative with bue clolor
+#' Men are represented by square, women by sphere, HIV positive with red color and HIV negative with bue clolor
 #' @examples
 #' c.net <- cum.network(datalist = datalist, endtime = 40)
 #' plot.igraph(c.net,layout=layout.fruchterman.reingold)
