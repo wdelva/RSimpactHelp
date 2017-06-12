@@ -27,12 +27,7 @@ relationship.rate.calculator <- function(datalist = datalist,
 
   numb.rels.women <- length(unique(Rels.table.window$ID2))
 
-  rels.rate <- vector("list", length(c(0,1,2)))
+  rels.rate <- (numb.rels)/ diff(timewindow)
 
-  for(i in 1:3){
-    rels.rate$overall <- (numb.rels)/ diff(timewindow)
-    rels.rate$men <- (numb.rels.men)/diff(timewindow)
-    rels.rate$women <- (numb.rels.women)/diff(timewindow)
-  }
   return(rels.rate)
 }
