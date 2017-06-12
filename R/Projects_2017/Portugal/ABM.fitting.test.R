@@ -75,7 +75,7 @@ ncluster.use <- 2
 # target statistics: average relationships for men and women,
 # standard deviation  relationships for men and women, and average population growth rate
 
-target.variables <- c("aver.rels.men", "aver.rels.women", "sd.rels.men", "sd.rels.women", "trans.rate", "growth.rate")
+target.variables <- c("rels.rate", "trans.rate", "growth.rate")
 
 ##Each of these should be calculated after each run, else we give an NA
 
@@ -202,51 +202,55 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       growth.rate <- pop.growth.calculator(datalist = chunk.datalist.test,
                                            timewindow = c(0, timewindow.max = end.time.wind))
 
+
+      rels.rate <- relationship.rate.calculator(datalist = chunk.datalist.test, timewindow = c(0, timewindow.max = end.time.wind))
+
       transm.rate <- transmission.rate.calculator(datalist = chunk.datalist.test, timewindow = c(0, timewindow.max = end.time.wind))
 
-      rels.rate <- relationship.rate.c
-      inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25),
-                                        timewindow = c(32, 34), only.active = "No")
-      inc.men.20.25 <- inc.20.25$incidence[1]
-      inc.wom.20.25 <- inc.20.25$incidence[2]
-
-      inc.30.35 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(30, 35),
-                                        timewindow = c(32, 34), only.active = "No")
-      inc.men.30.35 <- inc.30.35$incidence[1]
-      inc.wom.30.35 <- inc.30.35$incidence[2]
-
-      prev.18.20 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(18, 20),
-                                         timepoint = 34)
-      prev.men.18.20 = prev.18.20$pointprevalence[1]
-      prev.wom.18.20 = prev.18.20$pointprevalence[2]
-
-      prev.25.30 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(25, 30),
-                                         timepoint = 34)
-      prev.men.25.30 = prev.25.30$pointprevalence[1]
-      prev.wom.25.30 = prev.25.30$pointprevalence[2]
-
-      prev.35.40 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(35, 40),
-                                         timepoint = 34)
-      prev.men.35.40 = prev.35.40$pointprevalence[1]
-      prev.wom.35.40 = prev.35.40$pointprevalence[2]
-
-      ARTcov <- ART.coverage.calculator(datalist = chunk.datalist.test, agegroup = c(18, 50),
-                                        timepoint = 34, site="All")
-      ART.cov.men.18.50 <- ARTcov$ART.coverage[1]
-      ART.cov.wom.18.50 <- ARTcov$ART.coverage[2]
-
-      agemix.df <- agemix.df.maker(chunk.datalist.test)
-      pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(18, 50),
-                                  timepoint = 34, timewindow = 1, start = FALSE)
-      median.wom.18.50.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))
+      # inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25),
+      #                                   timewindow = c(32, 34), only.active = "No")
+      # inc.men.20.25 <- inc.20.25$incidence[1]
+      # inc.wom.20.25 <- inc.20.25$incidence[2]
+      #
+      # inc.30.35 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(30, 35),
+      #                                   timewindow = c(32, 34), only.active = "No")
+      # inc.men.30.35 <- inc.30.35$incidence[1]
+      # inc.wom.30.35 <- inc.30.35$incidence[2]
+      #
+      # prev.18.20 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(18, 20),
+      #                                    timepoint = 34)
+      # prev.men.18.20 = prev.18.20$pointprevalence[1]
+      # prev.wom.18.20 = prev.18.20$pointprevalence[2]
+      #
+      # prev.25.30 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(25, 30),
+      #                                    timepoint = 34)
+      # prev.men.25.30 = prev.25.30$pointprevalence[1]
+      # prev.wom.25.30 = prev.25.30$pointprevalence[2]
+      #
+      # prev.35.40 = prevalence.calculator(datalist = chunk.datalist.test, agegroup = c(35, 40),
+      #                                    timepoint = 34)
+      # prev.men.35.40 = prev.35.40$pointprevalence[1]
+      # prev.wom.35.40 = prev.35.40$pointprevalence[2]
+      #
+      # ARTcov <- ART.coverage.calculator(datalist = chunk.datalist.test, agegroup = c(18, 50),
+      #                                   timepoint = 34, site="All")
+      # ART.cov.men.18.50 <- ARTcov$ART.coverage[1]
+      # ART.cov.wom.18.50 <- ARTcov$ART.coverage[2]
+      #
+      # agemix.df <- agemix.df.maker(chunk.datalist.test)
+      # pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(18, 50),
+      #                             timepoint = 34, timewindow = 1, start = FALSE)
+      # median.wom.18.50.AD <- as.numeric(median(pattern[[1]]$AgeGap[pattern[[1]]$Gender == "female"]))
 
       ##get the summary statistics as indicated by target.variables
-      out.statistic <- c(growth.rate,
-                         inc.men.20.25, inc.wom.20.25, inc.men.30.35, inc.wom.30.35,
-                         prev.men.18.20, prev.wom.18.20, prev.men.25.30, prev.wom.25.30,
-                         prev.men.35.40, prev.wom.35.40,
-                         ART.cov.men.18.50, ART.cov.wom.18.50,
-                         median.wom.18.50.AD)
+      # out.statistic <- c(growth.rate,
+      #                    inc.men.20.25, inc.wom.20.25, inc.men.30.35, inc.wom.30.35,
+      #                    prev.men.18.20, prev.wom.18.20, prev.men.25.30, prev.wom.25.30,
+      #                    prev.men.35.40, prev.wom.35.40,
+      #                    ART.cov.men.18.50, ART.cov.wom.18.50,
+      #                    median.wom.18.50.AD)
+
+      out.statistics <- c(growth.rate, rels.rate, transm.rate)
       ##out.test.degree <- out.statistic[[2]]
     }else{
       out.statistic <- rep(NA,length(target.variables))
