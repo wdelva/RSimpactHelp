@@ -9,8 +9,8 @@
 #' @examples
 #' c.net <- cum.network(datalist = datalist, endtime = 40)
 #' plot.igraph(c.net,layout=layout.fruchterman.reingold)
-#' print(c.net, full = igraph_opt("print.full")) # to print the attributes
-#'
+#' print(c.net, full = igraph_opt("print.full"))
+#' vertex_attr(c.net, index = V(c.net)) # to print the attributes
 #'@import igraph
 
 cum.network <- function(datalist = datalist, endtime = 15){

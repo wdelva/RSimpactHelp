@@ -7,7 +7,8 @@
 #' @examples
 #' tp.net <- time.point.network(datalist = datalist, time = 30)
 #' plot.igraph(tp.net,layout=layout.fruchterman.reingold)
-#' print(tp.net, full = igraph_opt("print.full")) # to print the attributes
+#' print(tp.net, full = igraph_opt("print.full"))
+#' vertex_attr(tp.net, index = V(tp.net)) # to print the attributes
 #'
 #'
 #'@import igraph
