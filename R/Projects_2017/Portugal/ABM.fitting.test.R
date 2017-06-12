@@ -75,7 +75,7 @@ ncluster.use <- 2
 # target statistics: average relationships for men and women,
 # standard deviation  relationships for men and women, and average population growth rate
 
-target.variables <- c("rels.rate", "trans.rate", "growth.rate")
+target.variables <- c("growth.rate", "rels.rate", "trans.rate")
 
 ##Each of these should be calculated after each run, else we give an NA
 
@@ -96,7 +96,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
 
-  target.variables <- c("rels.rate", "trans.rate", "growth.rate")
+  target.variables <- c("growth.rate", "rels.rate", "trans.rate")
 
   err.functionGEN <- function(e){
     if (length(grep("MAXEVENTS",e$message)) != 0)
@@ -125,7 +125,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       "hivtransmission.param.a"
       )
 
-    target.variables <- c("rels.rate", "trans.rate", "growth.rate")
+    target.variables <- c("growth.rate", "rels.rate", "trans.rate")
 
     simulation.type <- ("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
     simpact.set.simulation(simulation.type)
@@ -203,9 +203,11 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
                                            timewindow = c(0, timewindow.max = end.time.wind))
 
 
-      rels.rate <- relationship.rate.calculator(datalist = chunk.datalist.test, timewindow = c(0, timewindow.max = end.time.wind))
+      rels.rate <- relationship.rate.calculator(datalist = chunk.datalist.test,
+                                                timewindow = c(0, timewindow.max = end.time.wind))
 
-      transm.rate <- transmission.rate.calculator(datalist = chunk.datalist.test, timewindow = c(0, timewindow.max = end.time.wind))
+      transm.rate <- transmission.rate.calculator(datalist = chunk.datalist.test,
+                                                  timewindow = c(0, timewindow.max = end.time.wind))
 
       # inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25),
       #                                   timewindow = c(32, 34), only.active = "No")
