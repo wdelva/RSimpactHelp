@@ -1,7 +1,8 @@
 # Compute target statistics
 
-targets.stat <- c("aver.rels.men", "aver.rels.women", "sd.rels.men",
-                  "sd.rels.women", "trans.rate", "growth.rate")
+# growth rate
+# relationship rate
+# transmission rate
 
 ##################################
 # 1. Growth rate: done by Trust ##
@@ -29,7 +30,7 @@ transmission.rate <- function(datalist = datalist,
   return(transm.rate)
 }
 
-# Transmission rate in time interval by step
+# Transmission rate in time interval subdivided in different steps
 
 # Transmission rate
 transmission.rate.int <- function(datalist = datalist,
@@ -63,6 +64,32 @@ transmission.rate.int <- function(datalist = datalist,
   return(trans.rate.int)
 }
 
+
+# Transmission ratio for men and women
+
+transm.gender.ratio <- function(datalist = datalist,
+                              timewindow = c(0, 40)){
+
+  pers.table.hiv <- datalist$ptable[InfectType==1]
+
+  pers.table.hiv.window <- pers.table.hiv %>%
+    subset(InfectTime <=timewindow[2] & InfectTime >= timewindow[1])
+
+  numb.transm <- nrow(pers.table.hiv.window)
+
+  numb.transm.men <- length(unique((pers.table.hiv[pers.table.hiv$Gender=="0"]$ID))) # Gender 0 men
+
+  numb.transm.women <- length(unique((pers.table.hiv[pers.table.hiv$Gender=="0"]$ID)))# Gender 1 women
+
+  transm.ratio <- vector("list", length(c(0,1)))
+
+  for(i in 1:2){
+    transm.ratio$men <- (numb.transm.men/numb.transm)  #/diff(timewindow)
+    transm.ratio$women <- (numb.transm.women/numb.transm)  #/diff(timewindow)
+  }
+  return(transm.ratio)
+}
+
 ###############################
 # 3. Relationship rate ########
 ###############################
@@ -94,6 +121,42 @@ rels.rate <- function(datalist = datalist,
   }
   return(rels.rate)
 }
+
+
+# Relationship rate in time interval subdivided in different steps
+
+# Relationship rate
+rels.rate.int <- function(datalist = datalist,
+                                  timewindow = c(0, 40), by=1){
+
+  Rels.table <- datalist$rtable
+
+  upper.limit <- ceiling(diff(timewindow)/by)
+
+  interv.time <- round(seq.int(timewindow[1], timewindow[2], length.out = upper.limit), digits = 0)
+
+  rels.int <- vector()
+  rels.rate.int <- vector()
+
+
+  for(i in 0:(upper.limit-2)){
+
+    timewindow.int <- c(interv.time[1+i], interv.time[2+i])
+
+    rels.numb <- nrow(Rels.table %>%
+                             subset(FormTime <=timewindow.int[2] & FormTime >= timewindow.int[1]))
+
+
+    rels.int <- c(rels.int,  rels.numb)
+
+
+    rels.rate.int <- c(rels.rate.int, (rels.numb / diff(timewindow.int)))
+
+  }
+
+  return(rels.rate.int)
+}
+
 
 # Relationship ratio for men and women
 
