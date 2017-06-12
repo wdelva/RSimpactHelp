@@ -1,8 +1,16 @@
 # Fitting ABM with ABC
 
-# 1. Run a master model with well estbalished parameters
+setwd("/home/david/Dropbox/Fitting_Simpact/")
 
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, phylosim, ape, lhs)
+
+# 1. Run a master model with well estbalished parameters
+
+
+# 2. Fit default model with summary statistics from the epidemiological data
+
+
+# 3. Fit default model with summary statistics from the epidemiological data and phylogenetic results
 
 # run input.params.creator() and simpact.config.inputs()
 
@@ -17,11 +25,11 @@ rep.sample <- ceiling(design.points.total/init.design.points) - 1
 ###### Generate the input parameters for the simulation ###############################################
 inPUT.df.complete <- simpact.config.inputs(design.points = init.design.points, resample.count = 2,
 
-                                           conception.alpha_base = c(-5, -0), #c(-4, -1.5)
+                                           conception.alpha_base = c(-5, -1.5), #c(-4, -1.5)
                                            formation.hazard.agegapry.numrel_diff = c(-1,0), #-0.1
                                            formation.hazard.agegapry.eagerness_diff = c(-0.5, 0),#-0.048 #-0.110975
                                            birth.boygirlratio = c(0.5,0.7), # 0.5024876 #101:100
-                                           hivtransmission.param.a = c(-1,-2) # baseline of transmission: -1.0352239
+                                           hivtransmission.param.a = c(-2,-1) # baseline of transmission: -1.0352239
                                            )
 #
 
@@ -34,7 +42,7 @@ for (i in 1:rep.sample){
                                                             formation.hazard.agegapry.numrel_diff = c(-1,0), #-0.1
                                                             formation.hazard.agegapry.eagerness_diff = c(-0.5, 0),#-0.048 #-0.110975
                                                             birth.boygirlratio = c(0.5,0.7), # 0.5024876 #101:100
-                                                            hivtransmission.param.a = c(-1,-2)
+                                                            hivtransmission.param.a = c(-2,-1)
                                                             )
 
   inPUT.df.complete <- rbind(inPUT.df.complete, inPUT.df.complete.new)
@@ -67,7 +75,7 @@ ncluster.use <- 2
 # target statistics: average relationships for men and women,
 # standard deviation  relationships for men and women, and average population growth rate
 
-target.variables <- c("aver.rels.men", "aver.rels.women", "sd.rels.men", "sd.rels.women", "growth.rate")
+target.variables <- c("aver.rels.men", "aver.rels.women", "sd.rels.men", "sd.rels.women", "trans.rate", "growth.rate")
 
 ##Each of these should be calculated after each run, else we give an NA
 
@@ -88,7 +96,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
 
-  target.variables <- c("aver.rels.men", "aver.rels.women", "sd.rels.men", "sd.rels.women", "growth.rate")
+  target.variables <- c("aver.rels.men", "aver.rels.women", "sd.rels.men", "sd.rels.women", "trans.rate", "growth.rate")
 
   err.functionGEN <- function(e){
     if (length(grep("MAXEVENTS",e$message)) != 0)
@@ -124,13 +132,14 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     agedist.chunk.data.frame <- agedistr.creator(shape = 5, scale = 65)
 
     #### Set input params
-    ##Specifying the initially chosen values for the simulation.
+    ##Specifying the initially chosen values for the simulation. ### Let setup parameters here like seed individuals
+                                                                 ###
     cfg.chunk <- input.params.creator(population.simtime = 40, population.numwomen = 1000, population.nummen = 1000,
                                       simulation.type = simulation.type) # Ok until here
 
     #intervention introduced See the intervention.introduced
     # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
-    iv.chunk <- intervention.introduced(simulation.type = simulation.type)
+    # iv.chunk <- intervention.introduced(simulation.type = simulation.type) # I can remove interventions in this 1st exercise
 
     #The first parameter is set to be the seed value
     seed.chunk.id <- input.chunk.params[1]
@@ -142,11 +151,11 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       assign.chunk.cfg.value <- input.chunk.params[j]
       cfg.chunk[cfg.chunk.par][[1]] <- assign.chunk.cfg.value
       #setting up a value that is depended on the other input (we can do this for many other as needed)
-      if(cfg.chunk.par == "hivtransmission.param.f1"){
-        f2.num <- log((1+assign.chunk.cfg.value)/2)
-        f2.den <- log(assign.chunk.cfg.value)
-        cfg.chunk["hivtransmission.param.f2"][[1]] <- log(f2.num / f2.den)/5
-      }
+      # if(cfg.chunk.par == "hivtransmission.param.f1"){
+      #   f2.num <- log((1+assign.chunk.cfg.value)/2)
+      #   f2.den <- log(assign.chunk.cfg.value)
+      #   cfg.chunk["hivtransmission.param.f2"][[1]] <- log(f2.num / f2.den)/5
+      # }
     }
 
     ## Keep the files produced in subfolders
@@ -161,7 +170,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     testoutput <- simpact.run(configParams = cfg.chunk,
                               destDir = sub.dir.rename,
                               agedist = agedist.chunk.data.frame,
-                              intervention = iv.chunk,
+                              # intervention = iv.chunk, # interventions removed in this 1st exercise
                               identifierFormat = paste0("%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r_",
                                                         sub.dir.sim.id,"-"),
                               seed = seed.chunk.id)
