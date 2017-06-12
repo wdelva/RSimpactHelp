@@ -1,8 +1,8 @@
 # Compute target statistics
 
-# growth rate
+# growth rate: OK
 # relationship rate
-# transmission rate
+# transmission rate: OK
 
 ##################################
 # 1. Growth rate: done by Trust ##
