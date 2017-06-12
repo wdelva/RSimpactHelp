@@ -1,7 +1,7 @@
 # Compute target statistics
 
 # growth rate: OK
-# relationship rate
+# relationship rate: OK
 # transmission rate: OK
 
 ##################################
