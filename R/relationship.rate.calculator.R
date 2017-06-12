@@ -7,13 +7,13 @@
 #' that should be retained, e.g. c(20, 40)
 #'
 #' data(datalist)
-#' rels.rate <- relationship.rate(datalist = datalist, timewindow = c(20, 40))
+#' rels.rate <- relationship.rate.calculator(datalist = datalist, timewindow = c(20, 40))
 #' rels.rate
 #'
 #' @import dplyr
 
 
-relationship.rate <- function(datalist = datalist,
+relationship.rate.calculator <- function(datalist = datalist,
                       timewindow = c(20, 40)){
 
   Rels.table <- datalist$rtable

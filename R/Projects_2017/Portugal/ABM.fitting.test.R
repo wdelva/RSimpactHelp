@@ -96,7 +96,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
 
-  target.variables <- c("aver.rels.men", "aver.rels.women", "sd.rels.men", "sd.rels.women", "trans.rate", "growth.rate")
+  target.variables <- c("rels.rate", "trans.rate", "growth.rate")
 
   err.functionGEN <- function(e){
     if (length(grep("MAXEVENTS",e$message)) != 0)
@@ -125,7 +125,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       "hivtransmission.param.a"
       )
 
-    target.variables <- c("aver.rels.men", "aver.rels.women", "sd.rels.men", "sd.rels.women", "growth.rate")
+    target.variables <- c("rels.rate", "trans.rate", "growth.rate")
 
     simulation.type <- ("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
     simpact.set.simulation(simulation.type)
@@ -195,10 +195,16 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     if(length(chunk.datalist.test)>1){
       #get the summary statistics for each run
+
+      # c("rels.rate", "trans.rate", "growth.rate")
+
       end.time.wind <- unique(chunk.datalist.test$itable$population.simtime)
       growth.rate <- pop.growth.calculator(datalist = chunk.datalist.test,
                                            timewindow = c(0, timewindow.max = end.time.wind))
 
+      transm.rate <- transmission.rate.calculator(datalist = chunk.datalist.test, timewindow = c(0, timewindow.max = end.time.wind))
+
+      rels.rate <- relationship.rate.c
       inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25),
                                         timewindow = c(32, 34), only.active = "No")
       inc.men.20.25 <- inc.20.25$incidence[1]
