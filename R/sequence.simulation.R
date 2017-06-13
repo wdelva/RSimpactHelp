@@ -19,7 +19,7 @@
 #' saveAlignment.PhyloSim(sim, file = paste("file_name",sep="")) alignment saved with internal nodes
 #' saveAlignment.PhyloSim(sim, file = paste("file_name",sep=""), skip.internal = TRUE, paranoid = TRUE) alignment saved without internal nodes
 
-#' @import PhyloSim
+#' @import phylosim
 
 sequence.simulation <- function(transtree = tree0, seedSeq = hivSeq, alpha = 0.90,
                                 rate.list = rate, base.freq = freq){

@@ -20,6 +20,6 @@ we can build the tranmission tree
 
 transm.ls <- transmNetworkBuilder.baseline(datalist = datalist, endpoint = 40)
 transnetwork <- transm.ls[[16]]
-tree0 <- trans.network2tree(transnetwork) # transmission tree of seeds 16
+tree0 <- trans.network2tree(transnetwork = transnetwork) # transmission tree of seeds 16
 
 }
