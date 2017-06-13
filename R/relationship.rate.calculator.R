@@ -11,8 +11,8 @@
 #' @param by Time step unit to subdivide the time window
 #'
 #' data(datalist)
-#' rels.rate <- relationship.rate.calculator(datalist = datalist, time
-#' window = c(20, 40), int = FALSE, by=1)
+#' rels.rate <- relationship.rate.calculator(datalist = datalist,
+#' timewindow = c(20, 40), int = FALSE, by=1)
 #' rels.rate
 #'
 #' @import dplyr
