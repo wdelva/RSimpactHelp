@@ -109,6 +109,12 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   # source(file.path(dir, x), ...)
 
+  source("/home/david/RSimpactHelp/R/relationship.rate.calculator.R")
+
+  source("/home/david/RSimpactHelp/R/transmission.rate.calculator.R")
+
+
+
 
 
   # Run Simpact then
@@ -257,11 +263,11 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       out.statistics <- c(growth.rate, rels.rate, transm.rate)
       ##out.test.degree <- out.statistic[[2]]
     }else{
-      out.statistic <- rep(NA,length(target.variables))
+      out.statistics <- rep(NA,length(target.variables))
       ##out.statistic.degree <- NA
     }
 
-    chunk.summary.stats <- out.statistic
+    chunk.summary.stats <- out.statistics
 
     return(chunk.summary.stats)
   } # XXXXXXXXXXX
@@ -318,7 +324,9 @@ inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk,
 
 rand.string <- paste0(sample(c(LETTERS,letters), 10), collapse = "")
 
-filename.run <- paste0(dirname,"/","SummaryOutPut-df-",min.chunk,"-",max.chunk,".csv")
+# filename.run <- paste0(dirname,"/","SummaryOutPut-df-",min.chunk,"-",max.chunk,".csv")
+
+filename.run <- paste0("SummaryOutPut-df-ABC-David",".csv")
 
 write.csv(inputANDoutput.chunk.df, file = filename.run, row.names = FALSE)
 
