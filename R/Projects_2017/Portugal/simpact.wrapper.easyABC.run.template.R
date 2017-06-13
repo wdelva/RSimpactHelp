@@ -40,7 +40,7 @@ inPUT.df.complete <- simpact.config.inputs(design.points = init.design.points, r
 
 #Select a chunk to send to process
 min.chunk <- 1
-max.chunk <- 1
+max.chunk <- 3
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}

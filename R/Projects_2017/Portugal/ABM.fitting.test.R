@@ -4,6 +4,16 @@ setwd("/home/david/Dropbox/Fitting_Simpact/")
 
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, phylosim, ape, lhs)
 
+comp <- "lin" #lin #mac #chpc #gent
+
+if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
+  dirname <- "~/RSimpactHelp"}else if(comp=="chpc"){
+    dirname <- "/mnt/lustre/users/tchibawara/MaxART/data"}else if(comp=="gent"){
+      dirname <- "/user/data/gent/vsc400/vsc40070/simpact-test/data"}else{
+        dirname <- "~/Documents/RSimpactHelp"  #mac directory here
+      }
+
+
 # 1. Run a master model with well estbalished parameters
 
 
@@ -17,7 +27,7 @@ pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, phylosim, ape, lhs)
 all.sim.start <- proc.time()
 
 set.new.seed <- 1
-init.design.points <- 10 #set the initial design points
+init.design.points <- 7 #set the initial design points
 design.points.total <- 20 #argument init design point to this value
 rep.sample <- ceiling(design.points.total/init.design.points) - 1
 
@@ -52,8 +62,8 @@ for (i in 1:rep.sample){
 ############### Argument sample above ##############################
 
 #Select a chunk to send to process
-min.chunk <- 2227
-max.chunk <- 2227
+min.chunk <-1 # 2227
+max.chunk <-15 # 2227
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}
@@ -64,7 +74,7 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #set how many time the single row will be repeated
-sim_repeat <- 24
+sim_repeat <- 10
 
 # number of cores per node
 ncluster.use <- 2
@@ -324,9 +334,9 @@ inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk,
 
 rand.string <- paste0(sample(c(LETTERS,letters), 10), collapse = "")
 
-# filename.run <- paste0(dirname,"/","SummaryOutPut-df-",min.chunk,"-",max.chunk,".csv")
+filename.run <- paste0(dirname,"/","SummaryOutPut-df-",min.chunk,"-",max.chunk,".csv")
 
-filename.run <- paste0("SummaryOutPut-df-ABC-David",".csv")
+# filename.run <- paste0("SummaryOutPut-df-ABC-David-Good",".csv")
 
 write.csv(inputANDoutput.chunk.df, file = filename.run, row.names = FALSE)
 
