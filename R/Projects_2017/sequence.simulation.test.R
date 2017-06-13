@@ -1,5 +1,5 @@
 
-pacman
+pacman::p_load(phylosim, dplyr, EasyABC, RSimpactCyan, RSimpactHelper, expoTree, readr, Biostrings)
 
 # 1. Get a transmission network
 transm.ls <- transmNetworkBuilder.baseline(datalist = datalist,endpoint = 40) # different trandmission networks
