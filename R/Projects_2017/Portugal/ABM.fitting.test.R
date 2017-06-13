@@ -107,6 +107,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   }
   # end error function
 
+  # source(file.path(dir, x), ...)
+
 
 
   # Run Simpact then
