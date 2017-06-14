@@ -173,7 +173,7 @@ transmNetworkBuilder.baseline <- function(datalist = datalist, endpoint = 40){
 
     transNet <- list()
     for(i in 1:length(seeds.id)){
-        transNet$itimes <- rev(dat.recdontime[[i]][,5]-10)
+        transNet$itimes <- rev(dat.recdontime[[i]][,5]-hivseed.time)
         transNet$dtimes <- rep(0,length(dat.recdontime[[i]][,5]))
         transNet$id <- dat.recdontime[[i]][,1]
         transNet$parent <- dat.recdontime[[i]][,4]
