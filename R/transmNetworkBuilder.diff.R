@@ -13,7 +13,7 @@
 
 # Build a transmission network data per seed to be handled by epi2tree function of expotree package
 
-transmNetworkBuilder.diff <- function(datalist = datalist, endpoint = 40, population.simtime=40){
+transmNetworkBuilder.diff <- function(datalist = datalist, endpoint = 40, hivseed.time = 10, population.simtime=40){
 
     # 1. Table of donors and recipients and time of infection
 
