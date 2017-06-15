@@ -12,7 +12,7 @@
 
 # Build a transmission network data per seed to be handled by epi2tree function of expotree package
 
-transmNetworkBuilder.baseline <- function(datalist = datalist, hivseed.time = 10, endpoint = 40){
+transmNetworkBuilder.baseline <- function(datalist = datalist, hivseed.time = 10, endpoint = 40, population.simtime = 40){
 
     # 1. Table of donors and recipients and time of infection
 
@@ -173,7 +173,7 @@ transmNetworkBuilder.baseline <- function(datalist = datalist, hivseed.time = 10
 
     transNet <- list()
     for(i in 1:length(seeds.id)){
-        transNet$itimes <- rev(dat.recdontime[[i]][,5]-hivseed.time)
+        transNet$itimes <- (population.simtime - (dat.recdontime[[i]][,5]))-hivseed.time
         transNet$dtimes <- rep(0,length(dat.recdontime[[i]][,5]))
         transNet$id <- dat.recdontime[[i]][,1]
         transNet$parent <- dat.recdontime[[i]][,4]
