@@ -2,7 +2,7 @@
 
 setwd("/home/david/Dropbox/Fitting_Simpact/")
 
-pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, phylosim, ape, lhs)
+pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, phylosim, ape, lhs, phangorn)
 
 comp <- "lin" #lin #mac #chpc #gent
 
@@ -28,7 +28,7 @@ all.sim.start <- proc.time()
 
 set.new.seed <- 1
 init.design.points <- 7 #set the initial design points
-design.points.total <- 20 #argument init design point to this value
+design.points.total <- 10 #argument init design point to this value
 rep.sample <- ceiling(design.points.total/init.design.points) - 1
 
 
@@ -63,7 +63,7 @@ for (i in 1:rep.sample){
 
 #Select a chunk to send to process
 min.chunk <-1 # 2227
-max.chunk <-15 # 2227
+max.chunk <-5 # 2227
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}
@@ -74,10 +74,10 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #set how many time the single row will be repeated
-sim_repeat <- 10
+sim_repeat <- 2
 
 # number of cores per node
-ncluster.use <- 2
+ncluster.use <- 1
 
 
 #indicate the target statitics that you want to hit
@@ -85,7 +85,7 @@ ncluster.use <- 2
 # target statistics: average relationships for men and women,
 # standard deviation  relationships for men and women, and average population growth rate
 
-target.variables <- c("growth.rate", "rels.rate", "trans.rate")
+target.variables <- c("growth.rate", "rels.rate", "trans.rate", "phylo.alpha", "phylo.beta")
 
 ##Each of these should be calculated after each run, else we give an NA
 
@@ -106,7 +106,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
 
-  target.variables <- c("growth.rate", "rels.rate", "trans.rate")
+  target.variables <- c("growth.rate", "rels.rate", "trans.rate", "phylo.alpha", "phylo.beta")
 
   err.functionGEN <- function(e){
     if (length(grep("MAXEVENTS",e$message)) != 0)
@@ -237,6 +237,48 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       transm.rate <- transmission.rate.calculator(datalist = chunk.datalist.test,
                                                   timewindow = c(0, timewindow.max = end.time.wind))
 
+
+
+
+
+
+      trans.net <- transmNetworkBuilder.diff(datalist = chunk.datalist.test,
+                                endpoint = 40, population.simtime=40)
+
+      for(i in 1:length(trans.net)){
+
+        tree0 <- trans.net[[i]]
+        freq <- c(0.3353293,0.2035928,0.2628077,0.1982701)
+        rate <- list("a"=0.2, "b"=0.6, "c"=0.12,"d"=0.001, "e"=0.25, "f"=0.24)
+
+        # Sequence simulation
+        sim <- sequence.simulation(transtree = tree0, seedSeq = hivSeq, alpha = 0.90,
+                                   rate.list = rate, base.freq = freq)
+        saveAlignment.PhyloSim(sim,file = paste("HIVSeq_name",i,".fasta",sep=""), skip.internal = TRUE, paranoid = TRUE)
+
+        # read the sequences
+        seq.sim <- read.FASTA("HIVSeq_name.fasta")
+        tree.dat <- phyDat(seq.sim, type = "DNA")
+        tree.ml <- dist.ml(tree.dat)
+        tree.sim <- upgma(tree.ml)
+
+        # Tree statistics
+        xy <- phylogenetictree.trend(tree = tree.sim)
+        x <- xy$num.tree
+        y <- xy$size.tree
+        reg <- lm(log(y) ~ log(x))
+        cozf <- coef(reg)
+
+        phylo.alpha <- cozf[[1]] # intercept
+        phylo.beta <- cozf[[2]] # slope
+
+      }
+
+
+
+
+
+
       # inc.20.25 <- incidence.calculator(datalist = chunk.datalist.test, agegroup = c(20, 25),
       #                                   timewindow = c(32, 34), only.active = "No")
       # inc.men.20.25 <- inc.20.25$incidence[1]
@@ -280,7 +322,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       #                    ART.cov.men.18.50, ART.cov.wom.18.50,
       #                    median.wom.18.50.AD)
 
-      out.statistics <- c(growth.rate, rels.rate, transm.rate)
+      out.statistics <- c(growth.rate, rels.rate, transm.rate, phylo.alpha, phylo.beta)
       ##out.test.degree <- out.statistic[[2]]
     }else{
       out.statistics <- rep(NA,length(target.variables))
