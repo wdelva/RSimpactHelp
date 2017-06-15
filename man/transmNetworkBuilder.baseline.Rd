@@ -4,7 +4,8 @@
 \alias{transmNetworkBuilder.baseline}
 \title{Build a list with HIV transmission networks data.}
 \usage{
-transmNetworkBuilder.baseline(datalist = datalist, endpoint = 40)
+transmNetworkBuilder.baseline(datalist = datalist, hivseed.time = 10,
+  endpoint = 40, population.simtime = 40)
 }
 \arguments{
 \item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
@@ -12,7 +13,7 @@ transmNetworkBuilder.baseline(datalist = datalist, endpoint = 40)
 \item{endtime}{Only transmission events that took place before this point in simulation time, are captured in the output.}
 }
 \value{
-a list with the transmission network data (each of them considering same sampling/removal date), as required by the epi2tree function.
+A list with the transmission network data (each of them considering same sampling/removal date), as required by the epi2tree function.
 }
 \description{
 Build a list with HIV transmission networks data.
