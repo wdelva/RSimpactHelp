@@ -123,6 +123,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   source("/home/david/RSimpactHelp/R/transmission.rate.calculator.R")
 
+  source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff.R")
+
 
 
 
