@@ -123,7 +123,13 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   source("/home/david/RSimpactHelp/R/transmission.rate.calculator.R")
 
+  # Add sequence and phylogenetic analysis compoents
+
   source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff.R")
+
+  source("/home/david/RSimpactHelp/R/sequence.simulation.R")
+
+
 
 
 
