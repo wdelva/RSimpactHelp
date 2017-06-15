@@ -10,7 +10,7 @@
 
 time.mrca.matrix <- function(tree = phylo.tree){
 
-    Mytree <- phylo.tree
+    Mytree <- tree
 
 
     # Use of mrca() and branching.time() functions from ape package
@@ -96,7 +96,9 @@ time.mrca.matrix <- function(tree = phylo.tree){
     mrca.times.final <- matrix.mrca.time.func(v)
     names(mrca.times.final) <- names.inds # put the names of the tips on the columns
 
-    return(mrca.times.final)
+    mrca.times.done <- mrca.times.final
+
+    return(mrca.times.done)
 }
 
 
