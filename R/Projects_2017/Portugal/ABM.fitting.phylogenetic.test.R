@@ -28,7 +28,7 @@ all.sim.start <- proc.time()
 
 set.new.seed <- 1
 init.design.points <- 7 #set the initial design points
-design.points.total <- 10 #argument init design point to this value
+design.points.total <- 20 #argument init design point to this value
 rep.sample <- ceiling(design.points.total/init.design.points) - 1
 
 
@@ -63,7 +63,7 @@ for (i in 1:rep.sample){
 
 #Select a chunk to send to process
 min.chunk <-1 # 2227
-max.chunk <-5 # 2227
+max.chunk <-10 # 2227
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}
@@ -74,7 +74,7 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #set how many time the single row will be repeated
-sim_repeat <- 2
+sim_repeat <- 5
 
 # number of cores per node
 ncluster.use <- 1
@@ -126,6 +126,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   # Add sequence and phylogenetic analysis compoents
 
   source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff.R")
+
+  source("/home/david/RSimpactHelp/R/trans.network2tree.R")
 
   source("/home/david/RSimpactHelp/R/sequence.simulation.R")
 
@@ -245,34 +247,47 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       trans.net <- transmNetworkBuilder.diff(datalist = chunk.datalist.test,
                                 endpoint = 40, population.simtime=40)
 
+      phylo.alpha.1 <- vector()
+      phylo.beta.1 <- vector()
+
       for(i in 1:length(trans.net)){
 
-        tree0 <- trans.net[[i]]
-        freq <- c(0.3353293,0.2035928,0.2628077,0.1982701)
-        rate <- list("a"=0.2, "b"=0.6, "c"=0.12,"d"=0.001, "e"=0.25, "f"=0.24)
+        tree.n <- trans.net[[i]]
 
-        # Sequence simulation
-        sim <- sequence.simulation(transtree = tree0, seedSeq = hivSeq, alpha = 0.90,
-                                   rate.list = rate, base.freq = freq)
-        saveAlignment.PhyloSim(sim,file = paste("HIVSeq_name",i,".fasta",sep=""), skip.internal = TRUE, paranoid = TRUE)
+        if(nrow(as.data.frame(tree.n)) >= 5){
+          tree.i <- trans.network2tree(transnetwork = tree.n)
 
-        # read the sequences
-        seq.sim <- read.FASTA("HIVSeq_name.fasta")
-        tree.dat <- phyDat(seq.sim, type = "DNA")
-        tree.ml <- dist.ml(tree.dat)
-        tree.sim <- upgma(tree.ml)
+          freq <- c(0.3353293,0.2035928,0.2628077,0.1982701)
+          rate <- list("a"=0.2, "b"=0.6, "c"=0.12,"d"=0.001, "e"=0.25, "f"=0.24)
 
-        # Tree statistics
-        xy <- phylogenetictree.trend(tree = tree.sim)
-        x <- xy$num.tree
-        y <- xy$size.tree
-        reg <- lm(log(y) ~ log(x))
-        cozf <- coef(reg)
+          # Sequence simulation
+          sim <- sequence.simulation(transtree = tree0, seedSeq = hivSeq, alpha = 0.90,
+                                     rate.list = rate, base.freq = freq)
+          saveAlignment.PhyloSim(sim,file = paste("HIVSeq_name",i,".fasta",sep=""), skip.internal = TRUE, paranoid = TRUE)
 
-        phylo.alpha <- cozf[[1]] # intercept
-        phylo.beta <- cozf[[2]] # slope
+          # read the sequences
+          seq.sim <- read.FASTA(paste("HIVSeq_name",i,".fasta",sep=""))
+          tree.dat <- phyDat(seq.sim, type = "DNA")
+          tree.ml <- dist.ml(tree.dat)
+          tree.sim <- upgma(tree.ml)
+
+          # Tree statistics
+          xy <- phylogenetictree.trend(tree = tree.sim)
+          x <- xy$num.tree
+          y <- xy$size.tree
+          reg <- lm(log(y) ~ log(x))
+          cozf <- coef(reg)
+
+          phylo.alpha.1 <- c(phylo.alpha.1, cozf[[1]]) # intercept
+          phylo.beta.1 <- c(phylo.beta.1, cozf[[2]]) # slope
+
+        }
 
       }
+
+      phylo.alpha <- sum(phylo.alpha.1)/length(phylo.alpha.1)
+
+      phylo.beta <- sum(phylo.beta.1)/length(phylo.beta.1)
 
 
 
@@ -386,9 +401,9 @@ inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk,
 
 rand.string <- paste0(sample(c(LETTERS,letters), 10), collapse = "")
 
-filename.run <- paste0(dirname,"/","SummaryOutPut-df-",min.chunk,"-",max.chunk,".csv")
+filename.run <- paste0(dirname,"/","SummaryOutPut-df-phylo-",min.chunk,"-",max.chunk,".csv")
 
-# filename.run <- paste0("SummaryOutPut-df-ABC-David-Good",".csv")
+# filename.run <- paste0("SummaryOutPut-df-ABC-David-phylo",".csv")
 
 write.csv(inputANDoutput.chunk.df, file = filename.run, row.names = FALSE)
 
