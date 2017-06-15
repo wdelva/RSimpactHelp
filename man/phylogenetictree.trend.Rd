@@ -14,7 +14,7 @@ A list with two vector with same length, which is used for regression analysis
 between the number of subtrees and their sizes.
 }
 \description{
-Compute two list one for the number of tips for a given tree (or size of the tree)
+Compute two vectors, one for the number of tips for a given tree (or size of the tree)
 and another one for the number of trees (subtrees ) with corresponding tips
 }
 \examples{
@@ -33,7 +33,7 @@ R.square = summary(reg)$r.squared
 print(paste("Alpha =", round(alpha, 3)))
 print(paste("R square =", round(R.square, 3)))
 
-plot(y ~ y, log = "xy", xlab = "Number of subtree (log)", ylab = "Subtree size (log)",
+plot(y ~ x, log = "xy", xlab = "Number of subtree (log)", ylab = "Subtree size (log)",
      col = 1, main = "Degree Distribution")
 curve(power.law.fit, col = "red", add = T, n = length(y))
 
