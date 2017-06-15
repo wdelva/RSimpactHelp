@@ -3,7 +3,7 @@
 #'
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param endtime Only transmission events that took place before this point in simulation time, are captured in the output.
-#' @return a list with the transmission network data (each of them considering same sampling/removal date), as required by the epi2tree function.
+#' @return A list with the transmission network data (each of them considering same sampling/removal date), as required by the epi2tree function.
 #' @examples
 #' transm.ls <- transmNetworkBuilder.baseline(datalist = datalist,endpoint = 40)
 #' @note
