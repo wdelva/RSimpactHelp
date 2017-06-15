@@ -129,6 +129,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   source("/home/david/RSimpactHelp/R/sequence.simulation.R")
 
+  source("/home/david/RSimpactHelp/R/phylogenetictree.trend.R")
+
 
 
 
