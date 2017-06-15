@@ -4,6 +4,8 @@
 # relationship rate: OK
 # transmission rate: OK
 
+# Slope of subtrees ~ size of subtrees
+
 ##################################
 # 1. Growth rate: done by Trust ##
 ##################################
@@ -184,4 +186,47 @@ rels.gender.ratio <- function(datalist = datalist,
 }
 
 
+
+############################################
+# 4. Slope of subtrees ~ size of subtrees ##
+############################################
+
+# fit.stat.slope
+# library(apTreeshape)
+fit.stat.slope <- function(tree=tree11){
+
+  a <- as.phylo(tree)
+  tips.labels <- a$tip.label
+  numb.tips <- length(tips.labels)
+  d <- rev(seq(from = 2, to = numb.tips, by = 1)) # sequence of sizes of subtrees (number of tips)
+
+  tree1 <- as.treeshape(tree) # the tre must be a treeshape object
+  s <- spectrum.treeshape(tree1) # sequence of number of subtrees
+
+  # in d we read the number of tips for a given tree
+  # in s we read the subtrees (trees) with corresponding (in s) tips
+
+  # delete blank values
+  nonzero.position = which(s != 0)
+  s = s[nonzero.position]
+  d = d[nonzero.position]
+
+  reg <- lm(log(d) ~ log(s))
+  cozf = coef(reg)
+
+  # we expect the sizes of subtrees to decrease follwoing power-law hypothetically
+  power.law.fit = function(x) exp(cozf[[1]] + cozf[[2]] * log(x))
+  alpha = -cozf[[2]]
+  R.square = summary(reg)$r.squared
+  print(paste("Alpha =", round(alpha, 3)))
+  print(paste("R square =", round(R.square, 3)))
+
+  # # plot
+  # plot(s ~ d, log = "xy", xlab = "Subtree size (log)", ylab = "Number of subtree (log)",
+  #      col = 1, main = "Degree Distribution")
+  # curve(power.law.fit, col = "red", add = T, n = length(d))
+
+}
+
+fit.stat.slope(tree=tree11)
 
