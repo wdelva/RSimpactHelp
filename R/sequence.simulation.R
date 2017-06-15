@@ -15,7 +15,7 @@
 #' freq <- c(0.3353293,0.2035928,0.2628077,0.1982701) # bases frequencies
 #' rate <- list("a"=0.2, "b"=0.6, "c"=0.12,"d"=0.001, "e"=0.25, "f"=0.24) # substitution rates
 #' sim <- sequence.simulation(transtree = tree0, seedSeq = hivSeq, alpha = 0.90,
-#' rate.list = rate, base.freq = freq))
+#' rate.list = rate, base.freq = freq)
 #' saveAlignment.PhyloSim(sim, file = paste("file_name",sep="")) alignment saved with internal nodes
 #' saveAlignment.PhyloSim(sim, file = paste("file_name",sep=""), skip.internal = TRUE, paranoid = TRUE) alignment saved without internal nodes
 
