@@ -155,7 +155,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       "hivtransmission.param.a"
     )
 
-    target.variables <- c("growth.rate", "rels.rate", "trans.rate")
+    target.variables <- c("growth.rate", "rels.rate", "trans.rate", "phylo.alpha", "phylo.beta")
 
     simulation.type <- ("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
     simpact.set.simulation(simulation.type)
@@ -169,7 +169,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     #intervention introduced See the intervention.introduced
     # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
-    # iv.chunk <- intervention.introduced(simulation.type = simulation.type) # I can remove interventions in this 1st exercise
+    iv.chunk <- intervention.introduced(simulation.type = simulation.type) # I can remove interventions in this 1st exercise
 
     #The first parameter is set to be the seed value
     seed.chunk.id <- input.chunk.params[1]
@@ -200,7 +200,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     testoutput <- simpact.run(configParams = cfg.chunk,
                               destDir = sub.dir.rename,
                               agedist = agedist.chunk.data.frame,
-                              # intervention = iv.chunk, # interventions removed in this 1st exercise
+                              intervention = iv.chunk, # interventions removed in this 1st exercise
                               identifierFormat = paste0("%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r_",
                                                         sub.dir.sim.id,"-"),
                               seed = seed.chunk.id)
@@ -229,6 +229,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       # c("rels.rate", "trans.rate", "growth.rate")
 
       end.time.wind <- unique(chunk.datalist.test$itable$population.simtime)
+
       growth.rate <- pop.growth.calculator(datalist = chunk.datalist.test,
                                            timewindow = c(0, timewindow.max = end.time.wind))
 
@@ -241,11 +242,35 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
 
 
-
-
+      # Phylogenetic component
 
       trans.net <- transmNetworkBuilder.diff(datalist = chunk.datalist.test,
                                 endpoint = 40, population.simtime=40)
+
+      hiv.seq.raw <- read_file("~/RSimpactHelp/R/Projects_2017/HIV_Seq_K03455.txt")
+      ## Remove the break line in the string of DNA
+      clean.hiv.seq <-  gsub("\n", "", hiv.seq.raw)
+
+      ## For any part of the DNA you want to study its evolution,
+      # retrieve the range of interest.
+      ## We downloaded the K03455, HIV-1 sequence with 9719 nucleotides
+
+      ## Choose the gene of interest: env from 6172 to 8742 nucl position
+
+      hiv.seq.env <- substr(clean.hiv.seq, 6172,6200) # true c(6172,8742)
+
+      # Calculate the nucleotides frequencies
+#
+#       # library(Biostrings)
+#       seq1 = DNAString(hiv.seq.env) # nulceotides
+#
+#       # Chech frequencies
+#       freq <- letterFrequency(seq1, letters = c("A", "C", "G", "T"))/nchar(hiv.seq.env)
+#       # > letterFrequency(gag, letters = c("A", "C", "T", "G"))/nchar(hiv.seq.gag)
+
+      freq <- c(0.3353293,0.2035928,0.2628077,0.1982701)
+      rate <- list("a"=0.2, "b"=0.6, "c"=0.12,"d"=0.001, "e"=0.25, "f"=0.24)
+
 
       phylo.alpha.1 <- vector()
       phylo.beta.1 <- vector()
@@ -257,11 +282,9 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
         if(nrow(as.data.frame(tree.n)) >= 5){
           tree.i <- trans.network2tree(transnetwork = tree.n)
 
-          freq <- c(0.3353293,0.2035928,0.2628077,0.1982701)
-          rate <- list("a"=0.2, "b"=0.6, "c"=0.12,"d"=0.001, "e"=0.25, "f"=0.24)
 
           # Sequence simulation
-          sim <- sequence.simulation(transtree = tree0, seedSeq = hivSeq, alpha = 0.90,
+          sim <- sequence.simulation(transtree = tree0, seedSeq = hiv.seq.env, alpha = 0.90,
                                      rate.list = rate, base.freq = freq)
           saveAlignment.PhyloSim(sim,file = paste("HIVSeq_name",i,".fasta",sep=""), skip.internal = TRUE, paranoid = TRUE)
 
