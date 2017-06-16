@@ -104,3 +104,40 @@ fit_power_law = function(graph) {
 }
 
 fit_power_law(graph = ga.graph)
+
+
+# Branch length labels for all bracnhes
+
+library(phylotools)
+
+# tree<-pbtree(n=10)
+tree <- phylo.tree
+# tree$edge.length<-round(tree$edge.length,3)
+tree$edge.length<-tree$edge.length # remove rounding
+n<-length(tree$tip.label)
+ee<-setNames(tree$edge.length[sapply(1:n,function(x,y)
+  which(y==x),y=tree$edge[,2])],tree$tip.label)
+
+# plotTree(tree)
+
+plot(tree)
+edgelabels(round(tree$edge.length,3),cex=0.6) # add edges labels
+
+
+# Branch length of the tips
+
+d <- as.data.frame(ee)
+branc.leng.tips <- as.data.frame(d$ee) # yes we can find them in phylo.tree$edge.length but here they are not rounded whereas
+# with ee are rounded with 3 digit
+tips.id <- as.data.frame(as.character(tree$tip.label))
+
+tips.id <- tree$tip.label
+tips.branch.leng.raw <- cbind(tips.id,branc.leng.tips)
+
+names(tips.branch.leng.raw) <- c("Ind", "branch.len")
+
+tips.branch.leng <- tips.branch.leng.raw
+
+plot(tree)
+edgelabels(round(tips.branch.leng$branch.len,3),cex=0.6) # add edges labels
+
