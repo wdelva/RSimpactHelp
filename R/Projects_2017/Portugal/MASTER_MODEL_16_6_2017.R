@@ -37,19 +37,30 @@ mastermodel.output <- simpact.run(configParams = mastermodel.input,
 
 # Read the mode outpu
 
-datalist.test <- readthedata(mastermodel.output)
+mastermodel.datalist <- readthedata(mastermodel.output)
+
+save(master.datalist, "master.datalist.RData")
 
 
 
 
 # Get the summary statistics as you wish
 
-pop.growth.calculator(datalist = datalist.test,
+pop.growth <- pop.growth.calculator(datalist = mastermodel.datalist,
                       timewindow = c(0,
                                      timewindow.max=unique(datalist.test$itable$population.simtime)))
 
-incidence.calculator(datalist = datalist.test, agegroup = c(20, 25),
-                     timewindow = c(32, 34), only.active = "No")
+# incidence.calculator(datalist = mastermodel.datalist, agegroup = c(20, 25),
+#                      timewindow = c(32, 34), only.active = "No")
+#
+# prevalence.calculator(datalist = mastermodel.datalist, agegroup = c(18, 20),
+#                       timepoint = 34)
 
-prevalence.calculator(datalist = datalist.test, agegroup = c(18, 20),
-                      timepoint = 34)
+
+rels.rate <- relationship.rate.calculator(datalist = mastermodel.datalist,
+                                          timewindow = c(20, 40),
+                                          int = FALSE, by = 1)
+
+transm.rate <- transmission.rate.calculator(datalist = mastermodel.datalist,
+                                            timewindow = c(20, 40),
+                                            int = FALSE, by = 1)
