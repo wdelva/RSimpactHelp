@@ -1,6 +1,6 @@
 # Fitting ABM with ABC
 
-setwd("/home/david/Dropbox/Fitting_Simpact/")
+setwd("/home/david/Dropbox/Fitting_Simpact/FitNow/")
 
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, phylosim, ape, lhs, phangorn)
 
@@ -35,24 +35,47 @@ rep.sample <- ceiling(design.points.total/init.design.points) - 1
 ###### Generate the input parameters for the simulation ###############################################
 inPUT.df.complete <- simpact.config.inputs(design.points = init.design.points, resample.count = 2,
 
-                                           conception.alpha_base = c(-5, -1.5), #c(-4, -1.5)
-                                           formation.hazard.agegapry.numrel_diff = c(-1,0), #-0.1
-                                           formation.hazard.agegapry.eagerness_diff = c(-0.5, 0),#-0.048 #-0.110975
-                                           birth.boygirlratio = c(0.5,0.7), # 0.5024876 #101:100
-                                           hivtransmission.param.a = c(-2,-1) # baseline of transmission: -1.0352239
-)
+                                           mortality.normal.weibull.shape = c(1,7), #5 k for shape
+                                           mortality.normal.weibull.scale = c(60,75), # 70, # gamma for scale
+
+                                           person.eagerness.man.dist.gamma.a = c(0.5,0.9), # 0.85, #0.1
+                                           person.eagerness.man.dist.gamma.b = c(65,75), # 70, #100#3.5#5#10#20 #170
+                                           person.eagerness.woman.dist.gamma.a = c(0,0.5),# 0.1,
+                                           person.eagerness.woman.dist.gamma.b = c(65,70), # 70,#100#3.5#5#10#20#170
+
+                                           #formation.hazard.agegapry.eagerness_diff = c(-1,0),# -0.110975,
+                                           dissolution.alpha_0 = c(-1,0), # -0.6, #-0.1 # baseline
+                                           dissolution.alpha_4 = c(-1,0), # -0.15,
+
+                                           conception.alpha_base = c(-5,-1.5), # -2, #c(-5, -1.5), #c(-4, -1.5)
+                                           formation.hazard.agegapry.eagerness_diff = c(-0.5,0), # -0.1, # c(-0.5, 0),#-0.048 #-0.110975
+                                           birth.boygirlratio = c(0.5,0.7), # ,0.501, # c(0.5,0.7), # 0.5024876 #101:100
+                                           hivtransmission.param.a = c(-2,-1) -1.01 # c(-2,-1) # baseline of transmission: -1.0352239
+
+                                           )
 #
 
 
 for (i in 1:rep.sample){
   inPUT.df.complete.new <- simpact.config.inputs.add.sample(datalist = inPUT.df.complete,
                                                             resample.points = init.design.points, set.seed.new = set.new.seed,
+                                                            mortality.normal.weibull.shape = c(1,7), #5 k for shape
+                                                            mortality.normal.weibull.scale = c(60,75), # 70, # gamma for scale
 
-                                                            conception.alpha_base = c(-5, -0), #c(-4, -1.5)
-                                                            formation.hazard.agegapry.numrel_diff = c(-1,0), #-0.1
-                                                            formation.hazard.agegapry.eagerness_diff = c(-0.5, 0),#-0.048 #-0.110975
-                                                            birth.boygirlratio = c(0.5,0.7), # 0.5024876 #101:100
-                                                            hivtransmission.param.a = c(-2,-1)
+                                                            person.eagerness.man.dist.gamma.a = c(0.5,0.9), # 0.85, #0.1
+                                                            person.eagerness.man.dist.gamma.b = c(65,75), # 70, #100#3.5#5#10#20 #170
+                                                            person.eagerness.woman.dist.gamma.a = c(0,0.5),# 0.1,
+                                                            person.eagerness.woman.dist.gamma.b = c(65,70), # 70,#100#3.5#5#10#20#170
+
+                                                            #formation.hazard.agegapry.eagerness_diff = c(-1,0),# -0.110975,
+                                                            dissolution.alpha_0 = c(-1,0), # -0.6, #-0.1 # baseline
+                                                            dissolution.alpha_4 = c(-1,0), # -0.15,
+
+                                                            conception.alpha_base = c(-5,-1.5), # -2, #c(-5, -1.5), #c(-4, -1.5)
+                                                            formation.hazard.agegapry.eagerness_diff = c(-0.5,0), # -0.1, # c(-0.5, 0),#-0.048 #-0.110975
+                                                            birth.boygirlratio = c(0.5,0.7), # ,0.501, # c(0.5,0.7), # 0.5024876 #101:100
+                                                            hivtransmission.param.a = c(-2,-1) -1.01 # c(-2,-1) # baseline of transmission: -1.0352239
+
   )
 
   inPUT.df.complete <- rbind(inPUT.df.complete, inPUT.df.complete.new)
@@ -85,7 +108,7 @@ ncluster.use <- 1
 # target statistics: average relationships for men and women,
 # standard deviation  relationships for men and women, and average population growth rate
 
-target.variables <- c("growth.rate", "rels.rate", "trans.rate", "phylo.alpha", "phylo.beta")
+target.variables <- c("growth.rate", "rels.rate", "trans.rate", "phylo.alpha", "phylo.beta", "R0")
 
 ##Each of these should be calculated after each run, else we give an NA
 
@@ -106,7 +129,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
 
-  target.variables <- c("growth.rate", "rels.rate", "trans.rate", "phylo.alpha", "phylo.beta")
+  target.variables <- c("growth.rate", "rels.rate", "trans.rate", "phylo.alpha", "phylo.beta", "R0")
 
   err.functionGEN <- function(e){
     if (length(grep("MAXEVENTS",e$message)) != 0)
@@ -133,10 +156,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   source("/home/david/RSimpactHelp/R/phylogenetictree.trend.R")
 
-
-
-
-
+  source("/home/david/RSimpactHelp/R/basicnumber.calculator.R")
 
 
   # Run Simpact then
@@ -148,14 +168,27 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     ## Run preprior.names.chunk and copy the results here.
     input.varied.params.plus <- c(
-      "conception.alpha_base", #c(-4, -1.5)
-      "formation.hazard.agegapry.numrel_diff", #-0.1
-      "formation.hazard.agegapry.eagerness_diff", #-0.048 #-0.110975
-      "birth.boygirlratio", # 0.5024876 #101:100
-      "hivtransmission.param.a"
+
+      "mortality.normal.weibull.shape",# = c(1,7), #5 k for shape
+      "mortality.normal.weibull.scale", # = c(60,75), # 70, # gamma for scale
+
+      "person.eagerness.man.dist.gamma.a", # = c(0.5,0.9), # 0.85, #0.1
+      "person.eagerness.man.dist.gamma.b", # = c(65,75), # 70, #100#3.5#5#10#20 #170
+      "person.eagerness.woman.dist.gamma.a", # = c(0,0.5),# 0.1,
+      "person.eagerness.woman.dist.gamma.b", # = c(65,70), # 70,#100#3.5#5#10#20#170
+
+      #"formation.hazard.agegapry.eagerness_diff", # = c(-1,0),# -0.110975,
+      "dissolution.alpha_0", # = c(-1,0), # -0.6, #-0.1 # baseline
+      "dissolution.alpha_4", # = c(-1,0), # -0.15,
+
+      "conception.alpha_base", # = c(-5,-1.5), # -2, #c(-5, -1.5), #c(-4, -1.5)
+      "formation.hazard.agegapry.eagerness_diff", # = c(-0.5,0), # -0.1, # c(-0.5, 0),#-0.048 #-0.110975
+      "birth.boygirlratio", # = c(0.5,0.7), # ,0.501, # c(0.5,0.7), # 0.5024876 #101:100
+      "hivtransmission.param.a" # = c(-2,-1) -1.01 # c(-2,-1) # baseline of transmission: -1.0352239
+
     )
 
-    target.variables <- c("growth.rate", "rels.rate", "trans.rate", "phylo.alpha", "phylo.beta")
+    target.variables <- c("growth.rate", "rels.rate", "trans.rate", "phylo.alpha", "phylo.beta", "R0")
 
     simulation.type <- ("simpact-cyan")#("maxart") # Is it a standard or a MaxART simulation?
     simpact.set.simulation(simulation.type)
@@ -238,7 +271,12 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
                                                 timewindow = c(0, timewindow.max = end.time.wind))
 
       transm.rate <- transmission.rate.calculator(datalist = chunk.datalist.test,
-                                                  timewindow = c(0, timewindow.max = end.time.wind))
+                                                  timewindow = c(0, timewindow.max = end.time.wind),
+                                                  int = FALSE, by = 1)
+
+      trans.rate.int <- transmission.rate.calculator(datalist = datalist,
+                                                     timewindow = c(0, timewindow.max = end.time.wind),
+                                                     int = TRUE, by = 1)
 
 
 
@@ -257,7 +295,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
       ## Choose the gene of interest: env from 6172 to 8742 nucl position
 
-      hiv.seq.env <- substr(clean.hiv.seq, 6172,6200) # true c(6172,8742)
+      hiv.seq.env <- substr(clean.hiv.seq, 6172,6372) # true c(6172,8742)
 
       # Calculate the nucleotides frequencies
       #
@@ -312,6 +350,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
       phylo.beta <- sum(phylo.beta.1)/length(phylo.beta.1)
 
+      R0 <- basicnumber.calculatorbasicnumber.calculator(datalist = chunk.datalist.test,
+                                                         beta = 0.1508, trans.rate.int = trans.rate.int)
 
 
 
@@ -360,7 +400,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       #                    ART.cov.men.18.50, ART.cov.wom.18.50,
       #                    median.wom.18.50.AD)
 
-      out.statistics <- c(growth.rate, rels.rate, transm.rate, phylo.alpha, phylo.beta)
+      out.statistics <- c(growth.rate, rels.rate, transm.rate, phylo.alpha, phylo.beta, R0)
       ##out.test.degree <- out.statistic[[2]]
     }else{
       out.statistics <- rep(NA,length(target.variables))
@@ -396,13 +436,25 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
   }
 
   print(paste("Working on simulation number: ", chunk.sim.id, sep=" "))
-  #invoke the ABC_rejection method repeating the number of simulation X* for each chunk row.
-  ABC.chunk.result <- ABC_rejection(model = simpact4ABC.chunk.wrapper,
-                                    prior = simpact.chunk.prior,
-                                    nb_simul= sim_repeat,
-                                    use_seed = TRUE,
-                                    seed_count = 0,
-                                    n_cluster = ncluster.use)
+  # #invoke the ABC_rejection method repeating the number of simulation X* for each chunk row.
+  # ABC.chunk.result <- ABC_rejection(model = simpact4ABC.chunk.wrapper,
+  #                                   prior = simpact.chunk.prior,
+  #                                   nb_simul= sim_repeat,
+  #                                   use_seed = TRUE,
+  #                                   seed_count = 0,
+  #                                   n_cluster = ncluster.use)
+
+  target.stat.master <- c(-0.01258384, 13.75,
+                          4.425, 1.354025,
+                          -0.9534453, 5.998512)
+
+  ABC.chunk.result <- ABC_sequential(method = "Emulation", # or "Beaumont", "Drovandi", "Delmoral", "Lenormand"
+                                     model = simpact4ABC.chunk.wrapper,
+                                     prior = simpact.chunk.prior,
+                                     nb_simul = sim_repeat,
+                                     summary_stat_target = target.stat.master,
+                                     n_cluster = 1,
+                                     use_seed = TRUE)
 
 
   #Save the statistics results with the chunk row sim.id repeated X* from the ABC_rejection method
