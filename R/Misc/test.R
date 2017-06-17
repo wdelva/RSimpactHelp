@@ -79,6 +79,47 @@ for(i in 1:5){
 }
 
 
+# Tree imbalance
 
+id1 <- c(seq(from = 0, to = 14, by = 1))
 
+par1 <- c(-1, 0,0,1,1,2,2,3,3,4,4,5,5,6,6)
+
+itime1 <- c(seq(from = 1, to = 15, by = 1))
+
+id2 <- c(seq(from = 0, to = 14, by = 1))
+
+par2 <- c(seq(from = -1, to = 13, by =1))
+
+itime2 <- c(seq(from = 1, to = 15, by = 1))
+
+epi1 <- list()
+epi1$itimes <- rev(itime1*0.1)
+epi1$dtimes <- rep(0,length(itime1))
+epi1$id <- id1
+epi1$parent <- par1
+
+tree1 <- epi2tree(epi1)
+
+epi2 <- list()
+epi2$itimes <- rev(itime2*0.1)
+epi2$dtimes <- rep(0,length(itime2))
+epi2$id <- id2
+epi2$parent <- par2
+
+tree2 <- epi2tree(epi2)
+
+plot(tree1) # synetric tree >> slope is around -2
+
+plot(tree2) # ladder like tree >> slope is not defined NA
+
+trend1 <- phylogenetictree.trend(tree = tree1)
+x1 = trend1$num.tree
+y1 = trend1$size.tree
+reg1 = lm(y1 ~ x1)
+
+trend2 <- phylogenetictree.trend(tree = tree2)
+x2 = trend2$num.tree
+y2 = trend2$size.tree
+reg2 = lm(y2 ~ x2)
 
