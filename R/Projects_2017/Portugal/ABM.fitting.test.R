@@ -1,5 +1,5 @@
 # Fitting ABM with ABC
-
+rm(list = ls())
 setwd("/home/david/Dropbox/Fitting_Simpact/")
 
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, phylosim, ape, lhs)
