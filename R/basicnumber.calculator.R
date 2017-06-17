@@ -7,13 +7,14 @@
 #' their relationship
 #' @param endpoint Only transmission events that took place before this point in simulation time,
 #' are captured in the output
+#' @param trans.rate.int A vector of new relationship per time interval produced by \code{\link{transmission.rate.calculator}}
 #' @return A value of the basic reproduction number
 #'
-#' @example ro <- basicnumber.calculator(datalist = datalist, beta = 0.1508)
+#' @example ro <- basicnumber.calculator(datalist = datalist, beta = 0.1508, trans.rate.int = trans.rate.int)
 #'
 #'
 
-basicnumber.calculator <- function(datalist = datalist, beta = 0.1508){
+basicnumber.calculator <- function(datalist = datalist, beta = 0.1508, trans.rate.int = trans.rate.int){
 
   # Ro = beta * C * D
 
@@ -23,9 +24,9 @@ basicnumber.calculator <- function(datalist = datalist, beta = 0.1508){
   # D: average duration of infectiousness
   # Ideally Note: C < 1/(beta * D)
 
-  source("/home/david/RSimpactHelp/R/transmission.rate.calculator.R")
-
-  trans.rate.int <- transmission.rate.calculator(datalist = datalist, timewindow = c(0,40), int = TRUE, by = 1)
+  # source("/home/david/RSimpactHelp/R/transmission.rate.calculator.R")
+  #
+  # trans.rate.int <- transmission.rate.calculator(datalist = datalist, timewindow = c(0,40), int = TRUE, by = 1)
 
   m <- mean(trans.rate.int)
 
