@@ -2,7 +2,7 @@
 rm(list = ls())
 setwd("/home/david/Dropbox/Fitting_Simpact/")
 
-pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, phylosim, ape, lhs, phangorn)
+pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, phylosim, ape, lhs, phangorn, readr, expoTree, apTreeshape)
 
 comp <- "lin" #lin #mac #chpc #gent
 
@@ -164,12 +164,13 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     #### Set input params
     ##Specifying the initially chosen values for the simulation. ### Let setup parameters here like seed individuals
     ###
-    cfg.chunk <- input.params.creator(population.simtime = 40, population.numwomen = 1000, population.nummen = 1000,
+    cfg.chunk <- input.params.creator(population.simtime = 40, population.numwomen = 1000,
+                                      population.nummen = 1000, hivseed.time = 10,
                                       simulation.type = simulation.type) # Ok until here
 
     #intervention introduced See the intervention.introduced
     # Simulation starts in 1977. After 27 years (in 2004), ART is introduced.
-    iv.chunk <- intervention.introduced(simulation.type = simulation.type) # I can remove interventions in this 1st exercise
+    # iv.chunk <- intervention.introduced(simulation.type = simulation.type) # I can remove interventions in this 1st exercise
 
     #The first parameter is set to be the seed value
     seed.chunk.id <- input.chunk.params[1]
@@ -200,7 +201,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     testoutput <- simpact.run(configParams = cfg.chunk,
                               destDir = sub.dir.rename,
                               agedist = agedist.chunk.data.frame,
-                              intervention = iv.chunk, # interventions removed in this 1st exercise
+                              #intervention = iv.chunk, # interventions removed in this 1st exercise
                               identifierFormat = paste0("%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r_",
                                                         sub.dir.sim.id,"-"),
                               seed = seed.chunk.id)
@@ -280,7 +281,12 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
         tree.n <- trans.net[[i]]
 
         if(nrow(as.data.frame(tree.n)) >= 5){
+
           tree.i <- trans.network2tree(transnetwork = tree.n)
+
+          tree0 <- as.phylo(as.treeshape(tree.i))
+
+
 
 
           # Sequence simulation
