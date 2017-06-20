@@ -48,7 +48,7 @@ phylogenetictree.trend <- function(tree=tree){
   s = s[nonzero.position]
   d = d[nonzero.position]
 
-  num.tree.size <- vector("list",2)
+  #num.tree.size <- vector("list",2)
 
   num.tree.size <- list()
 
