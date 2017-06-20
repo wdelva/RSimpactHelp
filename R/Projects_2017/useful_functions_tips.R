@@ -141,3 +141,65 @@ tips.branch.leng <- tips.branch.leng.raw
 plot(tree)
 edgelabels(round(tips.branch.leng$branch.len,3),cex=0.6) # add edges labels
 
+
+
+
+## Tree imbalance
+
+library(expoTree)
+library(ape)
+library(apTreeshape)
+
+# one infection two infections after
+id1 = c(seq(from=0,to=22, by=1)) # 39
+par1 = c(-1,0,0,1,1,2,2,3,3,4,4,5,5,6,6,
+         7,7,8,8,9,9,10,10) #,11,11,12,12,
+# 13,13,14,14,15,15,16,16,17,17,18,18,19)
+t1 = rev(c(seq(from=1,to=23, by=1)))
+epi1 <- list()
+epi1$itimes <- t1
+epi1$dtimes <- rep(0, length(t1))
+epi1$id <- id1
+epi1$parent <- par1
+epitree1 <- epi2tree(epi1)
+examp1 <- phylogenetictree.trend(tree = epitree1)
+x1 = examp1$num.tree
+y1 = examp1$size.tree
+reg1 <- lm(log(y1) ~ log(x1))
+cozf1 = coef(reg1)
+
+# one infection one infection after
+
+id2 = c(seq(from=0,to=22, by=1))
+par2 = c(seq(from=-1, to=21, by=1))
+t2 = rev(c(seq(from=1,to=23, by=1)))
+epi2 <- list()
+epi2$itimes <- t2
+epi2$dtimes <- rep(0, length(t2))
+epi2$id <- id2
+epi2$parent <- par2
+epitree2 <- epi2tree(epi2)
+examp2 <- phylogenetictree.trend(tree = epitree2)
+x2 = examp2$num.tree
+y2 = examp2$size.tree
+reg2 <- lm(log(y2) ~ log(x2))
+cozf2 = coef(reg2)
+
+
+# One infection many infections after more than 3
+id3 = c(seq(from=0,to=22, by=1))
+par3 = c(-1,0,0,0,1,1,1,1,1,4,4,1,5,5,6,
+         7,7,8,8,9,9,5,0)#,5,5, 10,10,
+#3,3,7,14,7,15,16,3,17,17,3,18,5)
+t3 = rev(c(seq(from=1,to=23, by=1)))
+epi3 <- list()
+epi3$itimes <- t3
+epi3$dtimes <- rep(0, length(t3))
+epi3$id <- id3
+epi3$parent <- par3
+epitree3 <- epi2tree(epi3)
+examp3 <- phylogenetictree.trend(tree = epitree3)
+x3 = examp3$num.tree
+y3 = examp3$size.tree
+reg3 <- lm(log(y3) ~ log(x3))
+cozf3 = coef(reg3)
