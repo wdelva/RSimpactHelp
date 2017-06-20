@@ -5,8 +5,6 @@
 #' @param datalist The datalist that is produced by \code{\link{readthedata}}
 #' @param beta The probability that an infected individual will infect a suceptible partner over the duration of
 #' their relationship
-#' @param endpoint Only transmission events that took place before this point in simulation time,
-#' are captured in the output
 #' @param trans.rate.int A vector of new relationship per time interval produced by \code{\link{transmission.rate.calculator}}
 #' @return A value of the basic reproduction number
 #'
@@ -63,7 +61,7 @@ basicnumber.calculator <- function(datalist = datalist, beta = 0.1508, trans.rat
   id.time.infec.alive <- subset(infec.id.time, id.infec%in%id.infec.alive)
 
   # removal time for alive individuals : endpoint
-  fin.time <- rep(endpoint, nrow(id.time.infec.alive))
+  fin.time <- rep(40, nrow(id.time.infec.alive)) # this 40 is for population.simt.time
 
   # attach removal time to IDs and infection time
   id.time.infec.alive.fin <- cbind(id.time.infec.alive, fin.time)
@@ -103,7 +101,7 @@ basicnumber.calculator <- function(datalist = datalist, beta = 0.1508, trans.rat
 
   DF.id.infec.remov.time <- rbind(as.data.frame(id.time.infec.alive.fin), as.data.frame(id.time.infec.die.fin))
 
-  D <- sum((DF.id.infec.remov.time$fin.time - DF.id.infec.remov.time$InfectTime))/nrow(DF.id.infec.remov.time)
+  D <- sum((DF.id.infec.remov.time$fin.time - DF.id.infec.remov.time$InfectTime), na.rm = TRUE)/nrow(DF.id.infec.remov.time)
 
 
   Ro = beta * C * D
