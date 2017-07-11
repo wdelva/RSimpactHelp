@@ -293,3 +293,223 @@ x3 = examp3$num.tree
 y3 = examp3$size.tree
 reg3 <- lm(log(y3) ~ log(x3))
 cozf3 = coef(reg3)
+
+
+
+# Distances & tMRCA matrices
+
+# function to compute differnces b/w elements
+
+diff.ele <- function(v){
+  w <- vector()
+for(i in 1:(length(v)-1)){
+  d <- v[i+1]-v[i]
+  w <- c(w,d)
+}
+  return(w)
+}
+
+# Case 1: constant difference b/w elements
+
+v1 = c(1,2,3,4,5,6,7,8,9,10)
+
+d1 = diff.ele(v1)
+
+# case 2: ascending differences
+
+v2 = c(1,2,4,7,11,16,22,29,37,46)
+
+d2 = diff.ele(v2)
+
+
+
+# case 3: mix differences
+
+v3 = c(1,2,4,5,7,11,13,17,18,19)
+
+d3 = diff.ele(v3)
+
+
+setwd("/home/david/google_drive/David_Project_drafts_2017/Simpact_Presentation/")
+
+# 1 Function to get the MRCA time matrix
+
+time.mrca.matrix <- function(tree = phylo.tree){
+
+  Mytree <- phylo.tree
+
+
+  # Use of mrca() and branching.time() functions from ape package
+
+  # Symmatric metrix with tips which where entries are the internal nodes which represents the MRCA between two tips
+  # from the phylogenetic tree
+
+  Mytree.mrca.tips <- as.data.frame(mrca(Mytree, full = FALSE)) # MRCA for tips only >> full = FALSE
+
+
+  # tips which represent individuals (sequences)
+  inds <- Mytree$tip.label
+
+  # branching time
+  branch.time <- branching.times(Mytree)
+
+  # Preparing the matrix of time of MRCA
+  #######################################
+  # Change the Mytree.mrca.tips matrix a bit to be easily handle for as igraph or network obejct
+  # we have to make the diagonal 0
+  n = as.matrix(Mytree.mrca.tips)
+  mat.fun.tree <- function(n){
+    diag(n) <- 0
+    m <- n
+    return(m)
+  }
+
+  m <- as.data.frame(mat.fun.tree(n))
+
+  # Get internal nodes of the phyloegentic tree
+
+  i.nodes <- NULL
+  int.nodes <- function(m){
+    for(i in 1:nrow(m)){
+      for(j in 1:nrow(m)){
+        i.nodes <- c(i.nodes,m[i,j])
+      }
+    }
+    return(unique(i.nodes))
+  }
+
+  h = int.nodes(m)
+  # remove the first element which is the 0 on diagonal
+  g <- h[(2:length(h))] # these are really the internal nodes which represents the MRCA in the phylogenetic tree
+
+  # MRCA times
+  # each internal node has its branching time
+  # thus, we have to replace the internal nodes in the matrix with their branching times respectively
+
+  mrca.time.val <- as.data.frame(matrix(,nrow(m),nrow(m))) # initiate an n*n empty matrix (n tips)
+
+  mrca.time.matrix <- function(g,m,branch.time){ # write a function which take as parms the internal nodes (g)
+    # the matrix of internal nodes (MRCA) which is m and
+    # the branching time which correspond with time where the two seq eveoled separelty
+    k <- as.data.frame(branch.time)
+    p <- k$branch.time
+
+    for(l in 1:length(g)){
+      for(i in 1:nrow(m)){
+        for(j in 1:nrow(m)){
+          if(m[i,j] == g[l]){
+            mrca.time.val[i,j] <- p[l]# replace the number of the internal node with the time of branching
+          }
+        }
+      }
+
+    }
+    return(mrca.time.val)
+  }
+
+  v = mrca.time.matrix(g,m,branch.time) # the diagonal is empty with entries NA
+
+  # remove the NA in the diagonal and put 0 since no MRCA of a given sequence comparing at itself
+  matrix.mrca.time.func <- function(v){
+    diag(v) <- 0
+    times.mrca.fine <- v
+    return(times.mrca.fine)
+  }
+
+  names.inds <- names(m) # get the names of the tips
+  mrca.times.final <- matrix.mrca.time.func(v)
+  names(mrca.times.final) <- names.inds # put the names of the tips on the columns
+
+  return(mrca.times.final)
+}
+
+# mrca matrix
+library(ape)
+phylo.tree <- read.nexus(file = "AnalyseAkaroreroRun.nex")
+matrix.time <- time.mrca.matrix(tree = phylo.tree)
+
+
+## 2. Function to get branch similarities
+
+## Pairwise Distances from a Phylogenetic Tree
+
+## cophenetic.phylo computes the pairwise distances between the pairs of tips
+## from a phylogenetic tree using its branch lengths.
+## dist.nodes does the same but between all nodes, internal and terminal, of the tree.
+pair.similarity <- cophenetic.phylo(phylo.tree)
+
+summary(phylo.tree)
+
+num <- matrix.time[1:nrow(matrix.time),]
+
+# Matrix elements sorted
+
+matrix.elements <- function(M){
+  vec0 <- vector()
+  for(i in 1:nrow(M)){
+    vec0 <- c(vec0,M[[i]])
+  }
+
+  veci <- sort(unique(vec0))
+  vecf <- veci[-1]
+  return(vecf)
+}
+
+matr.entries <- matrix.elements(matrix.time)
+
+# Differences between matrix entries
+
+diff.el.num <- sort(diff.ele(matr.entries))
+
+
+
+# Fit with linear line the differences
+X <- diff.el.num
+hist(X, prob=TRUE)            # prob=TRUE for probabilities not counts
+lines(density(X))             # add a density estimate with defaults
+lines(density(X, adjust=2), lty="dotted")   # add another "smoother" density
+
+dt <- diff.el.num
+hist(X, prob=TRUE)
+curve(dnorm(x, mean=mean(dt), sd=sd(dt)), add=TRUE)
+
+# library(igraph)
+net=graph.adjacency(as.matrix(matrix.time),mode="undirected",weighted=T,diag=FALSE)
+
+stop.cut <- 1.9
+net2 <- delete_edges(net, E(net)[weight>=stop.cut])
+# get.all.shortest.paths(net2)
+plot.igraph(net2)
+
+
+matr.entries <- matrix.elements(matrix.time)
+diff.el.num <- sort(diff.ele(matr.entries))
+m <- mean(diff.el.num)
+
+# graph.ls <- list()
+# for(i in 1:length((E(net)$weight))){
+#
+#   if()
+#
+# }
+
+
+mm <- m+m/(sd(diff.el.num)^2)
+
+# > matr.entries
+# [1] 0.001277305 0.574431157 0.599367627 0.736886814 1.299667274 1.311873478 1.773989454 1.884629179 1.970673869
+# [10] 2.023170804 2.078535193 2.127039203 2.854873095 3.349539735 3.454737167 3.469222280 4.280282141 4.737336160
+# [19] 5.266224504 6.760823423 7.641685171 8.681765011
+
+stop.cut1 <- 0.736886814
+net1 <- delete_edges(net, E(net)[weight>=stop.cut1])
+
+stop.cut2 <- 1.773989454
+net2 <- delete_edges(net, E(net)[weight>=stop.cut2])
+
+stop.cut3 <- 2.023170804
+net3 <- delete_edges(net, E(net)[weight>=stop.cut3])
+
+net.uni <- (net1 %u% net2 %u% net3)
+
+#

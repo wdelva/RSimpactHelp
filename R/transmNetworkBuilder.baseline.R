@@ -2,7 +2,7 @@
 #'
 #'
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
-#' @param endtime Only transmission events that took place before this point in simulation time, are captured in the output.
+#' @param endpoint Only transmission events that took place before this point in simulation time, are captured in the output.
 #' @return A list with the transmission network data (each of them considering same sampling/removal date), as required by the epi2tree function.
 #' @examples
 #' transm.ls <- transmNetworkBuilder.baseline(datalist = datalist,endpoint = 40)
@@ -12,7 +12,13 @@
 
 # Build a transmission network data per seed to be handled by epi2tree function of expotree package
 
-transmNetworkBuilder.baseline <- function(datalist = datalist, hivseed.time = 10, endpoint = 40, population.simtime = 40){
+transmNetworkBuilder.baseline <- function(datalist = datalist, endpoint = 40){
+
+    # HIV seed time
+    hivseed.time <- datalist$etable[eventname=="HIV seeding"]$eventtime
+
+    # Simulation time
+    population.simtime <- unique(datalist$itable$population.simtime)
 
     # 1. Table of donors and recipients and time of infection
 
@@ -180,6 +186,18 @@ transmNetworkBuilder.baseline <- function(datalist = datalist, hivseed.time = 10
 
         transm.ls[[i]] <- transNet
     }
+
+    ## Raw data of the transmission matrix, itimes, dtimes, id & parent
+
+    # transNet <- list()
+    # for(i in 1:length(seeds.id)){
+    #   transNet$itimes <- (dat.recdontime[[i]][,5])-hivseed.time
+    #   transNet$dtimes <- rep(0,length(dat.recdontime[[i]][,5]))
+    #   transNet$id <- dat.recdontime[[i]][,1]
+    #   transNet$parent <- dat.recdontime[[i]][,4]
+    #
+    #   transm.ls[[i]] <- transNet
+    # }
 
     return(transm.ls)
 

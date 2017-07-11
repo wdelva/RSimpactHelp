@@ -29,8 +29,8 @@ if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
 all.sim.start <- proc.time()
 
 set.new.seed <- 1
-init.design.points <- 5 #set the initial design points
-design.points.total <- 10 #argument init design point to this value
+init.design.points <- 10 #set the initial design points
+design.points.total <- 100 #argument init design point to this value
 rep.sample <- ceiling(design.points.total/init.design.points) - 1
 
 
@@ -88,7 +88,7 @@ for (i in 1:rep.sample){
 
 #Select a chunk to send to process
 min.chunk <-1 # 2227
-max.chunk <-5 # 2227
+max.chunk <-50 # 2227
 
 if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
 if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}
@@ -99,7 +99,7 @@ inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #set how many time the single row will be repeated
-sim_repeat <- 5
+sim_repeat <- 10
 
 # number of cores per node
 ncluster.use <- 1
@@ -154,7 +154,9 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   # Add sequence and phylogenetic analysis compoents
 
-  source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff.R")
+  source("/home/david/RSimpactHelp/R/transmNetworkBuilder.baseline.R")
+
+  #source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff.R") transmNetworkBuilder.baseline
 
   source("/home/david/RSimpactHelp/R/trans.network2tree.R")
 
@@ -291,8 +293,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
       # Phylogenetic component
 
-      trans.net <- transmNetworkBuilder.diff(datalist = chunk.datalist.test,
-                                             endpoint = 40, population.simtime=end.time.wind)
+      trans.net <- transmNetworkBuilder.baseline(datalist = chunk.datalist.test,
+                                             endpoint = 40)
 
       hiv.seq.raw <- read_file("~/RSimpactHelp/R/Projects_2017/HIV_Seq_K03455.txt")
       ## Remove the break line in the string of DNA
@@ -463,32 +465,32 @@ for (chunk.sim.id in inANDout.df.chunk$sim.id){
   print(paste("Working on simulation number: ", chunk.sim.id, sep=" "))
   # #invoke the ABC_rejection method repeating the number of simulation X* for each chunk row.
 
-  # target.stat.master <- c(-0.01258384, 13.75,
-  #                         4.425, 1.354025,
-  #                         -0.9534453, 5.998512)
-
-  ABC.chunk.result <- ABC_rejection(model = simpact4ABC.chunk.wrapper,
-                                    prior = simpact.chunk.prior,
-                                    nb_simul= sim_repeat,
-                                    #summary_stat_target = target.stat.master,
-                                    tol = 0.5,
-                                    use_seed = TRUE,
-                                    seed_count = 0,
-                                    n_cluster = ncluster.use)
+  target.stat.master <- c(-0.01258384, 13.75,
+                          4.425, 1.354025,
+                          -0.9534453, 5.998512)
+#
+#   ABC.chunk.result <- ABC_rejection(model = simpact4ABC.chunk.wrapper,
+#                                     prior = simpact.chunk.prior,
+#                                     nb_simul= sim_repeat,
+#                                     #summary_stat_target = target.stat.master,
+#                                     tol = 0.5,
+#                                     use_seed = TRUE,
+#                                     seed_count = 0,
+#                                     n_cluster = ncluster.use)
 
 
   #
-  #   ABC.chunk.result <- ABC_sequential(method = "Lenormand",# "Emulation", # or "Beaumont", "Drovandi", "Delmoral", "Lenormand"
-  #                                      model = simpact4ABC.chunk.wrapper,
-  #                                      alpha = 0.5,
-  #                                      p_acc_min = 0.05,
-  #                                      #n_step_emulation = 10, # 9 bu default
-  #                                      #emulator_span = 50, # a positive number, the number of design points selected for the local regression. 50 by default.
-  #                                      prior = simpact.chunk.prior,
-  #                                      nb_simul = sim_repeat,
-  #                                      summary_stat_target = target.stat.master,
-  #                                      n_cluster = 1,
-  #                                      use_seed = TRUE)
+    ABC.chunk.result <- ABC_sequential(method = "Emulation", #Lenormand",# "Emulation", # or "Beaumont", "Drovandi", "Delmoral", "Lenormand"
+                                       model = simpact4ABC.chunk.wrapper,
+                                       alpha = 0.5,
+                                       p_acc_min = 0.05,
+                                       n_step_emulation = 10, # 9 bu default
+                                       emulator_span = 50, # a positive number, the number of design points selected for the local regression. 50 by default.
+                                       prior = simpact.chunk.prior,
+                                       nb_simul = sim_repeat,
+                                       summary_stat_target = target.stat.master,
+                                       n_cluster = 1,
+                                       use_seed = TRUE)
 
 
   #Save the statistics results with the chunk row sim.id repeated X* from the ABC_rejection method
@@ -510,9 +512,9 @@ inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk,
 
 rand.string <- paste0(sample(c(LETTERS,letters), 10), collapse = "")
 
-filename.run <- paste0(dirname,"/","SummaryOutPut-df-phylo-exp_2-",min.chunk,"-",max.chunk,".csv")
+filename.run <- paste0(dirname,"/","1_2_SummaryOutPut-df-phylo-exp_2_22_6_2017Emulation-",min.chunk,"-",max.chunk,".csv")
 
-# filename.run <- paste0("SummaryOutPut-df-ABC-David-phylo",".csv")
+# filename.run <- paste0("SummaryOutPut-df-ABC-David-phylo",".csv"
 
 write.csv(inputANDoutput.chunk.df, file = filename.run, row.names = FALSE)
 

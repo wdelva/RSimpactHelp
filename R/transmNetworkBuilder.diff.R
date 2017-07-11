@@ -2,18 +2,24 @@
 #'
 #'
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
-#' @param population.simtime Simulation time
-#' @param endtime Only transmission events that took place before this point in simulation time, are captured in the output.
-#' @return a list with the transmission network data ( ach of them considering different sampling/removal dates), as required by the epi2tree function.
+#' @param endpoint Only transmission events that took place before this point in simulation time, are captured in the output.
+#' @return a list with the transmission network data ( each of them considering different sampling/removal dates), as required by the epi2tree function.
 #' @examples
-#' transm.ls <- transmNetworkBuilder.diff(datalist = datalist,endpoint = 40,population.simtime=40)
+#' transm.ls <- transmNetworkBuilder.diff(datalist = datalist,endpoint = 40)
 #' @note
 #' transm.ls[[1]] is the transmission network (epi object) of seed the first seed
 #' @import igraph
 
 # Build a transmission network data per seed to be handled by epi2tree function of expotree package
 
-transmNetworkBuilder.diff <- function(datalist = datalist, endpoint = 40, population.simtime=40){
+transmNetworkBuilder.diff <- function(datalist = datalist, endpoint = 40){
+
+    # HIV seed time
+    hivseed.time <- datalist$etable[eventname=="HIV seeding"]$eventtime
+
+    # Simulation time
+    population.simtime <- unique(datalist$itable$population.simtime)
+
 
     # 1. Table of donors and recipients and time of infection
 
@@ -337,13 +343,25 @@ transmNetworkBuilder.diff <- function(datalist = datalist, endpoint = 40, popula
 
     transNet <- list()
     for(i in 1:length(seeds.id)){
-      transNet$itimes <- (population.simtime - (dat.recdontime[[i]][,5]))-hivseed.time
-      transNet$dtimes <- (-population.simtime + (b[[i]][,1]))#-hivseed.time
+      transNet$itimes <- (population.simtime - dat.recdontime[[i]][,5])-hivseed.time
+      transNet$dtimes <- (b[[i]][,1])-hivseed.time
       transNet$id <- dat.recdontime[[i]][,1]
       transNet$parent <- dat.recdontime[[i]][,4]
 
       transm.ls[[i]] <- transNet
     }
+
+    ## Raw data of the transmission matrix, itimes, dtimes, id & parent
+
+    # transNet <- list()
+    # for(i in 1:length(seeds.id)){
+    #   transNet$itimes <- (dat.recdontime[[i]][,5])-hivseed.time
+    #   transNet$dtimes <- (b[[i]][,1])-hivseed.time
+    #   transNet$id <- dat.recdontime[[i]][,1]
+    #   transNet$parent <- dat.recdontime[[i]][,4]
+    #
+    #   transm.ls[[i]] <- transNet
+    # }
 
 
     return(transm.ls)

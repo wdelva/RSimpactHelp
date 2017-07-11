@@ -38,7 +38,7 @@ mastermodel.input <- input.params.creator(population.simtime = 40,
 
                                   conception.alpha_base = -2, #c(-5, -1.5), #c(-4, -1.5)
                                   formation.hazard.agegapry.eagerness_diff = -0.1, # c(-0.5, 0),#-0.048 #-0.110975
-                                  birth.boygirlratio = ,0.501, # c(0.5,0.7), # 0.5024876 #101:100
+                                  birth.boygirlratio = 0.501, # c(0.5,0.7), # 0.5024876 #101:100
                                   hivtransmission.param.a = -1.01, # c(-2,-1) # baseline of transmission: -1.0352239
 
                                   simulation.type = simulation.type)
