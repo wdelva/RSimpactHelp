@@ -1,7 +1,7 @@
 #' Trend of a phylogenetic tree
 #'
-#' Compute two vectors, one for the number of tips for a given tree (or size of the tree)
-#' and another one for the number of trees (subtrees ) with corresponding tips
+#' Compute two vectors, one for the number of tips for a given subtree (or size of the tree)
+#' and another one for the number of trees (subtrees ) with corresponding tips for a given phylogenetic tree
 #'
 #' @param tree A tree object
 #' @return A list with two vector with same length, which is used for regression analysis
