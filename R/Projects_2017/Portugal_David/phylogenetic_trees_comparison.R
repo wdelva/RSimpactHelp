@@ -129,8 +129,8 @@ plot(mdres$points[,1], mdres$points[,2], col = c("red", rep("black", breps)))
 text(mdres$points[,1], mdres$points[,2], labels=1:(breps+1), cex=0.7, adj=c(0,2))
 
 
-# Subtrees from a phylogenetic tree
-####################################
+# Subtrees from a phylogenetic tree, prune a tree
+##################################################
 
 library(ape)
 
@@ -164,6 +164,21 @@ par(mfrow=c(1,1))
 # drop.tip()
 # extract.clade() from ape, and cutreeshape() from apTreeshape packages
 
+# EX. 2
+
+tree<-rtree(10)
+write.tree(tree)
+
+# Now, say we want to keep the species t2, t4, t6, t8, and t10
+# in our pruned tree, we just put these tip names into a vector:
+species<-c("t2","t4","t6","t8","t10")
+
+pruned.tree<-drop.tip(tree,tree$tip.label[-match(species, tree$tip.label)])
+# Or
+pruned.tree<-drop.tip(tree, setdiff(tree$tip.label, species))
+
+write.tree(pruned.tree)
+
 # spectrum.treeshape() from apTreeshape package
 # This function returns a sequence containing the number of subtrees of size
 # n, n-1, ..., 3, 2 where n is the size of the tree. The 'k'th element of the sequence
@@ -171,7 +186,7 @@ par(mfrow=c(1,1))
 # of the tree.
 
 
-# EX. 2
+# EX. 3
 
 library(apTreeshape)
 
@@ -195,3 +210,91 @@ plot(universal.treeshape, tree2)
 tree3<-tipsubtree(universal.treeshape,tips=c(1,3,7), numeric=TRUE)
 plot(universal.treeshape, tree3)
 
+
+# Construct a phylogenetic tree
+################################
+
+# EX. 1
+
+eg.phy <- list()
+
+m<-matrix(nrow=18,ncol=2)
+m[1,]<-c(11,12)
+m[2,]<-c(12,13)
+m[3,]<-c(13,14)
+m[4,]<-c(14,15)
+m[5,]<-c(15,1)
+m[6,]<-c(15,2)
+m[7,]<-c(14,16)
+m[8,]<-c(16,3)
+m[9,]<-c(16,4)
+m[10,]<-c(13,17)
+m[11,]<-c(17,18)
+m[12,]<-c(18,5)
+m[13,]<-c(18,6)
+m[14,]<-c(17,7)
+m[15,]<-c(12,8)
+m[16,]<-c(11,19)
+m[17,]<-c(19,9)
+m[18,]<-c(19,10)
+
+eg.phy$edge <- m
+
+eg.phy$tip.label <- c("t9", "t4", "t5", "t10","t7", "t1", "t6","t8","t2", "t3")
+
+eg.phy$edge.length <- c(0.76947, 0.33053, 0.88915, 0.41914, 0.09538,
+                        0.92463, 0.80391, 0.62641, 0.85228, 0.11455,
+                        0.39461, 0.21585, 0.33571, 0.39673, 0.82935,
+                        0.21624, 0.91556, 0.59869)
+
+eg.phy$Nnode <- length(unique(m[,1]))
+
+class(eg.phy) <- "phylo"
+
+reorder(eg.phy, order = "cladewise", index.only = FALSE)
+
+# attr(eg.phy, "class") <- "phylo"
+# attr(eg.phy, "order") <- "cladewise"
+
+str(eg.phy)
+
+tp <- vector()
+for(i in 1:12){
+  d <- paste(i)
+  tp <- c(tp,d)
+}
+
+
+# EX. 2
+
+library(apTreeshape)
+
+# treeshape(nodes, names)
+# Arguments
+#
+# nodes
+# nodes is a n*2 matrix containing the node structure of the tree.
+# names
+# names is a vector which contains the names of the tips.
+
+
+## Nodes will define the nodes of a five tips tree
+nodes<-matrix(nrow=4,ncol=2)
+nodes[1,]<-c(-5,-4)
+nodes[2,]<-c(1,-1)
+nodes[3,]<-c(-3,2)
+nodes[4,]<-c(-2,3)
+
+nodes1[5,]<-c(3,5)
+
+## Now we can build the tree and plot it.
+tree1<-treeshape(nodes)
+plot(tree1)
+
+## Computation of the sackin index for the tree :
+sackin(tree1)
+
+## Label will define the names of the tips
+label=c("a", "b", "c", "d", "e")
+tree2<-treeshape(nodes, label)
+plot(tree1, tree2)
