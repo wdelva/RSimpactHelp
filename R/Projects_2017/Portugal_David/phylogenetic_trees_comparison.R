@@ -133,7 +133,9 @@ text(mdres$points[,1], mdres$points[,2], labels=1:(breps+1), cex=0.7, adj=c(0,2)
 ####################################
 
 library(ape)
-#
+
+# EX. 1
+
 # subtrees()
 # This function returns a list of all the subtrees of a phylogenetic tree.
 
@@ -151,14 +153,45 @@ phy<-rtree(12)
 par(mfrow=c(4,3))
 plot(phy, sub="Complete tree")
 
-# drop.tip()
-# extract.clade()
+
 ### Extract the subtrees
 l<-subtrees(phy)
 
 ### plot all the subtrees
 for (i in 1:11) plot(l[[i]], sub=paste("Node", l[[i]]$node.label[1]))
 par(mfrow=c(1,1))
+# like
+# drop.tip()
+# extract.clade() from ape, and cutreeshape() from apTreeshape packages
+
+# spectrum.treeshape() from apTreeshape package
+# This function returns a sequence containing the number of subtrees of size
+# n, n-1, ..., 3, 2 where n is the size of the tree. The 'k'th element of the sequence
+# is the number of subtrees of size n-k+1 in the tree, where n is the number of tips
+# of the tree.
 
 
+# EX. 2
+
+library(apTreeshape)
+
+# tipsubtree() from apTreeshape package
+# Extract a subtree that contains pre-specified tip names or labels
+
+## The universal tree of life provided in the data sets.
+data(universal.treeshape)
+
+## One might want to extract the tree containing the Animals, the Plants,
+##      the Aquifex and the Microsporidia
+tree1<-tipsubtree(universal.treeshape,tips=c("Animals", "Aquifex",
+                                             "Microsporidia", "Plants"))
+plot(universal.treeshape, tree1)
+
+## Labels that do not appear in the tree are ignored
+tree2<-tipsubtree(universal.treeshape,tips=c("Human", "Animals", "Aquifex",
+                                             "Microsporidia", "Plants"))
+plot(universal.treeshape, tree2)
+
+tree3<-tipsubtree(universal.treeshape,tips=c(1,3,7), numeric=TRUE)
+plot(universal.treeshape, tree3)
 
