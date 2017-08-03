@@ -129,6 +129,40 @@ plot(mdres$points[,1], mdres$points[,2], col = c("red", rep("black", breps)))
 text(mdres$points[,1], mdres$points[,2], labels=1:(breps+1), cex=0.7, adj=c(0,2))
 
 
+# EX. 5
+
+library(phangorn)
+
+# treedist computes different tree distance methods and RF.dist the Robinson-Foulds
+# or symmetric distance. The Robinson-Foulds distance only depends on the toplogy of the trees.
+# If edge weights should be considered wRF.dist calculates
+# the weighted RF distance (Robinson & Foulds 1981). and KF.dist calculates
+# the branch score distance (Kuhner & Felsenstein 1994).
+# path.dist computes the path difference metric as described in Steel and Penny 1993).
+# sprdist computes the approximate SPR distance
+# (Oliveira Martins et al. 2008, de Oliveira Martins 2016).
+
+tree1 = rtree(21)
+tree2 = rtree(21)
+
+treedist(tree1, tree2, check.labels = TRUE)
+
+sprdist(tree1, tree2)
+
+SPR.dist(tree1, tree2 = NULL)
+
+RF.dist(tree1, tree2 = NULL, normalize = FALSE, check.labels = TRUE,
+        rooted = FALSE)
+
+wRF.dist(tree1, tree2 = NULL, normalize = FALSE, check.labels = TRUE,
+         rooted = FALSE)
+
+KF.dist(tree1, tree2 = NULL, check.labels = TRUE, rooted = FALSE)
+
+path.dist(tree1, tree2 = NULL, check.labels = TRUE, use.weight = FALSE)
+
+
+
 # Subtrees from a phylogenetic tree, prune a tree
 ##################################################
 
@@ -259,7 +293,7 @@ reorder(eg.phy, order = "cladewise", index.only = FALSE)
 str(eg.phy)
 
 tp <- vector()
-for(i in 1:12){
+for(i in 1:10){
   d <- paste(i)
   tp <- c(tp,d)
 }
