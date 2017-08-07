@@ -2,8 +2,8 @@
 rm(list = ls())
 setwd("/home/david/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/")
 
-pacman::p_load(ape,expoTree,data.table,phylosim)
-library(RSimpactHelper)
+pacman::p_load(ape,expoTree,data.table,phylosim,RSimpactHelper)
+
 
 ##### Section 1: Transmission tree/network and sequence simulation #####
 ########################################################################
