@@ -7,9 +7,10 @@
 pop.growth.calculator(datalist = datalist, timewindow = c(0, 20))
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
+\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
 
-\item{timewindow}{Boundaries of the time window (lower bound < time <= upper bound) that should be retained, e.g. c(20, 30)}
+\item{timewindow}{Boundaries of the time window (lower bound < time <= upper bound) that
+should be retained, e.g. c(20, 30)}
 }
 \value{
 population growth rate estimate, for the specified time window
@@ -18,6 +19,8 @@ population growth rate estimate, for the specified time window
 Calculate the growth rate of the entire population, averaged over a particular time window.
 }
 \examples{
+data(datalist)
 growth.rate <- pop.growth.calculator(datalist = datalist, timewindow = c(0, 20))
-}
+growth.rate
 
+}

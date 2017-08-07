@@ -7,7 +7,7 @@
 pattern.plotter(dl)
 }
 \arguments{
-\item{dl}{The datalist that is produced by \code{\link{pattern.modeller()}}}
+\item{dl}{The datalist that is produced by \code{\link{pattern.modeller}}}
 }
 \value{
 a large ggplot object of the age-mixing pattern
@@ -22,10 +22,3 @@ themselves. Juxtaposed with this is a line that represents the
 population-average predicted partner ages based upon the generalised linear
 mixed effects model in \code{\link{pattern.modeller}}.
 }
-\examples{
-load(obs)
-amp <- pattern.plotter(dl = pat)
-amp
-
-}
-

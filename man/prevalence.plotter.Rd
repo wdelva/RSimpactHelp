@@ -7,18 +7,21 @@
 prevalence.plotter(datalist = datalist, agegroup = c(15, 50))
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
+\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 50)}
+\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound)
+that should be retained, e.g. c(15, 50)}
 }
 \value{
 a ggplot2 object
 }
 \description{
-Plot the overall HIV prevalence, with confidence interval, for the duration of the simulation, for a specific age group.
+Plot the overall HIV prevalence, with confidence interval, for the
+duration of the simulation, for a specific age group.
 }
 \examples{
-prevalence.df <- prevalence.calculator(datalist = datalist, agegroup = c(15, 30), timepoint = 30)
+data(datalist)
+prevalence.df <-prevalence.plotter(datalist = datalist, agegroup = c(15, 30))
+prevalence.df
 
 }
-

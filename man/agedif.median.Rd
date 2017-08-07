@@ -7,7 +7,7 @@
 agedif.median(df, agegroup, timepoint, timewindow, start = FALSE)
 }
 \arguments{
-\item{df}{The dataframe that is produced by \code{\link{agedmix.df.maker()}}}
+\item{df}{The dataframe that is produced by \code{\link{agemix.df.maker}}}
 
 \item{agegroup}{Boundaries of the age group that should be retained, e.g.
 c(15, 30). The interval is closed on the left and open on the right.}
@@ -52,8 +52,5 @@ population.
 # between the ages of 18 and 49. Furthermore, the are asked only about
 # the relationships that happened in the previous 2 years.
 
-load(dataframe)
-agedifmedtable <- agedif.median(df = dataframe, agegroup = c(18, 50), timewindow = 2, timepoint = 40)
 
 }
-

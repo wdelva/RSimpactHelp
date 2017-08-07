@@ -2,32 +2,18 @@
 % Please edit documentation in R/degree.df.frac.R
 \name{degree.df.frac}
 \alias{degree.df.frac}
-\title{Fraction of women within specified age group with more than one sexual partner in the past year.}
+\title{Fraction of women within specified age group with more than one
+sexual partner in the past year.}
 \usage{
 degree.df.frac(degreedata.df)
 }
 \arguments{
-\item{degreedata.df}{The dataframe that is produced by \code{\link{degree.df.maker()}}}
-
-\item{survey.time}{Time point of the cross-sectional survey.}
-
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)}
-
-\item{window.width}{Time period before the survey e.g 1 year before the survey.}
-
-\item{only.new}{Logical indicator. If TRUE, only relationships that were newly started during window.width are counted
-(i.e. the individual was NEVER in a relationship with these partners before the start of the window).
-If FALSE, all relationships that were ongoing at some point during the window.width are counted.}
+\item{degreedata.df}{The dataframe that is produced by \code{\link{degree.df.maker}}}
 }
 \value{
 A value, that is, the fraction of women with >1 sexual partner in the last year.
 }
 \description{
-\code{degree.df.frac()} Computes the fraction of women within specified age
+\code{degree.df.frac} Computes the fraction of women within specified age
 group with more than one partner from the degreedata dataframe.
 }
-\examples{
-load(degreedata.df)
-degreefrac.df <- degree.df.frac(degreedata.df, agegroup = c(15, 30), survey.time = 10, window.width = 1, only.new = TRUE)
-}
-

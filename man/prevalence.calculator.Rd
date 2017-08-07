@@ -8,9 +8,10 @@ prevalence.calculator(datalist = datalist, agegroup = c(15, 30),
   timepoint = 30)
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
+\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)}
+\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should
+be retained, e.g. c(15, 30)}
 
 \item{timepoint}{Point in time at which the HIV prevalence should be calculated.}
 }
@@ -22,6 +23,9 @@ for the specified time point and age group, overall, and stratified by gender
 Calculate the HIV prevalence at a point in time, for specific age groups and gender strata.
 }
 \examples{
-prevalence.df <- prevalence.calculator(datalist = datalist, agegroup = c(15, 30), timepoint = 30)
-}
+data(datalist)
+prevalence.df <- prevalence.calculator(datalist = datalist, agegroup = c(15, 30),
+timepoint = 30)
+prevalence.df
 
+}

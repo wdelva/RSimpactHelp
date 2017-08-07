@@ -7,15 +7,12 @@
 degree.hist.maker(dataframe = degreedata.df)
 }
 \arguments{
-\item{dataframe}{The dataframe that is produced by \code{\link{degree.df.maker()}}}
+\item{dataframe}{The dataframe that is produced by \code{\link{degree.df.maker}}}
 }
 \value{
 a ggplot2 object
 }
 \description{
-Plot the histogram of the degree distribution that is stored in degreedata.df$Degree, after running \code{\link{degree.df.maker()}}
+Plot the histogram of the degree distribution that is stored in
+ degreedata.df$Degree, after running \code{\link{degree.df.maker}}
 }
-\examples{
-degree.hist.maker <- degree.hist.maker(dataframe = degreedata.df)
-}
-

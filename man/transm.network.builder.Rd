@@ -7,9 +7,10 @@
 transm.network.builder(datalist = datalist, endpoint = 30)
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
+\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
 
-\item{endtime}{Only transmission events that took place before this point in simulation time, are captured in the output.}
+\item{endpoint}{Only transmission events that took place before this point in simulation
+time, are captured in the output.}
 }
 \value{
 a list with the transmission network data, as required by the epi2tree function.
@@ -17,7 +18,3 @@ a list with the transmission network data, as required by the epi2tree function.
 \description{
 Calculate the HIV prevalence at a point in time, for specific age groups and gender strata.
 }
-\examples{
-transm.ls <- transm.network.builder(datalist = datalist, endpoint = 30)
-}
-

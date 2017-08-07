@@ -8,26 +8,34 @@ incidence.calculator(datalist = datalist, agegroup = c(15, 30),
   timewindow = c(20, 30), only.active = "No")
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
+\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should be retained, e.g. c(15, 30)}
+\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that
+should be retained, e.g. c(15, 30)}
 
-\item{timewindow}{Boundaries of the time window (lower bound < time <= upper bound) that should be retained, e.g. c(20, 30)}
+\item{timewindow}{Boundaries of the time window (lower bound < time <= upper bound)
+that should be retained, e.g. c(20, 30)}
 
-\item{only.active}{Should only women who are in sexual relationships contribute exposure time (~ Harling)?
-If "Strict", all time spent being not being in any relationship will be excluded from exposure time.
-If "Harling", time will be excluded from exposure time in blocks of one year, if the person spent that entire block not in any relationship.
+\item{only.active}{Should only women who are in sexual relationships contribute
+exposure time (~ Harling)?
+If "Strict", all time spent being not being in any relationship will be excluded
+from exposure time.
+If "Harling", time will be excluded from exposure time in blocks of one year, if the
+person spent that entire block not in any relationship.
 If "No", exposure time is being contributed, even while not in any relationships.}
 }
 \value{
-a dataframe with cases, exposure time, incidence estimate and surrounding confidence bounds,
+a dataframe with cases, exposure time, incidence estimate and
+surrounding confidence bounds,
 for the specified time window and age group, overall, and stratified by gender
 }
 \description{
 Calculate the HIV incidence in a time window and for specific age groups and gender strata.
 }
 \examples{
-incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30))
+data(datalist)
+incidence.df <- incidence.calculator(datalist = datalist,
+ agegroup = c(15, 30), timewindow = c(20, 30))
+incidence.df
 
 }
-
