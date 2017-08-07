@@ -149,17 +149,17 @@ treedist(tree1, tree2, check.labels = TRUE)
 
 sprdist(tree1, tree2)
 
-SPR.dist(tree1, tree2 = NULL)
+SPR.dist(tree1, tree2)
 
-RF.dist(tree1, tree2 = NULL, normalize = FALSE, check.labels = TRUE,
+RF.dist(tree1, tree2, normalize = FALSE, check.labels = TRUE,
         rooted = FALSE)
 
-wRF.dist(tree1, tree2 = NULL, normalize = FALSE, check.labels = TRUE,
+wRF.dist(tree1, tree2, normalize = FALSE, check.labels = TRUE,
          rooted = FALSE)
 
-KF.dist(tree1, tree2 = NULL, check.labels = TRUE, rooted = FALSE)
+KF.dist(tree1, tree2 , check.labels = TRUE, rooted = FALSE)
 
-path.dist(tree1, tree2 = NULL, check.labels = TRUE, use.weight = FALSE)
+path.dist(tree1, tree2, check.labels = TRUE, use.weight = FALSE)
 
 
 
@@ -332,3 +332,32 @@ sackin(tree1)
 label=c("a", "b", "c", "d", "e")
 tree2<-treeshape(nodes, label)
 plot(tree1, tree2)
+
+
+x1 <- c(0,1,1,1)
+x2 <- c(1,0,2,1)
+x3 <- c(1,2,0,2)
+x4 <- c(1,1,2,0)
+
+y = cbind(x1,x2,x3,x4)
+
+x <- as.matrix(y)
+
+d = hclust(dist(x))
+
+plot(d)
+
+g = as.phylo(d)
+
+str(g)
+
+plot(g)
+
+# from trannet
+
+d1 <- epi1$itimes
+d2 <- epi1$dtimes
+
+dt <- d2-d1
+
+
