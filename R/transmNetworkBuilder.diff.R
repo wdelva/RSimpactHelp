@@ -342,7 +342,7 @@ transmNetworkBuilder.diff <- function(datalist = datalist, endpoint = 40){
   transNet <- list()
   for(i in 1:length(seeds.id)){
     transNet$itimes <- (endpoint - (dat.recdontime[[i]][,5]))+hivseed.time
-    transNet$dtimes <- (endpoint - (b[[i]][,1]))+hivseed.time
+    transNet$dtimes <- (endpoint - (b[[i]][,1]))
     transNet$id <- dat.recdontime[[i]][,1]
     transNet$parent <- dat.recdontime[[i]][,4]
 
