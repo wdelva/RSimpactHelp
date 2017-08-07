@@ -10,13 +10,17 @@
 #' gender. For relationships where there is more than one episode, there will be
 #' multiple rows.
 #'
+#' @docType data
+#'
+#' @usage data(persreldf)
+#'
 #' @format A dataframe with 916306 rows and 23 variables:
 #'
 #'   \describe{ \item{relid}{A unique id for each relationship that combines
 #'   the unique ID for the male partner (first) and the female partner (second)
 #'   in the relaitonship} \item{episodeorder}{The order in which episodes
 #'   occure are numbered in ascending order} \item{agerelform}{The age of the
-#'   person when when the relationship began. In other words, the age at the
+#'   person when the relationship began. In other words, the age at the
 #'   first episode} \item{pagerelform}{The age of their partner when the
 #'   relationship began.} }
 #'
