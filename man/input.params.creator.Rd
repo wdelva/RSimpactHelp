@@ -8,9 +8,8 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   mortality.normal.weibull.scale = 65,
   mortality.normal.weibull.genderdiff = 0, periodiclogging.interval = 1,
   syncrefyear.interval = 1, formation.hazard.type = "agegapry",
-  person.art.accept.threshold.dist.type = "uniform",
-  person.art.accept.threshold.dist.uniform.min = 0.5,
-  person.art.accept.threshold.dist.uniform.max = 0.5,
+  person.art.accept.threshold.dist.type = "fixed",
+  person.art.accept.threshold.dist.fixed.value = 0.5,
   person.eagerness.man.type = "independent",
   person.eagerness.woman.type = "independent",
   person.eagerness.man.dist.type = "gamma",
@@ -41,7 +40,7 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   person.vsp.tofinalaids.x = 12, person.vsp.toaids.x = 7,
   formation.hazard.agegapry.eagerness_diff = -0.048,
   dissolution.alpha_0 = -0.52, dissolution.alpha_4 = -0.05,
-  debut.debutage = 14, population.simtime = 40, population.nummen = 500,
+  debut.debutage = 15, population.simtime = 40, population.nummen = 500,
   population.numwomen = 500, population.eyecap.fraction = 0.2,
   hivseed.type = "amount", hivseed.amount = 20, hivseed.age.min = 20,
   hivseed.age.max = 30, hivseed.time = 10,
@@ -76,9 +75,7 @@ Choose between "simple", "agegap" and "agegapry".}
 \item{person.art.accept.threshold.dist.type}{This specfies the ART acceptance distribution
 for each person}
 
-\item{person.art.accept.threshold.dist.uniform.min}{The minimal value for the uniform distr}
-
-\item{person.art.accept.threshold.dist.uniform.max}{The maximum value for the uniform distr}
+\item{person.art.accept.threshold.dist.fixed.value}{The value for the fixed distribution}
 
 \item{person.eagerness.man.type}{Type of man distribution for "eagerness" (~ sexual activity)
 in the population ("independent")}
