@@ -38,7 +38,7 @@ ConnectNearBy <- function(phylo.tree = tree){
 
   ## Algorithm: SEARCH YOUR LINKS
 
-  epsilon=0.1
+  epsilon=0.1/2
   Ind.g <- vector()
   Ind.g.1 <- vector()
   Ind.g.2 <- vector()
