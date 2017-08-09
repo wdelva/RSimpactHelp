@@ -176,6 +176,24 @@ RF.dist(tree1, tree2, normalize = FALSE, check.labels = F,
 # Transmission Old less or equal than 10 yrs
 transNet.yrs.Old <- delete_edges(ga.graph, E(ga.graph)[weight>=10])
 
+transNet.full <- ga.graph
+
+seq.sim.size_full <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/seq_sizes_without_considering_specific_seq/size_72.fasta")
+tree.dat.full <- phyDat(seq.sim.size_full, type = "DNA")
+tree.ml.full <- dist.ml(tree.dat.full)
+tree.sim.full <- upgma(tree.ml.full)
+
+built.net.full <- ConnectNearBy(phylo.tree = epi.tree)# tree.sim.full)
+
+prop.transNet.full <- properties_network(graph = transNet.full)
+prop.built.net.full <- properties_network(graph = built.net.full)
+
+time.mrca <- time.mrca.matrix(tree = tree.sim.full)
+
+phylo.tree <- read.nexus("~/BEAST_COMPONENTS/beast.v.2.4.5/bin/envGenseqPosterDavidfull_consensus.nex")
+
+matrix.time <- time.mrca.matrix(tree = phylo.tree)
+
 # Construct transmission network from phylogeny
 source("/home/david/RSimpactHelp/R/ConnectNearBy.R")
 
@@ -200,6 +218,9 @@ prop.built.net.size5 <-properties_network(graph = built.net.size5)
 
 prop.tree.sim5 <- properties_tree(tree = tree.sim5)
 prop.pruned.epi.tree.size5 <- properties_tree(tree = pruned.epi.tree.size5)
+
+# tMRCA
+# time.mrca.size5 <- time.mrca.matrix(tree = tree.sim5)
 
 # Size 10
 
@@ -602,6 +623,7 @@ prop.built.net.size72 <-properties_network(graph = built.net.size72)
 
 prop.tree.sim72 <- properties_tree(tree = tree.sim72)
 prop.pruned.epi.tree.size72 <- properties_tree(tree = pruned.epi.tree.size72)
+
 
 # Comparison 1.2: Transmission networks
 
