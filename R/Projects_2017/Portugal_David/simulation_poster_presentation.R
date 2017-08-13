@@ -637,6 +637,367 @@ prop.built.net.size72 <-properties_network(graph = built.net.size72)
 prop.tree.sim72 <- properties_tree(tree = tree.sim72)
 prop.pruned.epi.tree.size72 <- properties_tree(tree = pruned.epi.tree.size72)
 
+#
+#         XXXXXXXXXXXXXXXXXXXXXXXXXX 60 percent XXXXXXXXXXXXXXXXXXXX
+#
+
+# random, without clusters (elements with high degree) & bridges (elements which bridge two or more clusters)
+
+
+
+seq.sim.random_60_1 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_1.fasta")
+tree.datrandom_60_1 <- phyDat(seq.sim.random_60_1, type = "DNA")
+tree.mlrandom_60_1 <- dist.ml(tree.datrandom_60_1)
+tree.simrandom_60_1 <- upgma(tree.mlrandom_60_1)
+keep.rand.random_60_1 <- c("9",  "26", "48", "8" , "10",
+                           "14", "17", "18", "30", "41",
+                           "51", "58", "60", "62", "68",
+                           "71", "43", "44", "45", "49",
+                           "50", "55", "59", "67", "70" ,
+                           "69", "42", "53", "63", "65" ,
+                           "46", "20", "21", "22", "25",
+                           "27", "36", "12", "15", "29" ,
+                           "40", "52", "32", "1" )
+
+
+seq.sim.random_60_2 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_2.fasta")
+tree.datrandom_60_2 <- phyDat(seq.sim.random_60_2, type = "DNA")
+tree.mlrandom_60_2 <- dist.ml(tree.datrandom_60_2)
+tree.simrandom_60_2 <- upgma(tree.mlrandom_60_2)
+keep.rand.random_60_2 <-c("8",  "10", "11", "34", "13",
+                          "17", "30", "41", "51", "58",
+                          "60", "62", "68", "71", "43",
+                          "44", "45", "49", "50", "55",
+                          "57", "61", "59", "67", "70",
+                          "69", "42", "53", "63", "65",
+                          "64", "46", "21", "22", "25",
+                          "27", "36", "12", "15", "32",
+                          "33", "47", "1" , "0" )
+
+
+seq.sim.random_60_3 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_3.fasta")
+tree.datrandom_60_3 <- phyDat(seq.sim.random_60_3, type = "DNA")
+tree.mlrandom_60_3 <- dist.ml(tree.datrandom_60_3)
+tree.simrandom_60_3 <- upgma(tree.mlrandom_60_3)
+keep.rand.random_60_3 <-c("9",  "16", "26", "48", "5",
+                          "7",  "8" , "13", "14", "17",
+                          "18", "30", "51", "58", "56",
+                          "62", "71", "35", "43", "49",
+                          "50", "55", "57", "61", "59",
+                          "67", "69", "42", "53", "63",
+                          "65", "66", "64", "46", "20",
+                          "21", "27", "15", "29", "40",
+                          "52", "47", "1" , "0" )
+
+
+seq.sim.random_60_4 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_4.fasta")
+tree.datrandom_60_4 <- phyDat(seq.sim.random_60_4, type = "DNA")
+tree.mlrandom_60_4 <- dist.ml(tree.datrandom_60_4)
+tree.simrandom_60_4 <- upgma(tree.mlrandom_60_4)
+keep.rand.random_60_4 <-c("9",  "26", "48", "5",  "7",
+                          "8",  "10", "11", "34", "13",
+                          "14", "17", "18", "30", "41",
+                          "51", "58", "56", "60", "62",
+                          "68", "71", "35", "43", "44",
+                          "45", "49", "61", "59", "67",
+                          "70", "69", "42", "53", "63",
+                          "65", "66", "64", "46", "20",
+                          "21", "22", "12", "15")
+
+seq.sim.random_60_5 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_5.fasta")
+tree.datrandom_60_5 <- phyDat(seq.sim.random_60_5, type = "DNA")
+tree.mlrandom_60_5 <- dist.ml(tree.datrandom_60_5)
+tree.simrandom_60_5 <- upgma(tree.mlrandom_60_5)
+keep.rand.random_60_5 <-c("14", "17", "18", "30", "41",
+                          "51", "58", "56", "60", "62",
+                          "68", "71", "35", "43", "44",
+                          "45", "49", "50", "55", "57",
+                          "61", "59", "67", "70", "69",
+                          "42", "53", "63", "65", "66",
+                          "64", "46", "20", "21", "22",
+                          "25", "27", "36", "12", "15",
+                          "29", "40", "52", "32")
+
+seq.sim.random_60_6 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_6.fasta")
+tree.datrandom_60_6 <- phyDat(seq.sim.random_60_6, type = "DNA")
+tree.mlrandom_60_6 <- dist.ml(tree.datrandom_60_6)
+tree.simrandom_60_6 <- upgma(tree.mlrandom_60_6)
+keep.rand.random_60_6 <-c("41", "51", "58", "56", "60",
+                          "62", "68", "71", "35", "43",
+                          "44", "45", "49", "50", "55",
+                          "57", "61", "59", "67", "70",
+                          "69", "42", "53", "63", "65",
+                          "66", "64", "46", "20", "21",
+                          "22", "25", "27", "36", "12",
+                          "15", "29", "40", "52", "32",
+                          "33", "47", "1" , "0" )
+
+seq.sim.random_60_7 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_7.fasta")
+tree.datrandom_60_7 <- phyDat(seq.sim.random_60_7, type = "DNA")
+tree.mlrandom_60_7 <- dist.ml(tree.datrandom_60_7)
+tree.simrandom_60_7 <- upgma(tree.mlrandom_60_7)
+keep.rand.random_60_7 <-c("9",  "16", "26", "48", "5",
+                          "7",  "8" , "10", "11", "34",
+                          "13", "14", "17", "18", "30",
+                          "41", "51", "58", "56", "60",
+                          "62", "68", "71", "35", "43",
+                          "44", "45", "49", "50", "55",
+                          "57", "61", "59", "67", "70",
+                          "69", "42", "53", "63", "65",
+                          "66", "64", "46", "20")
+
+seq.sim.random_60_8 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_8.fasta")
+tree.datrandom_60_8 <- phyDat(seq.sim.random_60_8, type = "DNA")
+tree.mlrandom_60_8 <- dist.ml(tree.datrandom_60_8)
+tree.simrandom_60_8 <- upgma(tree.mlrandom_60_8)
+keep.rand.random_60_8 <-c("9",  "16", "26", "48", "5",
+                          "7",  "8" , "10", "11", "34",
+                          "13", "58", "56", "60", "62",
+                          "68", "71", "35", "43", "44",
+                          "45", "49", "50", "55", "57",
+                          "42", "53", "63", "65", "66",
+                          "64", "46", "20", "21", "22",
+                          "25", "27", "15", "29", "40",
+                          "52", "32", "1" , "0" )
+
+
+seq.sim.random_60_9 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_9.fasta")
+tree.datrandom_60_9 <- phyDat(seq.sim.random_60_9, type = "DNA")
+tree.mlrandom_60_9 <- dist.ml(tree.datrandom_60_9)
+tree.simrandom_60_9 <- upgma(tree.mlrandom_60_9)
+keep.rand.random_60_9 <-c("9",  "16", "10", "11", "34",
+                          "13", "14", "17", "18", "30",
+                          "41", "51", "58", "56", "60",
+                          "62", "68", "71", "35", "43",
+                          "44", "45", "49", "55", "57",
+                          "61", "59", "67", "70", "42",
+                          "53", "63", "65", "64", "46",
+                          "20", "21", "22", "25", "15",
+                          "29", "52", "32", "33")
+
+
+seq.sim.random_60_10 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_10.fasta")
+tree.datrandom_60_10 <- phyDat(seq.sim.random_60_10, type = "DNA")
+tree.mlrandom_60_10 <- dist.ml(tree.datrandom_60_10)
+tree.simrandom_60_10 <- upgma(tree.mlrandom_60_10)
+keep.rand.random_60_10 <-c("22", "25", "27", "36", "12",
+                           "9",  "7",  "8",  "14", "17",
+                           "18", "30", "16", "56", "68",
+                           "71", "35", "43", "45", "49",
+                           "50", "55", "57", "61", "59",
+                           "42", "53", "65", "15", "29",
+                           "40", "66", "26", "48", "5",
+                           "41", "33", "47", "1",  "0",
+                           "51", "58", "64", "52")
+
+seq.sim.random_60_11 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_11.fasta")
+tree.datrandom_60_11 <- phyDat(seq.sim.random_60_11, type = "DNA")
+tree.mlrandom_60_11 <- dist.ml(tree.datrandom_60_11)
+tree.simrandom_60_11 <- upgma(tree.mlrandom_60_11)
+keep.rand.random_60_11 <-c("42", "53", "63", "43", "44",
+                           "45", "50", "55", "57", "61",
+                           "59", "67", "65", "66", "64",
+                           "46", "20", "25", "27", "9",
+                           "16", "26", "48", "68", "71",
+                           "36", "12", "15", "29", "40",
+                           "52", "5",  "34", "33", "47",
+                           "1",  "14", "17", "18", "30",
+                           "41", "51", "58", "62")
+
+seq.sim.random_60_12 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent/random_60_percent_12.fasta")
+tree.datrandom_60_12 <- phyDat(seq.sim.random_60_12, type = "DNA")
+tree.mlrandom_60_12 <- dist.ml(tree.datrandom_60_12)
+tree.simrandom_60_12 <- upgma(tree.mlrandom_60_12)
+keep.rand.random_60_12 <-c("12", "15", "48", "5" , "18",
+                           "30", "41", "58", "56", "60",
+                           "16", "62", "68", "35", "43",
+                           "7",  "8",  "10", "14", "17",
+                           "44", "45", "49", "50", "55",
+                           "57", "61", "59", "70", "69",
+                           "20", "21", "22", "25", "40",
+                           "52", "32", "33", "47", "42",
+                           "53", "63", "65", "66")
+
+
+
+## XXXXXX
+
+
+# random, without clusters (elements with high degree) & bridges (elements which bridge two or more clusters)
+
+
+
+seq.sim.random_60_mix_1 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_1_mix.fasta")
+tree.datrandom_60_mix_1 <- phyDat(seq.sim.random_60_mix_1, type = "DNA")
+tree.mlrandom_60_mix_1 <- dist.ml(tree.datrandom_60_mix_1)
+tree.simrandom_60_mix_1 <- upgma(tree.mlrandom_60_mix_1)
+keep.rand.random_60_mix_1 <- c("23", "2",  "38", "28", "3",
+                               "6",  "24", "54", "31", "37",
+                               "4",  "39", "19", "62", "68",
+                               "71", "43", "44", "45", "49",
+                               "50", "55", "59", "67", "70",
+                               "69", "42", "53", "63", "65",
+                               "46", "20", "21", "22", "25",
+                               "27", "36", "12", "15", "29",
+                               "40", "52", "32", "1" )
+
+
+seq.sim.random_60_mix_2 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_2_mix.fasta")
+tree.datrandom_60_mix_2 <- phyDat(seq.sim.random_60_mix_2, type = "DNA")
+tree.mlrandom_60_mix_2 <- dist.ml(tree.datrandom_60_mix_2)
+tree.simrandom_60_mix_2 <- upgma(tree.mlrandom_60_mix_2)
+keep.rand.random_60_mix_2 <-c("34", "13", "17", "30", "41",
+                              "51", "58", "60", "62", "68",
+                              "23", "2" , "38", "28", "3",
+                              "6" , "24", "54", "31", "37",
+                              "4" , "39", "19", "71", "43",
+                              "44", "45", "49", "50", "55",
+                              "57", "61", "59", "67", "70",
+                              "69", "42", "46", "21", "22",
+                              "25", "27", "36", "12")
+
+
+seq.sim.random_60_mix_3 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_3_mix.fasta")
+tree.datrandom_60_mix_3 <- phyDat(seq.sim.random_60_mix_3, type = "DNA")
+tree.mlrandom_60_mix_3 <- dist.ml(tree.datrandom_60_mix_3)
+tree.simrandom_60_mix_3 <- upgma(tree.mlrandom_60_mix_3)
+keep.rand.random_60_mix_3 <-c("9",  "16", "26", "48", "5",
+                              "7",  "8" , "13", "14", "17",
+                              "18", "30", "51", "58", "56",
+                              "62", "71", "35", "43", "49",
+                              "50", "55", "57", "61", "59",
+                              "67", "69", "42", "53", "23",
+                              "2" , "38", "28", "3" , "6",
+                              "24", "54", "31", "37", "4",
+                              "39", "19", "40", "52")
+
+
+seq.sim.random_60_mix_4 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_4_mix.fasta")
+tree.datrandom_60_mix_4 <- phyDat(seq.sim.random_60_mix_4, type = "DNA")
+tree.mlrandom_60_mix_4 <- dist.ml(tree.datrandom_60_mix_4)
+tree.simrandom_60_mix_4 <- upgma(tree.mlrandom_60_mix_4)
+keep.rand.random_60_mix_4 <-c("28", "3",  "6",  "24", "54",
+                              "31", "37", "4",  "39", "19",
+                              "13", "14", "17", "18", "30",
+                              "41", "51", "58", "56", "60",
+                              "62", "68", "71", "35", "43",
+                              "44", "45", "49", "61", "59",
+                              "67", "70", "69", "42", "53",
+                              "63", "65", "66", "64", "46",
+                              "20", "21", "22", "12")
+
+seq.sim.random_60_mix_5 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_5_mix.fasta")
+tree.datrandom_60_mix_5 <- phyDat(seq.sim.random_60_mix_5, type = "DNA")
+tree.mlrandom_60_mix_5 <- dist.ml(tree.datrandom_60_mix_5)
+tree.simrandom_60_mix_5 <- upgma(tree.mlrandom_60_mix_5)
+keep.rand.random_60_mix_5 <-c("43", "44", "45", "49", "50", "55",
+                              "57", "61", "59", "67", "70", "69",
+                              "42", "53", "63", "65", "66", "64",
+                              "46", "20", "21", "22", "23", "2" ,
+                              "38", "28", "3",  "6" , "24", "27",
+                              "36", "12", "15", "29", "40", "52",
+                              "54", "31", "37", "4" , "39", "19",
+                              "25", "32")
+
+seq.sim.random_60_mix_6 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_6_mix.fasta")
+tree.datrandom_60_mix_6 <- phyDat(seq.sim.random_60_mix_6, type = "DNA")
+tree.mlrandom_60_mix_6 <- dist.ml(tree.datrandom_60_mix_6)
+tree.simrandom_60_mix_6 <- upgma(tree.mlrandom_60_mix_6)
+keep.rand.random_60_mix_6 <-c("23", "2" , "38", "28", "3",
+                              "59", "67", "70", "69", "42",
+                              "53", "63", "65", "66", "64",
+                              "46", "20", "21", "22", "25",
+                              "6" , "24", "54", "31", "37",
+                              "4" , "39", "19", "50", "55",
+                              "57", "61", "27", "36", "12",
+                              "15", "29", "40", "52", "32",
+                              "33", "47", "1" , "0")
+
+seq.sim.random_60_mix_7 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_7_mix.fasta")
+tree.datrandom_60_mix_7 <- phyDat(seq.sim.random_60_mix_7, type = "DNA")
+tree.mlrandom_60_mix_7 <- dist.ml(tree.datrandom_60_mix_7)
+tree.simrandom_60_mix_7 <- upgma(tree.mlrandom_60_mix_7)
+keep.rand.random_60_mix_7 <-c("23", "2",  "38", "28", "3",
+                              "61", "59", "67", "70", "9",
+                              "16", "26", "48", "5" , "7",
+                              "8" , "10", "11", "34", "13",
+                              "6" , "24", "54", "31", "37",
+                              "4" , "39", "19", "50", "55",
+                              "57", "14", "17", "18", "30",
+                              "69", "42", "53", "63", "65",
+                              "66", "64", "46", "20")
+
+seq.sim.random_60_mix_8 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_8_mix.fasta")
+tree.datrandom_60_mix_8 <- phyDat(seq.sim.random_60_mix_8, type = "DNA")
+tree.mlrandom_60_mix_8 <- dist.ml(tree.datrandom_60_mix_8)
+tree.simrandom_60_mix_8 <- upgma(tree.mlrandom_60_mix_8)
+keep.rand.random_60_mix_8 <-c("23", "2",  "38", "28", "3",
+                              "16", "26", "48", "5" , "7",
+                              "8" , "10", "11", "34", "13",
+                              "58", "56", "60", "62", "68",
+                              "71", "35", "43", "44", "45",
+                              "49", "6" , "24", "54", "31",
+                              "37", "4" , "39", "19", "50",
+                              "55", "57", "15", "29", "40",
+                              "52", "32", "1" , "0" )
+
+
+seq.sim.random_60_mix_9 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_9_mix.fasta")
+tree.datrandom_60_mix_9 <- phyDat(seq.sim.random_60_mix_9, type = "DNA")
+tree.mlrandom_60_mix_9 <- dist.ml(tree.datrandom_60_mix_9)
+tree.simrandom_60_mix_9 <- upgma(tree.mlrandom_60_mix_9)
+keep.rand.random_60_mix_9 <-c("23", "2" , "38", "28", "3",
+                              "6" , "24", "54", "31", "37",
+                              "4" , "39", "19", "16", "10",
+                              "11", "34", "13", "14", "17",
+                              "18", "30", "41", "51", "58",
+                              "56", "60", "62", "68", "71",
+                              "35", "43", "44", "45", "49",
+                              "55", "57", "61", "59", "67",
+                              "70", "42", "53", "63")
+
+
+seq.sim.random_60_mix_10 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_10_mix.fasta")
+tree.datrandom_60_mix_10 <- phyDat(seq.sim.random_60_mix_10, type = "DNA")
+tree.mlrandom_60_mix_10 <- dist.ml(tree.datrandom_60_mix_10)
+tree.simrandom_60_mix_10 <- upgma(tree.mlrandom_60_mix_10)
+keep.rand.random_60_mix_10 <-c("23", "2" , "38", "28", "3",
+                               "61", "59", "42", "7",  "8",
+                               "14", "17", "5",  "41", "33",
+                               "47", "1",  "53", "6",  "24",
+                               "54", "31", "37", "4",  "39",
+                               "19", "65", "15", "29", "40",
+                               "66", "26", "48", "22", "25",
+                               "27", "36", "12", "9",  "0",
+                               "51", "58", "64", "52")
+
+seq.sim.random_60_mix_11 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_11_mix.fasta")
+tree.datrandom_60_mix_11 <- phyDat(seq.sim.random_60_mix_11, type = "DNA")
+tree.mlrandom_60_mix_11 <- dist.ml(tree.datrandom_60_mix_11)
+tree.simrandom_60_mix_11 <- upgma(tree.mlrandom_60_mix_11)
+keep.rand.random_60_mix_11 <-c("68", "71", "36", "12", "15",
+                               "29", "40", "52", "5",  "61",
+                               "23", "2",  "38", "28", "3",
+                               "6",  "24", "54", "31", "37",
+                               "4",  "39", "19", "59", "67",
+                               "65", "66", "64", "46", "20",
+                               "25", "27", "34", "33", "47",
+                               "1",  "14", "17", "18", "30",
+                               "41", "51", "58", "62")
+
+seq.sim.random_60_mix_12 <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/random_60_percent_mix_bridges_clusters/random_60_percent_12_mix.fasta")
+tree.datrandom_60_mix_12 <- phyDat(seq.sim.random_60_mix_12, type = "DNA")
+tree.mlrandom_60_mix_12 <- dist.ml(tree.datrandom_60_mix_12)
+tree.simrandom_60_mix_12 <- upgma(tree.mlrandom_60_mix_12)
+keep.rand.random_60_mix_12 <-c("23", "2",  "31", "37", "4",
+                               "39", "19", "7",  "8",  "10",
+                               "14", "17", "44", "45", "49",
+                               "50", "55", "57", "61", "59",
+                               "70", "69", "38", "28", "3",
+                               "6",  "24", "54", "18", "30",
+                               "41", "58", "56", "60", "16",
+                               "62", "32", "33", "47", "42",
+                               "53", "63", "65", "66")
 
 # Comparison 1.2: Transmission networks
 
