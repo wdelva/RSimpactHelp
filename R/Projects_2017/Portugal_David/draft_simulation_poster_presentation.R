@@ -345,6 +345,8 @@ tree.sim <- upgma(tree.ml)
 
 phylo.tree.full <- tree.sim
 
+dnabin.seq <- as.DNAbin(tree.dat)
+dist.seq <- dist.dna(dnabin.seq, model = "JC")
 
 # Comparison 1: true tree & reconstructed full tree / transmission networks
 
@@ -385,21 +387,21 @@ library(phangorn)
 tree1 <- epi.tree
 tree2 <- phylo.tree.full
 
-dist.fulltree <- treedist(tree1, tree2, check.labels = TRUE)
+dist.fulltree <- treedist(tree1, tree2, check.labels = F)
 
 sprdist(tree1, tree2)
 
 SPR.dist(tree1, tree2)
 
-RF.dist(tree1, tree2, normalize = FALSE, check.labels = TRUE,
+RF.dist(tree1, tree2, normalize = FALSE, check.labels = F,
         rooted = FALSE)
 
-wRF.dist(tree1, tree2, normalize = FALSE, check.labels = TRUE,
+wRF.dist(tree1, tree2, normalize = FALSE, check.labels = F,
          rooted = FALSE)
 
-KF.dist(tree1, tree2 , check.labels = TRUE, rooted = FALSE)
+KF.dist(tree1, tree2 , check.labels = F, rooted = FALSE)
 
-path.dist(tree1, tree2, check.labels = TRUE, use.weight = FALSE)
+path.dist(tree1, tree2, check.labels = F, use.weight = FALSE)
 
 
 # Comparison 1.2: Transmission networks

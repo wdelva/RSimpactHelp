@@ -19,6 +19,19 @@ master.datalist <- get(load("master.datalist.RData")) #, .GlobalEnv) #load(file=
 
 datalist <- master.datalist
 
+source("/home/david/RSimpactHelp/R/time.wind.network.R")
+source("/home/david/RSimpactHelp/R/time.point.network.R")
+tw.net <- time.wind.network(datalist = datalist, duration = c(1,15))
+tp.net <- time.point.network(datalist = datalist, time = 30)
+
+
+plot.igraph(tw.net, edge.arrow.size=0, vertex.size=7,
+            vertex.label = V(tw.net)$name,layout = layout_with_kk,
+            vertex.label.cex=0.6, vertex.label.dist=0.0, edge.curved=0.0, asp=0, margin=0)
+
+plot.igraph(tp.net, edge.arrow.size=0, vertex.size=7,
+            vertex.label = V(tp.net)$name,layout = layout_with_kk,
+            vertex.label.cex=0.6, vertex.label.dist=0.0, edge.curved=0.0, asp=0, margin=0)
 
 # 1.2. Construct transmission epi object to be handled by epi2tree function
 # to build a transmission tree
