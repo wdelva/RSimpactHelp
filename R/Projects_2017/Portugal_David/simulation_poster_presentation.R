@@ -52,7 +52,7 @@ epi.tree <- trans.network2tree(transnetwork = transnetwork)
 
 # Comapring timeMRCA
 source("/home/david/RSimpactHelp/R/time.mrca.matrix.R")
-time.mrca <- time.mrca.matrix(tree = epi.tree) # for the transmission tree
+# time.mrca <- time.mrca.matrix(tree = epi.tree) # for the transmission tree
 
 source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/infection_age.R")
 infage <- infection_age(datalist = datalist, endpoint = 40)
@@ -148,7 +148,7 @@ axisPhylo() # add timescale
 # Tree properties
 
 source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/properties_tree.R")
-properties.net <- properties_tree(tree = epi.tree)
+properties.tree <- properties_tree(tree = epi.tree)
 
 
 ##### Section 3: Phylogenetic tree reconstruction from sequence data #####
@@ -183,6 +183,9 @@ tree1 <- epi.tree
 tree2 <- phylo.tree.full
 
 
+plot(phylo.tree.full, main = "Transmission tree from Simpact")
+axisPhylo() # add timescale
+
 tree1$tip.label <- c("0 ",  "1 ",  "2 ",  "3 ",  "4 ",  "5 ",  "6 ",
                      "7 " , "8 " , "9 ",  "10 ", "11 ", "12 ", "13 ",
                      "14 ", "15 ", "16 ", "17 ", "18 ", "19 ", "20 ",
@@ -194,18 +197,18 @@ tree1$tip.label <- c("0 ",  "1 ",  "2 ",  "3 ",  "4 ",  "5 ",  "6 ",
                      "56 ", "57 ", "58 ", "59 ", "60 ", "61 ", "62 ",
                      "63 ", "64 ", "65 ", "66 ", "67 ", "68 ", "69 ", "70 ", "71 ")
 
-tree2$tip.label <- c("9",  "16", "26", "48", "3",  "5", # per size step need to rename tree2,
-                     "7",  "8",  "10", "11", "34", "13", # let try renaming tree1
-                     "14", "17", "18", "30", "41", "51",
-                     "58", "39", "56", "60", "62", "68",
-                     "71", "54", "31", "35", "43", "44",
-                     "45", "49", "50", "55", "57", "61",
-                     "59", "67", "38", "70", "69", "37",
-                     "42", "53", "63", "65", "66", "28",
-                     "19", "64", "46", "20", "21", "22",
-                     "25", "27", "36", "4",  "12", "15",
-                     "29", "40", "52", "24", "23", "32",
-                     "33", "6",  "2",  "47", "1",  "0" )
+# tree2$tip.label <- c("9",  "16", "26", "48", "3",  "5", # per size step need to rename tree2,
+#                      "7",  "8",  "10", "11", "34", "13", # let try renaming tree1
+#                      "14", "17", "18", "30", "41", "51",
+#                      "58", "39", "56", "60", "62", "68",
+#                      "71", "54", "31", "35", "43", "44",
+#                      "45", "49", "50", "55", "57", "61",
+#                      "59", "67", "38", "70", "69", "37",
+#                      "42", "53", "63", "65", "66", "28",
+#                      "19", "64", "46", "20", "21", "22",
+#                      "25", "27", "36", "4",  "12", "15",
+#                      "29", "40", "52", "24", "23", "32",
+#                      "33", "6",  "2",  "47", "1",  "0" )
 
 dist.fulltree <- treedist(tree1, tree2, check.labels = T) # remember label issue
 
@@ -221,18 +224,22 @@ transNet.yrs.Old <- delete_edges(ga.graph, E(ga.graph)[weight>=10])
 
 transNet.full <- ga.graph
 
+transNet.yrs.Old <- ga.graph
+
 
 seq.sim.size_full <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Split_DNA_data/seq_sizes_without_considering_specific_seq/size_72.fasta")
 tree.dat.full <- phyDat(seq.sim.size_full, type = "DNA")
 tree.ml.full <- dist.ml(tree.dat.full)
 tree.sim.full <- upgma(tree.ml.full)
 
-built.net.full <- ConnectNearBy(phylo.tree = epi.tree)# tree.sim.full)
+source("/home/david/RSimpactHelp/R/ConnectNearBy.R")
 
-prop.transNet.full <- properties_network(graph = transNet.full)
+built.net.full <- ConnectNearBy(phylo.tree = epi.tree, epsilon=0.1)# tree.sim.full)
+
+prop.phylo.tree.full <- properties_tree(tree = tree.sim.full)
 prop.built.net.full <- properties_network(graph = built.net.full)
 
-time.mrca <- time.mrca.matrix(tree = tree.sim.full)
+# time.mrca <- time.mrca.matrix(tree = tree.sim.full)
 
 phylo.tree <- read.nexus("~/BEAST_COMPONENTS/beast.v.2.4.5/bin/envGenseqPosterDavidfull_consensus.nex")
 
@@ -256,8 +263,8 @@ pruned.epi.tree.size5<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.
 diff.tree.size5 <- RF.dist(tree.sim5, pruned.epi.tree.size5, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size5 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.5))
-built.net.size5 <- ConnectNearBy(phylo.tree = tree.sim5)
+pruned.net.size5 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.5)))
+built.net.size5 <- ConnectNearBy(phylo.tree = tree.sim5, epsilon=0.1)
 
 prop.pruned.net.size5 <-properties_network(graph = pruned.net.size5)
 prop.built.net.size5 <-properties_network(graph = built.net.size5)
@@ -279,11 +286,11 @@ keep.rand.10 <- c("28 ", "19 ", "64 ", "46 ",
 
 pruned.epi.tree.size10<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.10))
 
-diff.tree.size10 <- RF.dist(tree.sim10, pruned.epi.tree.size10, normalize = FALSE, check.labels = F,
+diff.tree.size10 <- RF.dist(tree.sim10, pruned.epi.tree.size10, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size10 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.10))
-built.net.size10 <- ConnectNearBy(phylo.tree = tree.sim10)
+pruned.net.size10 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.10)))
+built.net.size10 <- ConnectNearBy(phylo.tree = tree.sim10, epsilon=0.1)
 
 prop.pruned.net.size10 <-properties_network(graph = pruned.net.size10)
 prop.built.net.size10 <-properties_network(graph = built.net.size10)
@@ -304,11 +311,11 @@ keep.rand.15 <- c("28 ", "19 ", "64 ", "46 ",
 
 pruned.epi.tree.size15<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.15))
 
-diff.tree.size15 <- RF.dist(tree.sim15, pruned.epi.tree.size15, normalize = FALSE, check.labels = F,
+diff.tree.size15 <- RF.dist(tree.sim15, pruned.epi.tree.size15, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size15 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.15))
-built.net.size15 <- ConnectNearBy(phylo.tree = tree.sim15)
+pruned.net.size15 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.15)))
+built.net.size15 <- ConnectNearBy(phylo.tree = tree.sim15, epsilon=0.1)
 
 prop.pruned.net.size15 <-properties_network(graph = pruned.net.size15)
 prop.built.net.size15 <-properties_network(graph = built.net.size15)
@@ -329,14 +336,14 @@ keep.rand.20 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ", "14 ", "17 ",
 pruned.epi.tree.size20<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.20))
 
 
-diff.tree.size20 <- RF.dist(tree.sim20, pruned.epi.tree.size20, normalize = FALSE, check.labels = F,
+diff.tree.size20 <- RF.dist(tree.sim20, pruned.epi.tree.size20, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size20 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.20))
-built.net.size20 <- ConnectNearBy(phylo.tree = tree.sim20)
+pruned.net.size20 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.20)))
+built.net.size20 <- ConnectNearBy(phylo.tree = tree.sim20, epsilon=0.1)
 
 prop.pruned.net.size20 <-properties_network(graph = pruned.net.size20)
-prop.built.net.size5 <-properties_network(graph = built.net.size20)
+prop.built.net.size20 <-properties_network(graph = built.net.size20)
 
 prop.tree.sim20 <- properties_tree(tree = tree.sim20)
 prop.pruned.epi.tree.size20 <- properties_tree(tree = pruned.epi.tree.size20)
@@ -354,11 +361,11 @@ keep.rand.25 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ",
 
 pruned.epi.tree.size25<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.25))
 
-diff.tree.size25 <- RF.dist(tree.sim25, pruned.epi.tree.size25, normalize = FALSE, check.labels = F,
+diff.tree.size25 <- RF.dist(tree.sim25, pruned.epi.tree.size25, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size25 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.25))
-built.net.size25 <- ConnectNearBy(phylo.tree = tree.sim25)
+pruned.net.size25 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.25)))
+built.net.size25 <- ConnectNearBy(phylo.tree = tree.sim25, epsilon=0.1)
 
 prop.pruned.net.size25 <-properties_network(graph = pruned.net.size25)
 prop.built.net.size25 <-properties_network(graph = built.net.size25)
@@ -380,11 +387,11 @@ keep.rand.30 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ",
 
 pruned.epi.tree.size30<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.30))
 
-diff.tree.size30 <- RF.dist(tree.sim30, pruned.epi.tree.size30, normalize = FALSE, check.labels = F,
+diff.tree.size30 <- RF.dist(tree.sim30, pruned.epi.tree.size30, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size30 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.30))
-built.net.size30 <- ConnectNearBy(phylo.tree = tree.sim30)
+pruned.net.size30 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.30)))
+built.net.size30 <- ConnectNearBy(phylo.tree = tree.sim30, epsilon=0.1)
 
 prop.pruned.net.size30 <-properties_network(graph = pruned.net.size30)
 prop.built.net.size30 <-properties_network(graph = built.net.size30)
@@ -408,11 +415,11 @@ keep.rand.35 <- c("28 ", "19 ", "64 ", "46 ", "34 ",
 
 pruned.epi.tree.size35<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.35))
 
-diff.tree.size35 <- RF.dist(tree.sim35, pruned.epi.tree.size35, normalize = FALSE, check.labels = F,
+diff.tree.size35 <- RF.dist(tree.sim35, pruned.epi.tree.size35, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size35 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.35))
-built.net.size35 <- ConnectNearBy(phylo.tree = tree.sim35)
+pruned.net.size35 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.35)))
+built.net.size35 <- ConnectNearBy(phylo.tree = tree.sim35, epsilon=0.1)
 
 prop.pruned.net.size35 <-properties_network(graph = pruned.net.size35)
 prop.built.net.size35 <-properties_network(graph = built.net.size35)
@@ -437,11 +444,11 @@ keep.rand.40 <- c("28 ", "19 ", "64 ", "46 ", "34 ",
 
 pruned.epi.tree.size40<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.40))
 
-diff.tree.size40 <- RF.dist(tree.sim40, pruned.epi.tree.size40, normalize = FALSE, check.labels = F,
+diff.tree.size40 <- RF.dist(tree.sim40, pruned.epi.tree.size40, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size40 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.40))
-built.net.size40 <- ConnectNearBy(phylo.tree = tree.sim40)
+pruned.net.size40 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.40)))
+built.net.size40 <- ConnectNearBy(phylo.tree = tree.sim40, epsilon=0.1)
 
 prop.pruned.net.size40 <-properties_network(graph = pruned.net.size40)
 prop.built.net.size40 <-properties_network(graph = built.net.size40)
@@ -466,11 +473,11 @@ keep.rand.45 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ",
 
 pruned.epi.tree.size45<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.45))
 
-diff.tree.size45 <- RF.dist(tree.sim45, pruned.epi.tree.size45, normalize = FALSE, check.labels = F,
+diff.tree.size45 <- RF.dist(tree.sim45, pruned.epi.tree.size45, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size45 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.45))
-built.net.size45 <- ConnectNearBy(phylo.tree = tree.sim45)
+pruned.net.size45 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.45)))
+built.net.size45 <- ConnectNearBy(phylo.tree = tree.sim45, epsilon=0.1)
 
 prop.pruned.net.size45 <-properties_network(graph = pruned.net.size45)
 prop.built.net.size45 <-properties_network(graph = built.net.size45)
@@ -496,11 +503,11 @@ keep.rand.50 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ",
 
 pruned.epi.tree.size50<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.50))
 
-diff.tree.size50 <- RF.dist(tree.sim50, pruned.epi.tree.size50, normalize = FALSE, check.labels = F,
+diff.tree.size50 <- RF.dist(tree.sim50, pruned.epi.tree.size50, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size50 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.50))
-built.net.size50 <- ConnectNearBy(phylo.tree = tree.sim50)
+pruned.net.size50 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.50)))
+built.net.size50 <- ConnectNearBy(phylo.tree = tree.sim50, epsilon=0.1)
 
 prop.pruned.net.size50 <-properties_network(graph = pruned.net.size50)
 prop.built.net.size50 <-properties_network(graph = built.net.size50)
@@ -525,11 +532,11 @@ keep.rand.55 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ",
 
 pruned.epi.tree.size55<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.55))
 
-diff.tree.size55 <- RF.dist(tree.sim55, pruned.epi.tree.size55, normalize = FALSE, check.labels = F,
+diff.tree.size55 <- RF.dist(tree.sim55, pruned.epi.tree.size55, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size55 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.55))
-built.net.size55 <- ConnectNearBy(phylo.tree = tree.sim55)
+pruned.net.size55 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.55)))
+built.net.size55 <- ConnectNearBy(phylo.tree = tree.sim55, epsilon=0.1)
 
 prop.pruned.net.size55 <-properties_network(graph = pruned.net.size55)
 prop.built.net.size55 <-properties_network(graph = built.net.size55)
@@ -552,15 +559,15 @@ keep.rand.60 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ",
                   "10 ", "11 ", "57 ", "61 ", "59 ", "67 ",
                   "38 ", "70 ", "69 ", "37 ", "42 ", "4 ",
                   "12 ", "15 ", "29 ", "40 ", "52 ", "24 ",
-                  "23 ", "32 ", "33 ", "6" , "2" , "47 ")
+                  "23 ", "32 ", "33 ", "6 " , "2 " , "47 ")
 
 pruned.epi.tree.size60<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.60))
 
-diff.tree.size60 <- RF.dist(tree.sim60, pruned.epi.tree.size60, normalize = FALSE, check.labels = F,
+diff.tree.size60 <- RF.dist(tree.sim60, pruned.epi.tree.size60, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size60 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.60))
-built.net.size60 <- ConnectNearBy(phylo.tree = tree.sim60)
+pruned.net.size60 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.60)))
+built.net.size60 <- ConnectNearBy(phylo.tree = tree.sim60, epsilon=0.1)
 
 prop.pruned.net.size60 <-properties_network(graph = pruned.net.size60)
 prop.built.net.size60 <-properties_network(graph = built.net.size60)
@@ -590,11 +597,11 @@ keep.rand.65 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ",
 pruned.epi.tree.size65<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.65))
 
 
-diff.tree.size65 <- RF.dist(tree.sim65, pruned.epi.tree.size65, normalize = FALSE, check.labels = F,
+diff.tree.size65 <- RF.dist(tree.sim65, pruned.epi.tree.size65, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size65 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.65))
-built.net.size65 <- ConnectNearBy(phylo.tree = tree.sim65)
+pruned.net.size65 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.65)))
+built.net.size65 <- ConnectNearBy(phylo.tree = tree.sim65, epsilon=0.1)
 
 prop.pruned.net.size65 <-properties_network(graph = pruned.net.size65)
 prop.built.net.size65 <-properties_network(graph = built.net.size65)
@@ -623,11 +630,11 @@ keep.rand.70 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ",
 
 pruned.epi.tree.size70<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.70))
 
-diff.tree.size70 <- RF.dist(tree.sim70, pruned.epi.tree.size70, normalize = FALSE, check.labels = F,
+diff.tree.size70 <- RF.dist(tree.sim70, pruned.epi.tree.size70, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size70 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.70))
-built.net.size70 <- ConnectNearBy(phylo.tree = tree.sim70)
+pruned.net.size70 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.70)))
+built.net.size70 <- ConnectNearBy(phylo.tree = tree.sim70, epsilon=0.1)
 
 prop.pruned.net.size70 <-properties_network(graph = pruned.net.size70)
 prop.built.net.size70 <-properties_network(graph = built.net.size70)
@@ -658,11 +665,11 @@ keep.rand.72 <- c("28 ", "19 ", "64 ", "46 ", "34 ", "13 ",
 
 pruned.epi.tree.size72<-drop.tip(epi.tree, setdiff(epi.tree$tip.label, keep.rand.72))
 
-diff.tree.size72 <- RF.dist(tree.sim72, pruned.epi.tree.size72, normalize = FALSE, check.labels = F,
+diff.tree.size72 <- RF.dist(tree.sim72, pruned.epi.tree.size72, normalize = FALSE, check.labels = T,
                            rooted = T)
 
-pruned.net.size72 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),keep.rand.72))
-built.net.size72 <- ConnectNearBy(phylo.tree = tree.sim72)
+pruned.net.size72 <- delete_vertices(transNet.yrs.Old, setdiff(V(transNet.yrs.Old),as.numeric(keep.rand.72)))
+built.net.size72 <- ConnectNearBy(phylo.tree = tree.sim72, epsilon=0.1)
 
 prop.pruned.net.size72 <-properties_network(graph = pruned.net.size72)
 prop.built.net.size72 <-properties_network(graph = built.net.size72)
