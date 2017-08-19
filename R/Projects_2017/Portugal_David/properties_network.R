@@ -4,7 +4,7 @@ properties_network <- function(graph = graph){
 
   test.graph <- graph
 
-  if(length(E(test.graph))){
+  if(length(E(test.graph)) > 0){ # if there exist edges
 
     # Additionally I will use the NetIndices package,
     # since its function "GenInd()" outputs several network properties
@@ -13,7 +13,6 @@ properties_network <- function(graph = graph){
     # The "GenInd()" function requires an input of an adjacency matrix
     test.graph.adj<-get.adjacency(test.graph,sparse=F)
     # in older versions of igraph the default was sparse=F,
-    # but now you must specify, other wise you get a matrix of 1s and .s
 
     test.graph.properties<-GenInd(test.graph.adj)
 
