@@ -1,7 +1,9 @@
 #' Construct a transmission network from a phylogenetic tree (phylo object)
+#' Using the branch lengths of leaves (tips), join leaves (tips) with approximately equal branch lengths
 #'
 #'
 #' @param phylo.tree a phylo object
+#' @param epsilon cut-off value as difference between two branch lengths
 #' @return a transmission matrix
 
 #' @examples
@@ -11,7 +13,7 @@
 #' @import ape
 #' @import phytools
 
-ConnectNearBy <- function(phylo.tree = tree){
+ConnectNearBy <- function(phylo.tree = tree, epsilon=0.1/2){
 
   # look on branching time
   branch.time <- branching.times(phylo.tree)
@@ -38,7 +40,7 @@ ConnectNearBy <- function(phylo.tree = tree){
 
   ## Algorithm: SEARCH YOUR LINKS
 
-  epsilon=0.1/2
+
   Ind.g <- vector()
   Ind.g.1 <- vector()
   Ind.g.2 <- vector()
@@ -67,9 +69,11 @@ ConnectNearBy <- function(phylo.tree = tree){
   gaga = as.matrix(graph.trans)
   f = graph.edgelist(gaga[,1:2])
 
-  g <- simplify(f,remove.loops = TRUE) # remove.multiple = TRUE,
+  g <- simplify(f,remove.loops = TRUE) # remove loops
+
+  l <- as.undirected(g, mode = "collapse") # remove bi-directions
   #
   # V(g)
   # E(g)
-  return(g)
+  return(l)
 }
