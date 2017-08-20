@@ -136,6 +136,13 @@ test.graph <- ga.graph
 source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/properties_network.R")
 propeties.net <- properties_network(graph = test.graph)
 
+source("/home/david/RSimpactHelp/R/ConnectNearBy.R")
+
+built.net.full <- ConnectNearBy(phylo.tree = epi.tree, epsilon=0.1)# tree.sim.full)
+
+prop.built.net.full <- properties_network(graph = built.net.full)
+
+
 # add
 source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/phylo_error.R")
 
@@ -149,6 +156,9 @@ axisPhylo() # add timescale
 
 source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/properties_tree.R")
 properties.tree <- properties_tree(tree = epi.tree)
+
+
+
 
 
 ##### Section 3: Phylogenetic tree reconstruction from sequence data #####
