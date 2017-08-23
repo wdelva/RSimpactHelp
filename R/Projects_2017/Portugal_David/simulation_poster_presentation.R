@@ -52,7 +52,7 @@ epi.tree <- trans.network2tree(transnetwork = transnetwork)
 
 # Comapring timeMRCA
 source("/home/david/RSimpactHelp/R/time.mrca.matrix.R")
-# time.mrca <- time.mrca.matrix(tree = epi.tree) # for the transmission tree
+time.mrca <- time.mrca.matrix(tree = epi.tree) # for the transmission tree
 
 source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/infection_age.R")
 infage <- infection_age(datalist = datalist, endpoint = 40)
@@ -88,11 +88,12 @@ hiv.seq.env <- substr(clean.hiv.seq, 6172,8742) # true c(6172,8742)
 freq <- c(0.3353293,0.2035928,0.2628077,0.1982701)
 rate <- list("a"=0.2, "b"=0.6, "c"=0.12,"d"=0.001, "e"=0.25, "f"=0.24)
 
-# # Sequence simulation: DONE, it takes long time
-# sim <- sequence.simulation(transtree = epi.tree, seedSeq = hiv.seq.env, alpha = 0.90,
-#                            rate.list = rate, base.freq = freq)
-# saveAlignment.PhyloSim(sim,file = paste("HIVSeq_fullNetwork.fasta",sep=""), skip.internal = TRUE, paranoid = TRUE)
-# saveAlignment.PhyloSim(sim,file = paste("HIVSeq_fullNetworkNode.fasta",sep=""), paranoid = TRUE)
+# Sequence simulation and saving
+sim <- sequence.simulation(transtree = epi.tree, seedSeq = hiv.seq.env, alpha = 0.90,
+                           rate.list = rate, base.freq = freq)
+saveAlignment.PhyloSim(sim,file = paste("HIVSeq_fullNetwork.fasta",sep=""), skip.internal = TRUE, paranoid = TRUE)
+
+saveAlignment.PhyloSim(sim,file = paste("HIVSeq_fullNetworkNode.fasta",sep=""), paranoid = TRUE)
 
 
 ##### Section 2: True trees and transmission networks #####
@@ -1612,3 +1613,136 @@ built.subraph.adj12<-get.adjacency(built.subgraph12,sparse=F)
 built.subgraph.properties12<-GenInd(built.subraph.adj12)
 
 fit_power_law(built.subgraph12)
+
+
+
+##################################################################
+############### Portugal Poster presentation    ##################
+##################################################################
+
+# Simulations for Portugal Poster presentation
+rm(list = ls())
+setwd("/home/david/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/")
+
+pacman::p_load(ape,expoTree,data.table,phylosim,RSimpactHelper)
+
+
+master.datalist <- get(load("master.datalist.RData")) #, .GlobalEnv) #load(file="master.datalist.RData")
+
+# head(master.datalist)
+
+datalist <- master.datalist
+
+
+# Transmission network with different sampling/removal times
+source("/home/david/RSimpactHelp/R/transmNetworkBuilder.baseline.R")
+source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff.R")
+transm.ls <- transmNetworkBuilder.diff(datalist = datalist,endpoint = 40)
+
+# epi object
+source("/home/david/RSimpactHelp/R/trans.network2tree.R")
+transnetwork <- transm.ls[[2]] # seed 2 considered
+epi.tree <- trans.network2tree(transnetwork = transnetwork)
+
+
+
+
+# Tree properties
+
+source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/properties_tree.R")
+properties.tree <- properties_tree(tree = epi.tree)
+
+
+source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/infection_age.R")
+infage <- infection_age(datalist = datalist, endpoint = 40)
+
+graph.net <- infage[[2]]
+
+graph.build <- graph.net
+
+graph.build[,1] <- as.character(graph.net[,1]) # donors
+graph.build[,2] <- as.character(graph.net[,2]) # recipients
+gag = as.matrix(graph.build)
+ga.graph = graph.edgelist(gag[,1:2])
+E(ga.graph)$weight <- infage[[2]]$infecage
+
+V(ga.graph)$color <- "red"
+
+
+# Network properties
+test.graph <- ga.graph
+
+source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/properties_network.R")
+propeties.net <- properties_network(graph = test.graph)
+
+source("/home/david/RSimpactHelp/R/ConnectNearBy.R")
+
+built.net.full <- ConnectNearBy(phylo.tree = epi.tree, epsilon=0.01)# tree.sim.full)
+V(built.net.full)$color <- "red"
+
+
+prop.built.net.full <- properties_network(graph = built.net.full)
+
+
+
+seq.sim.seed7diff <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/HIVSeq_fullNetwork.fasta")
+tree.dat.seed7diff <- phyDat(seq.sim.seed7diff, type = "DNA")
+tree.ml.seed7diff <- dist.ml(tree.dat.seed7diff)
+tree.sim.seed7diff <- upgma(tree.ml.seed7diff)
+
+
+seq.sim.seed7base <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/Baseline_HIVSeq_fullNetwork.fasta")
+tree.dat.seed7base <- phyDat(seq.sim.seed7base, type = "DNA")
+tree.ml.seed7base <- dist.ml(tree.dat.seed7base)
+tree.sim.seed7base <- upgma(tree.ml.seed7base)
+
+source("/home/david/RSimpactHelp/R/optimEpsilon.R")
+# opt.sim.seed7diff <- optimEpsilon(phylo.tree = tree.sim.seed7diff)
+#
+# opt.sim.seed7base <- optimEpsilon(phylo.tree = tree.sim.seed7base)
+ga.graph.yo = delete.vertices(ga.graph, "-1")
+a <- properties_network(graph = ga.graph.yo)
+
+
+built.net.seed7diff <- ConnectNearBy(phylo.tree = tree.sim.seed7diff, epsilon=0.0001)# tree.sim.full)
+p <- properties_network(graph = built.net.seed7diff)
+
+V(built.net.seed7diff)$color <- "red"
+
+built.net.seed7base <- ConnectNearBy(phylo.tree = tree.sim.seed7base, epsilon=0.0001)# tree.sim.full)
+q <- properties_network(graph = built.net.seed7base)
+
+V(built.net.seed7base)$color <- "red"
+
+
+
+
+par(mfrow=c(2,2))
+
+# Transmission network from simpact                           # 1 #
+plot.igraph(ga.graph, edge.arrow.size=0, vertex.size=5,
+            vertex.frame.color="black", vertex.label.color="black",
+            vertex.label = V(ga.graph)$name,layout = layout_with_kk,
+            vertex.label.cex=0.6, vertex.label.dist=0.0, edge.curved=0.0, asp=0, margin=0,
+            main = "True transmission network")
+
+plot(epi.tree, main = "Transmission tree") # 2 #
+axisPhylo() # add timescale
+
+plot(tree.sim.seed7diff, main = "Phylogenetic tree") # 3 #
+axisPhylo() # add timescale
+
+
+
+# Transmission network from simpact                           # 4 #
+# plot.igraph(built.net.seed7base, edge.arrow.size=0, vertex.size=7,
+#             vertex.frame.color="black", vertex.label.color="black",
+#             vertex.label = V(built.net.seed7base)$name,layout = layout_with_kk,
+#             vertex.label.cex=0.6, vertex.label.dist=0.0, edge.curved=0.0, asp=0, margin=0,
+#             main = "Reconstructed transmission network")
+
+plot.igraph(built.net.seed7diff, edge.arrow.size=0, vertex.size=5,
+            vertex.frame.color="black", vertex.label.color="black",
+            vertex.label = V(built.net.seed7diff)$name,layout = layout_with_kk,
+            vertex.label.cex=0.6, vertex.label.dist=0.0, edge.curved=0.0, asp=0, margin=0,
+            main = "Reconstructed transmission network")
