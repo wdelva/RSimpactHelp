@@ -43,7 +43,7 @@ plot.igraph(tp.net, edge.arrow.size=0, vertex.size=7,
 # Transmission network with different sampling/removal times
 source("/home/david/RSimpactHelp/R/transmNetworkBuilder.baseline.R")
 source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff.R")
-transm.ls <- transmNetworkBuilder.diff(datalist = datalist,endpoint = 40)
+transm.ls <- transmNetworkBuilder.baseline(datalist = datalist,endpoint = 40)
 
 # epi object
 source("/home/david/RSimpactHelp/R/trans.network2tree.R")
@@ -91,7 +91,7 @@ rate <- list("a"=0.2, "b"=0.6, "c"=0.12,"d"=0.001, "e"=0.25, "f"=0.24)
 # # Sequence simulation: DONE, it takes long time
 sim <- sequence.simulation(transtree = epi.tree, seedSeq = hiv.seq.env, alpha = 0.90,
                            rate.list = rate, base.freq = freq)
-saveAlignment.PhyloSim(sim,file = paste("HIVSeq_fullNetwork_seed7.fasta",sep=""), skip.internal = TRUE, paranoid = TRUE)
+saveAlignment.PhyloSim(sim,file = paste("baselineHIVSeq_fullNetwork_seed7.fasta",sep=""), skip.internal = TRUE, paranoid = TRUE)
 saveAlignment.PhyloSim(sim,file = paste("HIVSeq_fullNetworkNode_seed7.fasta",sep=""), paranoid = TRUE)
 
 
