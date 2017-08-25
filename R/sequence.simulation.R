@@ -20,18 +20,19 @@
 #' saveAlignment.PhyloSim(sim, file = paste("file_name",sep=""), skip.internal = TRUE, paranoid = TRUE) alignment saved without internal nodes
 
 #' @import phylosim
-
-sequence.simulation <- function(transtree = tree0, seedSeq = hivSeq, alpha = 0.90,
-                                rate.list = rate, base.freq = freq){
+sequence.simulation <- function(transtree = tree0, seedSeq = hivSeq,
+                                base.freq = freq){
 
   # define the substitution processes >> package phylosim
-  proc <- GTR(rate.params = rate.list,
-              base.freqs = base.freq)
+  # proc <- GTR(rate.params = rate.list,
+  #             base.freqs = base.freq)
+
+  proc <- F81(base.freqs = base.freq)
 
   # attach process to the nucleotides sequence >> package phylosim
   nucleproc <- NucleotideSequence(string = seedSeq, processes = list(list(proc)))
 
-  plusGamma(nucleproc,proc,alpha)
+  # plusGamma(nucleproc,proc,alpha)
 
   # simulate the sequences >> package phylosim
   simsequence <- Simulate(PhyloSim(root.seq = nucleproc,
