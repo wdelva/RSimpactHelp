@@ -50,5 +50,5 @@ freq <- c(0.3353293,0.2035928,0.2628077,0.1982701)
 # 4. Construct phylogenetic tree
 seq.sim <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/baseline_seq/Baseline_HIVSeq_fullNetwork.fasta")
 tree.dat <- phyDat(seq.sim, type = "DNA")
-tree.ml <- dist.ml(tree.dat, model = "F81", bf = freq)
+tree.ml <- dist.ml(tree.dat, model = "F81", bf = freq) # F81
 tree.sim <- upgma(tree.ml)
