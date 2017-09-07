@@ -154,3 +154,39 @@ estimate.mu <- function (t, node.dates, p.tol = 0.05, df = 1)
   }
   coef(g)[[2]]
 }
+
+
+#### Renaming automatically sequences adding their sampling times
+
+id.samplingtime <- as.data.frame(cbind(transnetwork$id, transnetwork$dtimes))
+
+id.by.sequence <-as.numeric(labels(seq.sim))
+
+# reorder
+samp.time <- vector()
+for(i in 1:length(id.by.sequence)){
+  for(j in 1:length(id.by.sequence)){
+    if(id.by.sequence[i] == id.samplingtime$V1[j]){
+      sampltime <- id.samplingtime$V2[j]
+    }
+  }
+  samp.time <- c(samp.time, sampltime)
+}
+id.samplingtime.ord <- cbind(id.by.sequence,samp.time)
+
+
+
+
+seq.sim
+v <- matrix(nrow = length(id.by.sequence), ncol = 1)
+for(i in 1:length(id.by.sequence)){
+  v[i,1] <- paste(id.samplingtime.ord[,1][i],"_",id.samplingtime.ord[,2][i], sep = "")
+}
+w <- as.matrix(v)
+write.csv2(w,file="samplingdates.csv", sep = "", append = F)
+
+n <- read.csv2("samplingdates.csv")
+
+# rename lables
+
+labels(seq.sim) <- n[2]
