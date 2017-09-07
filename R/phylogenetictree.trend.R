@@ -1,9 +1,11 @@
-#' Trend of a phylogenetic tree
+#' Phylogenetic tree spectum
 #'
-#' Compute two vectors, one for the number of tips for a given subtree (or size of the tree)
-#' and another one for the number of trees (subtrees ) with corresponding tips for a given phylogenetic tree
+#' Compute two vectors, the number of tips for a given subtree (or size of the tree)
+#' and the number of trees (subtrees ) with corresponding tips for a given phylogenetic tree
+#' This tree decomposition informthe general trend of the transmission and can be sometimes folloging
+#' the pwer law \code{\link{powerLaw.tree}}
 #'
-#' @param tree A tree object
+#' @param tree A phylogenetic tree object
 #' @return A list with two vector with same length, which is used for regression analysis
 #' between the number of subtrees and their sizes.
 #'

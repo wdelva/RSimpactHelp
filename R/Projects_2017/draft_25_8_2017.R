@@ -123,3 +123,34 @@ estimate.dates(t, node.dates, mu = estimate.mu(t, node.dates),
 # node.dates
 # a numeric vector of dates for the tips, in the same order as 't$tip.label' or a vector of dates for all of the nodes.
 
+# nodes and their infection & sampling times
+id.info <- as.data.frame(cbind(transnetwork$id, (40-transnetwork$itimes),
+                               (40-transnetwork$dtimes)))
+
+# tips as appear on the tree
+v.num <- as.numeric(tree.sim$tip.label)
+
+# sampling dates in same order of tips as on the tree
+v.dat <- as.vector(id.info$V3[v.num])
+d = as.phylo(tree.sim)
+f = estimate.mu(d, v.dat, p.tol = 0.05)
+
+
+estimate.dates(d, v.dat, mu = estimate.mu(d, v.dat, p.tol = 0.05, df = 1),
+               min.date = -.Machine$double.xmax, show.steps = 0,
+               opt.tol = 1e-8, nsteps = 1000, lik.tol = 0,
+               is.binary = is.binary.phylo(d))
+
+
+estimate.mu <- function (t, node.dates, p.tol = 0.05, df = 1)
+{
+  g <- glm(node.depth.edgelength(t)[1:length(node.dates)] ~
+             node.dates, na.action = na.omit)
+  null.g <- glm(node.depth.edgelength(t)[1:length(node.dates)] ~
+                  1, na.action = na.omit)
+  if ((1 - pchisq(AIC(null.g) - AIC(g) + 2, df = 1)) > p.tol) {
+    warning(paste("Cannot reject null hypothesis (p=", (1 -
+                                                          pchisq(AIC(null.g) - AIC(g))), ")"))
+  }
+  coef(g)[[2]]
+}
