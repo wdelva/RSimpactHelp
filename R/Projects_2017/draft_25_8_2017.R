@@ -160,32 +160,40 @@ estimate.mu <- function (t, node.dates, p.tol = 0.05, df = 1)
 
 id.samplingtime <- as.data.frame(cbind(transnetwork$id, transnetwork$dtimes))
 
-id.by.sequence <-as.numeric(labels(seq.sim))
+id.sequence <-as.numeric(labels(seq.sim))
 
 # reorder
 samp.time <- vector()
-for(i in 1:length(id.by.sequence)){
-  for(j in 1:length(id.by.sequence)){
-    if(id.by.sequence[i] == id.samplingtime$V1[j]){
+for(i in 1:length(id.sequence)){
+  for(j in 1:length(id.sequence)){
+    if(id.sequence[i] == id.samplingtime$V1[j]){
       sampltime <- id.samplingtime$V2[j]
     }
   }
   samp.time <- c(samp.time, sampltime)
 }
-id.samplingtime.ord <- cbind(id.by.sequence,samp.time)
+id.samplingtime.ord <- cbind(id.sequence,samp.time) # IDs and sampling time as in the same order as the sequences in fasta file
 
+samplinng.time <- 1990+samp.time # in the order tof the sequences in fasta file if we ruan the model from 1990
 
+write.csv2(samplinng.time,file="samplingdates.csv", append = F)
+
+dates <- read.csv2("samplingdates.csv")
+
+# to get the dates
+
+dates.dt <- dates[,2]
 
 
 seq.sim
-v <- matrix(nrow = length(id.by.sequence), ncol = 1)
-for(i in 1:length(id.by.sequence)){
+v <- matrix(nrow = length(id.sequence), ncol = 1)
+for(i in 1:length(id.sequence)){
   v[i,1] <- paste(id.samplingtime.ord[,1][i],"_",id.samplingtime.ord[,2][i], sep = "")
 }
 w <- as.matrix(v)
-write.csv2(w,file="samplingdates.csv", sep = "", append = F)
+write.csv2(w,file="samplingtimes.csv", sep = "", append = F)
 
-n <- read.csv2("samplingdates.csv")
+n <- read.csv2("samplingtimes.csv")
 
 # rename lables
 
