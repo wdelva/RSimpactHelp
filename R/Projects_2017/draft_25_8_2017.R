@@ -8,6 +8,10 @@ pacman::p_load(ape, expoTree, data.table, phylosim,
 
 source("/home/david/RSimpactHelp/R/transmNetworkBuilder.baseline.R")
 
+source("/home/david/RSimpactHelp/R/rawtransmNetworkBuilder.baseline.R")
+
+source("/home/david/RSimpactHelp/R/rawtransmNetworkBuilder.diff.R")
+
 source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff.R")
 
 source("/home/david/RSimpactHelp/R/trans.network2tree.R")
@@ -28,9 +32,14 @@ master.datalist <- get(load("master.datalist.RData")) #, .GlobalEnv) #load(file=
 datalist <- master.datalist
 
 # 1. Transmission network
-transm.ls <- transmNetworkBuilder.diff(datalist = datalist,endpoint = 40)
+transm.ls <- transmNetworkBuilder.baseline(datalist = datalist,endpoint = 40)
 
 transnetwork <- transm.ls[[2]]
+
+rawtransm.ls <- rawtransmNetworkBuilder.baseline(datalist = datalist,endpoint = 40)
+
+rawtransnetwork <- rawtransm.ls[[2]]
+
 
 # 2. Transmission tree
 epi.tree <- trans.network2tree(transnetwork = transnetwork)
@@ -127,11 +136,22 @@ estimate.dates(t, node.dates, mu = estimate.mu(t, node.dates),
 id.info <- as.data.frame(cbind(transnetwork$id, (40-transnetwork$itimes),
                                (40-transnetwork$dtimes)))
 
+raw.id.info <- as.data.frame(cbind(rawtransnetwork$id, rawtransnetwork$itimes,
+                                rawtransnetwork$dtimes)) # seeed infection at 10 simulation time 40
+
+seq.sim.diff <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/akandi_date/diff_size_72.fasta")
+tree.dat.diff <- phyDat(seq.sim.diff, type = "DNA")
+freq <- c(0.3353293,0.2035928,0.2628077,0.1982701)
+tree.ml.diff <- dist.ml(tree.dat.diff, model = "F81", bf = freq) # F81
+tree.sim.diff <- upgma(tree.ml.diff)
+
+seq.sim.base <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/akandi_date/baseline_size_72.fasta")
+
 # tips as appear on the tree
-v.num <- as.numeric(tree.sim$tip.label)
+v.num <- as.numeric(tree.sim.diff$tip.label)
 
 # sampling dates in same order of tips as on the tree
-v.dat <- as.vector(id.info$V3[v.num])
+v.dat <- as.vector(raw.id.info$V3[v.num])
 d = as.phylo(tree.sim)
 f = estimate.mu(d, v.dat, p.tol = 0.05)
 
@@ -158,9 +178,9 @@ estimate.mu <- function (t, node.dates, p.tol = 0.05, df = 1)
 
 #### Renaming automatically sequences adding their sampling times
 
-id.samplingtime <- as.data.frame(cbind(transnetwork$id, transnetwork$dtimes))
+id.samplingtime <- as.data.frame(cbind(rawtransnetwork$id, rawtransnetwork$dtimes))
 
-id.sequence <-as.numeric(labels(seq.sim))
+id.sequence <-as.numeric(labels(seq.sim.base)) # seq.sim.diff
 
 # reorder
 samp.time <- vector()
@@ -172,13 +192,13 @@ for(i in 1:length(id.sequence)){
   }
   samp.time <- c(samp.time, sampltime)
 }
-id.samplingtime.ord <- cbind(id.sequence,samp.time) # IDs and sampling time as in the same order as the sequences in fasta file
+id.samplingtime.ord <- cbind(id.sequence,2010+samp.time) # IDs and sampling time as in the same order as the sequences in fasta file
 
-samplinng.time <- 1990+samp.time # in the order tof the sequences in fasta file if we ruan the model from 1990
+samplinng.time <- 2010+samp.time # in the order tof the sequences in fasta file if we ruan the model from 1990
 
-write.csv2(samplinng.time,file="samplingdates.csv", append = F)
+write.csv(samplinng.time,file="samplingdatesbase.csv", append = F)
 
-dates <- read.csv2("samplingdates.csv")
+dates <- read.csv2("samplingdatesdiff.csv")
 
 # to get the dates
 
@@ -198,3 +218,48 @@ n <- read.csv2("samplingtimes.csv")
 # rename lables
 
 labels(seq.sim) <- n[2]
+
+# Comparing trees: epi.tree & beast.tree
+
+# all.equal(target, current, use.edge.length = TRUE,
+#           use.tip.label = TRUE, index.return = FALSE,
+#           tolerance = .Machine$double.eps ^ 0.5,
+#           scale = NULL, ...)
+# require(rBEAST) resource on github
+beast.tree <- read.nexus("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/akandi_date/diff/diff_size_72_summary.nex")
+
+library(distory)
+
+phylo.diff(epi.tree,beast.tree)
+
+dist.topo(epi.tree,beast.tree) #
+
+treedist(tree1, tree2, check.labels = TRUE)
+
+sprdist(tree1, tree2)
+
+SPR.dist(tree1, tree2)
+
+RF.dist(tree1, tree2, normalize = FALSE, check.labels = TRUE,
+        rooted = FALSE)
+
+wRF.dist(tree1, tree2, normalize = FALSE, check.labels = TRUE,
+         rooted = FALSE)
+
+KF.dist(tree1, tree2 , check.labels = TRUE, rooted = FALSE)
+
+path.dist(tree1, tree2, check.labels = TRUE, use.weight = FALSE)
+
+library(apTreeshape)
+
+sackin(as.treeshape(epi.tree))
+sackin(as.treeshape(beast.tree))
+
+colless(as.treeshape(epi.tree))
+colless(as.treeshape(beast.tree))
+
+
+seq.sim <- read.FASTA("~/Dropbox/Niyukuri/Abstract_SACEMA_Research_Days_2017/check/akandi_date/baseline_size_72.fasta")
+tree.dat <- phyDat(seq.sim, type = "DNA")
+tree.ml <- dist.ml(tree.dat) # F81
+tree.sim <- upgma(tree.ml)
