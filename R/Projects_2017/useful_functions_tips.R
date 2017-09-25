@@ -108,7 +108,7 @@ fit_power_law(graph = ga.graph)
 
 # Branch length labels for all bracnhes
 
-library(phylotools)
+library(phytools)
 
 # tree<-pbtree(n=10)
 tree <- phylo.tree
@@ -149,6 +149,7 @@ edgelabels(round(tips.branch.leng$branch.len,3),cex=0.6) # add edges labels
 library(expoTree)
 library(ape)
 library(apTreeshape)
+library(phangorn)
 
 # one infection two infections after
 id1 = c(seq(from=0,to=22, by=1)) # 39
@@ -162,11 +163,15 @@ epi1$dtimes <- rep(0, length(t1))
 epi1$id <- id1
 epi1$parent <- par1
 epitree1 <- epi2tree(epi1)
+source("~/RSimpactHelp/R/phylogenetictree.trend.R")
 examp1 <- phylogenetictree.trend(tree = epitree1)
 x1 = examp1$num.tree
 y1 = examp1$size.tree
 reg1 <- lm(log(y1) ~ log(x1))
 cozf1 = coef(reg1)
+
+col.index.1 = colless(as.treeshape(epitree1))
+sak.index.1 = sackin(as.treeshape(epitree1))
 
 # one infection one infection after
 
@@ -185,6 +190,8 @@ y2 = examp2$size.tree
 reg2 <- lm(log(y2) ~ log(x2))
 cozf2 = coef(reg2)
 
+col.index.2 = colless(as.treeshape(epitree2))
+sak.index.2 = sackin(as.treeshape(epitree2))
 
 # One infection many infections after more than 3
 id3 = c(seq(from=0,to=22, by=1))
