@@ -185,7 +185,19 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  monitoring.cd4.threshold = 0.1,#Treatment will not start before schedule
                                  monitoring.fraction.log_viralload = 0.3,
                                  birth.boygirlratio = 0.5024876, #101:100
-                                 simulation.type = "simpact-cyan"
+                                 simulation.type = "simpact-cyan",
+                                 population.msm = "yes",
+                                 person.eagerness.man.type = "independent",
+                                 person.eagerness.man.dist.type = "fixed",
+                                 person.eagerness.man.dist.fixed.value = -Inf,
+                                 person.eagerness.man.msm.dist.type = "fixed",
+                                 person.eagerness.man.msm.dist.fixed.value = 0,
+                                 formationmsm.hazard.type = "simple",
+                                 formationmsm.hazard.simple.alpha_0 = 2,
+                                 formationmsm.hazard.simple.alpha_12 = -0.4,
+                                 formationmsm.hazard.simple.alpha_5 = -0.2, # The factor α5 controls the relative importance of the age gap between the partners.
+                                 formationmsm.hazard.simple.alpha_6 = 0,  # weight for sum of eagerness parameters
+                                 formationmsm.hazard.simple.alpha_7 = 0
                                  ){
   input.params <- list()
   input.params$mortality.normal.weibull.shape <- mortality.normal.weibull.shape
@@ -250,6 +262,18 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$monitoring.fraction.log_viralload <- monitoring.fraction.log_viralload
   input.params$diagnosis.baseline <- diagnosis.baseline
   input.params$birth.boygirlratio <- birth.boygirlratio
+  input.params$population.msm <- population.msm
+  input.params$person.eagerness.man.type <- person.eagerness.man.type
+  input.params$person.eagerness.man.dist.type <- person.eagerness.man.dist.type
+  input.params$person.eagerness.man.dist.fixed.value <- person.eagerness.man.dist.fixed.value
+  input.params$person.eagerness.man.msm.dist.type <- person.eagerness.man.msm.dist.type
+  input.params$person.eagerness.man.msm.dist.fixed.value <- person.eagerness.man.msm.dist.fixed.value
+  input.params$formationmsm.hazard.type <- formationmsm.hazard.type
+  input.params$formationmsm.hazard.simple.alpha_0 <- formationmsm.hazard.simple.alpha_0
+  input.params$formationmsm.hazard.simple.alpha_12 <- formationmsm.hazard.simple.alpha_12
+  input.params$formationmsm.hazard.simple.alpha_5 <- formationmsm.hazard.simple.alpha_5 # The factor α5 controls the relative importance of the age gap between the partners.
+  input.params$formationmsm.hazard.simple.alpha_6 <- formationmsm.hazard.simple.alpha_6  # weight for sum of eagerness parameters
+  input.params$formationmsm.hazard.simple.alpha_7 <- formationmsm.hazard.simple.alpha_7
 
   if(simulation.type == "simpact-cyan"){
     input.params$monitoring.cd4.threshold <- monitoring.cd4.threshold
