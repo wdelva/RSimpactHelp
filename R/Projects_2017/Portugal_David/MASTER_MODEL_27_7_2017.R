@@ -55,7 +55,7 @@ mastermodel.output <- simpact.run(configParams = mastermodel.input,
                           seed = 123)
 
 
-# Read the mode outpu
+# Read the mode output
 
 mastermodel.datalist <- readthedata(mastermodel.output)
 
