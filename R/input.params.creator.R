@@ -187,9 +187,6 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  birth.boygirlratio = 0.5024876, #101:100
                                  simulation.type = "simpact-cyan",
                                  population.msm = "yes",
-                                 person.eagerness.man.type = "independent",
-                                 person.eagerness.man.dist.type = "fixed",
-                                 person.eagerness.man.dist.fixed.value = -Inf,
                                  person.eagerness.man.msm.dist.type = "fixed",
                                  person.eagerness.man.msm.dist.fixed.value = 0,
                                  formationmsm.hazard.type = "simple",
@@ -263,9 +260,6 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$diagnosis.baseline <- diagnosis.baseline
   input.params$birth.boygirlratio <- birth.boygirlratio
   input.params$population.msm <- population.msm
-  input.params$person.eagerness.man.type <- person.eagerness.man.type
-  input.params$person.eagerness.man.dist.type <- person.eagerness.man.dist.type
-  input.params$person.eagerness.man.dist.fixed.value <- person.eagerness.man.dist.fixed.value
   input.params$person.eagerness.man.msm.dist.type <- person.eagerness.man.msm.dist.type
   input.params$person.eagerness.man.msm.dist.fixed.value <- person.eagerness.man.msm.dist.fixed.value
   input.params$formationmsm.hazard.type <- formationmsm.hazard.type
