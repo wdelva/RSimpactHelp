@@ -61,7 +61,7 @@ clean.hiv.seq <-  gsub("\n", "", hiv.seq.raw)
 
 ## Choose the gene of interest: env from 6172 to 8742 nucl position
 
-hiv.seq.env <- substr(clean.hiv.seq, 1,10) # true c(6172,8742) for env gene,
+hiv.seq.env <- substr(clean.hiv.seq, 1,100) # true c(6172,8742) for env gene,
 
 # Calculate the nucleotides frequencies
 #
@@ -89,7 +89,7 @@ dna.dat <- phyDat(seq.sim, type = "DNA")
 dna.dist <- dist.ml(dna.dat, model = "F81", bf = freq) # F81
 tree.ini <- NJ(dna.dist)
 
-write.tree(tree.ini, file = "NaiveTree.nwk",tree.names = TRUE)
+write.tree(tree.ini, file = "NaiveTreeTime.nwk",tree.names = TRUE)
 
 # read.tree.ini <- read.tree(file = "NaiveTree.nwk")
 
