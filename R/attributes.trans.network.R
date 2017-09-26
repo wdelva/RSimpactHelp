@@ -576,9 +576,7 @@ for(i in 1:length(seeds.id)){ # seed
             ids.vl[[i]] <- b.dt[[i]][,2][j]
         }
 
-        XXXXXXXXXXXXXXXXXXXXXX
-        XXXXXXXXXXXXXXXXXXXXXX
-        XXXXXXXXXXXXXXXXXXXXXXXXXXX
+
     }
 }
 
