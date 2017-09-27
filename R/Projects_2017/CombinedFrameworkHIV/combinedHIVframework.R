@@ -1,7 +1,7 @@
 ## This code is a about complete work-flow to combine sexual behavioural data simulatin,
 ## phylodynamics with agent-based models, in a modular way.
 
-## The code has mainly four components
+## The code has mainly four components but in two steps: Epidemiology & Phylodynamics
 ##
 ## 1. Simulation of HIV epidemics from the bottom to the top using Simpact
 ##    dynamic sexual networks (relationships and some dependent variables)
@@ -27,15 +27,15 @@
 ## 4. Analysing the sequence with time-stamped tools and compute summary statistics from 
 ##    phylogenetic trees
 
-## Note: to run all the code, there are external tools ms (for coalescent) and seq-gen (for sequence simulation)
-##       iq-tree (for tree construction) which are not R packages, they need to be in same folder as the file 
+## Note: to run all the code, there are external compiled tools ms (for coalescent) and seq-gen (for sequence simulation)
+##       iq-tree (for tree construction) which are not R packages, they need to be in working space and also the file 
 ##       of seeds sequences (one file for consensus seeds and another one for isolated viruses)
 
 ## Clean the global environment 
 rm(list = ls())
 
 ## Set the working environment
-setwd("/home/david/google_drive/Sequence_Simulation_Tools/Joint_toy/Test/C/")
+setwd("/home/david/google_drive/Sequence_Simulation_Tools/Joint_toy/Test/E/")
 
 
 ## Load required R packages
@@ -249,15 +249,14 @@ seed2.dat <- as.data.frame(simpact.output.raw[[2]])
 ## When an individual i transmit an infection to a=individual j, we assume one virus seed the infection in new host
 for(i in 1:length(seed2.dat$id)){
     
-    k <- seed2.dat$id[i]
     don <- seed2.dat$parent[i] # further we do not consider -1 (universal infector)
     rec <- seed2.dat$id[i]
     
     # Viral load at infection times and sampling times
     vl.inf <- 90 # viral load of the donors at time point of infecting someone else
     vl.samp <- 90 # viral load of the recipients at sampling time
-    t.inf <- 2.0 # infection time for recipients
-    t.samp <- 4.0 # sampling time for recipients
+    t.inf <- 2.0 # infection time for recipients, time when donor i transmits to recipient j
+    t.samp <- 4.0 # sampling time for recipients, time when recipient j has been sampled (diadnosed or removed)
     
     # Compartments within the body: 3 islands
     subpo1.inf <- round(vl.inf/8)
@@ -282,37 +281,52 @@ for(i in 1:length(seed2.dat$id)){
 ## The seed or (and) its fist recipients are responsible of the subsequent infections
 
 
-# First transmission by the seed [1] in XXX$id
+# (i) Transmissions by the seed [1] in XXX$id
 
 seed.id <- seed2.dat$id[1] # Seed individual [1] in XXX$id
-rec.seed <- seed2.dat$id[2] # First transmission by the seed
+# rec.seed <- seed2.dat$id[2] # First transmission by the seed
 
-# donor coalescent tree at 1st transmission (by the seed)
-seed.tree.trans <- read.tree(paste("tree_at_from_",seed.id,"_to_",rec.seed,".nwk", sep = "")) 
+rec.ids <- seed2.dat$id
+par.ids <- seed2.dat$parent
 
-numb.tr <- function(tree=tree){
-    if(length(tree) == 4){
-        return(1)
-    }else{
-        return(length(tree))
+for(i in 2:length(seed2.dat$id)){
+    
+    rec.id <- rec.ids[i]
+    par.id <- par.ids[i]
+    rec.seed <- rec.id # recipient from seed donor
+    
+    if(par.id == seed.id){ # this means this individual is infected by the seed element
+        
+        # donor coalescent tree at transmission times by the seed
+        seed.tree.trans <- read.tree(paste("tree_at_from_",seed.id,"_to_",rec.seed,".nwk", sep = "")) 
+        
+        # compute number of trees in the file
+        numb.tr <- function(tree=tree){
+            if(length(tree) == 4){
+                return(1)
+            }else{
+                return(length(tree))
+            }
+        }
+        numb.trees.seed <- numb.tr(tree=seed.tree.trans) # count number of trees generated (normally one)
+        
+        file.copy(paste("seed.seq.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
+        
+        write(numb.trees.seed,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and 
+        write.tree(seed.tree.trans,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
+        file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
+        
+        seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+        
+        # Sequence of the seed at the first tramsmission event
+        system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_from_",seed.id,"_to_",rec.seed,".fasta",sep = ""))
     }
 }
-numb.trees.seed <- numb.tr(tree=seed.tree.trans) # count number of trees generated (normally one)
-
-file.copy(paste("seed.seq.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
-
-write(numb.trees.seed,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and 
-write.tree(seed.tree.trans,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
-file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
-
-seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
-
-# Sequence of the seed at the first tramsmission event
-
-system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_from_",seed.id,"_to_",rec.seed,".fasta",sep = ""))
 
 
-# Sampling of the seed [1] in XXX$id
+
+
+# (ii) Sampling of the seed [1] in XXX$id
 
 # donor coalescent tree at sampling time (by the seed)
 seed.tree.samp <- read.tree(paste("tree_at_for_",seed.id,"_samp.nwk", sep = "")) # tree at sampling time of the seed
@@ -331,22 +345,34 @@ seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed 
 system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",seed.id,".fasta",sep = ""))
 
 
-# Sampling of the first recipient in XXX$id[2]
+# (iii) Sampling of recipients from the seed donor in XXX$id[2]
 
-# donor coalescent tree at sampling time for the first recipient
-seed.tree.samp <- read.tree(paste("tree_at_for_",rec.seed,"_samp.nwk", sep = "")) # tree at sampling time of the seed
-numb.tree.samp <- numb.tr(tree=seed.tree.samp) # count number of trees generated (normally one)
+rec.ids <- seed2.dat$id
+par.ids <- seed2.dat$parent
 
-file.copy(paste("sequence_from_",seed.id,"_to_",rec.seed,".fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
-write(numb.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and 
-write.tree(seed.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
-file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
-
-seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
-
-# Sequence of the first recipient at the sampling (diagnosis/removal) event
-
-system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",rec.seed,".fasta",sep = ""))
+for(i in 2:length(seed2.dat$id)){
+    
+    rec.id <- rec.ids[i]
+    par.id <- par.ids[i]
+    rec.seed <- rec.id
+    
+    if(par.id == seed.id){
+        
+        # donor coalescent tree at sampling time for the first recipient
+        seed.tree.samp <- read.tree(paste("tree_at_for_",rec.seed,"_samp.nwk", sep = "")) # tree at sampling time of the seed
+        numb.tree.samp <- numb.tr(tree=seed.tree.samp) # count number of trees generated (normally one)
+        
+        file.copy(paste("sequence_from_",seed.id,"_to_",rec.seed,".fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
+        write(numb.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and 
+        write.tree(seed.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
+        file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
+        
+        seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+        
+        # Sequence of the first recipient at the sampling (diagnosis/removal) event
+        system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",rec.seed,".fasta",sep = ""))
+    }
+}
 
 
 # Others
@@ -354,6 +380,10 @@ system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq
 # We know that individual j got infection from i which was transmitted by one virus from i
 # having sequences of i at transmission time, choose only one from the pool which will 
 # be evolving in j
+
+
+
+# (iv) Sequences at infetion time >> sequence of the donors
 
 # Find parent of the current donor here "h": due to above mentionned argument
 parent.find <- function(h){
@@ -365,48 +395,41 @@ parent.find <- function(h){
     return(par)
 }
 
-## Sequences at infetion time ##
-################################
-
-# Sequences for first recipient were simulated first
-
-for(i in 3:length(seed2.dat$id)){
+for(i in 3:length(seed2.dat$id)){ # start at 3 bcz the seed and 1st transmission already simulated
     # random number for random sequence to infect new individual
     seq.rand <- sample(1:10,1)
     # recipients - k and donors - h
-    k <- seed2.dat$id[i] # 219
-    h <- seed2.dat$parent[i] # 1408
+    k <- seed2.dat$id[i] # 219 recipients
+    h <- seed2.dat$parent[i] # 1408 donors
     
     prev.par <- parent.find(h)
-    if(prev.par==-1){
-        # tree of the recipient
-        tr.ms <- read.tree(paste("tree_at_from_",seed.id,"_to_",k,".nwk", sep = "")) # tree of donor at infecting time
-        numb.trees <- numb.tr(tr.ms)
-        file.copy(paste("seed.seq.fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # pool of input sequences from donor
-        write(numb.trees,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-        write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-        file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
-        # file.remove()
-        system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,".fasta",sep = ""))
-    }else{
+    if(prev.par!=-1){
         # tree of the recipient
         tr.ms <- read.tree(paste("tree_at_from_",h,"_to_",k,".nwk", sep = "")) # tree of donor at infecting time
         numb.trees <- numb.tr(tr.ms)
-        file.copy(paste("sequence_from_",prev.par,"_to_",h,".fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # pool of input sequences from donor
+        file.copy(paste("sequence_from_",prev.par,"_to_",h,".fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # h is going to give one of what (s)he got previously from prev.par
         write(numb.trees,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
         write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
         file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
         # file.remove()
         system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,".fasta",sep = ""))
-        }
+    }
 }
 
-## Sequences at sampling time ##
-################################
+# (v) Sequences at sampling time >> sequence of recipients
 
-# Sequences for seed were simulated first
+# Find parent of the current donor here "h": due to above mentionned argument
+parent.find <- function(h){
+    for(l in 1:length(seed2.dat$id)){
+        if(seed2.dat$id[l] == h){
+            par <- seed2.dat$parent[l]
+        }
+    }
+    return(par)
+}
 
-for(i in 3:length(seed2.dat$id)){
+
+for(i in 3:length(seed2.dat$id)){ # start at 3 bcz the seed and 1st transmission already simulated
     # random number for random sequence to infect new individual
     seq.rand <- sample(1:10,1)
     # recipients - k and donors - h
@@ -414,18 +437,8 @@ for(i in 3:length(seed2.dat$id)){
     h <- seed2.dat$parent[i] # [3]=1408, donors
     
     prev.par <- parent.find(h)
-    if(prev.par==-1){
-        # tree of the recipient
-        tr.ms <- read.tree(paste("tree_at_for_",h,"_samp.nwk", sep = "")) # tree of the donor at sampling time
-        numb.trees <- numb.tr(tr.ms)
-        file.copy(paste("seed.seq.fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # pool of seq of the donor to the current donor
-        write(numb.trees,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-        write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-        file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
-        # file.remove()
-        system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,".fasta",sep = ""))
-        
-    }else{
+    
+    if(prev.par!=-1){
         # tree of the recipient
         tr.ms <- read.tree(paste("tree_at_for_",k,"_samp.nwk", sep = "")) # tree of the recipient at sampling time
         numb.trees <- numb.tr(tr.ms)
@@ -436,8 +449,6 @@ for(i in 3:length(seed2.dat$id)){
         # file.remove()
         system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,".fasta",sep = ""))
     }
-    
-
 }
 
 
@@ -470,38 +481,32 @@ names(d) <- label.names
 write.dna(d,file = "consensus.seq.final.fas", format = "fasta", nbcol=-1)
 
 
+# 2.2.2 Example with all seeds and their transmission networks
 
-## 2.2.2 Example with all seed individuals and their transmission networks
+# Transmission network in a raw form with suppllement data that 
+# the previous transmission network, it includes viral load, CD4, etc.
+simpact.output.raw <- transNetworkNew(datalist=master.datalist, endpoint=40)
 
-
-trans.net <- simpact.output.raw # all transmission networks
-
-num.trees <- vector("list",length(trans.net)) # ID of seeds
-num.i <- vector("list",length(trans.net)) # i_th seed in the list of seeds 
-
-seed2.dat <- vector("list",length(trans.net))
-for(v in 1:length(trans.net)){
+for(v in 1:length(simpact.output.raw)){
     
-    trans.dt <- trans.net[[v]]
+    seed2.dat <- as.data.frame(simpact.output.raw[[v]])
     
-    if(nrow(as.data.frame(trans.dt)) >= 3){
+    if(nrow(seed2.dat) >= 3){
         
-        seed2.dat <- as.data.frame(trans.dt)
         
         ## Within host dynamics per individual: ms > produce coalescent trees
         ## When sampled, each individual, many copies are taken and these copies have different demographics events
         ## When an individual i transmit an infection to a=individual j, we assume one virus seed the infection in new host
         for(i in 1:length(seed2.dat$id)){
             
-            k <- seed2.dat$id[i]
             don <- seed2.dat$parent[i] # further we do not consider -1 (universal infector)
             rec <- seed2.dat$id[i]
             
             # Viral load at infection times and sampling times
             vl.inf <- 90 # viral load of the donors at time point of infecting someone else
             vl.samp <- 90 # viral load of the recipients at sampling time
-            t.inf <- 2.0 # infection time for recipients
-            t.samp <- 4.0 # sampling time for recipients
+            t.inf <- 2.0 # infection time for recipients, time when donor i transmits to recipient j
+            t.samp <- 4.0 # sampling time for recipients, time when recipient j has been sampled (diadnosed or removed)
             
             # Compartments within the body: 3 islands
             subpo1.inf <- round(vl.inf/8)
@@ -520,43 +525,58 @@ for(v in 1:length(trans.net)){
         
         
         
-        ## Generate sequences for each individual at transmission and samplingtimes ##
-        ##############################################################################
+        ## Generate sequences for each individual at sampling time ##
+        #############################################################
         
         ## The seed or (and) its fist recipients are responsible of the subsequent infections
         
         
-        # First transmission by the seed [1] in XXX$id
+        # (i) Transmissions by the seed [1] in XXX$id
         
         seed.id <- seed2.dat$id[1] # Seed individual [1] in XXX$id
-        rec.seed <- seed2.dat$id[2] # First transmission by the seed
+        # rec.seed <- seed2.dat$id[2] # First transmission by the seed
         
-        # donor coalescent tree at 1st transmission (by the seed)
-        seed.tree.trans <- read.tree(paste("tree_at_from_",seed.id,"_to_",rec.seed,"_net_",v,".nwk", sep = "")) 
+        rec.ids <- seed2.dat$id
+        par.ids <- seed2.dat$parent
         
-        numb.tr <- function(tree=tree){
-            if(length(tree) == 4){
-                return(1)
-            }else{
-                return(length(tree))
+        for(i in 2:length(seed2.dat$id)){
+            
+            rec.id <- rec.ids[i]
+            par.id <- par.ids[i]
+            rec.seed <- rec.id # recipient from seed donor
+            
+            if(par.id == seed.id){ # this means this individual is infected by the seed element
+                
+                # donor coalescent tree at transmission times by the seed
+                seed.tree.trans <- read.tree(paste("tree_at_from_",seed.id,"_to_",rec.seed,"_net_",v,".nwk", sep = "")) 
+                
+                # compute number of trees in the file
+                numb.tr <- function(tree=tree){
+                    if(length(tree) == 4){
+                        return(1)
+                    }else{
+                        return(length(tree))
+                    }
+                }
+                numb.trees.seed <- numb.tr(tree=seed.tree.trans) # count number of trees generated (normally one)
+                
+                file.copy(paste("seed.seq.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
+                
+                write(numb.trees.seed,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and 
+                write.tree(seed.tree.trans,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
+                file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
+                
+                seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+                
+                # Sequence of the seed at the first tramsmission event
+                system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta",sep = ""))
             }
         }
-        numb.trees.seed <- numb.tr(tree=seed.tree.trans) # count number of trees generated (normally one)
-        
-        file.copy(paste("seed.seq.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
-        
-        write(numb.trees.seed,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and 
-        write.tree(seed.tree.trans,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
-        file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
-        
-        seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
-        
-        # Sequence of the seed at the first tramsmission event
-        
-        system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta",sep = ""))
         
         
-        # Sampling of the seed [1] in XXX$id
+        
+        
+        # (ii) Sampling of the seed [1] in XXX$id
         
         # donor coalescent tree at sampling time (by the seed)
         seed.tree.samp <- read.tree(paste("tree_at_for_",seed.id,"_samp_net_",v,".nwk", sep = "")) # tree at sampling time of the seed
@@ -574,22 +594,35 @@ for(v in 1:length(trans.net)){
         
         system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",seed.id,"_net_",v,".fasta",sep = ""))
         
-        # Sampling of the first recipient in XXX$id[2]
         
-        # donor coalescent tree at sampling time for the first recipient
-        seed.tree.samp <- read.tree(paste("tree_at_for_",rec.seed,"_samp_net_",v,".nwk", sep = "")) # tree at sampling time of the seed
-        numb.tree.samp <- numb.tr(tree=seed.tree.samp) # count number of trees generated (normally one)
+        # (iii) Sampling of recipients from the seed donor in XXX$id[2]
         
-        file.copy(paste("sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
-        write(numb.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and 
-        write.tree(seed.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
-        file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
+        rec.ids <- seed2.dat$id
+        par.ids <- seed2.dat$parent
         
-        seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
-        
-        # Sequence of the first recipient at the sampling (diagnosis/removal) event
-        
-        system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",rec.seed,"_net_",v,".fasta",sep = ""))
+        for(i in 2:length(seed2.dat$id)){
+            
+            rec.id <- rec.ids[i]
+            par.id <- par.ids[i]
+            rec.seed <- rec.id
+            
+            if(par.id == seed.id){
+                
+                # donor coalescent tree at sampling time for the first recipient
+                seed.tree.samp <- read.tree(paste("tree_at_for_",rec.seed,"_samp_net_",v,".nwk", sep = "")) # tree at sampling time of the seed
+                numb.tree.samp <- numb.tr(tree=seed.tree.samp) # count number of trees generated (normally one)
+                
+                file.copy(paste("sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
+                write(numb.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and 
+                write.tree(seed.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
+                file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
+                
+                seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+                
+                # Sequence of the first recipient at the sampling (diagnosis/removal) event
+                system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",rec.seed,"_net_",v,".fasta",sep = ""))
+            }
+        }
         
         
         # Others
@@ -597,6 +630,10 @@ for(v in 1:length(trans.net)){
         # We know that individual j got infection from i which was transmitted by one virus from i
         # having sequences of i at transmission time, choose only one from the pool which will 
         # be evolving in j
+        
+        
+        
+        # (iv) Sequences at infetion time >> sequence of the donors
         
         # Find parent of the current donor here "h": due to above mentionned argument
         parent.find <- function(h){
@@ -608,51 +645,41 @@ for(v in 1:length(trans.net)){
             return(par)
         }
         
-        ## Sequences at infetion time ##
-        ################################
-        
-        # Sequences for first recipient were simulated first
-        
-        for(i in 3:length(seed2.dat$id)){
+        for(i in 3:length(seed2.dat$id)){ # start at 3 bcz the seed and 1st transmission already simulated
             # random number for random sequence to infect new individual
             seq.rand <- sample(1:10,1)
             # recipients - k and donors - h
-            k <- seed2.dat$id[i] # 332
-            h <- seed2.dat$parent[i] # 1247
+            k <- seed2.dat$id[i] # 219 recipients
+            h <- seed2.dat$parent[i] # 1408 donors
             
             prev.par <- parent.find(h)
-            
-            if(prev.par==-1){
-                # tree of the recipient 
-                tr.ms <- read.tree(paste("tree_at_from_",seed.id,"_to_",k,"_net_",v,".nwk", sep = "")) # tree of donor at infecting time
-                numb.trees <- numb.tr(tr.ms)
-                file.copy(paste("seed.seq.fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # pool of input sequences from donor
-                write(numb.trees,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-                write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-                file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
-                # file.remove()
-                system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,"_net_",v,".fasta",sep = ""))
-            }else{
-                
+            if(prev.par!=-1){
                 # tree of the recipient
                 tr.ms <- read.tree(paste("tree_at_from_",h,"_to_",k,"_net_",v,".nwk", sep = "")) # tree of donor at infecting time
                 numb.trees <- numb.tr(tr.ms)
-                file.copy(paste("sequence_from_",prev.par,"_to_",h,"_net_",v,".fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # pool of input sequences from donor
+                file.copy(paste("sequence_from_",prev.par,"_to_",h,"_net_",v,".fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # h is going to give one of what (s)he got previously from prev.par
                 write(numb.trees,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
                 write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
                 file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
                 # file.remove()
                 system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,"_net_",v,".fasta",sep = ""))
-                
             }
-          }
+        }
         
-        ## Sequences at sampling time ##
-        ################################
+        # (v) Sequences at sampling time >> sequence of recipients
         
-        # Sequences for seed were simulated first
+        # Find parent of the current donor here "h": due to above mentionned argument
+        parent.find <- function(h){
+            for(l in 1:length(seed2.dat$id)){
+                if(seed2.dat$id[l] == h){
+                    par <- seed2.dat$parent[l]
+                }
+            }
+            return(par)
+        }
         
-        for(i in 3:length(seed2.dat$id)){
+        
+        for(i in 3:length(seed2.dat$id)){ # start at 3 bcz the seed and 1st transmission already simulated
             # random number for random sequence to infect new individual
             seq.rand <- sample(1:10,1)
             # recipients - k and donors - h
@@ -660,31 +687,20 @@ for(v in 1:length(trans.net)){
             h <- seed2.dat$parent[i] # [3]=1408, donors
             
             prev.par <- parent.find(h)
-            if(prev.par==-1){
+            
+            if(prev.par!=-1){
                 # tree of the recipient
-                tr.ms <- read.tree(paste("tree_at_for_",k,"_samp_net_",v,".nwk", sep = "")) # tree of the donor at sampling time
+                tr.ms <- read.tree(paste("tree_at_for_",k,"_samp_net_",v,".nwk", sep = "")) # tree of the recipient at sampling time
                 numb.trees <- numb.tr(tr.ms)
-                file.copy(paste("seed.seq.fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # pool of seq of the donor to the current donor
-                write(numb.trees,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-                write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-                file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
-                # file.remove()
-                system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,"_net_",v,".fasta",sep = ""))
-                
-            }else{
-                # tree of the recipient
-                tr.ms <- read.tree(paste("tree_at_for_",k,"_samp_net_",v,".nwk", sep = "")) # tree of the donor at sampling time
-                numb.trees <- numb.tr(tr.ms)
-                file.copy(paste("sequence_from_",prev.par,"_to_",k,".fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # pool of seq of the donor to the current donor
+                file.copy(paste("sequence_from_",prev.par,"_to_",h,"_net_",v,".fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # pool of seq of the donor to the current donor
                 write(numb.trees,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
                 write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
                 file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
                 # file.remove()
                 system(paste("seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,"_net_",v,".fasta",sep = ""))
             }
-            
-            
         }
+        
         
         ## Construct then consensus sequences ##
         ########################################
@@ -710,11 +726,12 @@ for(v in 1:length(trans.net)){
         
         # read the consensus sequence all with name "1" and rename them accoridng to individuals IDs
         d <- read.FASTA(file = paste("consensus.seq.raw_net_",v,".fas", sep = ""))
-        
         names(d) <- label.names
         
         write.dna(d,file = paste("consensus.seq.final_net_",v,".fas", sep = ""), format = "fasta", nbcol=-1)
         
-    } # end chosen transmission networks
+        
+    } # end loop of chosen transmission networks (with at least 3 people)
     
-} # send all seeds
+} # end loop of transmission networks
+
