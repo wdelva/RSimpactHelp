@@ -5,10 +5,13 @@
 \title{We need to decide if we need to include all the intervention parameters here?
 log viralload, etc}
 \usage{
-intervention.introduced(simulation.type = "simpact-cyan")
+intervention.introduced(simulation.type = "simpact-cyan",
+  simulation.start = "1970-03-31")
 }
 \arguments{
 \item{simulation.type}{An indication of which of simpact simulation to perform.}
+
+\item{simulation.start}{the simulation start from which all intervention time will be calculated}
 }
 \value{
 a list of lists containing intervention at different times.
