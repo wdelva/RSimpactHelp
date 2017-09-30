@@ -1,39 +1,80 @@
 ## Testing the results from a simply simpact.run
 pacman::p_load(RSimpactCyan, RSimpactHelper, lhs)
 
-simulation.type <- "simpact-cyan"#"maxart"#
-
+#Set up simulation parameters and initiate simulation
+sim.start.full <- as.Date("1970-03-31")
+maxart.starttime <- as.Date("2014-09-01")
+maxart.endtime <- as.Date("2017-08-31")
+sim.end.full <- as.Date("2019-03-31")
+seed.hiv.time <- round(as.numeric(difftime(as.Date("1986-03-31"), sim.start.full, units = "days")/365.242),0)
+sim.duration <- round(as.numeric(difftime(sim.end.full,sim.start.full, units = "days")/365.242),0)
+simulation.type <- "maxart"#"simpact-cyan"#
 simpact.set.simulation(simulation.type)
 
-agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 
+agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
+#agedist.data.frame <- agedistr.creator(shape = 2, scale = 25)
+#This matches the 1970 UN population
 
 iv <- intervention.introduced(simulation.type = simulation.type)
 
+#initial population
 
-testinput <- input.params.creator(population.simtime = 40,
-                                  population.numwomen = 1000,
-                                  population.nummen = 1000,
+init.population.total <- 3000
+women.frac <- 0.5253
+num.women.prop <- round(women.frac * init.population.total, 0)
+num.men.prop <- init.population.total - num.women.prop
+
+testinput <- input.params.creator(population.simtime = sim.duration,
+                                  population.numwomen = num.women.prop, # 1051, #1000,
+                                  population.nummen = num.men.prop, # 949, #1000,
+                                  person.art.accept.threshold.dist.fixed.value = 0.9,
+                                  debut.debutage = 10,  #maxart
+                                  hivseed.time = seed.hiv.time, #1986 seed HIV
                                   simulation.type = simulation.type)
 
+if(simulation.type == "maxart"){
+  testinput$facilities.randomization <- "${SIMPACT_DATA_DIR}maxart-randomization.csv"
+  testinput$maxart.starttime <- round(as.numeric(difftime(maxart.starttime ,sim.start.full, units = "days")/365),0)
+  testinput$person.geo.dist2d.discrete.maskfile <-  ""
+}
 
 testoutput <- simpact.run(configParams = testinput,
                           destDir = "temp",
                           agedist = agedist.data.frame,
                           intervention = iv,
-                          seed = 2)
+                          seed = 8)
 
 datalist.test <- readthedata(testoutput)
 
+datalist.test$ptable <- client.facility(datalist = datalist.test, site = "MaxART")
+datalist.test$ptable$pfacility[datalist.test$ptable$pfacility.value > 15] <- "Not Hhohho"
+
+table(datalist.test$ptable$pfacility)
+
 pop.growth.calculator(datalist = datalist.test,
                       timewindow = c(0,
-                          timewindow.max=unique(datalist.test$itable$population.simtime)))
+                          timewindow.max=datalist.test$itable$population.simtime[1]))
 
-incidence.calculator(datalist = datalist.test, agegroup = c(20, 25),
-                     timewindow = c(32, 34), only.active = "No")
+#check incidence within the study window
 
-prevalence.calculator(datalist = datalist.test, agegroup = c(18, 20),
-                    timepoint = 34)
+inc.study.time.u <- as.numeric(difftime(maxart.starttime, sim.start.full, units = "days"))
+inc.study.time.d <- as.numeric(difftime(maxart.endtime, sim.start.full, units = "days"))
+
+inc.study.time.u <- round(inc.study.time.u/365.242,0)
+inc.study.time.d <- round(inc.study.time.d/365.242,0)
+
+
+incidence.calculator(datalist = datalist.test, agegroup = c(10, 49),
+                     timewindow = c(inc.study.time.u, inc.study.time.d),
+                     only.active = "No")
+
+prevalence.calculator(datalist = datalist.test, agegroup = c(10, 50),
+                    timepoint = inc.study.time.d)
+
+
+###################################################################################################
+
 
 #Example of Latin hypercube sample (each row and column is filled
 #with one point)
