@@ -30,28 +30,17 @@ vl.suppressed <- function(datalist = datalist,
                           lessmonths = 6, site="All"){
 
   DTalive.infected <- datalist$ptable
-  DTalive.infected$pfacility <- "NA"
-  pf.index <- which(colnames(DTalive.infected)=="pfacility") #person.facility.index
 
   if (site == "All") {
-    DTalive.infected <- subset(DTalive.infected, TOB <= timepoint & TOD > timepoint & InfectTime!=Inf)
+    DTalive.infected <- subset(DTalive.infected, TOB <= timepoint &
+                                 TOD > timepoint & InfectTime!=Inf)
   } else{
-    facilities.df <- datalist.test$ftable
-    colnames(facilities.df) <- c("facility.xy", "XCoord", "YCoord")
-
-    for (i in 1:nrow(DTalive.infected)) {
-      fc.id <-
-        which.min(sqrt((DTalive.infected[i, XCoord] - facilities.df$XCoord)^2 +
-                         (DTalive.infected[i, YCoord] - facilities.df$YCoord)^2
-        ))
-      DTalive.infected[i, pf.index] <- facilities.df[fc.id, facility.xy]
-    }
 
     DTalive.infected <- subset(DTalive.infected,
-                                      TOB <= timepoint &
-                                        TOD > timepoint &
-                                        pfacility == site &
-                                        InfectTime!=Inf)
+                               TOB <= timepoint &
+                                 TOD > timepoint &
+                                 pfacility == site &
+                                 InfectTime!=Inf)
   }
 
   vl.cutoff <- log10(vlcutoff)
@@ -65,22 +54,22 @@ vl.suppressed <- function(datalist = datalist,
   #Check the vl information of these individuals
   VLevent.df <- data.frame(subset(datalist$vltable, ID %in% InfectedOnTreatment$ID ))
 
-  yaxis <- vl.cutoff + 0.2 # add the axis to make visual
-
-  #Visualise the VL points
-  q <- ggplot()
-  q <- q + geom_point(data=VLevent.df, aes(x=Time, y=Log10VL, group=ID, colour = Desc))
-  #q <- q + geom_line(data=VLevent.df, aes(x=Time, y=Log10VL, group=ID, colour = Desc))
-  q <- q + geom_hline(yintercept=vl.cutoff) +
-    annotate("text", datalist$itable$hivseed.time[1], vl.cutoff + 0.2, label = "  VLCutoff")
-  q <- q + geom_vline(xintercept=timepoint-0.5, colour = "blue") +
-    annotate("text", timepoint, max(VLevent.df$Log10VL), label = "  TimePoint")
-  q <- q +theme_bw() + theme(legend.position = "right") +
-    theme(panel.background = element_blank(),panel.grid.major.x = element_blank(),
-          panel.grid.minor.x = element_blank(),
-          panel.grid.minor.y = element_blank(),
-          panel.grid.major.y = element_blank(), panel.ontop = TRUE) +
-    theme(legend.background = element_rect(colour = "black"))
+  # yaxis <- vl.cutoff + 0.2 # add the axis to make visual
+  #
+  # #Visualise the VL points
+  # q <- ggplot()
+  # q <- q + geom_point(data=VLevent.df, aes(x=Time, y=Log10VL, group=ID, colour = Desc))
+  # #q <- q + geom_line(data=VLevent.df, aes(x=Time, y=Log10VL, group=ID, colour = Desc))
+  # q <- q + geom_hline(yintercept=vl.cutoff) +
+  #   annotate("text", datalist$itable$hivseed.time[1], vl.cutoff + 0.2, label = "  VLCutoff")
+  # q <- q + geom_vline(xintercept=timepoint-0.5, colour = "blue") +
+  #   annotate("text", timepoint, max(VLevent.df$Log10VL), label = "  TimePoint")
+  # q <- q +theme_bw() + theme(legend.position = "right") +
+  #   theme(panel.background = element_blank(),panel.grid.major.x = element_blank(),
+  #         panel.grid.minor.x = element_blank(),
+  #         panel.grid.minor.y = element_blank(),
+  #         panel.grid.major.y = element_blank(), panel.ontop = TRUE) +
+  #   theme(legend.background = element_rect(colour = "black"))
 
   #Get the last recorded VL and the desc
   #if StartedART and below vl.cutoff then suppressed otherwise NOT suppressed
@@ -95,14 +84,30 @@ vl.suppressed <- function(datalist = datalist,
   InfectedOnTreatment <- dplyr::left_join(x = InfectedOnTreatment, y = VLevent.df, by = c("ID"))
 
 
-  vlSuppressedSixmonthLessTP <- data.frame(dplyr::summarise(
-    dplyr::group_by(InfectedOnTreatment, Gender),
-    TotalCases = n(),
-    VLSuppressed6TP = sum(VL.Suppressed.Timepoint),
-    Percentage = sum(VL.Suppressed.Timepoint)/n()))
+  if(nrow(InfectedOnTreatment)==0){
 
-  vlSuppressedSixmonthLessTP <- c(vlSuppressedSixmonthLessTP, q)
+    vlSuppressed.TP <- as.data.frame(matrix(NA, 3, 4))
 
-  return(vlSuppressedSixmonthLessTP)
+  }else{
+    vlSuppressed.TP <- data.frame(dplyr::summarise(
+      dplyr::group_by(InfectedOnTreatment, Gender),
+      TotalCases = n(),
+      VLSuppressed = sum(VL.Suppressed.Timepoint),
+      Percentage = sum(VL.Suppressed.Timepoint)/n() *100))
+
+
+     vlSuppressed.TP <- rbind(vlSuppressed.TP,
+                  c("NA", nrow(InfectedOnTreatment),
+                  sum(InfectedOnTreatment$VL.Suppressed.Timepoint),
+                  sum(InfectedOnTreatment$VL.Suppressed.Timepoint)/nrow(InfectedOnTreatment)*100
+                  ))
+
+  }
+
+  names(vlSuppressed.TP) <- c("Gender", "TotalCases",
+                              "VLSuppressed", "Percentage")
+
+
+  return(vlSuppressed.TP)
 }
 
