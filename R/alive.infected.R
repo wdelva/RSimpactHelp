@@ -21,27 +21,17 @@ alive.infected <- function(datalist = datalist,
                            site = "All") {
   # arguments are the personlog data.table and a point in time
   DT <- datalist$ptable
-  DT$pfacility <- "NA"
-  pf.index <- which(colnames(DT)=="pfacility") #person.facility.index
 
   if (site == "All") {
     DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint)
   } else{
-    facilities.df <- datalist.test$ftable
-    colnames(facilities.df) <- c("facility.xy", "XCoord", "YCoord")
-
-    for (i in 1:nrow(DT)) {
-      fc.id <- which.min(sqrt((DT[i, XCoord] - facilities.df$XCoord)^2 +
-                         (DT[i, YCoord] - facilities.df$YCoord)^2 ))
-
-      DT[i, pf.index] <- facilities.df[fc.id, facility.xy]
-    }
 
     DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint & pfacility == site)
   }
 
   # Now we allocate infection status to all alive people in our table
-  DTalive <-  DTalive %>%  dplyr::mutate(Infected = (timepoint >= InfectTime))
+  DTalive <-  DTalive %>%
+    dplyr::mutate(Infected = (timepoint >= InfectTime))
 
   return(DTalive)
 }
