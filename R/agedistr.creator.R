@@ -5,6 +5,8 @@
 #'
 #' @param shape The shape parameter for the Weibull distribution function (default is 5)
 #' @param scale The scale parameter for the Weibull distribution function (default is 65)
+#'
+#'
 #' @return a data.frame with Age, Percent.Male and Percent.Female as variables, and 101
 #' rows (0.5 to 100.5 years old). Nobody gets older than 100 years old.
 #' @examples
