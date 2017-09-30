@@ -23,6 +23,8 @@
 #' for men (-4)
 #' @param person.agegap.woman.dist.normal.mu Mean of preferred age differences distribution
 #' for women (-4)
+#' @param birth.pregnancyduration.dist.type duration of pregnancy
+#' @param birth.pregnancyduration.dist.fixed.value the option is fixed and set to 9 months
 #' @param person.agegap.man.dist.normal.sigma Standard deviation of preferred age differences
 #'  distribution for men (3)
 #' @param person.agegap.woman.dist.normal.sigma Standard deviation of preferred age
@@ -115,6 +117,12 @@
 #' @param mortality.aids.survtime.k HIV-based time of death parameter
 #' @param monitoring.fraction.log_viralload the setpoint viral load will be dropped by this fraction
 #' @param birth.boygirlratio the probability of a newly born to be boy
+#' @param monitoring.cd4.threshold.prestudy cd4 values prestudy
+#' @param monitoring.cd4.threshold.instudy.controlstage cd4 values during the control phase
+#'# @param monitoring.cd4.threshold.instudy.transitionstage cd4 threshold when site is transitioning
+#'# @param monitoring.cd4.threshold.instudy.interventionstage cd threshold not needed during the intervention stage
+#'
+#'
 #' @return a list of model parameters that can be used as input for simpact.run()
 #' @examples
 #' cfg.list <- input.params.creator(conception.alpha_base = -3,
@@ -184,8 +192,14 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  diagnosis.baseline = -100,
                                  monitoring.cd4.threshold = 0.1,#Treatment will not start before schedule
                                  monitoring.fraction.log_viralload = 0.3,
-                                 birth.boygirlratio = 0.5024876, #101:100
-                                 simulation.type = "simpact-cyan"
+                                 birth.pregnancyduration.dist.type = "fixed",
+                                 birth.pregnancyduration.dist.fixed.value = 268/365, # just over 38 weeks
+                                 birth.boygirlratio = 1.0/2.01, #0.5024876, #101:100
+                                 simulation.type = "simpact-cyan",
+                                 monitoring.cd4.threshold.prestudy = 350,
+                                 monitoring.cd4.threshold.instudy.controlstage = 350
+                                 #monitoring.cd4.threshold.instudy.transitionstage = Inf,
+                                 #monitoring.cd4.threshold.instudy.interventionstage = Inf
                                  ){
   input.params <- list()
   input.params$mortality.normal.weibull.shape <- mortality.normal.weibull.shape
@@ -250,11 +264,18 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$monitoring.fraction.log_viralload <- monitoring.fraction.log_viralload
   input.params$diagnosis.baseline <- diagnosis.baseline
   input.params$birth.boygirlratio <- birth.boygirlratio
+  input.params$birth.pregnancyduration.dist.type <- birth.pregnancyduration.dist.type
+  input.params$birth.pregnancyduration.dist.fixed.value <- birth.pregnancyduration.dist.fixed.value
 
   if(simulation.type == "simpact-cyan"){
     input.params$monitoring.cd4.threshold <- monitoring.cd4.threshold
   }else{
-    input.params$facilities.outfile.facilityxypos<-"${SIMPACT_OUTPUT_PREFIX}facilitypositions.csv"
+    input.params$facilities.outfile.facilityxypos <- "${SIMPACT_OUTPUT_PREFIX}facilitypositions.csv"
+    input.params$monitoring.cd4.threshold.prestudy <- 350
+    input.params$monitoring.cd4.threshold.instudy.controlstage <- 350
+    input.params$monitoring.cd4.threshold.poststudy <- 20000 #post study everyone was now on test and study
+    #input.params$monitoring.cd4.threshold.instudy.transitionstage <- Inf
+    #input.params$monitoring.cd4.threshold.instudy.interventionstage <- Inf
   }
 
   return(input.params)
