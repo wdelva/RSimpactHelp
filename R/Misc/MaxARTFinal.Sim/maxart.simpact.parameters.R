@@ -21,7 +21,6 @@ sim_repeat <- 4
 #number of cores per node
 ncluster.use <- 4
 
-
 ###### Generate the input parameters for the simulation #################################
 simpact.config.inputs(design.points = init.design.points, resample.count = 1,
                        conception.alpha_base = c(-5, -0.1),
