@@ -1,7 +1,6 @@
 #I presume this will be called through source()
 #Idea is to give date and statistics. Calculated using start of the simulation - that time.
 
-
 #Parameters  creation
 
 #Set up simulation parameters and initiate simulation
