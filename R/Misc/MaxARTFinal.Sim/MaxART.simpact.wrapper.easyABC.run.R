@@ -133,21 +133,25 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     ## Keep the files produced in subfolders
     generate.filename <- function(how.long){
+
+      as.numeric(Sys.time())-> t;
+      set.seed((t - floor(t)) * 1e8)
       chars <- c(letters, LETTERS)
-      paste0(sample(chars,how.long), collapse = "")
+      sub.dir.sim.id <-  paste0(sample(chars,how.long), collapse = "")
+
+      noise.sample1 <- sample(8:15,1, replace = TRUE)
+      sub.dir.sim.id.ext <- paste0(sample(chars,noise.sample1), collapse = "")
+      noise.sample <- sample(1:1000,1)
+      noise.sample2 <- sample(8:17,1, replace = TRUE)
+      sub.dir.sim.id <- paste0(sub.dir.sim.id.ext,
+                               paste0(sample(chars,noise.sample2), collapse = ""),noise.sample)
+
+      return(sub.dir.sim.id)
+
     }
 
-    sub.dir.sim.id <- generate.filename(8)
-    sub.dir.rename <- paste0("temp/",sub.dir.sim.id,"/")
-
-    noise.sample1 <- sample(8:15,1, replace = TRUE)
-    sub.dir.sim.id.ext <- generate.filename(noise.sample1)
-    noise.sample <- sample(1:4000,1)
-    noise.sample2 <- sample(8:17,1, replace = TRUE)
-    sub.dir.sim.id <- paste0(sub.dir.sim.id.ext,generate.filename(noise.sample2),noise.sample)
-
-    sub.dir.rename <- paste0("temp/",sub.dir.sim.id)
-
+    sub.dir.rename <- paste0("temp/",generate.filename(8),"/")
+    sub.dir.sim.id <- substring(generate.filename(8), 1, 8)
 
     testoutput <- simpact.run(configParams = cfg.chunk,
                               destDir = sub.dir.rename,
@@ -178,14 +182,14 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       test.gr <- pop.growth.calculator(datalist = chunk.datalist.test,
                             timewindow = c(0, timewindow.max=chunk.datalist.test$itable$population.simtime[1]))
 
-      print(paste0("Test growth rate value change: ", test.gr))
+      #print(paste0("Test growth rate value change: ", test.gr))
     }
 
     #save each of the run output.
     #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",sub.dir.sim.id,".rda"))
 
     #delete all the file created during the current simulation
-    #unlink(paste0(sub.dir.rename,"/"), recursive = TRUE)
+    unlink(paste0(sub.dir.rename,"/"), recursive = TRUE)
 
 
     if(length(chunk.datalist.test)>1){
