@@ -86,7 +86,7 @@ prevalence.calculator(datalist = datalist.test, agegroup = c(10, 50),
 #Generate higher dimmension sampling similarly
 #Avoid the propabaility that all sampling points come from the same local region
 set.seed(1)
-n.points <- 20000
+n.points <- 20
 rlhs.test <- randomLHS(n.points, 2)
 break.point = 1/n.points
 axis.range <- seq(0,1,break.point)
