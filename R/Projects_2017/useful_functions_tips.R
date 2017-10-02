@@ -144,12 +144,16 @@ edgelabels(round(tips.branch.leng$branch.len,3),cex=0.6) # add edges labels
 
 
 
-## Tree imbalance
+## Tree imbalance: different kinds of transmission networks
+
 
 library(expoTree)
 library(ape)
 library(apTreeshape)
 library(phangorn)
+
+
+# Homogeneous transmission: one > two or three
 
 # one infection two infections after
 id1 = c(seq(from=0,to=22, by=1)) # 39
@@ -173,7 +177,7 @@ cozf1 = coef(reg1)
 col.index.1 = colless(as.treeshape(epitree1))
 sak.index.1 = sackin(as.treeshape(epitree1))
 
-# one infection one infection after
+# one infection one infection after: Chain of transmission > one to one
 
 id2 = c(seq(from=0,to=22, by=1))
 par2 = c(seq(from=-1, to=21, by=1))
@@ -193,7 +197,7 @@ cozf2 = coef(reg2)
 col.index.2 = colless(as.treeshape(epitree2))
 sak.index.2 = sackin(as.treeshape(epitree2))
 
-# One infection many infections after more than 3
+# One infection many infections after more than 3: Super-spreader transmission > one to five or more
 id3 = c(seq(from=0,to=22, by=1))
 par3 = c(-1,0,0,0,1,1,1,1,1,4,4,1,5,5,6,
          7,7,8,8,9,9,5,0)#,5,5, 10,10,
