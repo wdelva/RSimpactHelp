@@ -122,7 +122,8 @@ iv <- list(art.intro, art.intro2, art.intro3, art.intro4)
 
 
 ```{r testrun, echo=FALSE, message = FALSE, cache = TRUE}
-testoutput <- simpact.run(configParams = testinput,
+cfg <- list()
+testoutput <- simpact.run(configParams = cfg,
                           destDir = "temp",
                           agedist = agedist.data.frame,
                           seed = 1)
