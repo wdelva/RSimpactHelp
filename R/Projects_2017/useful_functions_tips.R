@@ -702,3 +702,33 @@ inter.c.1 <- c(c.cozf1[[1]]/c.col.index.1,c.cozf2[[1]]/c.col.index.2,c.cozf3[[1]
              c.cozf4[[1]]/c.col.index.4,c.cozf5[[1]]/c.col.index.5)
 
 slope.c <- -c(c.cozf1[[2]],c.cozf2[[2]],c.cozf3[[2]],c.cozf4[[2]],c.cozf5[[2]])
+
+
+library(adephylo)
+
+c = distTips(c.epitree5, tips = "all", method = "Abouheif")
+
+f = as.matrix(c)
+
+
+# Interecepts and ratio between colless index and sakin' index
+
+inter.a <- c(a.cozf1[[1]],a.cozf2[[1]],a.cozf3[[1]],a.cozf4[[1]],a.cozf5[[1]], a.cozf6[[1]])
+inter.b <- c(b.cozf1[[1]],b.cozf2[[1]],b.cozf3[[1]],b.cozf4[[1]],b.cozf5[[1]])
+inter.c <- c(c.cozf1[[1]],c.cozf2[[1]],c.cozf3[[1]],c.cozf4[[1]],c.cozf5[[1]])
+
+ratio.a <- c(a.col.index.1/a.sak.index.1,a.col.index.2/a.sak.index.2,a.col.index.3/a.sak.index.3,
+             a.col.index.4/a.sak.index.4,a.col.index.5/a.sak.index.5, a.col.index.6/a.sak.index.6)
+
+ratio.b <- c(b.col.index.1/b.sak.index.1,b.col.index.2/b.sak.index.2,b.col.index.3/b.sak.index.3,
+             b.col.index.4/b.sak.index.4,b.col.index.5/b.sak.index.5)
+
+ratio.c <- c(c.col.index.1/c.sak.index.1,c.col.index.2/c.sak.index.2,c.col.index.3/c.sak.index.3,
+             c.col.index.4/c.sak.index.4,c.col.index.5/c.sak.index.5)
+
+xlim <- range(inter.a,inter.b,inter.c)
+ylim <- range(ratio.a,ratio.b,ratio.c)
+
+plot(inter.a,ratio.a, type="b", col="red", xlim=c(0, xlim[2]), ylim=c(0,ylim[2]), lwd=2)
+lines(inter.b,ratio.b, col='green', type='b', lwd=2)
+lines(inter.c, ratio.c, col='blue', type='b', lwd=2)
