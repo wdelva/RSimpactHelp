@@ -704,21 +704,370 @@ inter.c.1 <- c(c.cozf1[[1]]/c.col.index.1,c.cozf2[[1]]/c.col.index.2,c.cozf3[[1]
 slope.c <- -c(c.cozf1[[2]],c.cozf2[[2]],c.cozf3[[2]],c.cozf4[[2]],c.cozf5[[2]])
 
 
-library(adephylo)
+# library(adephylo)
+#
+# c = distTips(c.epitree5, tips = "all", method = "Abouheif")
+#
+# f = as.matrix(c)
 
-c = distTips(c.epitree5, tips = "all", method = "Abouheif")
 
-f = as.matrix(c)
+# # Interecepts and ratio between colless index and sakin' index
+#
+# inter.a <- c(a.cozf1[[1]],a.cozf2[[1]],a.cozf3[[1]],a.cozf4[[1]],a.cozf5[[1]], a.cozf6[[1]])
+# inter.b <- c(b.cozf1[[1]],b.cozf2[[1]],b.cozf3[[1]],b.cozf4[[1]],b.cozf5[[1]])
+# inter.c <- c(c.cozf1[[1]],c.cozf2[[1]],c.cozf3[[1]],c.cozf4[[1]],c.cozf5[[1]])
+#
+# ratio.a <- c(a.col.index.1/a.sak.index.1,a.col.index.2/a.sak.index.2,a.col.index.3/a.sak.index.3,
+#              a.col.index.4/a.sak.index.4,a.col.index.5/a.sak.index.5, a.col.index.6/a.sak.index.6)
+#
+# ratio.b <- c(b.col.index.1/b.sak.index.1,b.col.index.2/b.sak.index.2,b.col.index.3/b.sak.index.3,
+#              b.col.index.4/b.sak.index.4,b.col.index.5/b.sak.index.5)
+#
+# ratio.c <- c(c.col.index.1/c.sak.index.1,c.col.index.2/c.sak.index.2,c.col.index.3/c.sak.index.3,
+#              c.col.index.4/c.sak.index.4,c.col.index.5/c.sak.index.5)
+#
+# xlim <- range(inter.a,inter.b,inter.c)
+# ylim <- range(ratio.a,ratio.b,ratio.c)
+#
+# plot(inter.a,ratio.a, type="b", col="red", xlim=c(0, xlim[2]), ylim=c(0,ylim[2]), lwd=2)
+# lines(inter.b,ratio.b, col='green', type='b', lwd=2)
+# lines(inter.c, ratio.c, col='blue', type='b', lwd=2)
+
+
+# Dig in deep
+
+# Case 1: 1 infection > two
+
+# 23 individuals
+
+d.id1 = c(seq(from=0,to=22, by=1))
+d.par1 = c(-1,0,0,1,1,2,2,3,3,4,4,
+           5,5,6,6,7,7,8,8,9,9,10,10)
+
+d.t1 = rev(c(seq(from=1,to=23, by=1)))
+d.epi1 <- list()
+d.epi1$itimes <- d.t1
+d.epi1$dtimes <- rep(0, length(d.t1))
+d.epi1$id <- d.id1
+d.epi1$parent <- d.par1
+d.epitree1 <- epi2tree(d.epi1)
+
+d.examp1 <- phylogenetictree.trend(tree = d.epitree1)
+d.x1 = d.examp1$num.tree
+d.y1 = d.examp1$size.tree
+d.reg1 <- lm(log(d.y1) ~ log(d.x1))
+d.cozf1 = coef(d.reg1)
+
+d.col.index.1 = colless(as.treeshape(d.epitree1))
+d.sak.index.1 = sackin(as.treeshape(d.epitree1))
+
+
+# 51 individuals
+
+d.id2 = c(seq(from=0,to=50, by=1))
+d.par2 = c(-1,0,0,1,1,2,2,3,3,4,4,
+           5,5,6,6,7,7,8,8,9,9,10,10,
+           11,11,12,12,13,13,14,14,15,15,
+           16,16,17,17,18,18,19,19,20,20,
+           21,21,22,22,23,23,24,24)
+
+d.t2 = rev(c(seq(from=1,to=51, by=1)))
+d.epi2 <- list()
+d.epi2$itimes <- d.t2
+d.epi2$dtimes <- rep(0, length(d.t2))
+d.epi2$id <- d.id2
+d.epi2$parent <- d.par2
+d.epitree2 <- epi2tree(d.epi2)
+
+d.examp2 <- phylogenetictree.trend(tree = d.epitree2)
+d.x2 = d.examp2$num.tree
+d.y2 = d.examp2$size.tree
+d.reg2 <- lm(log(d.y2) ~ log(d.x2))
+d.cozf2 = coef(d.reg2)
+
+d.col.index.2 = colless(as.treeshape(d.epitree2))
+d.sak.index.2 = sackin(as.treeshape(d.epitree2))
+
+# 101 individuals
+
+d.id3 = c(seq(from=0,to=100, by=1))
+d.par3 = c(-1,0,0,1,1,2,2,3,3,4,4,
+           5,5,6,6,7,7,8,8,9,9,10,10,
+           11,11,12,12,13,13,14,14,15,15,
+           16,16,17,17,18,18,19,19,20,20,
+           21,21,22,22,23,23,24,24,25,25,
+           26,26,27,27,28,28,29,29,30,30,
+           31,31,32,32,33,33,34,34,35,35,
+           36,36,37,37,38,38,39,39,40,40,
+           41,41,42,42,43,43,44,44,45,45,
+           46,46,47,47,48,48,49,49)
+d.t3 = rev(c(seq(from=1,to=101, by=1)))
+d.epi3 <- list()
+d.epi3$itimes <- d.t3
+d.epi3$dtimes <- rep(0, length(d.t3))
+d.epi3$id <- d.id3
+d.epi3$parent <- d.par3
+d.epitree3 <- epi2tree(d.epi3)
+
+d.examp3 <- phylogenetictree.trend(tree = d.epitree3)
+d.x3 = d.examp3$num.tree
+d.y3 = d.examp3$size.tree
+d.reg3 <- lm(log(d.y3) ~ log(d.x3))
+d.cozf3 = coef(d.reg3)
+
+d.col.index.3 = colless(as.treeshape(d.epitree3))
+d.sak.index.3 = sackin(as.treeshape(d.epitree3))
+
+
+# 151 individuals
+
+d.id4 = c(seq(from=0,to=150, by=1))
+d.par4 = c(-1,0,0,1,1,2,2,3,3,4,4,
+           5,5,6,6,7,7,8,8,9,9,10,10,
+           11,11,12,12,13,13,14,14,15,15,
+           16,16,17,17,18,18,19,19,20,20,
+           21,21,22,22,23,23,24,24,25,25,
+           26,26,27,27,28,28,29,29,30,30,
+           31,31,32,32,33,33,34,34,35,35,
+           36,36,37,37,38,38,39,39,40,40,
+           41,41,42,42,43,43,44,44,45,45,
+           46,46,47,47,48,48,49,49,50,50,
+           51,51,52,52,53,53,54,54,55,55,
+           56,56,57,57,58,58,59,59,60,60,
+           61,61,62,62,63,63,64,64,65,65,
+           66,66,67,67,68,68,69,69,70,70,
+           71,71,72,72,73,73,74,74)
+d.t4 = rev(c(seq(from=1,to=151, by=1)))
+d.epi4 <- list()
+d.epi4$itimes <- d.t4
+d.epi4$dtimes <- rep(0, length(d.t4))
+d.epi4$id <- d.id4
+d.epi4$parent <- d.par4
+d.epitree4 <- epi2tree(d.epi4)
+
+d.examp4 <- phylogenetictree.trend(tree = d.epitree4)
+d.x4 = d.examp4$num.tree
+d.y4 = d.examp4$size.tree
+d.reg4 <- lm(log(d.y4) ~ log(d.x4))
+d.cozf4 = coef(d.reg4)
+
+d.col.index.4 = colless(as.treeshape(d.epitree4))
+d.sak.index.4 = sackin(as.treeshape(d.epitree4))
+
+
+# 201 individuals
+
+d.id5 = c(seq(from=0,to=200, by=1))
+d.par5 = c(-1,0,0,1,1,2,2,3,3,4,4,
+           5,5,6,6,7,7,8,8,9,9,10,10,
+           11,11,12,12,13,13,14,14,15,15,
+           16,16,17,17,18,18,19,19,20,20,
+           21,21,22,22,23,23,24,24,25,25,
+           26,26,27,27,28,28,29,29,30,30,
+           31,31,32,32,33,33,34,34,35,35,
+           36,36,37,37,38,38,39,39,40,40,
+           41,41,42,42,43,43,44,44,45,45,
+           46,46,47,47,48,48,49,49,50,50,
+           51,51,52,52,53,53,54,54,55,55,
+           56,56,57,57,58,58,59,59,60,60,
+           61,61,62,62,63,63,64,64,65,65,
+           66,66,67,67,68,68,69,69,70,70,
+           71,71,72,72,73,73,74,74,75,75,
+           76,76,77,77,78,78,79,79,80,80,
+           81,81,82,82,83,83,84,84,85,85,
+           86,86,87,87,89,89,90,90,91,91,
+           92,92,93,93,94,94,95,95,96,96,
+           97,97,98,98,99,99,100,100)
+d.t5 = rev(c(seq(from=1,to=201, by=1)))
+d.epi5 <- list()
+
+d.epi5$itimes <- d.t5
+d.epi5$dtimes <- rep(0, length(d.t5))
+d.epi5$id <- d.id5
+d.epi5$parent <- d.par5
+d.epitree5 <- epi2tree(d.epi5)
+
+d.examp5 <- phylogenetictree.trend(tree = d.epitree5)
+d.x5 = d.examp5$num.tree
+d.y5 = d.examp5$size.tree
+d.reg5 <- lm(log(d.y5) ~ log(d.x5))
+d.cozf5 = coef(d.reg5)
+
+d.col.index.5 = colless(as.treeshape(d.epitree5))
+d.sak.index.5 = sackin(as.treeshape(d.epitree5))
+
+
+# Case 2: very super-spreader , 1 > 10
+
+# 23 individuals
+
+e.id1 = c(seq(from=0,to=22, by=1))
+e.par1 = c(-1,0,0,1,1,1,1,1,1,1,1,1,1,
+           2,2,2,2,2,2,2,2,2,2)
+
+e.t1 = rev(c(seq(from=1,to=23, by=1)))
+e.epi1 <- list()
+e.epi1$itimes <- e.t1
+e.epi1$dtimes <- rep(0, length(e.t1))
+e.epi1$id <- e.id1
+e.epi1$parent <- e.par1
+e.epitree1 <- epi2tree(e.epi1)
+
+e.examp1 <- phylogenetictree.trend(tree = e.epitree1)
+e.x1 = d.examp1$num.tree
+e.y1 = d.examp1$size.tree
+e.reg1 <- lm(log(e.y1) ~ log(e.x1))
+e.cozf1 = coef(d.reg1)
+
+e.col.index.1 = colless(as.treeshape(e.epitree1))
+e.sak.index.1 = sackin(as.treeshape(e.epitree1))
+
+
+
+# 51 individuals
+
+e.id2 = c(seq(from=0,to=50, by=1))
+e.par2 = c(-1,0,0,1,1,1,1,1,1,1,1,1,1,
+           2,2,2,2,2,2,2,2,2,2,3,3,3,3,
+           3,3,3,3,3,3,4,4,4,4,4,4,4,4,
+           4,4,5,5,5,5,5,5,5,5)
+
+e.t2 = rev(c(seq(from=1,to=51, by=1)))
+e.epi2 <- list()
+e.epi2$itimes <- e.t2
+e.epi2$dtimes <- rep(0, length(e.t2))
+e.epi2$id <- e.id2
+e.epi2$parent <- e.par2
+e.epitree2 <- epi2tree(e.epi2)
+
+e.examp2 <- phylogenetictree.trend(tree = e.epitree2)
+e.x2 = d.examp2$num.tree
+e.y2 = d.examp2$size.tree
+e.reg2 <- lm(log(e.y2) ~ log(e.x2))
+e.cozf2 = coef(d.reg2)
+
+e.col.index.2 = colless(as.treeshape(e.epitree2))
+e.sak.index.2 = sackin(as.treeshape(e.epitree2))
+
+
+# 101 individuals
+
+e.id3 = c(seq(from=0,to=100, by=1))
+e.par3 = c(-1,0,0,1,1,1,1,1,1,1,1,1,1,
+           2,2,2,2,2,2,2,2,2,2,3,3,3,3,
+           3,3,3,3,3,3,4,4,4,4,4,4,4,4,
+           4,4,5,5,5,5,5,5,5,5,6,6,6,6,
+           6,6,6,6,6,6,7,7,7,7,7,7,7,7,
+           7,7,8,8,8,8,8,8,8,8,8,8,9,9,
+           9,9,9,9,9,9,9,9,10,10,10,10,
+           10,10,10,10,10,10)
+
+e.t3 = rev(c(seq(from=1,to=101, by=1)))
+
+e.epi3 <- list()
+e.epi3$itimes <- e.t3
+e.epi3$dtimes <- rep(0, length(e.t3))
+e.epi3$id <- e.id3
+e.epi3$parent <- e.par3
+e.epitree3 <- epi2tree(e.epi3)
+
+e.examp3 <- phylogenetictree.trend(tree = e.epitree3)
+e.x3 = d.examp3$num.tree
+e.y3 = d.examp3$size.tree
+e.reg3 <- lm(log(e.y3) ~ log(e.x3))
+e.cozf3 = coef(d.reg3)
+
+e.col.index.3 = colless(as.treeshape(e.epitree3))
+e.sak.index.3 = sackin(as.treeshape(e.epitree3))
+
+# 151 individuals
+
+e.id4 = c(seq(from=0,to=150, by=1))
+e.par4 = c(-1,0,0,1,1,1,1,1,1,1,1,1,1,
+           2,2,2,2,2,2,2,2,2,2,3,3,3,3,
+           3,3,3,3,3,3,4,4,4,4,4,4,4,4,
+           4,4,5,5,5,5,5,5,5,5,6,6,6,6,
+           6,6,6,6,6,6,7,7,7,7,7,7,7,7,
+           7,7,8,8,8,8,8,8,8,8,8,8,9,9,
+           9,9,9,9,9,9,9,9,10,10,10,10,
+           10,10,10,10,10,10,11,11,11,11,
+           11,11,11,11,11,11,12,12,12,12,
+           12,12,12,12,12,12,13,13,13,13,
+           13,13,13,13,13,13,14,14,14,14,
+           14,14,14,14,14,14,15,15,15,15,
+           15,15,15,15,15,15)
+
+e.t4 = rev(c(seq(from=1,to=151, by=1)))
+
+e.epi4 <- list()
+e.epi4$itimes <- e.t4
+e.epi4$dtimes <- rep(0, length(e.t4))
+e.epi4$id <- e.id4
+e.epi4$parent <- e.par4
+e.epitree4 <- epi2tree(e.epi4)
+
+e.examp4 <- phylogenetictree.trend(tree = e.epitree4)
+e.x4 = d.examp4$num.tree
+e.y4 = d.examp4$size.tree
+e.reg4 <- lm(log(e.y4) ~ log(e.x4))
+e.cozf4 = coef(d.reg4)
+
+e.col.index.4 = colless(as.treeshape(e.epitree4))
+e.sak.index.4 = sackin(as.treeshape(e.epitree4))
+
+
+# 201 individuals
+
+e.id5 = c(seq(from=0,to=200, by=1))
+e.par5 = c(-1,0,0,1,1,1,1,1,1,1,1,1,1,
+           2,2,2,2,2,2,2,2,2,2,3,3,3,3,
+           3,3,3,3,3,3,4,4,4,4,4,4,4,4,
+           4,4,5,5,5,5,5,5,5,5,6,6,6,6,
+           6,6,6,6,6,6,7,7,7,7,7,7,7,7,
+           7,7,8,8,8,8,8,8,8,8,8,8,9,9,
+           9,9,9,9,9,9,9,9,10,10,10,10,
+           10,10,10,10,10,10,11,11,11,11,
+           11,11,11,11,11,11,12,12,12,12,
+           12,12,12,12,12,12,13,13,13,13,
+           13,13,13,13,13,13,14,14,14,14,
+           14,14,14,14,14,14,15,15,15,15,
+           15,15,15,15,15,15,16,16,16,16,
+           16,16,16,16,16,16,17,17,17,17,
+           17,17,17,17,17,17,18,18,18,18,
+           18,18,18,18,18,18,19,19,19,19,
+           19,19,19,19,19,19,20,20,20,20,
+           20,20,20,20,20,20)
+
+e.t5 = rev(c(seq(from=1,to=201, by=1)))
+
+e.epi5 <- list()
+e.epi5$itimes <- e.t5
+e.epi5$dtimes <- rep(0, length(e.t5))
+e.epi5$id <- e.id5
+e.epi5$parent <- e.par5
+e.epitree5 <- epi2tree(e.epi5)
+
+e.examp5 <- phylogenetictree.trend(tree = e.epitree5)
+e.x5 = d.examp5$num.tree
+e.y5 = d.examp5$size.tree
+e.reg5 <- lm(log(e.y5) ~ log(e.x5))
+e.cozf5 = coef(d.reg5)
+
+e.col.index.5 = colless(as.treeshape(e.epitree5))
+e.sak.index.5 = sackin(as.treeshape(e.epitree5))
+
 
 
 # Interecepts and ratio between colless index and sakin' index
 
-inter.a <- c(a.cozf1[[1]],a.cozf2[[1]],a.cozf3[[1]],a.cozf4[[1]],a.cozf5[[1]], a.cozf6[[1]])
+inter.a <- c(a.cozf1[[1]],a.cozf2[[1]],a.cozf3[[1]],a.cozf4[[1]],a.cozf5[[1]])
 inter.b <- c(b.cozf1[[1]],b.cozf2[[1]],b.cozf3[[1]],b.cozf4[[1]],b.cozf5[[1]])
 inter.c <- c(c.cozf1[[1]],c.cozf2[[1]],c.cozf3[[1]],c.cozf4[[1]],c.cozf5[[1]])
+inter.d <- c(d.cozf1[[1]],d.cozf2[[1]],d.cozf3[[1]],d.cozf4[[1]],d.cozf5[[1]])
+inter.e <- c(e.cozf1[[1]],e.cozf2[[1]],e.cozf3[[1]],e.cozf4[[1]],e.cozf5[[1]])
 
 ratio.a <- c(a.col.index.1/a.sak.index.1,a.col.index.2/a.sak.index.2,a.col.index.3/a.sak.index.3,
-             a.col.index.4/a.sak.index.4,a.col.index.5/a.sak.index.5, a.col.index.6/a.sak.index.6)
+             a.col.index.4/a.sak.index.4,a.col.index.5/a.sak.index.5)
 
 ratio.b <- c(b.col.index.1/b.sak.index.1,b.col.index.2/b.sak.index.2,b.col.index.3/b.sak.index.3,
              b.col.index.4/b.sak.index.4,b.col.index.5/b.sak.index.5)
@@ -726,9 +1075,21 @@ ratio.b <- c(b.col.index.1/b.sak.index.1,b.col.index.2/b.sak.index.2,b.col.index
 ratio.c <- c(c.col.index.1/c.sak.index.1,c.col.index.2/c.sak.index.2,c.col.index.3/c.sak.index.3,
              c.col.index.4/c.sak.index.4,c.col.index.5/c.sak.index.5)
 
-xlim <- range(inter.a,inter.b,inter.c)
-ylim <- range(ratio.a,ratio.b,ratio.c)
+ratio.d <- c(d.col.index.1/d.sak.index.1,d.col.index.2/d.sak.index.2,d.col.index.3/d.sak.index.3,
+             d.col.index.4/d.sak.index.4,d.col.index.5/d.sak.index.5)
 
-plot(inter.a,ratio.a, type="b", col="red", xlim=c(0, xlim[2]), ylim=c(0,ylim[2]), lwd=2)
-lines(inter.b,ratio.b, col='green', type='b', lwd=2)
-lines(inter.c, ratio.c, col='blue', type='b', lwd=2)
+ratio.e <- c(e.col.index.1/e.sak.index.1,e.col.index.2/e.sak.index.2,e.col.index.3/e.sak.index.3,
+             e.col.index.4/e.sak.index.4,e.col.index.5/e.sak.index.5)
+
+xlim <- range(inter.a,inter.b,inter.c, inter.d, inter.e)
+ylim <- range(ratio.a,ratio.b,ratio.c, ratio.d, ratio.e)
+
+plot(inter.a,ratio.a, type="b", col="red", xlim=c(0, xlim[2]), ylim=c(0,ylim[2]), lwd=2) # 1 > 1
+lines(inter.b,ratio.b, col='green', type='b', lwd=2) # 1 > 2,3
+lines(inter.c, ratio.c, col='blue', type='b', lwd=2) # 1 > 2,4,5
+lines(inter.d, ratio.d, col='magenta2', type='b', lwd=2) # 1 > 2
+lines(inter.e, ratio.e, col='yellow', type='b', lwd=2) # 1 > 10
+
+
+
+
