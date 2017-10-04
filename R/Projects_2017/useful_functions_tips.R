@@ -1092,4 +1092,31 @@ lines(inter.e, ratio.e, col='yellow', type='b', lwd=2) # 1 > 10
 
 
 
+# Test ladder like but add two more
+a.id4.1 = c(seq(from=0,to=150, by=1))
+a.par4.1 = c(seq(from=-1, to=148, by=1),1)
+a.t4.1 = rev(c(seq(from=1,to=151, by=1)))
+a.epi4.1 <- list()
+a.epi4.1$itimes <- a.t4.1
+a.epi4.1$dtimes <- rep(0, length(a.t4.1))
+a.epi4.1$id <- a.id4.1
+a.epi4.1$parent <- a.par4.1
+a.epitree4.1 <- epi2tree(a.epi4.1)
+
+
+a.examp4.1 <- phylogenetictree.trend(tree = a.epitree4.1)
+a.x4.1 = a.examp4.1$num.tree
+a.y4.1 = a.examp4.1$size.tree
+a.reg4.1 <- lm(log(a.y4.1) ~ log(a.x4.1))
+a.cozf4.1 = coef(a.reg4.1)
+
+a.col.index.4.1 = colless(as.treeshape(a.epitree4.1))
+a.sak.index.4.1 = sackin(as.treeshape(a.epitree4.1))
+
+# Notes
+ratio.a.4.1 <- a.col.index.4.1/a.sak.index.4.1 # similar to a's
+
+# a.cozf4.1[[2]] exist, no NA as it is the case for a's
+a.cozf4.1[[2]]
+
 
