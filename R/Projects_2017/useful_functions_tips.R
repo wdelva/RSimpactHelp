@@ -1120,3 +1120,90 @@ ratio.a.4.1 <- a.col.index.4.1/a.sak.index.4.1 # similar to a's
 a.cozf4.1[[2]]
 
 
+x <- c(23,51,101,151,201)
+plot(x,ratio.a, type="b", col="red", lwd=2) # 1 > 1
+lines(x, ratio.b, col='green', type='b', lwd=2)
+lines(x, ratio.c, col='blue', type='b', lwd=2)
+lines(x, ratio.d, col='magenta2', type='b', lwd=2)
+lines(x,  ratio.e, col='yellow', type='b', lwd=2)
+
+matplot(x, cbind(ratio.a, ratio.b,
+                 ratio.c, ratio.d, ratio.e),type="b",
+        col=c("red","green", "blue", "magenta2", "orange"),lwd=2, lty=c(1,1))
+legend("topleft", legend = c("1 to 1",
+                             "1 to 2 or 3",
+                             "1 to 3 or 5",
+                             "1 to 2",
+                             "1 to 10"),
+       col=c("red","green", "blue", "magenta2", "orange"), pch=1)
+
+
+
+matplot(x, cbind(inter.a, inter.b,
+                 inter.c, inter.d, inter.e),type="b",
+        col=c("red","green", "blue", "orange", "yellow"),lwd=2, lty=c(1,1))
+
+legend("topleft", legend = c("1 to 1",
+                             "1 to 2 or 3",
+                             "1 to 3 or 5",
+                             "1 to 2",
+                             "1 to 10"),
+       col=c("red","green", "blue", "magenta2", "orange"), pch=1)
+
+
+
+col.a.n <- c(a.col.index.1/23,a.col.index.2/51,a.col.index.3/101,
+             a.col.index.4/151,a.col.index.5/201)
+
+col.b.n <- c(b.col.index.1/23,b.col.index.2/51,b.col.index.3/101,
+             b.col.index.4/151,b.col.index.5/201)
+
+col.c.n <- c(c.col.index.1/23,c.col.index.2/51,c.col.index.3/101,
+             c.col.index.4/151,c.col.index.5/201)
+
+col.d.n <- c(d.col.index.1/23,d.col.index.2/51,d.col.index.3/101,
+             d.col.index.4/101,d.col.index.5/201)
+
+col.e.n <- c(e.col.index.1/23,e.col.index.2/51,e.col.index.3/101,
+             e.col.index.4/151,e.col.index.5/201)
+
+
+matplot(x, cbind(col.a.n, col.b.n,
+                 col.c.n, col.d.n, col.e.n),type="b",
+        col=c("red","green", "blue", "orange", "yellow"),lwd=2, lty=c(1,1))
+
+legend("topleft", legend = c("1 to 1",
+                             "1 to 2 or 3",
+                             "1 to 3 or 5",
+                             "1 to 2",
+                             "1 to 10"),
+       col=c("red","green", "blue", "magenta2", "orange"), pch=1)
+
+
+sak.a.n <- c(a.sak.index.1/23,a.sak.index.2/51,a.sak.index.3/101,
+             a.sak.index.4/151,a.sak.index.5/201)
+
+sak.b.n <- c(b.sak.index.1/23,b.sak.index.2/51,b.sak.index.3/101,
+             b.sak.index.4/151,b.sak.index.5/201)
+
+sak.c.n <- c(c.sak.index.1/23,c.sak.index.2/51,c.sak.index.3/101,
+             c.sak.index.4/151,c.sak.index.5/201)
+
+sak.d.n <- c(d.sak.index.1/23,d.sak.index.2/51,d.sak.index.3/101,
+             d.sak.index.4/151,d.sak.index.5/201)
+
+sak.e.n <- c(e.sak.index.1/23,e.sak.index.2/51,e.sak.index.3/101,
+             e.sak.index.4/151,e.sak.index.5/201)
+
+
+
+matplot(x, cbind(sak.a.n, sak.b.n,
+                 sak.c.n, sak.d.n, sak.e.n),type="b",
+        col=c("red","green", "blue", "orange", "yellow"),lwd=2, lty=c(1,1))
+
+legend("topleft", legend = c("1 to 1",
+                             "1 to 2 or 3",
+                             "1 to 3 or 5",
+                             "1 to 2",
+                             "1 to 10"),
+       col=c("red","green", "blue", "magenta2", "orange"), pch=1)
