@@ -86,8 +86,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     simulation.type <- "maxart"
     simpact.set.simulation(simulation.type)
 
-    #This is largerly motivated by the 1970 UN population
-    agedist.chunk.data.frame <- agedistr.creator(shape = 2, scale = 25)
+    #This is largerly motivated by the 1970 Swaziland UN population
+    agedist.chunk.data.frame <- swazi.1970.popn   #agedistr.creator(shape = 2, scale = 25)
 
     seed.hiv.time <- round(as.numeric(difftime(seed.hiv.date, sim.start.full, units = "days")/365.242),0)
     sim.duration <- round(as.numeric(difftime(sim.end.full,sim.start.full, units = "days")/365.242),0)
