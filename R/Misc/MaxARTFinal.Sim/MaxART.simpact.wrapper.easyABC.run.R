@@ -20,7 +20,6 @@ inPUT.df.complete <- source("R/Misc/MaxARTFinal.Sim/maxart.simpact.parameters.R"
 #and read in a csv file.
 #inPUT.df.complete <- data.frame(read.csv(file = paste0(dirname,"PARAMETER_FILE.csv"),
 #                                         header = TRUE, stringsAsFactors = FALSE) )
-
 #select a subset of the parameter set
 if(sel.list == "list"){
 
@@ -134,7 +133,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     ## Keep the files produced in subfolders
     generate.filename <- function(how.long){
 
-      as.numeric(Sys.time())-> t;
+      rn <- sample(1:100,1)
+      t <- as.numeric(Sys.time())
       set.seed((t - floor(t)) * 1e8)
       chars <- c(letters, LETTERS)
       sub.dir.sim.id <-  paste0(sample(chars,how.long), collapse = "")
@@ -144,21 +144,20 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       noise.sample <- sample(1:1000,1)
       noise.sample2 <- sample(8:17,1, replace = TRUE)
       sub.dir.sim.id <- paste0(sub.dir.sim.id.ext,
-                               paste0(sample(chars,noise.sample2), collapse = ""),noise.sample)
+                               paste0(sample(chars,noise.sample2), collapse = ""),noise.sample, rn)
 
       return(sub.dir.sim.id)
 
     }
 
-    sub.dir.rename <- paste0("temp/",generate.filename(8),"/")
-    sub.dir.sim.id <- substring(generate.filename(8), 1, 8)
+    sub.dir.rename <- paste0("temp/",generate.filename(10),"/")
+
 
     testoutput <- simpact.run(configParams = cfg.chunk,
                               destDir = sub.dir.rename,
                               agedist = agedist.chunk.data.frame,
                               intervention = iv.chunk,
-                              identifierFormat = paste0("%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r_",
-                                                        sub.dir.sim.id,"-"),
+                              identifierFormat = paste0("%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r_"),
                               seed = seed.chunk.id)
 
     if(testoutput$simulationtime < cfg.chunk$population.simtime)
