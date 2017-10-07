@@ -12,12 +12,12 @@ if(sel.list == "list"){
   sel.id.list <- c(7578, 8302, 11728, 30400)
   }else{
     #Select a chunk to process
-    min.chunk <- 11
-    max.chunk <- 14
+    min.chunk <- 12
+    max.chunk <- 12
 }
 
 #set how many time the single row will be repeated
-sim_repeat <- 4
+sim_repeat <- 2
 #number of cores per node
 ncluster.use <- 4
 
