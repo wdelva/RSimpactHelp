@@ -21,7 +21,7 @@ sim.summary.creator.all <- function(sim.datalist = chunk.datalist.test){
                                                      timewindow = c(from.time, to.time))
   }
 
-  # # #Incidence for multiple ages, start and end time set ###############################################
+  ###Incidence for multiple ages, start and end time set ###############################################
   inci.age2011.list <- format.names(row.names(inci.2011), replace = "A")
   sim.inci.2011.f <- rep(NA, length(inci.age2011.list))
   sim.inci.2011.m <- rep(NA, length(inci.age2011.list))
@@ -48,7 +48,7 @@ sim.summary.creator.all <- function(sim.datalist = chunk.datalist.test){
 
   inci.2011.tar.values <- c(sim.inci.2011.f,sim.inci.2011.m)
 
-  # # ######### Prevalence for multiple ages. End time 2007-March-31 ###################################
+  ########### Prevalence for multiple ages. End time 2007-March-31 ###################################
   prev.age2007.list <- format.names(row.names(prev.2007), replace = "A")
 
   sim.prev.2007.len <- length(prev.age2007.list)
