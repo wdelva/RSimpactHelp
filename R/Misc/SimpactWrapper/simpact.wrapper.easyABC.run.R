@@ -2,7 +2,7 @@
 #get the necessary libraries
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, lhs)
 
-comp <- "win" #lin #mac #chpc #gent
+comp <- "lin" #lin #mac #chpc #gent
 
 if(comp == "win"){dirname <- "~/GitHub/RSimpactHelp"}else if(comp=="lin"){
     dirname <- "~/Documents/GIT_Projects/RSimpactHelp"}else if(comp=="chpc"){
@@ -13,9 +13,8 @@ if(comp == "win"){dirname <- "~/GitHub/RSimpactHelp"}else if(comp=="lin"){
 
 all.sim.start <- as.numeric(proc.time()[3])
 
-file.source <- paste0(dirname,"/R/Misc/SimpactWrapper/")
 #source simpact set parameters
-inPUT.df.complete <- source(paste0(file.source, "simpact.parameters.R"))$value
+inPUT.df.complete <- source("R/Misc/SimpactWrapper/simpact.parameters.R")$value
 
 #if you are doing many simulation you can also use a pre-prepared file
 #and read in a csv file.
@@ -38,7 +37,7 @@ if(sel.list == "list"){
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #indicate the target statitics that you want to hit
-target.variables <- source(paste0(file.source, "summary.statistics.creator.R"))$value
+source("R/Misc/SimpactWrapper/summary.statistics.creator.R")
 ##Each of these should be calculated after each run, else we give an NA
 
 #set the prior names - varied parameters
@@ -47,7 +46,7 @@ preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
 
 #rbind all the results for this chunk to be merged after
 #Create a dataframe with NA for the summary statistics Will collect all the chunks with the sim.id to link back
-chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 0, ncol = length(target.variables)+2))
+chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 0, ncol = length(target.variables)+1))
 names(chunk.summary.stats.df) <- c(target.variables, "sim.id")
 
 ############   MAIN Simulation is here #######################
@@ -57,8 +56,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
 
-  file.source <- paste0(dirname,"/R/Misc/SimpactWrapper/")
-  target.variables <- source(paste0(file.source, "summary.statistics.creator.R"))$value
+  source("R/Misc/SimpactWrapper/summary.statistics.creator.R")
 
   err.functionGEN <- function(e){
     if (length(grep("MAXEVENTS",e$message)) != 0)
@@ -72,11 +70,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr, lhs)
 
-
-    file.source <- paste0(dirname,"/R/Misc/SimpactWrapper/")
-
-    getparam.names <- source(paste0(file.source, "simpact.parameters.R"))$value
-
+    getparam.names <- source("R/Misc/SimpactWrapper/simpact.parameters.R")$value
 
     #if you are doing many simulation you can also use a pre-prepared file
     #and read in a csv file.
@@ -86,7 +80,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     getparam.names <- names(dplyr::select(getparam.names, contains(".")))
     input.varied.params.plus <- getparam.names[2:length(getparam.names)]
 
-    target.variables <- source(paste0(file.source, "summary.statistics.creator.R"))$value
+    source("R/Misc/SimpactWrapper/summary.statistics.creator.R")
 
     #Set MaxART Simpact simulation?
     simulation.type <- "simpact-cyan" #"maxart"
@@ -189,7 +183,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     if(length(chunk.datalist.test)>1){
       #get the summary statistics for each run
 
-      sim.summary.creator.all <- source(paste0(file.source, "sim.summary.targets.creator.R"))$value
+      source("R/Misc/SimpactWrapper/sim.summary.targets.creator.R")
 
       ##get the summary statistics as indicated by target.variables
       out.statistic <- sim.summary.creator.all(chunk.datalist.test)
@@ -213,7 +207,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 start.chunk.time <- as.numeric(proc.time()[3])
 for (chunk.sim.id in inANDout.df.chunk$sim.id){
 
-  simpact.chunk.prior = list()
+  simpact.chunk.prior <- list()
 
   for (i in preprior.names.chunk){
 
