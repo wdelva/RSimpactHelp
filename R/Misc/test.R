@@ -36,11 +36,31 @@ testinput <- input.params.creator(population.simtime = sim.duration,
 if(simulation.type == "maxart"){
   testinput$facilities.randomization <- "${SIMPACT_DATA_DIR}maxart-randomization.csv"
   testinput$maxart.starttime <- round(as.numeric(difftime(maxart.starttime ,sim.start.full, units = "days")/365),0)
-  testinput$person.geo.dist2d.discrete.maskfile <-  ""
+  #testinput$person.geo.dist2d.discrete.maskfile <- "${SIMPACT_DATA_DIR}hhohho_mask.tiff"
 }
 
+generate.filename <- function(how.long){
+
+  rn <- sample(1:100,1)
+  t <- as.numeric(Sys.time())
+  set.seed((t - floor(t)) * 1e8)
+  chars <- c(letters, LETTERS)
+  sub.dir.sim.id <-  paste0(sample(chars,how.long), collapse = "")
+
+  noise.sample1 <- sample(8:15,1, replace = TRUE)
+  sub.dir.sim.id.ext <- paste0(sample(chars,noise.sample1), collapse = "")
+  noise.sample <- sample(1:1000,1)
+  noise.sample2 <- sample(8:17,1, replace = TRUE)
+  sub.dir.sim.id <- paste0(sub.dir.sim.id.ext,
+                           paste0(sample(chars,noise.sample2), collapse = ""),noise.sample, rn)
+
+  return(sub.dir.sim.id)
+}
+
+sub.dir.rename <- paste0("temp/",generate.filename(10))
+
 testoutput <- simpact.run(configParams = testinput,
-                          destDir = "temp",
+                          destDir = sub.dir.rename,
                           agedist = agedist.data.frame,
                           intervention = iv,
                           seed = 8)
