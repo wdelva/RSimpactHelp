@@ -19,7 +19,7 @@ if(sel.list == "list"){
 #set how many time the single row will be repeated
 sim_repeat <- 2
 #number of cores per node
-ncluster.use <- 4
+ncluster.use <- 2
 
 ###### Generate the input parameters for the simulation #################################
 simpact.config.inputs(design.points = init.design.points, resample.count = 1,
