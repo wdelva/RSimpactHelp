@@ -45,7 +45,7 @@ preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
 
 #rbind all the results for this chunk to be merged after
 #Create a dataframe with NA for the summary statistics Will collect all the chunks with the sim.id to link back
-chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 0, ncol = length(target.variables)+2))
+chunk.summary.stats.df <- data.frame(matrix(NA, nrow = 0, ncol = length(target.variables)+1))
 names(chunk.summary.stats.df) <- c(target.variables, "sim.id")
 
 ############   MAIN Simulation is here #######################
@@ -67,7 +67,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   simpact.chunk.run <- function(input.chunk.params){
 
-    pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr)
+    pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr, lhs)
 
     getparam.names <- source("R/Misc/MaxARTFinal.Sim/maxart.simpact.parameters.R")$value
 
@@ -217,7 +217,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 start.chunk.time <- proc.time()[3]
 for (chunk.sim.id in inANDout.df.chunk$sim.id){
 
-  simpact.chunk.prior = list()
+  simpact.chunk.prior <- list()
 
   for (i in preprior.names.chunk){
 
@@ -261,9 +261,6 @@ print(paste0("Total time to compute simulation: ", end.chunk.time))
 
 all.sim.end <- proc.time()[3] - all.sim.start
 print(paste0("Total time to finish simulation: ", all.sim.end))
-
-
-
 
 
 
