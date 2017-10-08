@@ -151,7 +151,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     }
 
-    sub.dir.rename <- paste0("temp/",generate.filename(8),"/")
+    sub.dir.rename <- paste0("temp/",generate.filename(10))
 
     testoutput <- simpact.run(configParams = cfg.chunk,
                               destDir = sub.dir.rename,
