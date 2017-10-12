@@ -5,15 +5,15 @@
 init.design.points <- 40000 #set the initial design points
 
 #choose if select ids or just a range
-sel.list <- "list" #min.max
+sel.list <- "min.max" #list
 
 if(sel.list == "list"){
   #set the list of ids that you want to simulate
   sel.id.list <- c(46, 60, 95, 81)
   }else{
     #Select a chunk to process
-    min.chunk <- 46
-    max.chunk <- 46
+    min.chunk <- 1
+    max.chunk <- 3
 }
 
 #set how many time the single row will be repeated
