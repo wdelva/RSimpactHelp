@@ -67,6 +67,7 @@ intervention.introduced <- function(simulation.type = "simpact-cyan", simulation
     art.intro["time"] <- round(as.numeric(difftime(art.time1,start.time.sim, units = "days")/365.242),0)
     art.intro["diagnosis.baseline"] <- 0 # Reset to 0, from its original @ sim start
     art.intro["monitoring.cd4.threshold.prestudy"] <- 200
+    art.intro["monitoring.cd4.threshold.poststudy"] <- 20000
     art.intro["monitoring.interval.piecewise.cd4s"] <- "100,250"
     art.intro["diagnosis.genderfactor"] <- 2
 
@@ -92,6 +93,13 @@ intervention.introduced <- function(simulation.type = "simpact-cyan", simulation
     art.intro4["monitoring.interval.piecewise.cd4s"] <- "500,650"
     art.intro4["diagnosis.genderfactor"] <- 0.5
 
+    art.time7 <- as.Date("2016-10-01")
+    art.intro7 <- list()
+    art.intro7["time"] <- round(as.numeric(difftime(art.time7,start.time.sim, units = "days")/365.242),0)
+    art.intro7["monitoring.cd4.threshold.prestudy"] <- 20000
+    art.intro7["monitoring.interval.piecewise.cd4s"] <- "500,2000"
+    art.intro7["diagnosis.genderfactor"] <- 0.5
+
     #reset stepinterval to last facility and end of study
     art.time5 <- as.Date("2016-09-02")
     stepinterval <- list()
@@ -105,7 +113,7 @@ intervention.introduced <- function(simulation.type = "simpact-cyan", simulation
     stepinterval1["maxart.stepinterval"] <- 7/12
 
 
-    iv <- list(art.intro, art.intro2, art.intro3, art.intro4, stepinterval, stepinterval1 )
+    iv <- list(art.intro, art.intro2, art.intro3, art.intro4, art.intro7, stepinterval, stepinterval1 )
   }else{
     iv <-list()
   }
