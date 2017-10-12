@@ -197,7 +197,7 @@ hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   agemix.df.hhohho <- agemix.df.maker(sim.datalist)
   pattern.hhohho <- pattern.modeller(dataframe = agemix.df.hhohho, agegroup = c(18, 50),
-                              timepoint = hhohho.age.dif.time, timewindow = 1, start = FALSE)
+                              timepoint = hhohho.age.dif.time, timewindow = 1, start = FALSE)[[1]]
 
   pattern.hhohho <- as.data.frame(pattern.hhohho)
 
