@@ -4,8 +4,9 @@
 #Parameters  creation
 
 #Set up simulation parameters and initiate simulation
-sim.start <- 1970 #just the year when simulation started.
+#just the year when simulation started.
 sim.start.full <- as.Date("1970-03-31")
+sim.start <- as.numeric(substr(sim.start.full,1,4))
 maxart.starttime <- as.Date("2014-09-01")
 maxart.endtime <- as.Date("2017-08-31")
 sim.end.full <- as.Date("2019-03-31")
@@ -14,7 +15,6 @@ seed.hiv.date <- as.Date("1986-03-31")
 #initial population
 init.population.total <- 1000
 women.frac <- 0.5253
-
 
 ################### ART initiation ##############################
 max.art.initiated.all <- read.table(
