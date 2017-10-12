@@ -2,46 +2,32 @@
 #get the necessary libraries
 pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, lhs)
 
-comp <- "lin" #lin #mac #chpc #gent
-
-if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
-    dirname <- "~/Documents/GIT_Projects/RSimpactHelp"}else if(comp=="chpc"){
-    dirname <- "/mnt/lustre/users/tchibawara/MaxART/data"}else if(comp=="gent"){
-    dirname <- "/user/data/gent/vsc400/vsc40070/simpact-test/data"}else{
-    dirname <- "~/Documents/RSimpactHelp"  #mac directory here
-}
+dirname <- "~/Documents/GIT_Projects/SimulationParameterSetup"
+#dirname <- "/mnt/lustre/users/tchibawara/MaxART/data"}else if(comp=="gent"){
 
 all.sim.start <- as.numeric(proc.time()[3])
 
+#Read the calibrated df
+mice.df.complete <- data.frame(read.csv(file = paste0(dirname,"/mice.pmm.1rep.mean.adj.sse.TrainingSet.csv"),
+                                         header = TRUE, stringsAsFactors = FALSE) )
+
 #source simpact set parameters
 inPUT.df.complete <- source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.simpact.parameters.R")$value
-
-#if you are doing many simulation you can also use a pre-prepared file
-#and read in a csv file.
-#inPUT.df.complete <- data.frame(read.csv(file = paste0(dirname,"PARAMETER_FILE.csv"),
-#                                         header = TRUE, stringsAsFactors = FALSE) )
-#select a subset of the parameter set
-if(sel.list == "list"){
-
-  inANDout.df.chunk <- as.data.frame(subset(inPUT.df.complete, sim.id %in% sel.id.list))
-}else{
-
-  #check if min and max chunk are feasible
-  if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
-  if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}
-
-  inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
-}
-#make sure there are no empty rows
-inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #indicate the target statitics that you want to hit
 source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.summary.statistics.creator.R")
 ##Each of these should be calculated after each run, else we give an NA
 
 #set the prior names - varied parameters
-preprior.chunk <- names(dplyr::select(inANDout.df.chunk, contains(".")))
+preprior.chunk <- names(dplyr::select(inPUT.df.complete, contains(".")))
 preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
+
+#select only simpact parameters
+inANDout.df.chunk <- cbind(sim.id = 1:nrow(inANDout.df.chunk),
+                           subset(mice.df.complete, select = preprior.names.chunk))
+
+inANDout.df.chunk <- as.data.frame(inANDout.df.chunk)
+
 
 #rbind all the results for this chunk to be merged after
 #Create a dataframe with NA for the summary statistics Will collect all the chunks with the sim.id to link back
@@ -185,7 +171,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     }
 
     #save each of the run output.
-    #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",substring(sub.dir.rename, 6, 15),".rda"))
+    #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",sub.dir.sim.id,".rda"))
 
     #delete all the file created during the current simulation
     unlink(paste0(sub.dir.rename,"/"), recursive = TRUE)

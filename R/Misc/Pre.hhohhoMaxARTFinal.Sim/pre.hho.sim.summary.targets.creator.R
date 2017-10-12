@@ -15,13 +15,17 @@ init.immediate <- 0
 init.not.eligible <- -6/12
 more.months <- twelve.months + six.months
 
-hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
+
+load("temp/chunk.datalist.wdziJXMrLG.rda")
+sim.datalist <- chunk.datalist.test
+
+pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   #creator a range of summary statistics
-  sim.datalist$ptable$primary <- 0
+  sim.datalist$ptable$age <- sim.datalist$itable$maxart.starttime[1] - sim.datalist$ptable$TOB
 
   #get the MaxART population group
-  maxart.study.pop <- subset(sim.datalist$ptable, pfacility != "Not Hhohho")
+  maxart.study.pop <- filter(sim.datalist$ptable,  age >= 18 & TreatTime!=Inf)
 
   df.rw <- nrow(maxart.study.pop)
 
@@ -33,25 +37,13 @@ hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   maxart.study.pop$art.eligible <- maxart.study.pop$TreatTime + sample.eligible
 
 
-  #dummy 40% as primary
-  count.prim <- round(0.4 * nrow(maxart.study.pop), 0)
-  maxart.study.pop$primary[which(maxart.study.pop$ID %in%  sample(maxart.study.pop$ID, count.prim))] <- 1
-
-  all.prim.maxart <- sum(maxart.study.pop$primary==1)
   all.maxart <- nrow(maxart.study.pop)
 
-  #Get the two primary and all clients distinction
-  max.art.ret.study.pop.prim <- maxart.study.pop %>%
-    filter(TreatTime !=Inf & primary ==1) %>%
-    as.data.frame
-
+  #Get all infected clients
   max.art.ret.study.pop.all <- maxart.study.pop %>%
     filter(TreatTime !=Inf)
 
   #alldf
-  chunk.datalist.test.prim <- sim.datalist
-  chunk.datalist.test.prim$ptable <- max.art.ret.study.pop.prim
-
   chunk.datalist.test.all <- sim.datalist
   chunk.datalist.test.all$ptable <- max.art.ret.study.pop.all
 
@@ -59,36 +51,26 @@ hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   hhohho.all.prim.art.coverage.var <- maxart.study.pop %>%
     filter(TreatTime!=Inf) %>%
-    summarise(all.prim = sum(primary==1)/all.prim.maxart,
-              all.all = n()/all.maxart,
+    summarise(all.all = n()/all.maxart,
 
-              b4.elig.prim = sum(TreatTime < art.eligible & primary==1)/all.prim.maxart,
-              b4.elig.all = sum(TreatTime < art.eligible )/all.maxart,
+              b4.elig.all = sum(TreatTime < art.eligible, na.rm = TRUE )/all.maxart,
 
-              within2wks.prim = sum(TreatTime>=art.eligible &
-                                      TreatTime < (TreatTime+two.weeks) & primary==1)/all.prim.maxart,
               within2wks.all = sum(TreatTime>=art.eligible &
-                                     TreatTime < (TreatTime+two.weeks) )/all.maxart,
+                                     TreatTime < (TreatTime+two.weeks) , na.rm = TRUE)/all.maxart,
 
-              amongelig.prim = sum(TreatTime > art.eligible & primary==1)/all.prim.maxart,
-              amongelig.all = sum(TreatTime > art.eligible )/all.maxart,
+              amongelig.all = sum(TreatTime > art.eligible, na.rm = TRUE )/all.maxart,
 
-              within12m.prim = sum(TreatTime==art.eligible &
-                                     TreatTime < (TreatTime+twelve.months) & primary==1)/all.prim.maxart,
               within12m.all = sum(TreatTime==art.eligible &
-                                    TreatTime < (TreatTime+twelve.months) )/all.maxart,
+                                    TreatTime < (TreatTime+twelve.months), na.rm = TRUE )/all.maxart,
 
-              within6m.prim = sum(TreatTime==art.eligible &
-                                    TreatTime < (TreatTime+six.months) & primary==1)/all.prim.maxart,
               within6m.all = sum(TreatTime==art.eligible &
-                                   TreatTime < (TreatTime+six.months) )/all.maxart
+                                   TreatTime < (TreatTime+six.months), na.rm = TRUE )/all.maxart
 
     )
 
-  prim.art.init <- dplyr::select(hhohho.all.prim.art.coverage.var, contains(".prim"))
   all.art.init <- dplyr::select(hhohho.all.prim.art.coverage.var, contains(".all"))
 
-  hhohho.art.initiated.tar.values <- as.numeric(cbind(prim.art.init*100, all.art.init*100))
+  hhohho.art.initiated.tar.values <- as.numeric(all.art.init*100)
   #
   #when do we want the retention time
   maxart.ret.timepoint <- difftime(maxart.endtime, sim.start.full, units = "days")/365.242
@@ -97,18 +79,11 @@ hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   #### Max Retention ####################################
   max.ret.tar <- length(row.names(max.art.retention.all))
-  max.ret.tar.prim <- rep(NA, max.ret.tar)
   max.ret.tar.all <- rep(NA, max.ret.tar)
   max.ret.tar.list <- c(36, 6, 12)
   ret.age.group <- c(18, 150)
 
   for(ret in 1:max.ret.tar){
-
-  ret.all.prim = ART.retention(datalist = chunk.datalist.test.prim,
-                               agegroup = ret.age.group, #all ages
-                               ARTtimewindow = c(maxart.starttime.ret, maxart.ret.timepoint),
-                               retentiontimeMonths = max.ret.tar.list[ret], #6 months default
-                               site="All")$percentage[1]
 
   ret.all.all = ART.retention(datalist = chunk.datalist.test.all,
                                agegroup = ret.age.group, #all ages
@@ -116,51 +91,55 @@ hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
                                retentiontimeMonths = max.ret.tar.list[ret], #6 months default
                                site="All")$percentage[1]
 
-  max.ret.tar.prim[ret] <- ret.all.prim
   max.ret.tar.all[ret] <- ret.all.all
 
   }
 
-  hhohho.art.retention.tar.values <- c(max.ret.tar.prim, max.ret.tar.all)
+  hhohho.art.retention.tar.values <- max.ret.tar.all
 
   # # ############### Viral Load none supresssion ############################################
   max.vl.sup.tar.dim <- length(row.names(max.vl.none.suppression.all))
-  max.vl.sup.prim <- rep(NA, max.vl.sup.tar.dim)
   max.vl.sup.all <- rep(NA, max.vl.sup.tar.dim)
   max.vl.sup.list <- c(6, 12)
 
   for(vl in 1:max.vl.sup.tar.dim){
 
-    vl.sup.prim = 100 - vl.suppressed(datalist = chunk.datalist.test.prim,
-                                timepoint = maxart.ret.timepoint, vlcutoff = 1000,
-                                lessmonths = max.vl.sup.list[vl], site="All")$percentage[[1]]
-
     vl.sup.all = 100 - vl.suppressed(datalist = chunk.datalist.test.all,
                                timepoint = maxart.ret.timepoint, vlcutoff = 1000,
                                lessmonths = max.vl.sup.list[vl], site="All")$percentage[[1]]
 
-    max.vl.sup.prim[vl] <- ifelse(is.null(vl.sup.prim), NA, vl.sup.prim)
     max.vl.sup.all[vl] <- ifelse(is.null(vl.sup.all), NA, vl.sup.all)
 
   }
 
-  hhohho.vl.none.suppression.tar.values <- c(max.vl.sup.prim, max.vl.sup.all)
-  # #
-  # #Mortality AIDS related and not
+  hhohho.vl.none.suppression.tar.values <- max.vl.sup.all
+  #########
+
+  ###Mortality AIDS related and not
   max.mort.study.pop.prim <- maxart.study.pop %>%
-    summarise(mort.prim = sum(primary == 1 & TOD != Inf & TOD > maxart.starttime & TOD < maxart.endtime) / n(),
-            mort.all = sum(TOD != Inf & TOD > maxart.starttime & TOD < maxart.endtime) / n(),
-
-            mort.aids.rel.prim = sum(primary == 1 & TOD != Inf & AIDSDeath == 1 &
-                                       TOD > maxart.starttime & TOD < maxart.endtime) / n(),
+    summarise(
+            mort.all = sum(TOD != Inf & TOD > maxart.starttime & TOD < maxart.endtime, na.rm = TRUE ) / n(),
             mort.aids.rel.all = sum(TOD != Inf & AIDSDeath == 1 &
-                                      TOD > maxart.starttime & TOD < maxart.endtime) / n() )
+                                      TOD > maxart.starttime & TOD < maxart.endtime, na.rm = TRUE) / n() )
 
-
-  prim.mortality <- dplyr::select(max.mort.study.pop.prim, contains(".prim"))
   all.mortality <- dplyr::select(max.mort.study.pop.prim, contains(".all"))
 
-  hhohho.mortality.tar.values <- as.numeric(cbind(prim.mortality * 100, all.mortality * 100))
+  hhohho.mortality.tar.values <- as.numeric(all.mortality * 100)
+
+
+  # ##### Growth rate ########################################
+  gr.year.list <- as.numeric(format.names(names(hhohho.growth.rate), replace = "X"))
+
+  hhohho.growth.rate.tar.values <- rep(NA, length(gr.year.list))
+
+  #Growth rate is calculated per 10 year.
+  for(i in 1:length(gr.year.list)){
+    from.time <- gr.year.list[i] - 10 - sim.start
+    to.time <-  from.time + 10
+
+    hhohho.growth.rate.tar.values[i] <- pop.growth.calculator(datalist = sim.datalist,
+                                                             timewindow = c(from.time, to.time)) * 100
+  }
 
   # # ######### Prevalence for multiple ages. End time 2007-March-31 ###################################
   prev.age2007.list <- format.names(row.names(hhohho.prev), replace = "A")
@@ -203,14 +182,14 @@ hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   pattern.hhohho.gender <- pattern.hhohho %>%
     group_by(Gender) %>%
-    summarise(mean.AD = as.numeric(mean(AgeGap)),
-              median.AD = as.numeric(median(AgeGap))
+    summarise(mean.AD = as.numeric(mean(AgeGap, na.rm = TRUE)),
+              median.AD = as.numeric(median(AgeGap, na.rm = TRUE))
               ) %>%
     as.data.frame
 
   pattern.hhohho.all <- pattern.hhohho %>%
-    summarise(mean.AD = as.numeric(mean(AgeGap)),
-              median.AD = as.numeric(median(AgeGap))
+    summarise(mean.AD = as.numeric(mean(AgeGap, na.rm = TRUE)),
+              median.AD = as.numeric(median(AgeGap, na.rm = TRUE))
               )%>%
     as.data.frame
 
@@ -220,9 +199,13 @@ hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
 
   #collect all the summary values
-  sim.summary <- c(hhohho.art.initiated.tar.values, hhohho.art.retention.tar.values,
-                   hhohho.vl.none.suppression.tar.values, hhohho.mortality.tar.values,
-                   hhohho.prev.2007.tar.values, hhohho.AD.tar.values)
+  sim.summary <- c(hhohho.growth.rate.tar.values,
+                   hhohho.art.initiated.tar.values,
+                   hhohho.art.retention.tar.values,
+                   hhohho.vl.none.suppression.tar.values,
+                   hhohho.mortality.tar.values,
+                   hhohho.prev.2007.tar.values,
+                   hhohho.AD.tar.values)
 
   # #Testing
   #sim.summary <- c(max.art.retention.tar.values, Sys.getpid())

@@ -14,7 +14,7 @@ if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
 all.sim.start <- as.numeric(proc.time()[3])
 
 #source simpact set parameters
-inPUT.df.complete <- source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.simpact.parameters.R")$value
+inPUT.df.complete <- source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.simpact.parameters.R")$value
 
 #if you are doing many simulation you can also use a pre-prepared file
 #and read in a csv file.
@@ -36,7 +36,7 @@ if(sel.list == "list"){
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #indicate the target statitics that you want to hit
-source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.summary.statistics.creator.R")
+source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.summary.statistics.creator.R")
 ##Each of these should be calculated after each run, else we give an NA
 
 #set the prior names - varied parameters
@@ -55,7 +55,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
 
-  source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.summary.statistics.creator.R")
+  source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.summary.statistics.creator.R")
 
   err.functionGEN <- function(e){
     if (length(grep("MAXEVENTS",e$message)) != 0)
@@ -69,7 +69,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr, lhs)
 
-    getparam.names <- source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.simpact.parameters.R")$value
+    getparam.names <- source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.simpact.parameters.R")$value
 
     #if you are doing many simulation you can also use a pre-prepared file
     #and read in a csv file.
@@ -79,7 +79,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     getparam.names <- names(dplyr::select(getparam.names, contains(".")))
     input.varied.params.plus <- getparam.names[2:length(getparam.names)]
 
-    source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.summary.statistics.creator.R")
+    source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.summary.statistics.creator.R")
 
     #Set MaxART Simpact simulation?
     simulation.type <- "maxart"
@@ -111,7 +111,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     }
 
     #intervention introduced See the intervention.introduced
-    iv.chunk <- intervention.introduced(simulation.type = simulation.type)
+    source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.intervention.introduced.R")
+    iv.chunk <- intervention.introduced(simulation.type = "pre.hhohho", simulation.start = sim.start.full)
 
     #The first parameter is set to be the seed value
     seed.chunk.id <- input.chunk.params[1]
@@ -173,19 +174,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     }
     chunk.datalist.test <- readthedata(testoutput)
 
-    if(simulation.type == "maxart"){
-      #assigning Dummy facility to individual
-      chunk.datalist.test$ptable <- client.facility(datalist = chunk.datalist.test, site = "MaxART")
-      chunk.datalist.test$ptable$pfacility[chunk.datalist.test$ptable$pfacility.value > 15] <- "Not Hhohho"
-
-      test.gr <- pop.growth.calculator(datalist = chunk.datalist.test,
-                            timewindow = c(0, timewindow.max=chunk.datalist.test$itable$population.simtime[1]))
-
-      #print(paste0("Test growth rate value change: ", test.gr))
-    }
-
     #save each of the run output.
-    #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",substring(sub.dir.rename, 6, 15),".rda"))
+    #save(chunk.datalist.test, file = paste0("temp/chunk.datalist.",substring(sub.dir.rename, 6, 15),".rda"))
 
     #delete all the file created during the current simulation
     unlink(paste0(sub.dir.rename,"/"), recursive = TRUE)
@@ -194,10 +184,10 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     if(length(chunk.datalist.test)>1){
       #get the summary statistics for each run
 
-      source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.sim.summary.targets.creator.R")
+      source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.sim.summary.targets.creator.R")
 
       ##get the summary statistics as indicated by target.variables
-      out.statistic <- hhohho.sim.summary.creator(chunk.datalist.test)
+      out.statistic <- pre.hhohho.sim.summary.creator(chunk.datalist.test)
       ##out.test.degree <- out.statistic[[2]]
     }else{
       out.statistic <- rep(NA,length(target.variables))

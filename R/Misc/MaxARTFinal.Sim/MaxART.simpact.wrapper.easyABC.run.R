@@ -185,7 +185,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     }
 
     #save each of the run output.
-    #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",sub.dir.sim.id,".rda"))
+    #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",substring(sub.dir.rename, 6, 15),".rda"))
 
     #delete all the file created during the current simulation
     unlink(paste0(sub.dir.rename,"/"), recursive = TRUE)

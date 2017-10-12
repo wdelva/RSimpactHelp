@@ -4,7 +4,7 @@
 #Parameters  creation
 
 #Set up simulation parameters and initiate simulation
-#just the year when simulation started.
+ #just the year when simulation started.
 sim.start.full <- as.Date("1970-03-31")
 sim.start <- as.numeric(substr(sim.start.full,1,4))
 maxart.starttime <- as.Date("2014-09-01")
@@ -18,40 +18,46 @@ women.frac <- 0.5253
 
 ################### ART initiation ##############################
 max.art.initiated.all <- read.table(
-        text="PrimaryClients   AllClients
-  all              77.6         84.6
-  before.eligible  4.6          2.2
-  within2.weeks    61           64
-  among.eligible   85           90
-  within12.months  85           91
-  within6months    79           87", header=TRUE, stringsAsFactors = FALSE)
+        text="AllClients
+  all              84.6
+  before.eligible  2.2
+  within2.weeks    64
+  among.eligible   90
+  within12.months  91
+  within6months    87", header=TRUE, stringsAsFactors = FALSE)
 
 #TimeTo: 2016-11
 
 ##########################  ART Retention  #############################
 max.art.retention.all <- read.table(
-  text="PrimaryClients AllClients
-  all             72      73
-  at6.months      89      87
-  at12.months     82      79", header=TRUE, stringsAsFactors = FALSE)
+  text="AllClients
+  all             73
+  at6.months      87
+  at12.months     79", header=TRUE, stringsAsFactors = FALSE)
 #timeTo: 2016-11
 
 ###########################  ViralLoadSuppression ##################
 max.vl.none.suppression.all <- read.table(
-  text="PrimaryClients AllClients
-  at6.months       4      6
-  at12.months      6      11", header=TRUE, stringsAsFactors = FALSE)
+  text="AllClients
+  at6.months       6
+  at12.months      11", header=TRUE, stringsAsFactors = FALSE)
 
 #Check validation
 #atleast6.months  4      8       2016-11
 
 #############  ViralLoadSuppression ###########################
 max.mortality.all <- read.table(
-    text="PrimaryClients AllClients
-  all            1.01      1.87
-  aids.related   0.51      1.49", header=TRUE, stringsAsFactors = FALSE)
+    text="AllClients
+  all            1.87
+  aids.related   1.49", header=TRUE, stringsAsFactors = FALSE)
 
 #timeTo 2016-11
+
+################# Growth rate ##########################################
+hhohho.growth.rate <- read.table(
+  text = "X1986   X1997   X2007   X2012
+year10    6.45    3.38    1.02    0.22", header=TRUE, stringsAsFactor = FALSE)
+
 
 ############  Hhohho prevalence ##############################################
 #Data was collected between July 2006 and March 2007 [SDHS 2006-07]: TimeTo = 2007-03
@@ -76,7 +82,8 @@ tar.name <- function(df, tar.type = "name"){
 }
 
 #Creating target names
-target.variables <- c(tar.name(max.art.initiated.all, "init"),
+target.variables <- c(tar.name(hhohho.growth.rate, "gr"),
+                      tar.name(max.art.initiated.all, "init"),
                       tar.name(max.art.retention.all, "ret"),
                       tar.name(max.vl.none.suppression.all, "vlsup"),
                       tar.name(max.mortality.all, "mort"),

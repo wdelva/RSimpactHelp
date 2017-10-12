@@ -4,8 +4,9 @@
 #Parameters  creation
 
 #Set up simulation parameters and initiate simulation
-sim.start <- 1970 #just the year when simulation started.
+#just the year when simulation started.
 sim.start.full <- as.Date("1970-03-31")
+sim.start <- as.numeric(substr(sim.start.full,1,4))
 maxart.starttime <- as.Date("2014-09-01")
 maxart.endtime <- as.Date("2017-08-31")
 sim.end.full <- as.Date("2019-03-31")
@@ -57,18 +58,14 @@ max.mortality.all <- read.table(
 #GrowthRate for all ages and gender
 swazi.growth.rate <- read.table(
     text="X1985   X1990   X1995  X2000   X2005  X2010   X2015   X2016
-  value   3.63    3.39    2.00   1.50    0.98   1.86    1.83    1.81",
+  one.year   3.63    3.39    2.00   1.50    0.98   1.86    1.83    1.81",
                                 header=TRUE, stringsAsFactors = FALSE)
-
-swazi.growth.rate.tar.names <- paste(names(swazi.growth.rate),"growth.rate", sep = ".")
 
 ############ Incidence UNAIDS estimates (End of march each year) #############
 swazi.inci.15.49 <- read.table(
   text="X1990  X1992  X1995  X2000  X2005  X2010  X2015
-Value   1.24   2.9   4.66    3.7   3.08     3.09   2.36",
+inci.15.49   1.24   2.9   4.66    3.7   3.08     3.09   2.36",
                                header=TRUE, stringsAsFactors = FALSE)
-
-swazi.inci.15.49.tar.names <- paste(names(swazi.inci.15.49),"inci.15.49", sep = ".")
 
 ############# 2011 Incidence ages specific: SHIMS 1 #############################
 #consider for validation:  [all       3.14   1.65   2.38  2010-12    2011-06]
@@ -108,7 +105,6 @@ swazi.prev.2007 <- read.table(
 
 #Note it is not possibloe to compute the young age incidence 2- 12 yr olds since these will
 #not be sexually active more of which we would expect the infection to be through MTCT
-
 
 
 ############# Prevalence ages specific UNAIDS (End of March each year) ############
@@ -177,10 +173,10 @@ swazi.art.retention <- read.table(
 ################ ART coverage UNAIDS (End of March each year) ####################
 swazi.art.coverage <- read.table(
              text="F.value    M.value  FM.value
-  15.over.2012     94         77       87
-  15.over.2013     91         76       85
-  15.over.2014     85         89       93
-  15.over.2015     90         73       83", header=TRUE, stringsAsFactors = FALSE)
+  over15.2012     94         77       87
+  over15.2013     91         76       85
+  over15.2014     85         89       93
+  over15.2015     90         73       83", header=TRUE, stringsAsFactors = FALSE)
 #14.less.2015     NA  NA  72 validation
 
 ################ Swazi age distribution for 1970 ####################
@@ -291,71 +287,26 @@ swazi.1970.popn <- read.table(
 ##################################### END #######################################################
 
 ###################### target names
-swazi.art.retention.tar.names <- c()
-for(k in names(swazi.art.retention)){
-  swazi.art.retention.tar.names <- c(swazi.art.retention.tar.names,
-                                     paste(k, row.names(swazi.art.retention),"swazi.ret", sep = "."))
-}
-
-swazi.art.coverage.tar.names <- swazi.hhohho.AD.tar.names <- c()
-swazi.hhohho.prev.tar.names <- swazi.prev.2007.tar.names <- c()
-
-for(fmt in names(swazi.art.coverage)){
-  swazi.art.coverage.tar.names <- c(swazi.art.coverage.tar.names,
-                                     paste(fmt, row.names(swazi.art.coverage),"swazi.art.cov", sep = "."))
-
-  swazi.hhohho.AD.tar.names <- c(swazi.hhohho.AD.tar.names,
-                                 paste(fmt, row.names(hhohho.age.diff),"Hho.AD",sep = "."))
-
-  swazi.hhohho.prev.tar.names <- c(swazi.hhohho.prev.tar.names,
-                                   paste(fmt, row.names(hhohho.prev),"Hho.prev",sep = "."))
-
-  swazi.prev.2007.tar.names <- c(swazi.prev.2007.tar.names,
-                                 paste(fmt, row.names(swazi.prev.2007),"2007.swazi.prev",sep = "."))
-}
-
-
-max.art.initiated.tar.names <- max.art.retention.tar.names <- c()
-max.vl.none.suppression.tar.names <- max.mortality.tar.names <- c()
-
-
-for(max.tar in names(max.art.initiated.all[,1:2])){
-
-  max.art.initiated.tar.names <- c(max.art.initiated.tar.names,
-                                   paste(max.tar, row.names(max.art.initiated.all),"max.ART.init", sep = "."))
-
-  max.art.retention.tar.names <- c(max.art.retention.tar.names,
-                                   paste(max.tar, row.names(max.art.retention.all),"max.ret", sep = "."))
-
-  max.vl.none.suppression.tar.names <- c(max.vl.none.suppression.tar.names,
-                                         paste(max.tar, row.names(max.vl.none.suppression.all),"max.val",sep = "."))
-
-  max.mortality.tar.names <- c(max.mortality.tar.names,
-                               paste(max.tar, row.names(max.mortality.all),"max.mort",sep = "."))
-
-}
-
-
-swazi.prev.age.year.tar.names <- swazi.inci.2011.tar.names <- c()
-
-for(fm in names(swazi.prev.age.year[,1:2])){
-
-  swazi.prev.age.year.tar.names <- c(swazi.prev.age.year.tar.names,
-                                   paste(fm, row.names(swazi.prev.age.year),"swazi.prev",sep = "."))
-
-  swazi.inci.2011.tar.names <- c(swazi.inci.2011.tar.names,
-                                 paste(fm, row.names(swazi.inci.2011),"swazi.inci.2011",sep = "."))
-
+tar.name <- function(df, tar.type = "name"){
+  apply(expand.grid(rownames(df),".", names(df), ".",tar.type), 1, paste0,collapse="" )
 }
 
 #Creating target names
-target.variables <- c(max.art.initiated.tar.names, max.art.retention.tar.names,
-                      max.vl.none.suppression.tar.names, max.mortality.tar.names,
-                      swazi.growth.rate.tar.names, swazi.inci.15.49.tar.names,
-                      swazi.inci.2011.tar.names, swazi.prev.2007.tar.names,
-                      swazi.prev.age.year.tar.names, swazi.hhohho.prev.tar.names,
-                      swazi.AD.tar.names, swazi.hhohho.AD.tar.names,
-                      swazi.art.retention.tar.names, swazi.art.coverage.tar.names)
+target.variables <- c(tar.name(max.art.initiated.all, "max.ART.init"),
+                      tar.name(max.art.retention.all, "max.ret"),
+                      tar.name(max.vl.none.suppression.all, "max.val"),
+                      tar.name(max.mortality.all, "max.mort"),
+                      tar.name(swazi.growth.rate, "growth.rate"),
+                      tar.name(swazi.inci.15.49, "swazi"),
+                      tar.name(swazi.inci.2011, "swazi.inci.2011"),
+                      tar.name(swazi.prev.2007, "2007.swazi.prev"),
+                      tar.name(swazi.prev.age.year, "swazi.prev"),
+                      tar.name(hhohho.prev, "hho.prev"),
+                      tar.name(swazi.age.diff, "swazi.AD"),
+                      tar.name(hhohho.age.diff, "hho.AD"),
+                      tar.name(swazi.art.retention, "swazi.art.ret"),
+                      tar.name(swazi.art.coverage, "swazi.art.cov"))
+
 
 #Testing
 #target.variables <- c(max.art.retention.tar.names,"node.id")

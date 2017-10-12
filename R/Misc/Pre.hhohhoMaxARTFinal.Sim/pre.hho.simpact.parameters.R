@@ -13,7 +13,7 @@ if(sel.list == "list"){
   }else{
     #Select a chunk to process
     min.chunk <- 1
-    max.chunk <- 3
+    max.chunk <- 10
 }
 
 #set how many time the single row will be repeated

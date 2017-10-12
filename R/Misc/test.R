@@ -1,5 +1,7 @@
 ## Testing the results from a simply simpact.run
-pacman::p_load(RSimpactCyan, RSimpactHelper, lhs)
+#rm(list=ls())
+pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, magrittr, dplyr, exactci,nlme,
+               ggplot2, readcsvcolumns, survival, KMsurv, tidyr, lhs)
 
 #Set up simulation parameters and initiate simulation
 sim.start.full <- as.Date("1970-03-31")
