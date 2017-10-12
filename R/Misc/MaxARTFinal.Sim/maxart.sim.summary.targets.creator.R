@@ -60,29 +60,29 @@ max.swazi.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   max.all.prim.art.coverage.var <- maxart.study.pop %>%
     filter(TreatTime!=Inf) %>%
-    summarise(all.prim = sum(primary==1)/all.prim.maxart,
+    summarise(all.prim = sum(primary==1, na.rm = TRUE)/all.prim.maxart,
               all.all = n()/all.maxart,
 
-              b4.elig.prim = sum(TreatTime < art.eligible & primary==1)/all.prim.maxart,
-              b4.elig.all = sum(TreatTime < art.eligible )/all.maxart,
+              b4.elig.prim = sum(TreatTime < art.eligible & primary==1, na.rm = TRUE)/all.prim.maxart,
+              b4.elig.all = sum(TreatTime < art.eligible, na.rm = TRUE )/all.maxart,
 
               within2wks.prim = sum(TreatTime>=art.eligible &
-                                      TreatTime < (TreatTime+two.weeks) & primary==1)/all.prim.maxart,
+                                      TreatTime < (TreatTime+two.weeks) & primary==1, na.rm = TRUE)/all.prim.maxart,
               within2wks.all = sum(TreatTime>=art.eligible &
-                                     TreatTime < (TreatTime+two.weeks) )/all.maxart,
+                                     TreatTime < (TreatTime+two.weeks), na.rm = TRUE )/all.maxart,
 
-              amongelig.prim = sum(TreatTime > art.eligible & primary==1)/all.prim.maxart,
-              amongelig.all = sum(TreatTime > art.eligible )/all.maxart,
+              amongelig.prim = sum(TreatTime > art.eligible & primary==1, na.rm = TRUE)/all.prim.maxart,
+              amongelig.all = sum(TreatTime > art.eligible, na.rm = TRUE )/all.maxart,
 
               within12m.prim = sum(TreatTime==art.eligible &
-                                     TreatTime < (TreatTime+twelve.months) & primary==1)/all.prim.maxart,
+                                     TreatTime < (TreatTime+twelve.months) & primary==1, na.rm = TRUE)/all.prim.maxart,
               within12m.all = sum(TreatTime==art.eligible &
-                                    TreatTime < (TreatTime+twelve.months) )/all.maxart,
+                                    TreatTime < (TreatTime+twelve.months) , na.rm = TRUE)/all.maxart,
 
               within6m.prim = sum(TreatTime==art.eligible &
-                                    TreatTime < (TreatTime+six.months) & primary==1)/all.prim.maxart,
+                                    TreatTime < (TreatTime+six.months) & primary==1, na.rm = TRUE)/all.prim.maxart,
               within6m.all = sum(TreatTime==art.eligible &
-                                   TreatTime < (TreatTime+six.months) )/all.maxart
+                                   TreatTime < (TreatTime+six.months) , na.rm = TRUE)/all.maxart
 
     )
 
@@ -162,13 +162,13 @@ max.swazi.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   # #
   # #Mortality AIDS related and not
   max.mort.study.pop.prim <- maxart.study.pop %>%
-    summarise(mort.prim = sum(primary == 1 & TOD != Inf & TOD > maxart.starttime & TOD < maxart.endtime) / n(),
-            mort.all = sum(TOD != Inf & TOD > maxart.starttime & TOD < maxart.endtime) / n(),
+    summarise(mort.prim = sum(primary == 1 & TOD != Inf & TOD > maxart.starttime & TOD < maxart.endtime, na.rm = TRUE) / n(),
+            mort.all = sum(TOD != Inf & TOD > maxart.starttime & TOD < maxart.endtime, na.rm = TRUE) / n(),
 
             mort.aids.rel.prim = sum(primary == 1 & TOD != Inf & AIDSDeath == 1 &
-                                       TOD > maxart.starttime & TOD < maxart.endtime) / n(),
+                                       TOD > maxart.starttime & TOD < maxart.endtime, na.rm = TRUE) / n(),
             mort.aids.rel.all = sum(TOD != Inf & AIDSDeath == 1 &
-                                      TOD > maxart.starttime & TOD < maxart.endtime) / n() )
+                                      TOD > maxart.starttime & TOD < maxart.endtime, na.rm = TRUE) / n() )
 
 
   prim.mortality <- dplyr::select(max.mort.study.pop.prim, contains(".prim"))
@@ -361,7 +361,7 @@ max.swazi.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   agemix.df.hhohho <- agemix.df.maker(chunk.datalist.test.hhohho)
   pattern.hhohho <- pattern.modeller(dataframe = agemix.df.hhohho, agegroup = c(18, 50),
-                              timepoint = hhohho.age.dif.time, timewindow = 1, start = FALSE)
+                              timepoint = hhohho.age.dif.time, timewindow = 1, start = FALSE)[[1]]
 
   pattern.hhohho <- as.data.frame(pattern.hhohho)
 
@@ -387,7 +387,7 @@ max.swazi.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   agemix.df <- agemix.df.maker(sim.datalist)
   swazi.pattern <- pattern.modeller(dataframe = agemix.df, agegroup = c(18, 50),
-                              timepoint = swazi.age.dif.time, timewindow = 1, start = FALSE)
+                              timepoint = swazi.age.dif.time, timewindow = 1, start = FALSE)[[1]]
 
   swazi.pattern.df <- as.data.frame(swazi.pattern)
 
