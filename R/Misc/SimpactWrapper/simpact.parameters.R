@@ -2,24 +2,24 @@
 #Idea is to give the simpact parameters and their ranges
 # to be calibrated during the simpact run
 
-init.design.points <- 100 #set the initial design points
+init.design.points <- 10 #set the initial design points
 
 #choose if select ids or just a range
-sel.list <- "list" #min.max
+sel.list <- "min.max" #min.max
 
 if(sel.list == "list"){
   #set the list of ids that you want to simulate
   sel.id.list <- c(75, 83)
   }else{
     #Select a chunk to process
-    min.chunk <- 11
-    max.chunk <- 12
+    min.chunk <- 1
+    max.chunk <- 10
 }
 
 #set how many time the single row will be repeated
-sim_repeat <- 2
+sim_repeat <- 4
 #number of cores per node
-ncluster.use <- 2
+ncluster.use <- 4
 
 ###### Generate the input parameters for the simulation #################################
 simpact.config.inputs(design.points = init.design.points, resample.count = 1,
