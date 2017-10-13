@@ -19,9 +19,7 @@ women.frac <- 0.5253
 #GrowthRate for all ages and gender
 growth.rate <- read.table(
     text="X2015   X2016
-  value   1.83    1.81", header=TRUE, stringsAsFactors = FALSE)
-
-growth.rate.tar.names <- paste(names(growth.rate),"growth.rate", sep = ".")
+  one.year   1.83    1.81", header=TRUE, stringsAsFactors = FALSE)
 
 ############# 2011 Incidence ages specific: SHIMS 1 #############################
 #consider for validation:  [all       3.14   1.65   2.38  Date range(2010-12    2011-06)
@@ -39,15 +37,22 @@ prev.2007 <- read.table(
 
 ###################### target names
 
+## merge row names and col names
 tar.name <- function(df, tar.type = "name"){
   apply(expand.grid(rownames(df), names(df), ".",tar.type), 1, paste0,collapse="" )
 }
 
+### get the real target values
+tar.value <- function(df){
+  return(as.numeric(unlist(df, use.names = FALSE)))
+}
+
+tar.value(prev.2007)
+
 #Creating target names
-target.variables <- c(growth.rate.tar.names, tar.name(inci.2011, "inci.2011"),
+target.variables <- c(tar.name(growth.rate, "growth.rate"), tar.name(inci.2011, "inci.2011"),
                       tar.name(prev.2007, "prev.2007"))
 
-#Testing
-#target.variables <- c(max.art.retention.tar.names,"node.id")
-
+#if you will need to calibrate SET THE target values correctly
+target.values <- c(tar.value(growth.rate), tar.value(inci.2011), tar.value(prev.2007) )
 
