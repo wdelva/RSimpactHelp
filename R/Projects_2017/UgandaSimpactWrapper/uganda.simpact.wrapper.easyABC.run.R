@@ -112,7 +112,10 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     }
 
     #intervention introduced See the intervention.introduced
-    iv.chunk <- intervention.introduced(simulation.type = simulation.type)
+    source("/home/david/RSimpactHelp/R/Projects_2017/UgandaSimpactWrapper/Ug.intervention.introduced.R")
+    iv.chunk <- Ug.intervention.introduced(simulation.type = simulation.type)
+
+    # iv.chunk <- intervention.introduced(simulation.type = simulation.type)
 
     #The first parameter is set to be the seed value
     seed.chunk.id <- input.chunk.params[1]
