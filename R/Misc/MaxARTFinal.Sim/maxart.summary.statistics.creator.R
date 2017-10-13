@@ -291,11 +291,10 @@ tar.name <- function(df, tar.type = "name"){
   apply(expand.grid(rownames(df),".", names(df), ".",tar.type), 1, paste0,collapse="" )
 }
 
+### get the real target values
 tar.value <- function(df){
-  return(unlist(df))
+  return(as.numeric(unlist(df, use.names = FALSE)))
 }
-
-
 
 #Creating target names
 target.variables <- c(tar.name(max.art.initiated.all, "max.ART.init"),
@@ -314,9 +313,13 @@ target.variables <- c(tar.name(max.art.initiated.all, "max.ART.init"),
                       tar.name(swazi.art.coverage, "swazi.art.cov"))
 
 #if you will be doing calibration you need the table names
-target.values <- c(max.art.initiated.all,max.art.retention.all, max.vl.none.suppression.all,
-                   max.mortality.all,swazi.growth.rate, swazi.inci.15.49, swazi.inci.2011,
-                   swazi.prev.2007, )
+target.values <- c(tar.value(max.art.initiated.all), tar.value(max.art.retention.all),
+                   tar.value(max.vl.none.suppression.all), tar.value(max.mortality.all),
+                   tar.value(swazi.growth.rate), tar.value(swazi.inci.15.49),
+                   tar.value(swazi.inci.2011), tar.value(swazi.prev.2007),
+                   tar.value(swazi.prev.age.year), tar.value(hhohho.prev),
+                   tar.value(swazi.age.diff), tar.value(hhohho.age.diff),
+                   tar.value(swazi.art.retention), tar.value(swazi.art.coverage))
 
 #Testing
 #target.variables <- c(max.art.retention.tar.names,"node.id")
