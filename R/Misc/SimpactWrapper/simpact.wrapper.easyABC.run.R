@@ -242,7 +242,7 @@ inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk,
 
 rand.string <- paste0(sample(c(LETTERS,letters), 10), collapse = "")
 
-filename.run <- paste0(dirname,"/","SummaryOutPut-df-",min.chunk,"-",max.chunk,".csv")
+filename.run <- paste0(dirname,"/","SummaryOutPut-df-",rand.string,".csv")
 
 write.csv(inputANDoutput.chunk.df, file = filename.run, row.names = FALSE)
 
