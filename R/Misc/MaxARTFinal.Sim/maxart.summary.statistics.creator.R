@@ -291,6 +291,12 @@ tar.name <- function(df, tar.type = "name"){
   apply(expand.grid(rownames(df),".", names(df), ".",tar.type), 1, paste0,collapse="" )
 }
 
+tar.value <- function(df){
+  return(unlist(df))
+}
+
+
+
 #Creating target names
 target.variables <- c(tar.name(max.art.initiated.all, "max.ART.init"),
                       tar.name(max.art.retention.all, "max.ret"),
@@ -307,6 +313,10 @@ target.variables <- c(tar.name(max.art.initiated.all, "max.ART.init"),
                       tar.name(swazi.art.retention, "swazi.art.ret"),
                       tar.name(swazi.art.coverage, "swazi.art.cov"))
 
+#if you will be doing calibration you need the table names
+target.values <- c(max.art.initiated.all,max.art.retention.all, max.vl.none.suppression.all,
+                   max.mortality.all,swazi.growth.rate, swazi.inci.15.49, swazi.inci.2011,
+                   swazi.prev.2007, )
 
 #Testing
 #target.variables <- c(max.art.retention.tar.names,"node.id")
