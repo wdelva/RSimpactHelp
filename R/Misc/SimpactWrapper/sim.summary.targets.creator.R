@@ -18,7 +18,7 @@ sim.summary.creator.all <- function(sim.datalist = chunk.datalist.test){
     to.time <-  from.time + 1
 
     growth.rate.tar.values[i] <- pop.growth.calculator(datalist = sim.datalist,
-                                                     timewindow = c(from.time, to.time))
+                                                     timewindow = c(from.time, to.time)) * 100
   }
 
   ###Incidence for multiple ages, start and end time set ###############################################
