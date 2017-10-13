@@ -8,13 +8,13 @@ if(comp == "win"){dirname <- "~/GitHub/RSimpactHelp"}else if(comp=="lin"){
     dirname <- "~/Documents/GIT_Projects/RSimpactHelp"}else if(comp=="chpc"){
     dirname <- "/mnt/lustre/users/tchibawara/MaxART/data"}else if(comp=="gent"){
     dirname <- "/user/data/gent/vsc400/vsc40070/simpact-test/data"}else{
-    dirname <- "~/Documents/RSimpactHelp"  #mac directory here
+    dirname <- "~/Documents/CombinedFrameworkHIVToy/"  # david directory here
 }
 
 all.sim.start <- as.numeric(proc.time()[3])
 
 #source simpact set parameters
-inPUT.df.complete <- source("R/Misc/SimpactWrapper/simpact.parameters.R")$value
+inPUT.df.complete <- source("/home/david/R/Projects_2017/uganda.simpact.parameters.R")$value
 
 #if you are doing many simulation you can also use a pre-prepared file
 #and read in a csv file.
