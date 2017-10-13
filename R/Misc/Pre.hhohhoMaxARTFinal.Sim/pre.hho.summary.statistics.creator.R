@@ -81,6 +81,13 @@ tar.name <- function(df, tar.type = "name"){
   apply(expand.grid(rownames(df),".", names(df), ".",tar.type), 1, paste0,collapse="" )
 }
 
+
+### get the real target values
+tar.value <- function(df){
+  return(as.numeric(unlist(df, use.names = FALSE)))
+}
+
+
 #Creating target names
 target.variables <- c(tar.name(hhohho.growth.rate, "gr"),
                       tar.name(max.art.initiated.all, "init"),
@@ -90,6 +97,10 @@ target.variables <- c(tar.name(hhohho.growth.rate, "gr"),
                       tar.name(hhohho.prev, "prev"),
                       tar.name(hhohho.age.diff, "agediff")  )
 
-#Testing
-#target.variables <- c(max.art.retention.tar.names,"node.id")
+
+#if you will need to calibrate SET THE target values correctly
+target.values <- c(tar.value(hhohho.growth.rate), tar.value(max.art.initiated.all),
+                   tar.value(max.art.retention.all),tar.value(max.vl.none.suppression.all),
+                   tar.value(max.mortality.all), tar.value(hhohho.prev),
+                   tar.value(hhohho.age.diff))
 
