@@ -17,7 +17,7 @@ if(sel.list == "list"){
 }
 
 #set how many time the single row will be repeated
-sim_repeat <- 4
+sim_repeat <- 1
 #number of cores per node
 ncluster.use <- 4
 
