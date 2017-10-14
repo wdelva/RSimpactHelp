@@ -39,9 +39,11 @@ setwd("/home/david/Documents/CombinedFrameworkHIVToy")
 
 
 ## Load required R packages
-pacman::p_load(ape, expoTree, data.table, phylosim, RSimpactCyan,
+pacman::p_load(devtools, Rcpp, ape, expoTree, data.table, phylosim, RSimpactCyan,
                RSimpactHelper, readr, phangorn, Biostrings,
                phyclust, DECIPHER)
+
+seed=123
 
 # ## try http:// if https:// URLs are not supported
 # source("https://bioconductor.org/biocLite.R")
@@ -157,19 +159,21 @@ seq.rand <- sample(1:30,1) # chose one sequence in first 30's in the seed sequen
 # 1
 # (((Taxon1:0.2,Taxon2:0.2):0.1,Taxon3:0.3):0.1,Taxon4:0.4);
 tr <- read.tree(file = "tree.model1.seed2.nwk")
-
-# Function to get the number of trees in a file
-numb.tr <- function(tree){
-  if(length(tree) == 4){
-    return(1)
-  }else{
-    return(length(tree))
-  }
-}
-
-seed.id <- transNet2$id[1]
-# count number of trees generated (normally one)
-n.tr <- numb.tr(tr)
+#
+# # Function to get the number of trees in a file
+# numb.tr <- function(tree=tree){
+#   tre <- tree
+#     if(length(tre) == 4){
+#         return(1)
+#     }else{
+#         return(length(tree))
+#     }
+# }
+#
+# seed.id <- transNet2$id[1]
+# # count number of trees generated (normally one)
+# n.tr <- numb.tr(tree=tr)
+n.tr <- 1
 # call the seed sequences - pool of viruses and rename the file
 file.copy(paste("seed.seq.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = ""))
 # add the number of tree in the file and
@@ -178,7 +182,7 @@ write(n.tr,file = "seed.seq.bis.nwk", append = TRUE)
 write.tree(tr,file = "seed.seq.bis.nwk", append = TRUE)
 file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
 
-system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_all_seed_",seed.id,"_model1.fasta",sep = ""))
+system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1  -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z",seed," > sequence_all_seed_",seed.id,"_model1.fasta",sep = ""))
 
 
 ## 2.1.2 Example with all seed individuals and their transmission networks
@@ -201,21 +205,23 @@ for(i in 1:length(trans.net)){
     # Save the transmission tree
     write.tree(tree.i, file = paste("tree.model1.seed",i,".nwk", sep = ""))
 
-    # count number of trees generated (normally one)
-    numb.tr <- function(tree=tree){
-      if(length(tree) == 4){
-        return(1)
-      }else{
-        return(length(tree))
-      }
-    }
+    # # count number of trees generated (normally one)
+    # numb.tr <- function(tree=tree){
+    #     if(length(tree) == 4){
+    #         return(1)
+    #     }else{
+    #         return(length(tree))
+    #     }
+    # }
+    #
+    # # Simulate sequences, this require compiled toold seq-gen
+    # # random sequence which will be simulated is choosen in the pool
+    # seq.rand <- sample(1:30,1) # chose one sequence in first 30's in the seed sequence pool named "seed.seq.fasta"
+    #
+    # tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = ""))
+    # n.tr <- numb.tr(tree = tr)
 
-    # Simulate sequences, this require compiled toold seq-gen
-    # random sequence which will be simulated is choosen in the pool
-    seq.rand <- sample(1:30,1) # chose one sequence in first 30's in the seed sequence pool named "seed.seq.fasta"
-
-    tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = ""))
-    n.tr <- numb.tr(tree = tr)
+    n.tr <- 1
 
     seed.id <- tree.n$id[1]
     # call the seed sequences - pool of viruses and rename the file
@@ -226,8 +232,12 @@ for(i in 1:length(trans.net)){
     write.tree(tr,file = paste("seed.seq.bis",i,".nwk", sep = ""), append = TRUE)
     file.rename(from = paste("seed.seq.bis",i,".nwk", sep = ""), to = paste("seed.seq.bis",i,"Id",seed.id,".nwk", sep = ""))
 
-    system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",i,"Id",seed.id,".nwk > sequence_all_seed_number_",i,"_model1.fasta",sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",i,"Id",seed.id,".nwk -z",seed," > sequence_all_seed_number_",i,"_model1.fasta",sep = ""))
 
+    # a: shape parameter of Gamma > Gamma Rate Heterogeneity
+    # g: category of Gamma > Discrete Gamma Rate Heterogeneity
+    # r: rate matrix
+    # z: seed
   }
 }
 
@@ -254,26 +264,76 @@ for(i in 1:length(seed2.dat$id)){
   rec <- seed2.dat$id[i]
 
   # Viral load at infection times and sampling times
+
   vl.inf <- 90 # viral load of the donors at time point of infecting someone else
-  vl.samp <- 90 # viral load of the recipients at sampling time
-  t.inf <- 2.0 # infection time for recipients, time when donor i transmits to recipient j
-  t.samp <- 4.0 # sampling time for recipients, time when recipient j has been sampled (diadnosed or removed)
+  vl.samp <- 90 # viral load (of the recipients) at sampling time
+  t.inf <- 2.0 # infection time for recipients, time interval from when the current donor j
+  # got the infection from a donor i (or seeding event) until when current donor j transmits to recipient k
+  t.samp <- 4.0 # sampling time for recipients, time when recipient k has been sampled (diadnosed or removed by death)
 
-  # Compartments within the body: 3 islands
-  subpo1.inf <- round(vl.inf/8)
-  subpo2.inf <- round(vl.inf/6)
-  subpo3.inf <- vl.inf - (subpo1.inf+subpo2.inf)
+  past.demographic.inf <- c(0.1, 0.2)#, 0.01) # a vector of change rates of viral loads from infection time to time to transmit the infection
 
-  subpo1.samp <- round(vl.samp/8)
-  subpo2.samp <- round(vl.samp/6)
-  subpo3.samp <- vl.samp - (subpo1.samp+subpo2.samp)
+  past.demographic.samp <- c(0.1, 0.2)#, 0.01) # or sampling time
 
-  topaste.inf <- paste("./msa", vl.inf," 1 -T -t",t.inf," -I 3",subpo1.inf, subpo2.inf, subpo3.inf, "-ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -n 1 0.5 -n 2 0.5 -n 3 0.5 -g 1 0.3 -g 2 0.2 -g 3 0.3 > ")
-  topaste.samp <- paste("./msa", vl.samp," 1 -T -t",t.samp," -I 3",subpo1.samp, subpo2.samp, subpo3.samp, "-ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -n 1 0.5 -n 2 0.5 -n 3 0.5 -g 1 0.3 -g 2 0.2 -g 3 0.3 > ")
-  system(paste(topaste.inf, "tree_at_from_",don,"_to_",rec,".nwk", sep = "")) # transmission
-  system(paste(topaste.samp, "tree_at_for_",rec,"_samp.nwk", sep = "")) # sampling
+  # Note: just two values in the vectors
+
+  seeds <- c(1+seed, 2+seed, 3+seed)
+
+  seeds1 <- seeds[1]
+  seeds2 <- seeds[2]
+  seeds3 <- seeds[3]
+
+  # Viral load models and coalescent
+
+  # # Model 1: Compartments within the body- 3 islands with growth rates
+  #
+  # subpo1.inf <- round(vl.inf/8)
+  # subpo2.inf <- round(vl.inf/6)
+  # subpo3.inf <- vl.inf - (subpo1.inf+subpo2.inf)
+  #
+  # subpo1.samp <- round(vl.samp/8)
+  # subpo2.samp <- round(vl.samp/6)
+  # subpo3.samp <- vl.samp - (subpo1.samp+subpo2.samp)
+  #
+  # topaste.inf <- paste("./msa", vl.inf," 1 -T -t",t.inf," -I 3",subpo1.inf, subpo2.inf, subpo3.inf, "-ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -n 1 0.5 -n 2 0.5 -n 3 0.5 -g 1 0.3 -g 2 0.2 -g 3 0.3 > ")
+  # topaste.samp <- paste("./msa", vl.samp," 1 -T -t",t.samp," -I 3",subpo1.samp, subpo2.samp, subpo3.samp, "-ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -n 1 0.5 -n 2 0.5 -n 3 0.5 -g 1 0.3 -g 2 0.2 -g 3 0.3 > ")
+  # system(paste(topaste.inf, "tree_at_from_",don,"_to_",rec,".nwk", sep = "")) # transmission
+  # system(paste(topaste.samp, "tree_at_for_",rec,"_samp.nwk", sep = "")) # sampling
+  #
+  # # Model 2: Consider viral load without islands models - growth rate set to zero
+  #
+  # topaste.inf <- paste("./msa", vl.inf," 1 -T -t",t.inf, ">")
+  # topaste.samp <- paste("./msa", vl.samp," 1 -T -t",t.samp, ">")
+  # system(paste(topaste.inf, "tree_at_from_",don,"_to_",rec,".nwk", sep = "")) # transmission
+  # system(paste(topaste.samp, "tree_at_for_",rec,"_samp.nwk", sep = "")) # sampling
+
+  # Models 3: Consider viral load without islands models with past demographic events which
+  #           are higlihthed by the viral load variation with different infection stages - growth rate set to zero
+  # system('./msa 30 1 -T -t 4.0 -eN 0.2 .02')
+  # specifies that the population size was constant at size N 0 from the present back to
+  # time 0.2*4N0, and farther back in time the population size was 0.02*4N0  .
+  # The population size change was instantaneous and occurred at time 0.2*4N0
+  # generations before the present.
+
+  # Note: growth rate set to zero is the side-effect of -eN and -en commands in ms
+  #       but is nour case, this coincide of simpact modelling approach of the viral load
+
+  topaste.inf <- paste("./msa", vl.inf," 1 -T -t",t.inf)
+  topaste.samp <- paste("./msa", vl.samp," 1 -T -t",t.samp)
+  f.inf <- paste(paste(paste(topaste.inf,paste("-eN",
+                                               paste(past.demographic.inf[1], past.demographic.inf[2], collapse = ",")), collapse = ""),
+                       paste("-seeds",paste(seeds1,seeds2,seeds3, collapse = ","), collapse = ","), collapse = ""),
+                 ">tree_at_from_",don,"_to_",rec,".nwk", sep = "")  # transmission
+
+  f.samp <- paste(paste(paste(topaste.inf,paste("-eN", paste(past.demographic.inf[1],
+                                                             past.demographic.inf[2], collapse = ",")), collapse = ""),
+                        paste("-seeds",paste(seeds1,seeds2,seeds3, collapse = ","), collapse = ","), collapse = ""),
+                  ">tree_at_for_",rec,"_samp.nwk", sep = "")  # sampling
+
+  system(f.inf[1])
+  system(f.samp[1])
+
 }
-
 
 
 ## Generate sequences for each individual at sampling time ##
@@ -320,7 +380,7 @@ for(i in 2:length(seed2.dat$id)){
     seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
     # Sequence of the seed at the first tramsmission event
-    system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_from_",seed.id,"_to_",rec.seed,".fasta",sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_from_",seed.id,"_to_",rec.seed,".fasta",sep = ""))
   }
 }
 
@@ -343,7 +403,7 @@ seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed 
 
 # Sequence of the seed at the sampling (diagnosis/removal) event
 
-system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",seed.id,".fasta",sep = ""))
+system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",seed.id,".fasta",sep = ""))
 
 
 # (iii) Sampling of recipients from the seed as donor in XXX$id[2]
@@ -371,7 +431,7 @@ for(i in 2:length(seed2.dat$id)){
     seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
     # Sequence of the first recipient at the sampling (diagnosis/removal) event
-    system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",rec.seed,".fasta",sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",rec.seed,".fasta",sep = ""))
   }
 }
 
@@ -413,7 +473,7 @@ for(i in 3:length(seed2.dat$id)){ # start at 3 bcz the seed and 1st transmission
     write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
     file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
     # file.remove()
-    system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,".fasta",sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,".fasta",sep = ""))
   }
 }
 
@@ -448,7 +508,7 @@ for(i in 3:length(seed2.dat$id)){ # start at 3 bcz the seed and 1st transmission
     write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
     file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
     # file.remove()
-    system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,".fasta",sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,".fasta",sep = ""))
   }
 }
 
@@ -505,24 +565,54 @@ for(v in 1:length(simpact.output.raw)){
       rec <- seed2.dat$id[i]
 
       # Viral load at infection times and sampling times
+
       vl.inf <- 90 # viral load of the donors at time point of infecting someone else
-      vl.samp <- 90 # viral load of the recipients at sampling time
-      t.inf <- 2.0 # infection time for recipients, time when donor i transmits to recipient j
-      t.samp <- 4.0 # sampling time for recipients, time when recipient j has been sampled (diadnosed or removed)
+      vl.samp <- 90 # viral load (of the recipients) at sampling time
+      t.inf <- 2.0 # infection time for recipients, time interval from when the current donor j
+      # got the infection from a donor i (or seeding event) until when current donor j transmits to recipient k
+      t.samp <- 4.0 # sampling time for recipients, time when recipient k has been sampled (diadnosed or removed by death)
 
-      # Compartments within the body: 3 islands
-      subpo1.inf <- round(vl.inf/8)
-      subpo2.inf <- round(vl.inf/6)
-      subpo3.inf <- vl.inf - (subpo1.inf+subpo2.inf)
+      past.demographic.inf <- c(0.1, 0.2)#, 0.01) # a vector of change rates of viral loads from infection time to time to transmit the infection
 
-      subpo1.samp <- round(vl.samp/8)
-      subpo2.samp <- round(vl.samp/6)
-      subpo3.samp <- vl.samp - (subpo1.samp+subpo2.samp)
+      past.demographic.samp <- c(0.1, 0.2)#, 0.01) # or sampling time
 
-      topaste.inf <- paste("./msa", vl.inf," 1 -T -t",t.inf," -I 3",subpo1.inf, subpo2.inf, subpo3.inf, "-ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -n 1 0.5 -n 2 0.5 -n 3 0.5 -g 1 0.3 -g 2 0.2 -g 3 0.3 > ")
-      topaste.samp <- paste("./msa", vl.samp," 1 -T -t",t.samp," -I 3",subpo1.samp, subpo2.samp, subpo3.samp, "-ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -n 1 0.5 -n 2 0.5 -n 3 0.5 -g 1 0.3 -g 2 0.2 -g 3 0.3 > ")
-      system(paste(topaste.inf, "tree_at_from_",don,"_to_",rec,"_net_",v,".nwk", sep = "")) # transmission
-      system(paste(topaste.samp, "tree_at_for_",rec,"_samp_net_",v,".nwk", sep = "")) # sampling
+      # Note: just two values in the vectors
+
+      seeds <- c(1+seed, 2+seed, 3+seed)
+
+      seeds1 <- seeds[1]
+      seeds2 <- seeds[2]
+      seeds3 <- seeds[3]
+
+      # Viral load models and coalescent: chosen "model 3"
+
+
+      # Models 3: Consider viral load without islands models with past demographic events which
+      #           are higlihthed by the viral load variation with different infection stages - growth rate set to zero
+      # system('./msa 30 1 -T -t 4.0 -eN 0.2 .02')
+      # specifies that the population size was constant at size N 0 from the present back to
+      # time 0.2*4N0, and farther back in time the population size was 0.02*4N0  .
+      # The population size change was instantaneous and occurred at time 0.2*4N0
+      # generations before the present.
+
+      # Note: growth rate set to zero is the side-effect of -eN and -en commands in ms
+      #       but is nour case, this coincide of simpact modelling approach of the viral load
+
+      topaste.inf <- paste("./msa", vl.inf," 1 -T -t",t.inf)
+      topaste.samp <- paste("./msa", vl.samp," 1 -T -t",t.samp)
+      f.inf <- paste(paste(paste(topaste.inf,paste("-eN",
+                                                   paste(past.demographic.inf[1], past.demographic.inf[2], collapse = ",")), collapse = ""),
+                           paste("-seeds",paste(seeds1,seeds2,seeds3, collapse = ","), collapse = ","), collapse = ""),
+                     ">tree_at_from_",don,"_to_",rec,"_net_",v,".nwk", sep = "")  # transmission
+
+      f.samp <- paste(paste(paste(topaste.inf,paste("-eN", paste(past.demographic.inf[1],
+                                                                 past.demographic.inf[2], collapse = ",")), collapse = ""),
+                            paste("-seeds",paste(seeds1,seeds2,seeds3, collapse = ","), collapse = ","), collapse = ""),
+                      ">tree_at_for_",rec,"_samp_net_",v,".nwk", sep = "")  # sampling
+
+      system(f.inf[1])
+      system(f.samp[1])
+
     }
 
 
@@ -571,7 +661,7 @@ for(v in 1:length(simpact.output.raw)){
         seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
         # Sequence of the seed at the first tramsmission event
-        system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta",sep = ""))
       }
     }
 
@@ -594,7 +684,7 @@ for(v in 1:length(simpact.output.raw)){
 
     # Sequence of the seed at the sampling (diagnosis/removal) event
 
-    system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",seed.id,"_net_",v,".fasta",sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",seed.id,"_net_",v,".fasta",sep = ""))
 
 
     # (iii) Sampling of recipients from the seed donor in XXX$id[2]
@@ -622,7 +712,7 @@ for(v in 1:length(simpact.output.raw)){
         seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
         # Sequence of the first recipient at the sampling (diagnosis/removal) event
-        system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",rec.seed,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk > sequence_at_samp_",rec.seed,"_net_",v,".fasta",sep = ""))
       }
     }
 
@@ -664,7 +754,7 @@ for(v in 1:length(simpact.output.raw)){
         write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
         file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
         # file.remove()
-        system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,"_net_",v,".fasta",sep = ""))
       }
     }
 
@@ -699,7 +789,7 @@ for(v in 1:length(simpact.output.raw)){
         write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
         file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
         # file.remove()
-        system(paste("./seq-gen -mHKY -t3.0 -f0.3,0.2,0.2,0.3 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,"_net_",v,".fasta",sep = ""))
       }
     }
 
