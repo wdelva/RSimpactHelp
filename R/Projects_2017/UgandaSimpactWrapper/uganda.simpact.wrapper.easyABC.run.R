@@ -14,7 +14,7 @@ if(comp == "win"){dirname <- "~/GitHub/RSimpactHelp"}else if(comp=="lin"){
 all.sim.start <- as.numeric(proc.time()[3])
 
 #source simpact set parameters
-inPUT.df.complete <- source("/home/david/R/Projects_2017/uganda.simpact.parameters.R")$value
+inPUT.df.complete <- source("/home/david/RSimpactHelp/R/Projects_2017/UgandaSimpactWrapper/uganda.simpact.parameters.R")$value
 
 #if you are doing many simulation you can also use a pre-prepared file
 #and read in a csv file.
@@ -37,7 +37,7 @@ if(sel.list == "list"){
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #indicate the target statitics that you want to hit
-source("R/Misc/SimpactWrapper/summary.statistics.creator.R")
+source("R/Projects_2017/UgandaSimpactWrapper/uganda.summary.statistics.creator.R")
 ##Each of these should be calculated after each run, else we give an NA
 
 #set the prior names - varied parameters
@@ -56,7 +56,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
   #This needs to be read by each processor
   pacman::p_load(RSimpactHelper)
 
-  source("R/Misc/SimpactWrapper/summary.statistics.creator.R")
+  source("R/Projects_2017/UgandaSimpactWrapper/uganda.summary.statistics.creator.R")
 
   err.functionGEN <- function(e){
     if (length(grep("MAXEVENTS",e$message)) != 0)
@@ -70,7 +70,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr, lhs)
 
-    getparam.names <- source("R/Misc/SimpactWrapper/simpact.parameters.R")$value
+    getparam.names <- source("R/Projects_2017/UgandaSimpactWrapper/uganda.simpact.parameters.R")$value
 
     #if you are doing many simulation you can also use a pre-prepared file
     #and read in a csv file.
@@ -80,7 +80,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     getparam.names <- names(dplyr::select(getparam.names, contains(".")))
     input.varied.params.plus <- getparam.names[2:length(getparam.names)]
 
-    source("R/Misc/SimpactWrapper/summary.statistics.creator.R")
+    source("R/Projects_2017/UgandaSimpactWrapper/uganda.summary.statistics.creator.R")
 
     #Set MaxART Simpact simulation?
     simulation.type <- "simpact-cyan" #"maxart"
@@ -186,7 +186,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     if(length(chunk.datalist.test)>1){
       #get the summary statistics for each run
 
-      source("R/Misc/SimpactWrapper/sim.summary.targets.creator.R")
+      source("R/Projects_2017/UgandaSimpactWrapper/uganda.sim.summary.targets.creator.R")
 
       ##get the summary statistics as indicated by target.variables
       out.statistic <- sim.summary.creator.all(chunk.datalist.test)
@@ -245,7 +245,14 @@ inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk,
 
 rand.string <- paste0(sample(c(LETTERS,letters), 10), collapse = "")
 
-filename.run <- paste0(dirname,"/","SummaryOutPut-df-",min.chunk,"-",max.chunk,".csv")
+# filename.run <- paste0(dirname,"/","SummaryOutPut-df-",min.chunk,"-",max.chunk,".csv")
+
+filename.run <- paste0("SummaryOutPut-df-",min.chunk,"-",max.chunk,".csv")
+
+# date.time <- Sys.time()
+#
+# filename.run.bis <- paste(filename.run,date.time, sep = "")
+
 
 write.csv(inputANDoutput.chunk.df, file = filename.run, row.names = FALSE)
 
