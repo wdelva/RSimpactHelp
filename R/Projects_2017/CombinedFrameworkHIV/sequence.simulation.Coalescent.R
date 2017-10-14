@@ -4,6 +4,13 @@
 #' phylogenetic trees of virus allow to simulate sequences at infection and sampling times
 #' Within the working directory must be ms and seq-gen compiled tools and a file of alignment of seeds sequences
 #' Inputs is a transmission networks with viral load, rate of change of viral load, and time from infection to sampling
+#'
+#'
+#' Considering the within host dynamics, simulations of viruses
+#'  hisotry are done per each individual by Wrish-Fisher model by considering,
+#'  individual j is infected by one virus from a pool of individual i,
+#'  at sampling times, a consensus sequence for each individual is obtained from
+#'  a pool of viruses of that individual
 
 # Transmission network in a raw form with suppllement data includes viral load, CD4, etc.
 seed=123
