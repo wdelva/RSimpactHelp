@@ -362,28 +362,17 @@ transNetworkNew <- function(datalist = datalist, endpoint = 40){
 
       t.samp.table[[i]] <- sampTime.all - infecTime.all
 
-
-      transNet$t.infec <- (b[[i]][,1]) # time interval from getting the infection until current transmission > DON.
       transNet$rate.1back.ifec.vload <- round(Nt[[i]]) # rate of change of the donor from present to previous viral load > DON.
       transNet$rate.2back.infec.vload <- round(Nt[[i]]) # rate of change of the donor from present to before previous viral load > DON.
       transNet$rate.1back.samp.vload <- round(Nt[[i]]) # rate of change of the recipient from present to previous viral load > REC.
       transNet$rate.2back.samp.vload <- round(Nt[[i]]) # rate of change of the recipient from present to before previous viral load > REC.
-
-      # Find parent of the current donor here "h": due to above mentionned argument
-      parent.find <- function(h){
-        for(l in 1:length(dat$V2)){
-          if(dat$V2[l] == h){ # when current donor was a recipient
-            par <- dat$V3[l]
-          }
-        }
-        return(par)
-      }
 
       # Viral load table of everyone
       vl.id <- vector("list",length(ids)) # > REC
       vl.init <- vector() # initial viral load > REC
       vl.samp <- vector() # viral load at sampling time > REC
       vl.infec <- vector() # viral load at infection time > DON
+      t.infection <- vector() # time interval from infection until current transmission > DON
       for(j in 1:length(ids)){ # retrieve viral load table for each individual
         id <- ids[j] # rec. individual
         vl.id[[j]] <- vl.ids[ID==id] # rec. viral load
@@ -421,17 +410,44 @@ transNetworkNew <- function(datalist = datalist, endpoint = 40){
           }
           return(vl.infec.fun)
         }
-
         vl.infec.index <- viralLoadInfec(vl.dat)
-
         vl.infec <- c(vl.infec, vl.infec.index)
 
+        InPutDat <- dat
+        # Find parent of the current donor here "h": due to above mentionned argument
+        parent.find <- function(h){
+          for(l in 1:length(InPutDat$V2)){
+            if(InPutDat$V2[l] == h){ # when current donor was a recipient
+              par <- InPutDat$V3[l]
+            }
+          }
+          return(par)
+        }
 
+        t.infectionFun <- function(InPutDat,j){
+            parentDon <- InPutDat$V3[j]
+            t.infection.give <- InPutDat$V5[j]
+            if(parentDon==-1){
+              t.infection.out <- 10 # for the universal infector -1 we set up 1000 yrs
+            }else{
+              par.infector <- parent.find(parentDon) # parent of current donor
+              par.infector.dat <- InPutDat[V2==parentDon] # table of transmission of this donor
+                                                               # in the past when he (she) got the infection
+              t.infection.got <- par.infector.dat$V5 # the time when s/he got it
+              t.infection.out <-  t.infection.give - t.infection.got # time of todays transmission - time when he got the infection
+            }
+            return(t.infection.out)
+        }
+        t.infec.pt <- t.infectionFun(InPutDat,j)
+        t.infection <- c(t.infection,t.infec.pt)
       }
 
       vldat.init[[i]] <- vl.init
       vldat.samp[[i]] <- vl.samp
       vldat.infec[[i]] <- vl.infec
+      t.infec.table[[i]] <- t.infection
+
+
 
     }
 
@@ -444,7 +460,7 @@ transNetworkNew <- function(datalist = datalist, endpoint = 40){
         transNet$samp.times <- (b[[i]][,1]) # Sampling time
         transNet$rec.IDs <- dat.recdontime[[i]][,2] # recipients IDs
         transNet$don.IDs <- dat.recdontime[[i]][,3] # donors IDs
-        transNet$t.infec <- (b[[i]][,1]) # X time interval from getting the infection until current transmission > DON.
+        transNet$t.infec <- t.infec.table[[i]] # time interval from getting the infection until current transmission > DON.
         transNet$t.samp <- t.samp.table[[i]] # time interval from getting the infection until this sampling > REC.
         transNet$init.vload <- vldat.init[[i]] # initial viral load for recipient
         transNet$infec.vload <- vldat.infec[[i]] # viral load of the donor at infection time > DON.
