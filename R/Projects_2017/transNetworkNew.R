@@ -346,16 +346,68 @@ transNetworkNew <- function(datalist = datalist, endpoint = 40){
 
     vltable <- datalist$vltable
     vldat <- vector("list", length(seeds.id))
-    Nt <- vector("list", length(seeds.id))
+    t.samp.table <- vector("list", length(seeds.id))
     for(i in 1:length(seeds.id)){
-        ids <- dat.recdontime[[i]][,2] # Individuals
-        vl.ids <- subset(vltable, vltable$ID%in%ids) # Viral load tale for these individuals
+      ids <- dat.recdontime[[i]][,2] # recipients
+      don.pars <- dat.recdontime[[i]][,3] # donors
+      vl.ids <- subset(vltable, vltable$ID%in%ids) # Viral load tale for these recipients individuals
+      # vl.pars <- subset(vltable, vltable$ID%in%don.pars) # Viral load tale for donors individuals
 
-        for(j in 1:length(ids)){ # retrieve viral load table for each individual
-          id <- ids[j] # individual
-          vl.id <- vltable[ID==id] # her/his viral load
-          vl.time <- vl.ids$Time[j]
+      dat <- as.data.table(dat.recdontime[[i]])
+      infecTime <- dat$V5 # infection time
+      sampTime  <- b[[i]][,1] # sampling time
+
+      t.samp.table[[i]] <- sampTime - infecTime
+
+
+      transNet$t.infec <- (b[[i]][,1]) # time interval from getting the infection until current transmission > DON.
+      transNet$infec.vload <- round(Nt[[i]]) # viral load of the donor at infection time > DON.
+      transNet$samp.vload <- round(Nt[[i]]) # viral load of the receipient at sampling time > REC.
+      transNet$rate.1back.ifec.vload <- round(Nt[[i]]) # rate of change of the donor from present to previous viral load > DON.
+      transNet$rate.2back.infec.vload <- round(Nt[[i]]) # rate of change of the donor from present to before previous viral load > DON.
+      transNet$rate.1back.samp.vload <- round(Nt[[i]]) # rate of change of the recipient from present to previous viral load > REC.
+      transNet$rate.2back.samp.vload <- round(Nt[[i]]) # rate of change of the recipient from present to before previous viral load > REC.
+
+      # Find parent of the current donor here "h": due to above mentionned argument
+      parent.find <- function(h){
+        for(l in 1:length(dat$V2)){
+          if(dat$V2[l] == h){ # when current donor was a recipient
+            par <- dat$V3[l]
+          }
         }
+        return(par)
+      }
+
+      # Viral load table of everyone
+      vl.id <- vector("list",length(ids))
+      vl.init <- vector() # initial viral load
+      vl.samp <- vector() # viral load at sampling time
+      for(j in 1:length(ids)){ # retrieve viral load table for each individual
+        id <- ids[j] # rec. individual
+        vl.id[[j]] <- vl.ids[ID==id] # rec. viral load
+        vl.dat <- vl.id[[j]]
+        infecTime <- dat$V5[j] # infection time
+        sampTime  <- b[[i]][j] # sampling time
+
+        vl.init <- c(vl.init,vl.dat$Log10VL[1])
+
+        viralLoadSamp <- function(vl.dat){
+          if(sampTime >= vl.dat$Time[nrow(vl.dat)]){
+            vl.samp.fun <- vl.dat$Log10VL[nrow(vl.dat)]
+          }else{
+            vlTime <- vl.dat$Time
+            index <- which.min(abs(vlTime-sampTime)) # check  nearest time value
+
+            vl.samp.fun <- vl.dat$Log10VL[index]
+          }
+          return(vl.samp.fun)
+        }
+        vl.samp.index <- viralLoadSamp(vl.dat)
+
+        vl.samp <- c(vl.samp,vl.samp.index)
+      }
+
+      vldat[[i]] <- vl.samp
 
     }
 
@@ -364,15 +416,19 @@ transNetworkNew <- function(datalist = datalist, endpoint = 40){
 
     transNet <- list()
     for(i in 1:length(seeds.id)){
-        transNet$infec.times <- (dat.recdontime[[i]][,5])
-        transNet$samp.times <- (b[[i]][,1])
-        transNet$rec.IDs <- dat.recdontime[[i]][,2] # 1
-        transNet$don.IDs <- dat.recdontime[[i]][,3] # 4
-        transNet$infec.vload <- round(Nt[[i]]) # viral load of the donor at infection time
-        transNet$samp.vload <- round(Nt[[i]]) # viral load of the receipient at sampling time
-        transNet$rate.1back.vload <- round(Nt[[i]]) # rate of change of the recipient from present to previous viral load
-        transNet$rate.2back.vload <- round(Nt[[i]]) # rate of change of the recipient from present to before previous viral load
-    }
+        transNet$infec.times <- (dat.recdontime[[i]][,5]) # Transmission time
+        transNet$samp.times <- (b[[i]][,1]) # Sampling time
+        transNet$rec.IDs <- dat.recdontime[[i]][,2] # recipients IDs
+        transNet$don.IDs <- dat.recdontime[[i]][,3] # donors IDs
+        transNet$t.infec <- (b[[i]][,1]) # time interval from getting the infection until current transmission > DON.
+        transNet$t.samp <- t.samp.table[[i]] # time interval from getting the infection until this sampling > REC.
+        transNet$infec.vload <- round(Nt[[i]]) # viral load of the donor at infection time > DON.
+        transNet$samp.vload <- vldat[[i]] # viral load of the receipient at sampling time > REC.
+        transNet$rate.1back.ifec.vload <- round(Nt[[i]]) # rate of change of the donor from present to previous viral load > DON.
+        transNet$rate.2back.infec.vload <- round(Nt[[i]]) # rate of change of the donor from present to before previous viral load > DON.
+        transNet$rate.1back.samp.vload <- round(Nt[[i]]) # rate of change of the recipient from present to previous viral load > REC.
+        transNet$rate.2back.samp.vload <- round(Nt[[i]]) # rate of change of the recipient from present to before previous viral load > REC.
+        }
 
     return(transm.ls)
 
