@@ -1211,9 +1211,9 @@ legend("topleft", legend = c("1 to 1",
 
 ### Phylogenetic trees withn and without past demographic events
 
-system('./msa 30 1 -T -t 4.0 -eN 0.2 0.02 >111.nwk')
+system('./msa 30 1 -T -t 4.0 -eN 1 1 -seeds 1 2 3 >111.nwk')
 
-system('./msa 30 1 -T -t 4.0 >1112.nwk')
+system('./msa 30 1 -T -t 4.0 -seeds 1 2 3 >1112.nwk')
 
 tr1 <- read.tree("111.nwk")
 tr2 <- read.tree("1112.nwk")
@@ -1233,7 +1233,7 @@ plot(tr1)
 plot(tr2)
 
 
-setwd("/home/david/Documents/CombinedFrameworkHIVToy/C")
+setwd("/home/david/Documents/CombinedFrameworkHIVToy/J")
 
 system("./msa 90  1 -T -t 2 -eN 0.1 0.2 -seeds 124 125 126>aaa.nwk")
 
