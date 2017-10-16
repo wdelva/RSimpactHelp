@@ -27,7 +27,7 @@
 #' @import igraph
 #' @import data.table
 
-# Build a transmission network data per seed to be handled by epi2tree function of expotree package
+# Build a transmission network data per seed to be used as inputs in sm and seq-gen simulation tools
 
 
 
