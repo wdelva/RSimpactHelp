@@ -1211,13 +1211,18 @@ legend("topleft", legend = c("1 to 1",
 
 ### Phylogenetic trees withn and without past demographic events
 
-system('./msa 30 1 -T -t 4.0 -eN 1 1 -seeds 1 2 3 >111.nwk')
+system('./msa 30 1 -T -t 2.0 -eN 8.0 0.02 >zzz1.nwk') # with past
 
-system('./msa 30 1 -T -t 4.0 -seeds 1 2 3 >1112.nwk')
+system('./msa 30 1 -T -t 2.0  >zzz2.nwk') # without past
 
-tr1 <- read.tree("111.nwk")
-tr2 <- read.tree("1112.nwk")
+tr1 <- read.tree("zzz1.nwk")
+tr2 <- read.tree("zzz2.nwk")
+par(mfrow = c(1,2))
 
+plot(tr1)
+plot(tr2)
+
+system('./msa 30 1 -T -t 4.0 -eN 0.2 .02')
 
 # seeds
 
@@ -1249,4 +1254,28 @@ trbbb <- read.tree("bbb.nwk")
 par(mfrow = c(1,2))
 plot(traaa)
 plot(trbbb)
+
+
+DF <- data.frame(date = as.Date(runif(10, 0, 80),origin="2005-01-01"),
+                 outcome = rbinom(10, 1, 0.1))
+DF <- DF[order(DF$DateVariable),] #Sort by date
+DF$x <- seq(length=nrow(DF)) #Add case numbers (in order, since sorted)
+DF$y <- cumsum(DF$outcome)
+library(ggplot2)
+ggplot(DF, aes(x,y)) + geom_path() + #Ploting
+  scale_y_continuous(name= "Number of failures") +
+  scale_x_continuous(name= "Operations performed")
+
+x <- c(0, 2, 2, 3, 3, 4, 4, 5, 5)
+y <- c(1, 1 ,0.5 ,0.5,1.5,1.5,1,1,0.25)
+df <- as.data.frame(cbind(x,y))
+
+df$x <- x
+df$y <- df$y # cumsum(df$y)
+
+library(ggplot2)
+ggplot(df, aes(x,y)) + geom_path() + #Ploting
+  scale_y_continuous(name= "Viral load change") +
+  scale_x_continuous(name= "Time since infection(in years)")
+
 
