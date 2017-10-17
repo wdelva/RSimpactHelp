@@ -136,7 +136,7 @@ for(v in 1:length(simpact.output.raw)){
         write.tree(seed.tree.trans,file = "HIV.Pol.gene.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
         file.rename(from = "HIV.Pol.gene.bis.nwk", to = paste("HIV.Pol.gene.bis",seed.id,".nwk", sep = ""))
 
-        seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+        seq.rand <- 3 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
         # Sequence of the seed at the first tramsmission event
         system(paste("./seq-gen -mGTR -f 0.3887782, 0.1646746, 0.2277556, 0.2187915 -a 0.9 -g 4 -r 0.00125, 0.00125, 0.00125, 0.00125, 0.00125, 0.00125 -n1 -k",seq.rand,"< HIV.Pol.gene.bis",seed.id,".nwk -z", seed,"> sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta",sep = ""))
@@ -163,7 +163,7 @@ for(v in 1:length(simpact.output.raw)){
     write.tree(seed.tree.samp,file = "HIV.Pol.gene.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
     file.rename(from = "HIV.Pol.gene.bis.nwk", to = paste("HIV.Pol.gene.bis",seed.id,".nwk", sep = ""))
 
-    seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+    seq.rand <- 3 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
     # Sequence of the seed at the sampling (diagnosis/removal) event
 
@@ -192,7 +192,7 @@ for(v in 1:length(simpact.output.raw)){
         write.tree(seed.tree.samp,file = "HIV.Pol.gene.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
         file.rename(from = "HIV.Pol.gene.bis.nwk", to = paste("HIV.Pol.gene.bis",seed.id,".nwk", sep = ""))
 
-        seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+        seq.rand <- 3 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
         # Sequence of the first recipient at the sampling (diagnosis/removal) event
         system(paste("./seq-gen -mGTR -f 0.3887782, 0.1646746, 0.2277556, 0.2187915 -a 0.9 -g 4 -r 0.00125, 0.00125, 0.00125, 0.00125, 0.00125, 0.00125 -n1 -k",seq.rand,"< HIV.Pol.gene.bis",seed.id,".nwk -z",seed,"> sequence_at_samp_",rec.seed,"_net_",v,".fasta",sep = ""))
@@ -222,7 +222,7 @@ for(v in 1:length(simpact.output.raw)){
 
     for(i in 3:length(seed2.dat$rec.IDs)){ # start at 3 bcz the seed and 1st transmission already simulated
       # random number for random sequence to infect new individual
-      seq.rand <- sample(1:10,1)
+      seq.rand <- 3 # sample(1:10,1)
       # recipients - k and donors - h
       k <- seed2.dat$rec.IDs[i] # 219 recipients
       h <- seed2.dat$don.IDs[i] # 1408 donors
@@ -256,7 +256,7 @@ for(v in 1:length(simpact.output.raw)){
 
     for(i in 3:length(seed2.dat$rec.IDs)){ # start at 3 bcz the seed and 1st transmission already simulated
       # random number for random sequence to infect new individual
-      seq.rand <- sample(1:10,1)
+      seq.rand <- 3 # sample(1:10,1)
       # recipients - k and donors - h
       k <- seed2.dat$rec.IDs[i] # [3]=219, recipients
       h <- seed2.dat$don.IDs[i] # [3]=1408, donors
