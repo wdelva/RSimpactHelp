@@ -554,7 +554,7 @@ transNetworkPastDemographic <- function(datalist = datalist, endpoint = 40){
             vl.infec.fun.rate <- vl.dat$Log10VL[index-1]
           }
         }
-        return(vl.samp.fun.rate)
+        return(vl.infec.fun.rate)
       }
       vl.infec.index.rate <- viralLoadInfec.rate(vl.dat)
 
