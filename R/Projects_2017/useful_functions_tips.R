@@ -1279,3 +1279,67 @@ ggplot(df, aes(x,y)) + geom_path() + #Ploting
   scale_x_continuous(name= "Time since infection(in years)")
 
 
+## Statistics MANUSCRIPT
+
+
+# 23 individuals
+# one infection > one infection
+a.id1 = c(seq(from=0,to=22, by=1))
+a.par1 = c(seq(from=-1, to=20, by=1),2)
+a.t1 = rev(c(seq(from=1,to=23, by=1)))
+a.epi1 <- list()
+a.epi1$itimes <- a.t1
+a.epi1$dtimes <- rep(0, length(a.t1))
+a.epi1$id <- a.id1
+a.epi1$parent <- a.par1
+a.epitree1 <- epi2tree(a.epi1)
+
+a.examp1 <- phylogenetictree.trend(tree = a.epitree1)
+a.x1 = a.examp1$num.tree
+a.y1 = a.examp1$size.tree
+a.reg1 <- lm(log(a.y1) ~ log(a.x1))
+a.cozf1 = coef(a.reg1)
+
+# 23 individuals
+
+# one infection > two to five infections after
+c.id1 = c(seq(from=0,to=22, by=1)) # 39
+c.par1 = c(-1,0,0,1,1,1,2,1,3,4,1,4,5,5,6,
+           7,4,8,8,4,9,9,4) #,11,11,12,12,
+# 13,13,14,14,15,15,16,16,17,17,18,18,19)
+c.t1 = rev(c(seq(from=1,to=23, by=1)))
+c.epi1 <- list()
+c.epi1$itimes <- c.t1
+c.epi1$dtimes <- rep(0, length(c.t1))
+c.epi1$id <- c.id1
+c.epi1$parent <- c.par1
+c.epitree1 <- epi2tree(c.epi1)
+
+c.examp1 <- phylogenetictree.trend(tree = c.epitree1)
+c.x1 = c.examp1$num.tree
+c.y1 = c.examp1$size.tree
+c.reg1 <- lm(log(c.y1) ~ log(c.x1))
+c.cozf1 = coef(c.reg1)
+
+par(mfrow = c(1,2))
+plot(a.epitree1, main="Laddrer-like transmisson tree")
+plot(c.epitree1, main="Homogenous tranmission tree")
+
+
+#we expect the sizes of subtrees to decrease follwoing power-law hypothetically
+
+examp1 <- phylogenetictree.trend(tree = tree)
+x = examp1$num.tree
+y = examp1$size.tree
+reg <- lm(log(y) ~ log(x))
+cozf = coef(reg)
+
+power.law.fit = function(a.x1) exp(a.cozf1[[1]] + a.cozf1[[2]] * log(a.x1))
+alpha = -a.cozf1[[2]]
+R.square = summary(a.reg1)$r.squared
+print(paste("Alpha =", round(alpha, 3)))
+print(paste("R square =", round(R.square, 3)))
+
+plot(a.y1 ~ a.x1, log = "xy", xlab = "Number of subtree (log)", ylab = "Subtree size (log)",
+     col = 1, main = "Tree spectrum distribution")
+curve(power.law.fit, col = "red", add = T, n = length(c.y1))
