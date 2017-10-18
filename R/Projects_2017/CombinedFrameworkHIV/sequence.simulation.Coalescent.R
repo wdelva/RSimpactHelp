@@ -40,10 +40,15 @@ for(v in 1:length(simpact.output.raw)){
 
       # Viral load at infection times and sampling times
 
+      # generation time > http://www.pnas.org/content/96/5/2187.full
+      #  The estimate of viral generation time using the coalescent method is 1.2 days per generation
+      # and is close to that obtained by mathematical modeling (1.8 days per generation)
+
       vl.inf <- 10*round(seed2.dat$infec.vload[i]) # viral load of the donors at time point of infecting someone else
       vl.samp <- 10*round(seed2.dat$samp.vload[i]) # viral load (of the recipients) at sampling time
-      t.inf <- seed2.dat$t.infec[i] # infection time for recipients, time interval from when the current donor j
+      t.inf <- (365*seed2.dat$t.infec[i])/1.2 # infection time for recipients, time interval from when the current donor j
       # got the infection from a donor i (or seeding event) until when current donor j transmits to recipient k
+
       t.samp <- seed2.dat$t.samp[i] #sampling time for recipients, time when recipient k has been sampled (diadnosed or removed by death)
 
       past.demographic.inf <- c(round(seed2.dat$rate.2back.infec.vload[i], digits = 3), round(seed2.dat$rate.1back.infec.vload[i], digits = 3)) #, 0.01) # a vector of change rates of viral loads from infection time to time to transmit the infection
