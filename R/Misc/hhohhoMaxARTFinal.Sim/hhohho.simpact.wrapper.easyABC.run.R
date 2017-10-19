@@ -14,25 +14,27 @@ if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
 all.sim.start <- as.numeric(proc.time()[3])
 
 #source simpact set parameters
-inPUT.df.complete <- source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.simpact.parameters.R")$value
+source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.simpact.parameters.R")
+inPUT.df.complete <- source.simpact.parameters(init.design.points = 10, resample = 1)
 
-#if you are doing many simulation you can also use a pre-prepared file
-#and read in a csv file.
+#select a chunk to process
+sel.id.list <- c(1:10)  # or c(1,3,5)
+
+#set min and max to for result save
+min.chunk <- min(sel.id.list)
+max.chunk <- max(sel.id.list)
+
+#set how many time the single row will be repeated
+sim_repeat <- 2
+#number of cores per node
+ncluster.use <- 4
+
+#if you are doing many simulation you can also use a prepared file amd read as csv file.
 #inPUT.df.complete <- data.frame(read.csv(file = paste0(dirname,"PARAMETER_FILE.csv"),
 #                                         header = TRUE, stringsAsFactors = FALSE) )
+
 #select a subset of the parameter set
-if(sel.list == "list"){
-
-  inANDout.df.chunk <- as.data.frame(subset(inPUT.df.complete, sim.id %in% sel.id.list))
-}else{
-
-  #check if min and max chunk are feasible
-  if(max.chunk > nrow(inPUT.df.complete)){max.chunk <- nrow(inPUT.df.complete)}
-  if(min.chunk > nrow(inPUT.df.complete) || min.chunk < 1){min.chunk <- max.chunk}
-
-  inANDout.df.chunk <- inPUT.df.complete[min.chunk:max.chunk,]
-}
-#make sure there are no empty rows
+inANDout.df.chunk <- as.data.frame(subset(inPUT.df.complete, sim.id %in% sel.id.list))
 inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
 
 #indicate the target statitics that you want to hit
@@ -69,7 +71,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr, lhs)
 
-    getparam.names <- source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.simpact.parameters.R")$value
+    source("R/Misc/hhohhoMaxARTFinal.Sim/hhohho.simpact.parameters.R")
+    getparam.names <- head(source.simpact.parameters(),1)
 
     #if you are doing many simulation you can also use a pre-prepared file
     #and read in a csv file.
