@@ -17,7 +17,8 @@ complete.df.wna <- data.frame(read.csv(file = paste0(dirname,"/",training.df), h
 complete.df.wna <- subset(complete.df.wna, complete.cases(complete.df.wna))
 
 #Just to get the varied parameter names
-inPUT.df.complete <- source("R/Misc/SimpactWrapper/simpact.parameters.R")$value
+source("R/Misc/SimpactWrapper/simpact.parameters.R")
+inPUT.df.complete <- head(source.simpact.parameters(),1)
 input.parameter.names <- names(dplyr::select(inPUT.df.complete, contains(".")))
 input.parameter.names <- input.parameter.names[2:length(input.parameter.names)]
 
