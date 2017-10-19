@@ -15,8 +15,8 @@ init.immediate <- 0
 init.not.eligible <- -6/12
 more.months <- twelve.months + six.months
 
-
-load("temp/chunk.datalist.wdziJXMrLG.rda")
+#Testing from saved data
+load("temp/chunk.datalist.WVDBdJaAev.rda")
 sim.datalist <- chunk.datalist.test
 
 pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
@@ -36,6 +36,11 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   maxart.study.pop$art.eligible <- maxart.study.pop$TreatTime + sample.eligible
 
+  #interpolation of eligibility date
+  #CD4atInfection (t1,c1)  CH4atDeath (t2, c2) ??? t2 not always known after simulation???
+  #maxart.study.pop$art.eligible.int <- NA
+
+  #interpolate use naive y = m * x + c where m = (c1 - c2)/(t1 - t2) and c = c1 - m * t1
 
   all.maxart <- nrow(maxart.study.pop)
 
@@ -200,7 +205,7 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   #collect all the summary values
   sim.summary <- c(hhohho.growth.rate.tar.values,
-                   hhohho.art.initiated.tar.values,
+                   #hhohho.art.initiated.tar.values,
                    hhohho.art.retention.tar.values,
                    hhohho.vl.none.suppression.tar.values,
                    hhohho.mortality.tar.values,
