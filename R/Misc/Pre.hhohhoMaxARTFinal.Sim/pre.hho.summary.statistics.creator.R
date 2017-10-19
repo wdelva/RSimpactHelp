@@ -17,14 +17,16 @@ init.population.total <- 1000
 women.frac <- 0.5253
 
 ################### ART initiation ##############################
-max.art.initiated.all <- read.table(
-        text="AllClients
-  all              84.6
-  before.eligible  2.2
-  within2.weeks    64
-  among.eligible   90
-  within12.months  91
-  within6months    87", header=TRUE, stringsAsFactors = FALSE)
+#removing this, need pfacility, TOD for eligibility from interpolation
+
+# max.art.initiated.all <- read.table(
+#         text="AllClients
+#   all              84.6
+#   before.eligible  2.2
+#   within2.weeks    64
+#   among.eligible   90
+#   within12.months  91
+#   within6months    87", header=TRUE, stringsAsFactors = FALSE)
 
 #TimeTo: 2016-11
 
@@ -90,7 +92,7 @@ tar.value <- function(df){
 
 #Creating target names
 target.variables <- c(tar.name(hhohho.growth.rate, "gr"),
-                      tar.name(max.art.initiated.all, "init"),
+                      #tar.name(max.art.initiated.all, "init"),
                       tar.name(max.art.retention.all, "ret"),
                       tar.name(max.vl.none.suppression.all, "vlsup"),
                       tar.name(max.mortality.all, "mort"),
@@ -99,7 +101,7 @@ target.variables <- c(tar.name(hhohho.growth.rate, "gr"),
 
 
 #if you will need to calibrate SET THE target values correctly
-target.values <- c(tar.value(hhohho.growth.rate), tar.value(max.art.initiated.all),
+target.values <- c(tar.value(hhohho.growth.rate), #tar.value(max.art.initiated.all),
                    tar.value(max.art.retention.all),tar.value(max.vl.none.suppression.all),
                    tar.value(max.mortality.all), tar.value(hhohho.prev),
                    tar.value(hhohho.age.diff))
