@@ -12,7 +12,8 @@ mice.df.complete <- data.frame(read.csv(file = paste0(dirname,"/mice.pmm.DkGQY.S
                                          header = TRUE, stringsAsFactors = FALSE) )
 
 #source simpact set parameters
-inPUT.df.complete <- source("R/Misc/SimpactWrapper/simpact.parameters.R")$value
+source("R/Misc/SimpactWrapper/simpact.parameters.R")
+inPUT.df.complete <-  head(source.simpact.parameters(),1)
 
 #indicate the target statitics that you want to hit
 source("R/Misc/SimpactWrapper/summary.statistics.creator.R")
@@ -27,7 +28,6 @@ inANDout.df.chunk <- cbind(sim.id = 1:nrow(mice.df.complete),
                            subset(mice.df.complete, select = preprior.names.chunk))
 
 inANDout.df.chunk <- as.data.frame(inANDout.df.chunk)
-
 
 #rbind all the results for this chunk to be merged after
 #Create a dataframe with NA for the summary statistics Will collect all the chunks with the sim.id to link back
@@ -55,7 +55,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     pacman::p_load(RSimpactCyan, RSimpactHelper, dplyr, data.table, magrittr, exactci, tidyr, lhs)
 
-    getparam.names <- source("R/Misc/SimpactWrapper/simpact.parameters.R")$value
+    source("R/Misc/SimpactWrapper/simpact.parameters.R")
+    getparam.names <- head(source.simpact.parameters(),1)
 
     #if you are doing many simulation you can also use a pre-prepared file
     #and read in a csv file.
@@ -158,17 +159,6 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       }
     }
     chunk.datalist.test <- readthedata(testoutput)
-
-    if(simulation.type == "maxart"){
-      #assigning Dummy facility to individual
-      chunk.datalist.test$ptable <- client.facility(datalist = chunk.datalist.test, site = "MaxART")
-      chunk.datalist.test$ptable$pfacility[chunk.datalist.test$ptable$pfacility.value > 15] <- "Not Hhohho"
-
-      test.gr <- pop.growth.calculator(datalist = chunk.datalist.test,
-                            timewindow = c(0, timewindow.max=chunk.datalist.test$itable$population.simtime[1]))
-
-      #print(paste0("Test growth rate value change: ", test.gr))
-    }
 
     #save each of the run output.
     #save(chunk.datalist.test, file = paste0("temp/","chunk.datalist.",sub.dir.sim.id,".rda"))
