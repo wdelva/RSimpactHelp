@@ -23,8 +23,11 @@ epi2tree2 <- function(epi){
       off.id <- epi$id[offspring]
       inf.t <- epi$itimes[offspring]
       dt <- epi$dtimes[node.i]
-      intervals <- c(epi$itimes[node.i], inf.t) - c(inf.t,
-                                                    dt)
+      #intervals <- c(epi$itimes[node.i], inf.t) - c(inf.t,
+      #                                             dt)
+
+      intervals <- epi$itimes[node.i] - dt
+
       ages <- c(inf.t, dt)
       new.id <- 1:length(inf.t) + cur.id
       cur.id <- max(new.id)
