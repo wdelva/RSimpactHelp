@@ -15,7 +15,9 @@
 
 trans.network2tree <- function(transnetwork = transnetwork){
 
-  transm.phylo <- epi2tree(transnetwork)
+  source("/home/david/RSimpactHelp/R/epi2tree2.R")
+
+  transm.phylo <- epi2tree2(transnetwork)
 
   return(transm.phylo)
 
