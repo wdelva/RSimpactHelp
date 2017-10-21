@@ -1,10 +1,7 @@
-#I presume this will be called through source()
-#Idea is to give date and statistics. Calculated using start of the simulation - that time.
-
 #Parameters  creation
 
 #Set up simulation parameters and initiate simulation
- #just the year when simulation started.
+#just the year when simulation started.
 sim.start.full <- as.Date("1970-03-31")
 sim.start <- as.numeric(substr(sim.start.full,1,4))
 maxart.starttime <- as.Date("2014-09-01")
@@ -31,6 +28,9 @@ women.frac <- 0.5253
 #TimeTo: 2016-11
 
 ##########################  ART Retention  #############################
+# expressed as rate totalRetained/TotalInitiated * 100
+# within the study time period (study.start - study.end)
+
 max.art.retention.all <- read.table(
   text="AllClients
   all             73
@@ -39,15 +39,19 @@ max.art.retention.all <- read.table(
 #timeTo: 2016-11
 
 ###########################  ViralLoadSuppression ##################
+# expressed as rate i.e 100 - suppressed/TotalInitiated * 100
+# within the study time period (study.start - study.end)
 max.vl.none.suppression.all <- read.table(
   text="AllClients
   at6.months       6
   at12.months      11", header=TRUE, stringsAsFactors = FALSE)
 
 #Check validation
-#atleast6.months  4      8       2016-11
+#atleast6.months  8       2016-11
 
-#############  ViralLoadSuppression ###########################
+#############  Mortality  ###########################
+# expressed as rate Number of death/ All clients * 100
+# within the study time period (study.start - study.end)
 max.mortality.all <- read.table(
     text="AllClients
   all            1.87
@@ -56,13 +60,20 @@ max.mortality.all <- read.table(
 #timeTo 2016-11
 
 ################# Growth rate ##########################################
+#The average annual continuos growth rate Iog(Nt/No)/t * 100
+#"population growth rate gives the average annual percent change in the population,"
+## http://www.citypopulation.de/Swaziland.html (%/yr)
+#change 1976 - 1986 | #1986 - 1997
+#1997 - 2007  |  #2007 - 2012
+
 hhohho.growth.rate <- read.table(
   text = "X1986   X1997   X2007   X2012
 year10    6.45    3.38    1.02    0.22", header=TRUE, stringsAsFactor = FALSE)
 
 
 ############  Hhohho prevalence ##############################################
-#Data was collected between July 2006 and March 2007 [SDHS 2006-07]: TimeTo = 2007-03
+#Data was collected between July 2006 and March 2007 [SDHS 2006-07]:
+#TimeTo = midpoint [2007-03, 2006-07]
 hhohho.prev <- read.table(
       text="F.value    M.value    FM.value
   A0.150    24.2       17.4       21.0
