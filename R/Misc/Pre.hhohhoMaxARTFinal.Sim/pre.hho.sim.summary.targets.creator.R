@@ -139,8 +139,10 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   #Growth rate is calculated per 10 year.
   for(i in 1:length(gr.year.list)){
-    from.time <- gr.year.list[i] - 10 - sim.start
-    to.time <-  from.time + 10
+    ifelse(gr.year.list[i] == 2012, t.change <- 5, t.change <- 10)
+
+    from.time <- gr.year.list[i] - t.change - sim.start
+    to.time <-  from.time + t.change
 
     hhohho.growth.rate.tar.values[i] <- pop.growth.calculator(datalist = sim.datalist,
                                                              timewindow = c(from.time, to.time)) * 100
@@ -154,7 +156,10 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   swazi.sim.prev.2007.m <- rep(NA, swazi.sim.prev.2007.len)
   swazi.sim.prev.2007.fm <- rep(NA, swazi.sim.prev.2007.len)
 
-  time.end.2007 <- as.numeric(difftime(as.Date("2007-03-31") ,sim.start.full, units = "days")/365.245)
+  s.start <- as.Date("2006-07-31")
+  s.end <- as.Date("2007-03-31")
+  prev.time <- s.start + floor(difftime(s.end, s.start)/2)
+  time.end.2007 <- as.numeric(difftime(prev.time,sim.start.full, units = "days")/365.245)
 
   for(i in 1:swazi.sim.prev.2007.len){
 
