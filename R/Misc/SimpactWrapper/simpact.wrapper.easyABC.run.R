@@ -254,10 +254,3 @@ print(paste0("Total time to compute simulation: ", end.chunk.time))
 all.sim.end <- as.numeric(proc.time()[3]) - all.sim.start
 print(paste0("Total time to finish simulation: ", all.sim.end))
 
-
-
-
-
-
-
-
