@@ -25,42 +25,23 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   sim.datalist$ptable$age <- sim.datalist$itable$maxart.starttime[1] - sim.datalist$ptable$TOB
 
   #get the MaxART population group
-  maxart.study.pop <- filter(sim.datalist$ptable,  age >= 18 & TreatTime!=Inf)
+  maxart.study.pop <- filter(sim.datalist$ptable,  age >= 18 & InfectTime!=Inf)
 
-  #df.rw <- nrow(maxart.study.pop)
-
-  #Dummy when eligible
-  #sample.eligible <- sample(c(two.weeks, twelve.months, six.months,
-  #                              init.immediate, more.months,
-  #                              init.not.eligible, NA), replace = TRUE, df.rw)
-
-  #maxart.study.pop$art.eligible <- maxart.study.pop$TreatTime + sample.eligible
-
-  #interpolation of eligibility date
-  #CD4atInfection (t1,c1)  CH4atDeath (t2, c2) ??? t2 not always known after simulation???
-  #maxart.study.pop$art.eligible.int <- NA
-
-  #interpolate use naive y = m * x + c where m = (c1 - c2)/(t1 - t2) and c = c1 - m * t1
-
+  #Total clients
   all.maxart <- nrow(maxart.study.pop)
-
-  #Get all infected clients
-  max.art.ret.study.pop.all <- maxart.study.pop %>%
-    filter(TreatTime !=Inf)
 
   #alldf
   chunk.datalist.test.all <- sim.datalist
-  chunk.datalist.test.all$ptable <- max.art.ret.study.pop.all
+  chunk.datalist.test.all$ptable <- maxart.study.pop
 
-  ### ART coverage ####################
-
+  ### MaxART ART coverage ####################
   hhohho.all.art.coverage.var <- maxart.study.pop %>%
      filter(TreatTime!=Inf) %>%
      summarise(all.all = n()/all.maxart)
 
   all.art.init <- dplyr::select(hhohho.all.art.coverage.var, contains(".all"))
   hhohho.art.initiated.tar.values <- as.numeric(all.art.init*100)
-  #
+
   #when do we want the retention time
   maxart.ret.timepoint <- difftime(maxart.endtime, sim.start.full, units = "days")/365.242
   maxart.ret.timepoint <- round(as.numeric(maxart.ret.timepoint),0)
