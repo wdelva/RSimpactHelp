@@ -136,7 +136,7 @@ for(i in 1:length(trans.net)){
     # # call the seed sequences - pool of viruses and rename the file
     file.copy(paste("HIV.Pol.gene.fasta", sep = ""),paste("seed.seq.bis",i,".nwk", sep = ""))
     # add the number of tree in the file and
-    write(1,file = paste("seed.seq.bis",i,".nwk",sep = ""), append = TRUE)  # n.tr
+    write(n.tr,file = paste("seed.seq.bis",i,".nwk",sep = ""), append = TRUE)  # n.tr
     # the tree, to prepare the file to simulate the evolution of the virus across the tree
     write.tree(tr,file = paste("seed.seq.bis",i,".nwk", sep = ""), append = TRUE)
     file.rename(from = paste("seed.seq.bis",i,".nwk", sep = ""), to = paste("seed.seq.bis",i,"Id",seed.id,".nwk", sep = ""))
