@@ -88,8 +88,11 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
     simpact.set.simulation(simulation.type)
 
     #This is largerly motivated by the 1970 Swaziland UN population
-    agedist.chunk.data.frame <- agedistr.creator(shape = 2, scale = 25)
+    #agedistr.creator(shape = 2, scale = 25)
+    #sticking with our default.
+    agedist.chunk.data.frame <- agedistr.creator(shape = 5, scale = 65)
 
+    #When is HIV seeded and for how long the simulation will be.
     seed.hiv.time <- round(as.numeric(difftime(seed.hiv.date, sim.start.full, units = "days")/365.242),0)
     sim.duration <- round(as.numeric(difftime(sim.end.full,sim.start.full, units = "days")/365.242),0)
 
@@ -112,7 +115,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       #cfg.chunk$person.geo.dist2d.discrete.maskfile <-  "" #Defaults to Hhohho  region
     }
 
-    #intervention introduced See the intervention.introduced
+    #intervention introduced see the intervention.introduced
     source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.intervention.introduced.R")
     iv.chunk <- intervention.introduced(simulation.type = "pre.hhohho", simulation.start = sim.start.full)
 
