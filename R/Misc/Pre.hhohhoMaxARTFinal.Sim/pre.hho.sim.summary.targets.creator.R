@@ -16,8 +16,8 @@ init.not.eligible <- -6/12
 more.months <- twelve.months + six.months
 
 #Testing from saved data
-load("temp/chunk.datalist.WVDBdJaAev.rda")
-sim.datalist <- chunk.datalist.test
+#load("temp/chunk.datalist.WVDBdJaAev.rda")
+#sim.datalist <- chunk.datalist.test
 
 pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
@@ -27,14 +27,14 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   #get the MaxART population group
   maxart.study.pop <- filter(sim.datalist$ptable,  age >= 18 & TreatTime!=Inf)
 
-  df.rw <- nrow(maxart.study.pop)
+  #df.rw <- nrow(maxart.study.pop)
 
   #Dummy when eligible
-  sample.eligible <- sample(c(two.weeks, twelve.months, six.months,
-                                init.immediate, more.months,
-                                init.not.eligible, NA), replace = TRUE, df.rw)
+  #sample.eligible <- sample(c(two.weeks, twelve.months, six.months,
+  #                              init.immediate, more.months,
+  #                              init.not.eligible, NA), replace = TRUE, df.rw)
 
-  maxart.study.pop$art.eligible <- maxart.study.pop$TreatTime + sample.eligible
+  #maxart.study.pop$art.eligible <- maxart.study.pop$TreatTime + sample.eligible
 
   #interpolation of eligibility date
   #CD4atInfection (t1,c1)  CH4atDeath (t2, c2) ??? t2 not always known after simulation???
@@ -54,38 +54,23 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   ### ART coverage ####################
 
-  hhohho.all.prim.art.coverage.var <- maxart.study.pop %>%
-    filter(TreatTime!=Inf) %>%
-    summarise(all.all = n()/all.maxart,
+  hhohho.all.art.coverage.var <- maxart.study.pop %>%
+     filter(TreatTime!=Inf) %>%
+     summarise(all.all = n()/all.maxart)
 
-              b4.elig.all = sum(TreatTime < art.eligible, na.rm = TRUE )/all.maxart,
-
-              within2wks.all = sum(TreatTime>=art.eligible &
-                                     TreatTime < (TreatTime+two.weeks) , na.rm = TRUE)/all.maxart,
-
-              amongelig.all = sum(TreatTime > art.eligible, na.rm = TRUE )/all.maxart,
-
-              within12m.all = sum(TreatTime==art.eligible &
-                                    TreatTime < (TreatTime+twelve.months), na.rm = TRUE )/all.maxart,
-
-              within6m.all = sum(TreatTime==art.eligible &
-                                   TreatTime < (TreatTime+six.months), na.rm = TRUE )/all.maxart
-
-    )
-
-  all.art.init <- dplyr::select(hhohho.all.prim.art.coverage.var, contains(".all"))
-
+  all.art.init <- dplyr::select(hhohho.all.art.coverage.var, contains(".all"))
   hhohho.art.initiated.tar.values <- as.numeric(all.art.init*100)
   #
   #when do we want the retention time
   maxart.ret.timepoint <- difftime(maxart.endtime, sim.start.full, units = "days")/365.242
   maxart.ret.timepoint <- round(as.numeric(maxart.ret.timepoint),0)
-  maxart.starttime.ret <- round(as.numeric(difftime(maxart.starttime ,sim.start.full, units = "days")/365),0)
+  maxart.starttime.ret <- round(as.numeric(difftime(maxart.starttime ,sim.start.full, units = "days")/365.242),0)
+  ret.end <- round(as.numeric(difftime(maxart.endtime,maxart.starttime, units = "days"))/365.242,0) * 12
 
   #### Max Retention ####################################
   max.ret.tar <- length(row.names(max.art.retention.all))
   max.ret.tar.all <- rep(NA, max.ret.tar)
-  max.ret.tar.list <- c(36, 6, 12)
+  max.ret.tar.list <- c(ret.end, 6, 12)
   ret.age.group <- c(18, 150)
 
   for(ret in 1:max.ret.tar){
@@ -102,7 +87,7 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   hhohho.art.retention.tar.values <- max.ret.tar.all
 
-  # # ############### Viral Load none supresssion ############################################
+  ################# Viral Load none supresssion ############################################
   max.vl.sup.tar.dim <- length(row.names(max.vl.none.suppression.all))
   max.vl.sup.all <- rep(NA, max.vl.sup.tar.dim)
   max.vl.sup.list <- c(6, 12)
@@ -210,7 +195,7 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   #collect all the summary values
   sim.summary <- c(hhohho.growth.rate.tar.values,
-                   #hhohho.art.initiated.tar.values,
+                   hhohho.art.initiated.tar.values,
                    hhohho.art.retention.tar.values,
                    hhohho.vl.none.suppression.tar.values,
                    hhohho.mortality.tar.values,
