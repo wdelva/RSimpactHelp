@@ -110,7 +110,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     #add some of the MaxART specific parameters
     if(simulation.type == "maxart"){
-      cfg.chunk$facilities.randomization <- "${SIMPACT_DATA_DIR}maxart-randomization.csv"
+      cfg.chunk$facilities.randomization <- "${SIMPACT_DATA_DIR}maxart-randomization-fake_5.csv"
       cfg.chunk$maxart.starttime <- round(as.numeric(difftime(maxart.starttime ,sim.start.full, units = "days")/365),0)
       #cfg.chunk$person.geo.dist2d.discrete.maskfile <-  "" #Defaults to Hhohho  region
     }
@@ -150,7 +150,8 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       noise.sample <- sample(1:1000,1)
       noise.sample2 <- sample(8:17,1, replace = TRUE)
       sub.dir.sim.id <- paste0(sub.dir.sim.id.ext,
-                               paste0(sample(chars,noise.sample2), collapse = ""),noise.sample, rn)
+                               paste0(sample(chars,noise.sample2), collapse = ""),
+                               noise.sample, rn, Sys.getpid())
 
       return(sub.dir.sim.id)
 
