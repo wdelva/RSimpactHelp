@@ -46,8 +46,9 @@ vl.suppressed <- function(datalist = datalist,
   vl.cutoff <- log10(vlcutoff)
   six.months <- timepoint - lessmonths/12
 
-  DTalive.infected <- DTalive.infected %>%  dplyr::mutate(ARTLess6mnths = (TreatTime <= six.months))
-  raw.df <- data.frame(DTalive.infected)
+  DTalive.infected <- DTalive.infected %>%
+    dplyr::mutate(ARTLess6mnths = (TreatTime <= six.months))
+  raw.df <- as.data.frame(DTalive.infected)
 
   InfectedOnTreatment <- subset(raw.df, ARTLess6mnths==TRUE)
 
@@ -92,14 +93,14 @@ vl.suppressed <- function(datalist = datalist,
     vlSuppressed.TP <- data.frame(dplyr::summarise(
       dplyr::group_by(InfectedOnTreatment, Gender),
       TotalCases = n(),
-      VLSuppressed = sum(VL.Suppressed.Timepoint),
-      Percentage = sum(VL.Suppressed.Timepoint)/n() *100))
+      VLSuppressed = sum(VL.Suppressed.Timepoint, na.rm = TRUE),
+      Percentage = sum(VL.Suppressed.Timepoint, na.rm = TRUE)/n() *100))
 
 
      vlSuppressed.TP <- rbind(vlSuppressed.TP,
                   c("NA", nrow(InfectedOnTreatment),
-                  sum(InfectedOnTreatment$VL.Suppressed.Timepoint),
-                  sum(InfectedOnTreatment$VL.Suppressed.Timepoint)/nrow(InfectedOnTreatment)*100
+                  sum(InfectedOnTreatment$VL.Suppressed.Timepoint, na.rm = TRUE),
+                  sum(InfectedOnTreatment$VL.Suppressed.Timepoint, na.rm = TRUE)/nrow(InfectedOnTreatment)*100
                   ))
 
   }
