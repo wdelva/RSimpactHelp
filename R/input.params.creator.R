@@ -192,6 +192,17 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  diagnosis.baseline = -100,
                                  monitoring.cd4.threshold = 0.1,#Treatment will not start before schedule
                                  monitoring.fraction.log_viralload = 0.3,
+                                 birth.boygirlratio = 0.5024876, #101:100
+                                 simulation.type = "simpact-cyan",
+                                 population.msm = "yes",
+                                 person.eagerness.man.msm.dist.type = "fixed",
+                                 person.eagerness.man.msm.dist.fixed.value = 0,
+                                 formationmsm.hazard.type = "simple",
+                                 formationmsm.hazard.simple.alpha_0 = 2,
+                                 formationmsm.hazard.simple.alpha_12 = -0.4,
+                                 formationmsm.hazard.simple.alpha_5 = -0.2, # The factor α5 controls the relative importance of the age gap between the partners.
+                                 formationmsm.hazard.simple.alpha_6 = 0,  # weight for sum of eagerness parameters
+                                 formationmsm.hazard.simple.alpha_7 = 0
                                  birth.pregnancyduration.dist.type = "fixed",
                                  birth.pregnancyduration.dist.fixed.value = 268/365, # just over 38 weeks
                                  birth.boygirlratio = 1.0/2.01, #0.5024876, #101:100
@@ -264,6 +275,15 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$monitoring.fraction.log_viralload <- monitoring.fraction.log_viralload
   input.params$diagnosis.baseline <- diagnosis.baseline
   input.params$birth.boygirlratio <- birth.boygirlratio
+  input.params$population.msm <- population.msm
+  input.params$person.eagerness.man.msm.dist.type <- person.eagerness.man.msm.dist.type
+  input.params$person.eagerness.man.msm.dist.fixed.value <- person.eagerness.man.msm.dist.fixed.value
+  input.params$formationmsm.hazard.type <- formationmsm.hazard.type
+  input.params$formationmsm.hazard.simple.alpha_0 <- formationmsm.hazard.simple.alpha_0
+  input.params$formationmsm.hazard.simple.alpha_12 <- formationmsm.hazard.simple.alpha_12
+  input.params$formationmsm.hazard.simple.alpha_5 <- formationmsm.hazard.simple.alpha_5 # The factor α5 controls the relative importance of the age gap between the partners.
+  input.params$formationmsm.hazard.simple.alpha_6 <- formationmsm.hazard.simple.alpha_6  # weight for sum of eagerness parameters
+  input.params$formationmsm.hazard.simple.alpha_7 <- formationmsm.hazard.simple.alpha_7
   input.params$birth.pregnancyduration.dist.type <- birth.pregnancyduration.dist.type
   input.params$birth.pregnancyduration.dist.fixed.value <- birth.pregnancyduration.dist.fixed.value
 
