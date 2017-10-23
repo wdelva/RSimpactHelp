@@ -54,7 +54,7 @@ names(chunk.summary.stats.df) <- c(target.variables, "sim.id")
 simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
   #This needs to be read by each processor
-  pacman::p_load(RSimpactHelper)
+  pacman::p_load(dplyr, EasyABC, RSimpactCyan, RSimpactHelper, lhs)
 
   source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.summary.statistics.creator.R")
 
@@ -191,7 +191,7 @@ simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
       #get the summary statistics for each run
 
       source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.sim.summary.targets.creator.R")
-
+      source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/source.ART.retention.R") #dummy cluster not updated
       ##get the summary statistics as indicated by target.variables
       out.statistic <- pre.hhohho.sim.summary.creator(chunk.datalist.test)
       ##out.test.degree <- out.statistic[[2]]
