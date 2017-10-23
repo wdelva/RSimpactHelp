@@ -75,9 +75,11 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   for(vl in 1:max.vl.sup.tar.dim){
 
-    vl.sup.all = 100 - vl.suppressed(datalist = chunk.datalist.test.all,
-                               timepoint = maxart.ret.timepoint, vlcutoff = 1000,
-                               lessmonths = max.vl.sup.list[vl], site="All")$percentage[[1]]
+    vl.sup.all <- vl.suppressed(datalist = chunk.datalist.test.all,
+                                timepoint = maxart.ret.timepoint, vlcutoff = 1000,
+                               lessmonths = max.vl.sup.list[vl], site="All")
+
+    vl.sup.all <- subset(vl.sup.all, Gender == "NA")$Percentage[[1]]
 
     max.vl.sup.all[vl] <- ifelse(is.null(vl.sup.all), NA, vl.sup.all)
 
