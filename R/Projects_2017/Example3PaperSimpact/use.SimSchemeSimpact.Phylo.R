@@ -5,7 +5,7 @@ setwd("/home/david/RSimpactHelp/R/Projects_2017/Example3PaperSimpact/")
 
 pacman::p_load(devtools, Rcpp, ape, expoTree, data.table, phylosim, RSimpactCyan,
                RSimpactHelper, readr, phangorn, Biostrings,
-               phyclust, DECIPHER,geiger,picante)
+               phyclust, DECIPHER,treedater,geiger,picante)
 
 
 #######################
@@ -203,7 +203,7 @@ for (j in 1:length(IDs.transm)){
 
 
 # 4.2. Internal node optimisation requires sampled dates
-
+IDs.transm <- c(2,3,11)
 for (j in 1:length(IDs.transm)){
 
   id.trans <- IDs.transm[j]
@@ -253,136 +253,4 @@ for (j in 1:length(IDs.transm)){
 
 
 }
-
-
-t2.raw <- read.tree("sequence_all_seed_number_2_model1.fasta.treefile")
-t3.raw <- read.tree("sequence_all_seed_number_3_model1.fasta.treefile")
-t11.raw <- read.tree("sequence_all_seed_number_11_model1.fasta.treefile")
-
-t2.cal <- read.tree("calibratedTree_2.nwk")
-t3.cal <- read.tree("calibratedTree_3.nwk")
-t11.cal <- read.tree("calibratedTree_11.nwk")
-
-
-plot(t2.raw, label.offset=0.2)  #the label.offset argument moves the species names a bit to the right (try different values!)
-nodelabels() #add node numbers
-tiplabels() #add tip numbers
-
-mycol<-c("blue", "blue", "blue", "red", "red", "red") #feel free to pick other colors...
-
-plot(t2.cal, adj=0, label.offset=0.75) #adjust if necessary/desired!
-tiplabels(pch=21, col="black", adj=1, bg=mycol, cex=2) #ditto! try different values!
-
-
-plot(t2.cal, direction="upwards", show.tip.label=FALSE, edge.width=2, edge.color="blue") # Try a few different settings!
-
-
-Mytree1 <- t3.raw
-Mytree2 <- t3.cal
-
-plot(Mytree1, show.tip.label=FALSE, edge.width=2, edge.color="blue") # Try a few different settings!
-axisPhylo()
-
-plot(Mytree2, show.tip.label=FALSE, edge.width=2, edge.color="blue") # Try a few different settings!
-axisPhylo()
-
-br.Mytree1 <- branching.times(Mytree1)
-br.Mytree2 <- branching.times(Mytree2)
-min(br.Mytree2) #  -9.188061
-max(br.Mytree2) #  12.53304
-
-
-id.trans <- 3
-
-tree.const <- read.tree(paste("sequence_all_seed_number_",id.trans,"_model1.fasta.treefile", sep = ""))
-
-samp.dates <- read.csv(paste("samplingdates_seed_number_",id.trans,".csv", sep = ""))
-
-time.samp <- dates.Transform.NamedVector(dates=samp.dates)
-
-tree.tips <- as.numeric(tree.const$tip.label)
-
-Ord.tree.dates <- vector()
-for(i in 1:length(tree.tips)){
-  for(j in 1:length(time.samp)){
-    if(tree.tips[i] == samp.dates$V1[j]){
-      Ord.tree.dates <- c(Ord.tree.dates, time.samp[j])
-    }
-  }
-}
-
-# Use of library(treedater) to calibrate internal nodes
-dater.tree <- dater(tree.const, Ord.tree.dates, s = 1000) # s is the length of sequence
-
-
-
-# op
-g <- tree.const
-a <- g$tip.label # label names
-d <- as.character(round(Ord.tree.dates, digits = 2)) # sampling dates
-g$tip.label <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-
-renamed.Ord.tree.dates <- Ord.tree.dates
-names(renamed.Ord.tree.dates) <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-
-# Use of library(treedater) to calibrate internal nodes
-dater.tree.g <- dater(g, renamed.Ord.tree.dates, s = 1000) # s is the length of sequence
-
-# Phylogenetic tree with 314 tips and 313 internal nodes.
-
-# Node age with picante package
-
-N <- node.age(dater.tree.g)
-
-# potential transmission times
-int.node.age <- N$Ti # internal nodes ages
-##########################################
-
-
-latest.samp <- N$timeToMRCA+N$timeOfMRCA # latest sampling date
-
-
-## Transnet
-
-tra.net.3 <- trans.net[[3]]
-
-tra.net.3$dtimes <- abs(tra.net.3$dtimes-40)+1980 #(endpoint=40)
-tra.net.3$itimes <- abs(tra.net.3$itimes-40)+1980 #(endpoint=40) 10>1990, -> +1980
-
-min.val = 1990
-max.val = round(max(tra.net.3$itimes))
-
-
-step.int=1
-d <- (max.val-min.val)/step.int
-
-dat.f.trans <- as.data.frame(tra.net.3)
-dt.node.age.dt <- int.node.age
-
-numb.tra <- vector()
-i.vec <- vector()
-int.node.vec <- vector()
-for (i in 1:d) {
-  inf <- 1989+i
-  sup <- 1990+i
-  dat.f.trans.i <- dat.f.trans[which(dat.f.trans$itimes <= sup & dat.f.trans$itimes  >= inf),]
-  numb.i <- nrow(dat.f.trans.i)
-  numb.tra <- c(numb.tra, numb.i)
-  i.vec <- c(i.vec, sup)
-  int.node.age.i <- int.node.age[int.node.age <= sup & dt.node.age.dt >= inf]
-  int.node.vec <- c(int.node.vec,length(int.node.age.i))
-}
-
-x <- i.vec
-plot(x,numb.tra, type="b", col="red", lwd=2) # 1 > 1
-lines(x, int.node.vec, col='green', type='b', lwd=2)
-
-
-
-
-
-
-
-
-
 
