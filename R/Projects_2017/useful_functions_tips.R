@@ -1343,3 +1343,18 @@ print(paste("R square =", round(R.square, 3)))
 plot(a.y1 ~ a.x1, log = "xy", xlab = "Number of subtree (log)", ylab = "Subtree size (log)",
      col = 1, main = "Tree spectrum distribution")
 curve(power.law.fit, col = "red", add = T, n = length(c.y1))
+
+
+### Try  to enlarge the pectrum of aptreeshape
+
+r.tr1 <- as.treeshape(rtree(700))
+phylogenetictree.trend(r.tr1)
+
+spec.r.tr1 <- spectrum.treeshape(r.tr1)
+
+r.tr2 <- as.treeshape(rtree(1700))
+spec.r.tr2 <- spectrum.treeshape(r.tr2)
+
+
+phylogenetictree.trend(rtree(1700))
+
