@@ -78,7 +78,7 @@ master.datalist <- get(load("DummyMaster.datalist.RData"))
 
 
 # Resource required RSimpactHelp function in my branch
-source("/home/david/RSimpactHelp/R/transmNetworkBuilder2.diff.R")
+source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff2.R")
 source("/home/david/RSimpactHelp/R/trans.network2tree.R")
 
 # Transmission network in a form of constructing a transmission network
