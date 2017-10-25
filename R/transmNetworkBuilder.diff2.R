@@ -11,6 +11,7 @@
 #' @note
 #' transm.ls[[1]] is the transmission network (epi object) of the first seed
 #' @import igraph
+#' @importFrom dplyr left_join
 #' @import data.table
 
 # Build a transmission network data per seed to be handled by epi2tree function of expotree package
