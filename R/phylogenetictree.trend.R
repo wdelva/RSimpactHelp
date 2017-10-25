@@ -39,7 +39,7 @@ phylogenetictree.trend <- function(tree=tree){
   numb.tips <- length(tips.labels)
   d <- rev(seq(from = 2, to = numb.tips, by = 1)) # sequence of sizes of subtrees (number of tips)
 
-  tree1 <- as.treeshape(tree) # the tre must be a treeshape object
+  tree1 <- as.treeshape(a) # the tre must be a treeshape object
   s <- spectrum.treeshape(tree1) # sequence of number of subtrees
 
   # in d we read the number of tips for a given tree (or size of the tree)
