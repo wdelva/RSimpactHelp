@@ -102,7 +102,7 @@ intervention <- interventionlist # scenario(interventionlist, tasp.indicator)
 
 
 
-inputvector <- c(1.1, 0.25, 0, 3, 0.23, 0.23, 45, 45, -0.5, 2.8, -0.2, -0.2, -2.5, -0.52, -0.05)
+inputvector <- c(123,1.1, 0.25, 0, 3, 0.23, 0.23, 45, 45, -0.5, 2.8, -0.2, -0.2, -2.5, -0.52, -0.05)
 
 
 cfg.list["hivtransmission.param.f1"] = log(inputvector[2])
@@ -138,7 +138,7 @@ cfg["formation.hazard.agegapry.numrel_man"] <- inputvector[12]
 cfg["formation.hazard.agegapry.numrel_woman"] <- inputvector[13]
 cfg["conception.alpha_base"] <- inputvector[14] #is conception.alpha.base (higher up)
 cfg["dissolution.alpha_0"] <- inputvector[15]
-#cfg["dissolution.alpha_4"] <- inputvector[16]
+cfg["dissolution.alpha_4"] <- inputvector[16]
 
 
 # Run Simpact
@@ -157,12 +157,12 @@ datalist <- master.datalist
 
 prevalence.df <- prevalence.calculator(datalist = datalist,
                                        agegroup = c(15, 30),
-                                       timepoint = 30)
+                                       timepoint = 10)
 
 prevalence.df
 
 incidence.df <- incidence.calculator(datalist = datalist,
-                                     agegroup = c(15, 30), timewindow = c(20, 30))
+                                     agegroup = c(15, 30), timewindow = c(5, 15))
 incidence.df
 
 prevalence.df.plot <-prevalence.plotter(datalist = datalist, agegroup = c(15, 30))
