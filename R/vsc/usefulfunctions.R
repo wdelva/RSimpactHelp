@@ -1,5 +1,8 @@
 
 #remove columns
+#Using MPI on the cluster
+#mpirun -np 4 Rscript R/Misc/Pre.hhohhoMaxARTFinal.Sim/T.pre.hho.simpact.wrapper.easyABC.run.R
+
 
 #df <- subset(df, select = -c(x,y))
 #drop = c("x","y")
@@ -155,7 +158,30 @@
 
 
 
+###################Viral Load Plots ################### IGNORE
+# yaxis <- vl.cutoff + 0.2 # add the axis to make visual
+#
+# #Visualise the VL points
+# q <- ggplot()
+# q <- q + geom_point(data=VLevent.df, aes(x=Time, y=Log10VL, group=ID, colour = Desc))
+# #q <- q + geom_line(data=VLevent.df, aes(x=Time, y=Log10VL, group=ID, colour = Desc))
+# q <- q + geom_hline(yintercept=vl.cutoff) +
+#   annotate("text", datalist$itable$hivseed.time[1], vl.cutoff + 0.2, label = "  VLCutoff")
+# q <- q + geom_vline(xintercept=timepoint-0.5, colour = "blue") +
+#   annotate("text", timepoint, max(VLevent.df$Log10VL), label = "  TimePoint")
+# q <- q +theme_bw() + theme(legend.position = "right") +
+#   theme(panel.background = element_blank(),panel.grid.major.x = element_blank(),
+#         panel.grid.minor.x = element_blank(),
+#         panel.grid.minor.y = element_blank(),
+#         panel.grid.major.y = element_blank(), panel.ontop = TRUE) +
+#   theme(legend.background = element_rect(colour = "black"))
 
+#Get the last recorded VL and the desc
+#if StartedART and below vl.cutoff then suppressed otherwise NOT suppressed
+
+##VLevent.df <- dplyr(VLevent.df,.(ID), tail,1)
+##VLevent.df <- VLevent.df[, .SD[c(.N)], by=ID]
+#####################################
 
 
 
