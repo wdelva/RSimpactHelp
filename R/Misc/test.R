@@ -69,8 +69,8 @@ testoutput <- simpact.run(configParams = testinput,
 
 datalist.test <- readthedata(testoutput)
 
-datalist.test$ptable <- client.facility(datalist = datalist.test, site = "MaxART")
-datalist.test$ptable$pfacility[datalist.test$ptable$pfacility.value > 15] <- "Not Hhohho"
+#datalist.test$ptable <- client.facility(datalist = datalist.test, site = "MaxART")
+#datalist.test$ptable$pfacility[datalist.test$ptable$pfacility.value > 15] <- "Not Hhohho"
 
 table(datalist.test$ptable$pfacility)
 
