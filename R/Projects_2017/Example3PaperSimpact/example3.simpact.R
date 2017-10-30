@@ -44,7 +44,8 @@ IDs.transm <- c(2, 3, 11)
 # Function to tranform dates in named vector to be handled by treedater
 
 dates.Transform.NamedVector  <- function(dates=dates){
-  dates.val <- 1990+dates$V2 # dates
+  # dates.val <- 1990+dates$V2 # dates
+  dates.val <- abs(dates$V2-40)+1977 # 1977+dates$V2 # dates
   names(dates.val) <- as.character(dates$V1) # names are the names of the tips
   return(dates.val)
 }
@@ -56,7 +57,7 @@ dates.Transform.NamedVector  <- function(dates=dates){
 
 
 for (j in 1:length(IDs.transm)){
-  
+
   id.trans <- IDs.transm[j]
   # External IQ-TREE
   # system(" ./iqtree-omp -s HIV.Env.gene.fasta -m GTR+R4 -nt AUTO -alrt 1000 -bb 1000")
@@ -73,10 +74,10 @@ for (j in 1:length(IDs.transm)){
   #   Split support values:          HIV.Env.gene.fasta.splits.nex
   # Consensus tree:                HIV.Env.gene.fasta.contree
   # Screen log file:               HIV.Env.gene.fasta.log
-  
+
   # system(paste("./iqtree-omp -s", paste("sequence_all_seed_number_",id.trans,"_model1.fasta", sep = ""), "-m GTR+R4 -nt AUTO -alrt 1000 -bb 1000"))
-  
-  
+
+
 }
 
 
@@ -86,19 +87,19 @@ for (j in 1:length(IDs.transm)){
 IDs.transm <- c(2,3,11)
 
 for (j in 1:length(IDs.transm)){
-  
+
   id.trans <- IDs.transm[j]
-  
+
   tree.const <- read.tree(paste("sequence_all_seed_number_",id.trans,"_model1.fasta.treefile", sep = ""))
-  
+
   samp.dates <- read.csv(paste("samplingdates_seed_number_",id.trans,".csv", sep = ""))
-  
+
   time.samp <- dates.Transform.NamedVector(dates=samp.dates)
-  
+
   tree.tips <- as.numeric(tree.const$tip.label)
-  
+
   # Sequence labels ordered in the same order of the tree tips labels
-  
+
   Ord.tree.dates <- vector()
   for(i in 1:length(tree.tips)){
     for(j in 1:length(time.samp)){
@@ -107,10 +108,10 @@ for (j in 1:length(IDs.transm)){
       }
     }
   }
-  
+
   # Use of library(treedater) to calibrate internal nodes
   dater.tree <- dater(tree.const, Ord.tree.dates, s = 1000) # s is the length of sequence
-  
+
   # Save the tree
   write.tree(dater.tree, file = paste("calibratedTree_",id.trans,".nwk", sep = ""))
   ###########################################################################################
@@ -181,12 +182,12 @@ latest.samp <- N$timeToMRCA+N$timeOfMRCA # latest sampling date
 
 ## Transmission network of seed 3
 
-tra.net.3 <- tran.net[[3]]
+tra.net.3 <- trans.net[[3]]
 
-tra.net.3$dtimes <- abs(tra.net.3$dtimes-40)+1980 #(endpoint=40)
-tra.net.3$itimes <- abs(tra.net.3$itimes-40)+1980 #(endpoint=40) 10>1990, -> +1980
+tra.net.3$dtimes <- abs(tra.net.3$dtimes-40)+1977 #(endpoint=40)
+tra.net.3$itimes <- abs(tra.net.3$itimes-40)+1977 #(endpoint=40) 10>1990, -> +1980
 
-min.val = 1990
+min.val = 1977
 max.val = round(max(tra.net.3$itimes))
 
 
@@ -200,8 +201,8 @@ numb.tra <- vector()
 i.vec <- vector()
 int.node.vec <- vector()
 for (i in 1:d) {
-  inf <- 1989+i
-  sup <- 1990+i
+  inf <- 1976+i
+  sup <- 1977+i
   dat.f.trans.i <- dat.f.trans[which(dat.f.trans$itimes <= sup & dat.f.trans$itimes  >= inf),]
   numb.i <- nrow(dat.f.trans.i)
   numb.tra <- c(numb.tra, numb.i)
@@ -225,7 +226,7 @@ transNet.yrs.Old <- delete.vertices(ga.graph, "-1")
 
 
 
-### Plot figures 
+### Plot figures
 #################
 
 # 1. Transmission network from simpact                           # 1 #
