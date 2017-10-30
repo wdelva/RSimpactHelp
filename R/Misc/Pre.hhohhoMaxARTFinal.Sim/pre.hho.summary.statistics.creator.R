@@ -2,6 +2,7 @@
 
 #Set up simulation parameters and initiate simulation
 #just the year when simulation started.
+simulation.type <- "maxart"  #"simpact-cyn"
 sim.start.full <- as.Date("1970-03-31")
 sim.start <- as.numeric(substr(sim.start.full,1,4))
 maxart.starttime <- as.Date("2014-09-01")
@@ -42,8 +43,9 @@ max.art.retention.all <- read.table(
 # within the study time period (study.start - study.end)
 max.vl.none.suppression.all <- read.table(
   text="AllClients
-  at6.months       6
-  at12.months      11", header=TRUE, stringsAsFactors = FALSE)
+  at6.mths.ns           6
+  at12.mths.ns          11
+  at12.mths.s.shim2   72.1", header=TRUE, stringsAsFactors = FALSE)
 
 #Check validation
 #atleast6.months  8       2016-11
@@ -66,8 +68,12 @@ max.mortality.all <- read.table(
 #1997 - 2007  |  #2007 - 2012
 
 hhohho.growth.rate <- read.table(
-  text = "X1986   X1997   X2007   X2012
-year10    6.45    3.38    1.02    0.22", header=TRUE, stringsAsFactor = FALSE)
+  text = "X1986    X1997      X2007      X2012
+year10  0.0625     0.03324    0.01015    0.0022", header=TRUE, stringsAsFactor = FALSE)
+
+#year10    6.45    3.38    1.02    0.22" log(1+6.45/100)
+
+#Keep these as growth rates equivalent
 
 
 ############  Hhohho prevalence ##############################################
@@ -79,6 +85,13 @@ hhohho.prev <- read.table(
   A15.49    33.8       23.1       28.9
   A50.150   11.2       20.7       15.4",
                           header=TRUE, stringsAsFactors = FALSE)
+
+############  Hhohho prevalence SHIMS2 #######################################
+#Data was collected between August 2016 and March 2017 [SDHS2 2016-17]:
+#TimeTo = midpoint [2017-03, 2016-08]
+hhohho.shims2.prev <- read.table(
+  text="FM.value
+  A15.150   25.7", header=TRUE, stringsAsFactors = FALSE)
 
 ################### Hhohho age diff ##########################################
 # Data was collected between December 2010 and June 2011 [SHIMS 2011] TimeTo: 2011-06
@@ -107,6 +120,7 @@ target.variables <- c(tar.name(hhohho.growth.rate, "gr"),
                       tar.name(max.vl.none.suppression.all, "vlsup"),
                       tar.name(max.mortality.all, "mort"),
                       tar.name(hhohho.prev, "prev"),
+                      tar.name(hhohho.shims2.prev, "prev.s2"),
                       tar.name(hhohho.age.diff, "agediff")  )
 
 
@@ -114,5 +128,5 @@ target.variables <- c(tar.name(hhohho.growth.rate, "gr"),
 target.values <- c(tar.value(hhohho.growth.rate), tar.value(max.art.initiated.all),
                    tar.value(max.art.retention.all),tar.value(max.vl.none.suppression.all),
                    tar.value(max.mortality.all), tar.value(hhohho.prev),
-                   tar.value(hhohho.age.diff))
+                   tar.value(hhohho.shims2.prev), tar.value(hhohho.age.diff))
 
