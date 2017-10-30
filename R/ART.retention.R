@@ -50,27 +50,29 @@ ART.retention <- function(datalist = datalist,
                             agegroup = agegroup,
                             timewindow = ARTtimewindow, site = site)
 
-  #get everyone last known treatment status
-  DT.treatment <- DT.treatment %>%
-    group_by(ID) %>%
-    filter(row_number()==n()) %>%
-    as.data.frame
-
-  DT.treatment$retention.time <- DT.treatment$TStart + retentiontimeMonths/12
-
-  #restrict the list to the right agegroup
-  DT.treatment <- subset(DT.treatment, ID %in% age.group.ART$ID)
 
   if(nrow(DT.treatment)>0){
+    #get everyone last known treatment status
+    DT.treatment <- DT.treatment %>%
+      group_by(ID) %>%
+      dplyr::filter(row_number()==n()) %>%
+      as.data.frame
 
-  DT.treatment$retention <- DT.treatment$TEnd > DT.treatment$retention.time
+    DT.treatment$retention.time <- DT.treatment$TStart + retentiontimeMonths/12
 
-  DT.treatment.retention <- DT.treatment %>%
-    group_by(Gender) %>%
-    summarise(TotalCases = n(),
-              ART.retention = sum(retention),
-              percentage = ART.retention / TotalCases * 100 ) %>%
-    as.data.frame
+    #restrict the list to the right agegroup
+    DT.treatment <- subset(DT.treatment, ID %in% age.group.ART$ID)
+
+
+
+    DT.treatment$retention <- DT.treatment$TEnd > DT.treatment$retention.time
+
+    DT.treatment.retention <- DT.treatment %>%
+      group_by(Gender) %>%
+      summarise(TotalCases = n(),
+                ART.retention = sum(retention),
+                percentage = ART.retention / TotalCases * 100 ) %>%
+      as.data.frame
 
   }else{ DT.treatment.retention <- as.data.frame(matrix(NA, 0, 4))}
 
