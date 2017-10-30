@@ -6,7 +6,7 @@ setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/")
 ## Load required packages
 
 pacman::p_load(devtools, Rcpp, ape, expoTree, data.table, phylosim, RSimpactCyan,
-               RSimpactHelper, readr, phangorn, Biostrings,
+               RSimpactHelper, readr, phangorn, Biostrings, dplyr, adephylo,
                phyclust, DECIPHER,treedater,geiger,picante)
 
 
