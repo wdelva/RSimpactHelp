@@ -8,7 +8,8 @@ format.names <- function(x,replace = "X",...){
 #maxart.study.pop <- recruit.study.clients(chunk.datalist.test)
 
 #Dummy with no real recruitment
-two.weeks <- 14/365.245
+days.in.yr <- 365.245
+two.weeks <- 14/days.in.yr
 twelve.months <- 12/12
 six.months <- 6/12
 init.immediate <- 0
@@ -25,7 +26,7 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   sim.datalist$ptable$age <- sim.datalist$itable$maxart.starttime[1] - sim.datalist$ptable$TOB
 
   #get the MaxART population group
-  maxart.study.pop <- filter(sim.datalist$ptable,  age >= 18 & InfectTime!=Inf)
+  maxart.study.pop <- dplyr::filter(sim.datalist$ptable,  age >= 18 & InfectTime!=Inf)
 
   #Total clients
   all.maxart <- nrow(maxart.study.pop)
@@ -36,17 +37,17 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   ### MaxART ART coverage ####################
   hhohho.all.art.coverage.var <- maxart.study.pop %>%
-     filter(TreatTime!=Inf) %>%
+     dplyr::filter(TreatTime!=Inf) %>%
      summarise(all.all = n()/all.maxart)
 
   all.art.init <- dplyr::select(hhohho.all.art.coverage.var, contains(".all"))
   hhohho.art.initiated.tar.values <- as.numeric(all.art.init*100)
 
   #when do we want the retention time
-  maxart.ret.timepoint <- difftime(maxart.endtime, sim.start.full, units = "days")/365.242
+  maxart.ret.timepoint <- difftime(maxart.endtime, sim.start.full, units = "days")/days.in.yr
   maxart.ret.timepoint <- round(as.numeric(maxart.ret.timepoint),0)
-  maxart.starttime.ret <- round(as.numeric(difftime(maxart.starttime ,sim.start.full, units = "days")/365.242),0)
-  ret.end <- round(as.numeric(difftime(maxart.endtime,maxart.starttime, units = "days"))/365.242,0) * 12
+  maxart.starttime.ret <- round(as.numeric(difftime(maxart.starttime ,sim.start.full, units = "days")/days.in.yr),0)
+  ret.end <- round(as.numeric(difftime(maxart.endtime,maxart.starttime, units = "days"))/days.in.yr,0) * 12
 
   #### Max Retention ####################################
   max.ret.tar <- length(row.names(max.art.retention.all))
@@ -68,20 +69,29 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   hhohho.art.retention.tar.values <- max.ret.tar.all
 
-  ################# Viral Load none supresssion ############################################
+  ################# Viral Load none supresssion ###########################################
+
+  #Shims2 start and end date August 2016 and March 2017
+  shims2.start <- as.Date("2016-08-31")
+  shims2.end <- as.Date("2017-03-31")
+  shims2.vl.time <- shims2.start + floor(difftime(shims2.end, shims2.start)/2)
+  shims.vl.timepoint <- as.numeric(difftime(shims2.vl.time,sim.start.full, units = "days")/days.in.yr)
+
   max.vl.sup.tar.dim <- length(row.names(max.vl.none.suppression.all))
   max.vl.sup.all <- rep(NA, max.vl.sup.tar.dim)
-  max.vl.sup.list <- c(6, 12)
+  max.vl.sup.list <- c(6, 12, 12)
 
   for(vl in 1:max.vl.sup.tar.dim){
+
+    if(vl==3){maxart.ret.timepoint <- shims.vl.timepoint}
 
     vl.sup.all <- vl.suppressed(datalist = chunk.datalist.test.all,
                                 timepoint = maxart.ret.timepoint, vlcutoff = 1000,
                                lessmonths = max.vl.sup.list[vl], site="All")
 
-    vl.sup.all <- subset(vl.sup.all, Gender == "NA")$Percentage[[1]]
+    vl.sup.all <- subset(vl.sup.all, is.na(Gender))$Percentage[[1]]
 
-    max.vl.sup.all[vl] <- ifelse(is.null(vl.sup.all), NA, vl.sup.all)
+    max.vl.sup.all[vl] <- ifelse(vl != 3, 100 - vl.sup.all, vl.sup.all)
 
   }
 
@@ -89,11 +99,16 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   #########
 
   ###Mortality AIDS related and not
+  maxart.starttime.mort <- round(as.numeric(difftime(maxart.starttime,sim.start.full, units = "days")/days.in.yr),0)
+  maxart.endtime.mort <- round(as.numeric(difftime(maxart.endtime,sim.start.full, units = "days")/days.in.yr),0)
+
   max.mort.study.pop.prim <- maxart.study.pop %>%
     summarise(
-            mort.all = sum(TOD != Inf & TOD > maxart.starttime & TOD < maxart.endtime, na.rm = TRUE ) / n(),
+            mort.all = sum(TOD != Inf & TOD > maxart.starttime.mort
+                           & TOD < maxart.endtime.mort, na.rm = TRUE ) / n(),
             mort.aids.rel.all = sum(TOD != Inf & AIDSDeath == 1 &
-                                      TOD > maxart.starttime & TOD < maxart.endtime, na.rm = TRUE) / n() )
+                                      TOD > maxart.starttime.mort &
+                                      TOD < maxart.endtime.mort, na.rm = TRUE) / n() )
 
   all.mortality <- dplyr::select(max.mort.study.pop.prim, contains(".all"))
 
@@ -113,7 +128,9 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
     to.time <-  from.time + t.change
 
     hhohho.growth.rate.tar.values[i] <- pop.growth.calculator(datalist = sim.datalist,
-                                                             timewindow = c(from.time, to.time)) * 100
+                                                             timewindow = c(from.time, to.time))
+
+
   }
 
   # # ######### Prevalence for multiple ages. End time 2007-March-31 ###################################
@@ -127,7 +144,7 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   s.start <- as.Date("2006-07-31")
   s.end <- as.Date("2007-03-31")
   prev.time <- s.start + floor(difftime(s.end, s.start)/2)
-  time.end.2007 <- as.numeric(difftime(prev.time,sim.start.full, units = "days")/365.245)
+  time.end.2007 <- as.numeric(difftime(prev.time,sim.start.full, units = "days")/days.in.yr)
 
   for(i in 1:swazi.sim.prev.2007.len){
 
@@ -148,9 +165,39 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   hhohho.prev.2007.tar.values <- c(swazi.sim.prev.2007.f, swazi.sim.prev.2007.m,
                                   swazi.sim.prev.2007.fm)
 
-  # # #Swazi Age difference 2011-06-30
-  hhohho.age.dif.time <- round(as.numeric(difftime(as.Date("2011-06-30") ,
-                                                   sim.start.full, units = "days")/365.245),0)
+
+  ########  SHIMS2 prevalence ########
+  #use the vl time point already calculated: shims.vl.timepoint
+  prev.age.shims2.list <- format.names(row.names(hhohho.shims2.prev), replace = "A")
+
+  hho.sim.prev.2017.len <- length(prev.age.shims2.list)
+  hho.sim.prev.2017.fm <- rep(NA, hho.sim.prev.2017.len)
+
+  for(i in 1:hho.sim.prev.2017.len){
+
+    split.list.age2017 <- as.numeric(unlist(strsplit(prev.age.shims2.list[i], "[.]")))
+    age.lower.2017 <- split.list.age2017[1]
+    age.upper.2017 <- split.list.age2017[2]
+
+    hho.shim2.age.sim.prev <- prevalence.calculator(datalist = sim.datalist,
+                                                agegroup = c(age.lower.2017, age.upper.2017),
+                                                timepoint = shims.vl.timepoint)
+
+    #Gender 0 <- male : 1 <- female
+    hho.sim.prev.2017.fm[i] <- hho.shim2.age.sim.prev$pointprevalence[3] * 100
+
+  }
+  hho.prev.2017.tar.values <- c(hho.sim.prev.2017.fm)
+
+  ###Swazi Age difference 2011-06-30
+
+  #The survey was between December 2010 and June 2011
+  age.d.start <- as.Date("2010-12-31")
+  age.d.end <- as.Date("2011-06-30")
+  age.diff.time <- age.d.start + floor(difftime(age.d.end, age.d.start)/2)
+
+  hhohho.age.dif.time <- round(as.numeric(difftime(age.diff.time ,
+                                                   sim.start.full, units = "days")/days.in.yr),0)
 
   agemix.df.hhohho <- agemix.df.maker(sim.datalist)
   pattern.hhohho <- pattern.modeller(dataframe = agemix.df.hhohho, agegroup = c(18, 50),
@@ -183,16 +230,11 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
                    hhohho.vl.none.suppression.tar.values,
                    hhohho.mortality.tar.values,
                    hhohho.prev.2007.tar.values,
+                   hho.prev.2017.tar.values,
                    hhohho.AD.tar.values)
 
-  # #Testing
-  #sim.summary <- c(max.art.retention.tar.values, Sys.getpid())
 
   return(sim.summary)
 
 }
-
-#swazi.art.coverage.year.diff <- swazi.art.coverage[,1:2] - swazi.sim.art.coverage.year
-
-
 
