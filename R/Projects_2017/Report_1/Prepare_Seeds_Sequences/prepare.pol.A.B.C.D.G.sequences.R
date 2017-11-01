@@ -10,11 +10,11 @@ pacman::p_load(devtools, Rcpp, ape, expoTree, data.table, phylosim, RSimpactCyan
 # From unique sequence (pol gene) in the files below per each strain,
 # simulate other 30 sequences under a coalescent tree
 
-# hiv.seq.A.pol.i.fasta
-# hiv.seq.B.pol.i.fasta
-# hiv.seq.C.pol.i.fasta
-# hiv.seq.D.pol.i.fasta
-# hiv.seq.G.pol.i.fasta
+# hiv.seq.A.pol.j.fasta
+# hiv.seq.B.pol.j.fasta
+# hiv.seq.C.pol.j.fasta
+# hiv.seq.D.pol.j.fasta
+# hiv.seq.G.pol.j.fasta
 
 
 system('./msa 30 1 -T -t 10.0 > tree.sequence.seed.nwk')
@@ -43,19 +43,14 @@ tree0 <- read.tree("tree.sequence.seed.nwk")
 ###########
 
 # call the seed sequences and rename the file
-file.copy(paste("hiv.seq.A.pol.i.fasta", sep = ""),paste("hiv.seq.A.pol.i.fasta.nwk", sep = ""))
+file.copy(paste("hiv.seq.A.pol.j.fasta", sep = ""),paste("hiv.seq.A.pol.j.fasta.nwk", sep = ""))
 # add the number of tree in the file and
-write(1,file = "hiv.seq.A.pol.i.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
+write(1,file = "hiv.seq.A.pol.j.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
 # the tree, to prepare the file to simulate the evolution of the virus across the tree
-write.tree(tree0,file = "hiv.seq.A.pol.i.fasta.nwk", append = TRUE)
-file.rename(from = "hiv.seq.A.pol.i.fasta.nwk", to = paste("hiv.seq.A.pol.i.nwk", sep = ""))
+write.tree(tree0,file = "hiv.seq.A.pol.j.fasta.nwk", append = TRUE)
+file.rename(from = "hiv.seq.A.pol.j.fasta.nwk", to = paste("hiv.seq.A.pol.j.nwk", sep = ""))
 
-#
-# sequence.sim.pol <- sequence.simulation(transtree = tree0, seedSeq = seq.pol, alpha = 0.90,
-#                                     rate.list = rate.pol, base.freq = freq.pol)
-# saveAlignment(sequence.sim.pol, file=paste("HIV.Pol.gene.fasta", sep = ""),
-#               skip.internal = TRUE, paranoid = TRUE)
-system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 -r 0.00125 0.00125 0.00125 0.00125 0.00125 0.00125 -n1 <hiv.seq.A.pol.i.nwk >A.pool.gene.pol.fasta")
+system("./seq-gen -mGTR -f 0.386,0.169,0.231,0.214  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 <hiv.seq.A.pol.j.nwk >A.pool.gene.pol.fasta")
 
 
 # Pol gene B
@@ -63,19 +58,14 @@ system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 
 
 
 # call the seed sequences and rename the file
-file.copy(paste("hiv.seq.B.pol.i.fasta", sep = ""),paste("hiv.seq.B.pol.i.fasta.nwk", sep = ""))
+file.copy(paste("hiv.seq.B.pol.j.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta.nwk", sep = ""))
 # add the number of tree in the file and
-write(1,file = "hiv.seq.B.pol.i.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
+write(1,file = "hiv.seq.B.pol.j.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
 # the tree, to prepare the file to simulate the evolution of the virus across the tree
-write.tree(tree0,file = "hiv.seq.B.pol.i.fasta.nwk", append = TRUE)
-file.rename(from = "hiv.seq.B.pol.i.fasta.nwk", to = paste("hiv.seq.B.pol.i.nwk", sep = ""))
+write.tree(tree0,file = "hiv.seq.B.pol.j.fasta.nwk", append = TRUE)
+file.rename(from = "hiv.seq.B.pol.j.fasta.nwk", to = paste("hiv.seq.B.pol.j.nwk", sep = ""))
 
-#
-# sequence.sim.pol <- sequence.simulation(transtree = tree0, seedSeq = seq.pol, alpha = 0.90,
-#                                     rate.list = rate.pol, base.freq = freq.pol)
-# saveAlignment(sequence.sim.pol, file=paste("HIV.Pol.gene.fasta", sep = ""),
-#               skip.internal = TRUE, paranoid = TRUE)
-system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 -r 0.00125 0.00125 0.00125 0.00125 0.00125 0.00125 -n1 <hiv.seq.B.pol.i.nwk >B.pool.gene.pol.fasta")
+system("./seq-gen -mGTR -f 0.389,0.165,0.228,0.219  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 <hiv.seq.B.pol.j.nwk >B.pool.gene.pol.fasta")
 
 
 
@@ -83,19 +73,14 @@ system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 
 ###########
 
 # call the seed sequences and rename the file
-file.copy(paste("hiv.seq.C.pol.i.fasta", sep = ""),paste("hiv.seq.C.pol.i.fasta.nwk", sep = ""))
+file.copy(paste("hiv.seq.C.pol.j.fasta", sep = ""),paste("hiv.seq.C.pol.j.fasta.nwk", sep = ""))
 # add the number of tree in the file and
-write(1,file = "hiv.seq.C.pol.i.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
+write(1,file = "hiv.seq.C.pol.j.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
 # the tree, to prepare the file to simulate the evolution of the virus across the tree
-write.tree(tree0,file = "hiv.seq.C.pol.i.fasta.nwk", append = TRUE)
-file.rename(from = "hiv.seq.C.pol.i.fasta.nwk", to = paste("hiv.seq.C.pol.i.nwk", sep = ""))
+write.tree(tree0,file = "hiv.seq.C.pol.j.fasta.nwk", append = TRUE)
+file.rename(from = "hiv.seq.C.pol.j.fasta.nwk", to = paste("hiv.seq.C.pol.j.nwk", sep = ""))
 
-#
-# sequence.sim.pol <- sequence.simulation(transtree = tree0, seedSeq = seq.pol, alpha = 0.90,
-#                                     rate.list = rate.pol, base.freq = freq.pol)
-# saveAlignment(sequence.sim.pol, file=paste("HIV.Pol.gene.fasta", sep = ""),
-#               skip.internal = TRUE, paranoid = TRUE)
-system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 -r 0.00125 0.00125 0.00125 0.00125 0.00125 0.00125 -n1 <hiv.seq.C.pol.i.nwk >C.pool.gene.pol.fasta")
+system("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 <hiv.seq.C.pol.j.nwk >C.pool.gene.pol.fasta")
 
 
 
@@ -103,19 +88,14 @@ system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 
 ###########
 
 # call the seed sequences and rename the file
-file.copy(paste("hiv.seq.D.pol.i.fasta", sep = ""),paste("hiv.seq.D.pol.i.fasta.nwk", sep = ""))
+file.copy(paste("hiv.seq.D.pol.j.fasta", sep = ""),paste("hiv.seq.D.pol.j.fasta.nwk", sep = ""))
 # add the number of tree in the file and
-write(1,file = "hiv.seq.D.pol.i.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
+write(1,file = "hiv.seq.D.pol.j.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
 # the tree, to prepare the file to simulate the evolution of the virus across the tree
-write.tree(tree0,file = "hiv.seq.D.pol.i.fasta.nwk", append = TRUE)
-file.rename(from = "hiv.seq.D.pol.i.fasta.nwk", to = paste("hiv.seq.D.pol.i.nwk", sep = ""))
+write.tree(tree0,file = "hiv.seq.D.pol.j.fasta.nwk", append = TRUE)
+file.rename(from = "hiv.seq.D.pol.j.fasta.nwk", to = paste("hiv.seq.D.pol.j.nwk", sep = ""))
 
-#
-# sequence.sim.pol <- sequence.simulation(transtree = tree0, seedSeq = seq.pol, alpha = 0.90,
-#                                     rate.list = rate.pol, base.freq = freq.pol)
-# saveAlignment(sequence.sim.pol, file=paste("HIV.Pol.gene.fasta", sep = ""),
-#               skip.internal = TRUE, paranoid = TRUE)
-system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 -r 0.00125 0.00125 0.00125 0.00125 0.00125 0.00125 -n1 <hiv.seq.D.pol.i.nwk >D.pool.gene.pol.fasta")
+system("./seq-gen -mGTR -f 0.394,0.162,0.225,0.218  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 <hiv.seq.D.pol.j.nwk >D.pool.gene.pol.fasta")
 
 
 
@@ -123,18 +103,12 @@ system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 
 ###########
 
 # call the seed sequences and rename the file
-file.copy(paste("hiv.seq.G.pol.i.fasta", sep = ""),paste("hiv.seq.G.pol.i.fasta.nwk", sep = ""))
+file.copy(paste("hiv.seq.G.pol.j.fasta", sep = ""),paste("hiv.seq.G.pol.j.fasta.nwk", sep = ""))
 # add the number of tree in the file and
-write(1,file = "hiv.seq.G.pol.i.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
+write(1,file = "hiv.seq.G.pol.j.fasta.nwk", append = TRUE) # 1 is the number of tree across which we simulate the sequences
 # the tree, to prepare the file to simulate the evolution of the virus across the tree
-write.tree(tree0,file = "hiv.seq.G.pol.i.fasta.nwk", append = TRUE)
-file.rename(from = "hiv.seq.G.pol.i.fasta.nwk", to = paste("hiv.seq.G.pol.i.nwk", sep = ""))
+write.tree(tree0,file = "hiv.seq.G.pol.j.fasta.nwk", append = TRUE)
+file.rename(from = "hiv.seq.G.pol.j.fasta.nwk", to = paste("hiv.seq.G.pol.j.nwk", sep = ""))
 
-#
-# sequence.sim.pol <- sequence.simulation(transtree = tree0, seedSeq = seq.pol, alpha = 0.90,
-#                                     rate.list = rate.pol, base.freq = freq.pol)
-# saveAlignment(sequence.sim.pol, file=paste("HIV.Pol.gene.fasta", sep = ""),
-#               skip.internal = TRUE, paranoid = TRUE)
-system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 -r 0.00125 0.00125 0.00125 0.00125 0.00125 0.00125 -n1 <hiv.seq.G.pol.i.nwk >G.pool.gene.pol.fasta")
-
+system("./seq-gen -mGTR -f 0.390,0.170,0.228,0.213  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 <hiv.seq.G.pol.j.nwk >G.pool.gene.pol.fasta")
 
