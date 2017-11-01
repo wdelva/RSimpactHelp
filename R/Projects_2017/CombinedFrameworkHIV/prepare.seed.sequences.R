@@ -256,3 +256,87 @@ file.rename(from = "hiv.seq.G.pol.i.fasta.nwk", to = paste("hiv.seq.G.pol.i.nwk"
 system("./seq-gen -mGTR -f 0.3887782 0.1646746 0.2277556 0.2187915  -a 0.9 -g 4 -r 0.00125 0.00125 0.00125 0.00125 0.00125 0.00125 -n1 <hiv.seq.G.pol.i.nwk >G.pool.gene.pol.fasta")
 
 
+### Treat indels
+
+setwd("~/RSimpactHelp/R/Projects_2017/Report_1/Sequences/Untitled Folder/")
+
+dna.A <- read.FASTA("hiv.seq.A.pol.i.fasta")
+dna.B <- read.FASTA("hiv.seq.B.pol.i.fasta")
+dna.C <- read.FASTA("hiv.seq.C.pol.i.fasta")
+dna.D <- read.FASTA("hiv.seq.D.pol.i.fasta")
+dna.G <- read.FASTA("hiv.seq.G.pol.i.fasta")
+
+A <- del.gaps(dna.A)
+B <- del.gaps(dna.B)
+C <- del.gaps(dna.C)
+D <- del.gaps(dna.D)
+G <- del.gaps(dna.G)
+
+write.dna(A, file = "hiv.seq.A.pol.j.fasta",nbcol = 1, colsep = " ", colw = 4000)
+write.dna(B, file = "hiv.seq.B.pol.j.fasta",nbcol = 1, colsep = " ", colw = 4000)
+write.dna(C, file = "hiv.seq.C.pol.j.fasta",nbcol = 1, colsep = " ", colw = 4000)
+write.dna(D, file = "hiv.seq.D.pol.j.fasta",nbcol = 1, colsep = " ", colw = 4000)
+write.dna(G, file = "hiv.seq.G.pol.j.fasta",nbcol = 1, colsep = " ", colw = 4000)
+
+#
+# > dna.A <- read.FASTA("hiv.seq.A.pol.i.fasta")
+# > dna.B <- read.FASTA("hiv.seq.B.pol.i.fasta")
+# > dna.C <- read.FASTA("hiv.seq.C.pol.i.fasta")
+# > dna.D <- read.FASTA("hiv.seq.D.pol.i.fasta")
+# > dna.G <- read.FASTA("hiv.seq.G.pol.i.fasta")
+# > dna.A
+# 1 DNA sequence in binary format stored in a list.
+#
+# Sequence length: 3012
+#
+# Label:
+#
+#
+#   Base composition:
+#   a     c     g     t
+# 0.386 0.169 0.231 0.214
+# > dna.B
+# 1 DNA sequence in binary format stored in a list.
+#
+# Sequence length: 3012
+#
+# Label:
+#
+#
+#   Base composition:
+#   a     c     g     t
+# 0.389 0.165 0.228 0.219
+# > dna.C
+# 1 DNA sequence in binary format stored in a list.
+#
+# Sequence length: 3012
+#
+# Label:
+#
+#
+#   Base composition:
+#   a     c     g     t
+# 0.393 0.172 0.223 0.212
+# > dna.D
+# 1 DNA sequence in binary format stored in a list.
+#
+# Sequence length: 3012
+#
+# Label:
+#
+#
+#   Base composition:
+#   a     c     g     t
+# 0.394 0.162 0.225 0.218
+# > dna.G
+# 1 DNA sequence in binary format stored in a list.
+#
+# Sequence length: 3012
+#
+# Label:
+#
+#
+#   Base composition:
+#   a     c     g     t
+# 0.390 0.170 0.228 0.213
+# >
