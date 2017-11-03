@@ -1,0 +1,2 @@
+sequences named to be analysed in BEAST
+The purpose is to see if the different in the three clades within a phylogenetic tree
