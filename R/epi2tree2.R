@@ -23,9 +23,16 @@ epi2tree2 <- function(epi){
       off.id <- epi$id[offspring]
       inf.t <- epi$itimes[offspring]
       dt <- epi$dtimes[node.i]
+<<<<<<< Updated upstream
       intervals <- c(epi$itimes[node.i], inf.t) - c(inf.t, dt)
 
       # intervals <- epi$itimes[node.i] - dt external branch lengths
+=======
+      intervals <- c(epi$itimes[node.i], inf.t) - c(inf.t,
+                                                   dt)
+
+     # intervals <- epi$itimes[node.i] - dt
+>>>>>>> Stashed changes
 
       ages <- c(inf.t, dt)
       new.id <- 1:length(inf.t) + cur.id
