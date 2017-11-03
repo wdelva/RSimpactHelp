@@ -1358,3 +1358,40 @@ spec.r.tr2 <- spectrum.treeshape(r.tr2)
 
 phylogenetictree.trend(rtree(1700))
 
+
+## branch length from tips to root
+
+library(adephylo)
+
+r=rtree(12)
+distRoot(r)
+
+## distance between tips
+
+distTips(r)
+
+
+## Functions for external tips distances
+
+extern.dist.tips <- function(phylo.tree){
+  # Branch length of the tips
+  tree <- phylo.tree
+  # tree$edge.length<-round(tree$edge.length,3)
+  tree$edge.length<-tree$edge.length # remove rounding
+  n<-length(tree$tip.label)
+  ee<-setNames(tree$edge.length[sapply(1:n,function(x,y)
+    which(y==x),y=tree$edge[,2])],tree$tip.label)
+
+  d <- as.data.frame(ee)
+  branc.leng.tips <- as.data.frame(d$ee) # yes we can find them in phylo.tree$edge.length but here they are not rounded whereas
+  # with ee are rounded with 3 digit
+  tips.id <- as.data.frame(as.character(tree$tip.label))
+
+  tips.id <- tree$tip.label
+  tips.branch.leng.raw <- cbind(tips.id,branc.leng.tips)
+
+  names(tips.branch.leng.raw) <- c("Ind", "branch.len")
+
+  tips.branch.leng <- tips.branch.leng.raw
+  return(tips.branch.leng)
+}
