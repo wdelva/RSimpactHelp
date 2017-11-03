@@ -19,6 +19,7 @@
 #' rate.2back.infec.vload, rate of change of the donor from present at infection time to previous viral load
 #' rate.1back.samp.vload, rate of change of the recipient from present at sampling time to initial viral load
 #' rate.2back.samp.vload, rate of change of the recipient from present at sampling time to previous viral load
+#' flag.samp, for sampling status:  diagnosed individuals (0), died and non diagnosed (-1), and alive and non diagnosed (1)
 
 #' @examples
 #' transm.col.ls <- transNetworkPastDemographic(datalist = datalist,endpoint = 40)
@@ -257,22 +258,32 @@ transNetworkPastDemographic <- function(datalist = datalist, endpoint = 40){
 
   # split times
   ##############
+  # split times
+  ##############
 
   # 1. alive and diagnosed people > id & time of diagnosis
   alive.diag <- vector("list", length(seeds.id))
   d1 <- vector("list", length(seeds.id))
+  flag.dt1 <- vector("list", length(seeds.id)) # flag for diagnosed people: 0
   for(i in 1:length(seeds.id)){
     alive.diag[[i]] <- subset(diagnosis.unique, diagnosis.unique$p1ID%in%pers.alive[[i]]) # OK
     d1[[i]] <- as.data.frame(cbind(alive.diag[[i]]$p1ID, alive.diag[[i]]$eventtime))
+
+    flag.dt1[[i]] <- cbind(rep(0, length(alive.diag[[i]]$p1ID)), d1[[i]]$V1)
+
   }
 
 
   # 2. died and diagnosed people > id & time of diagnosis
   died.diag <- vector("list", length(seeds.id))
   d2 <- vector("list", length(seeds.id))
+  flag.dt2 <- vector("list", length(seeds.id)) # flag for diagnosed people: 0
   for(i in 1:length(seeds.id)){
     died.diag[[i]] <- subset(diagnosis.unique, diagnosis.unique$p1ID%in%id.dead[[i]]) # OK
     d2[[i]] <- as.data.frame(cbind(died.diag[[i]]$p1ID, died.diag[[i]]$eventtime))
+
+    flag.dt2[[i]] <- cbind(rep(0, length(died.diag[[i]]$p1ID)), d2[[i]]$V1)
+
   }
 
 
@@ -280,21 +291,26 @@ transNetworkPastDemographic <- function(datalist = datalist, endpoint = 40){
   id.non.diag.all <- vector("list", length(seeds.id))
   alive.non.diag <- vector("list", length(seeds.id))
   d3 <- vector("list", length(seeds.id))
+  flag.dt3 <- vector("list", length(seeds.id)) # flag for alive non diagnosed people: 1
   for(i in 1:length(seeds.id)){
     # Ids of all no diagnosed
     id.non.diag.all[[i]] <- setdiff(transm.dat.id[[i]],c(alive.diag[[i]]$p1ID, died.diag[[i]]$p1ID))
     alive.non.diag[[i]] <- subset(alive.hiv.pers[[i]], alive.hiv.pers[[i]]$ID%in%id.non.diag.all[[i]])
 
     d3[[i]] <- as.data.frame(cbind(alive.non.diag[[i]]$ID, rep(endpoint, length(alive.non.diag[[i]]$ID))))
+
+    flag.dt3[[i]] <- cbind(rep(1, length(alive.non.diag[[i]]$ID)), d3[[i]]$V1)
   }
 
 
   # 4. died and non diagnosed > Id & death time
   died.non.diag <- vector("list", length(seeds.id))
   d4 <- vector("list", length(seeds.id))
+  flag.dt4 <- vector("list", length(seeds.id)) # flag for died non diagnosed people: -1
   for(i in 1:length(seeds.id)){
     died.non.diag[[i]] <- subset(deaths.all.ord, deaths.all.ord$p1ID%in%id.non.diag.all[[i]])
     d4[[i]] <- as.data.frame(cbind(died.non.diag[[i]]$p1ID, died.non.diag[[i]]$eventtime))
+    flag.dt4[[i]] <- cbind(rep(-1, length(died.non.diag[[i]]$p1ID)), d4[[i]]$V1)
   }
 
 
@@ -304,10 +320,13 @@ transNetworkPastDemographic <- function(datalist = datalist, endpoint = 40){
 
   times.raw <- vector("list", length(seeds.id))
   id.times.raw <- vector("list", length(seeds.id))
+  flag.raw <- vector("list", length(seeds.id)) # flags regarding diagnosis
   for(i in 1:length(seeds.id)){
     times.raw[[i]] <- do.call("rbind", list(d1[[i]], d2[[i]], d3[[i]], d4[[i]]))
-
     id.times.raw[[i]] <- cbind(times.raw[[i]]) # , transm.dat.id[[i]] are infectees for i^th seed
+
+    flag.raw[[i]] <- do.call("rbind", list(flag.dt1[[i]], flag.dt2[[i]], flag.dt3[[i]], flag.dt4[[i]]))
+
   }
 
 
@@ -346,6 +365,24 @@ transNetworkPastDemographic <- function(datalist = datalist, endpoint = 40){
   }
 
   b = times.pers.sort(id.times.raw, transm.dat.id)
+
+  ord.flag.raw  <- vector("list", length(seeds.id))
+
+  for (i in 1:length(seeds.id)) {
+    fl <- as.data.frame(flag.raw[[i]])
+    names(fl) <- c("val", "id")
+
+    d.tr <- as.data.frame(b[[i]])
+    names(d.tr) <- c( "val", "id")
+
+
+    # output with 2 columns:
+    # val.x == sampling times (dtimes), id, and val.y == flags
+    ord.flag.raw[[i]] <- left_join(d.tr, fl, by="id")
+
+  }
+
+
 
   # to build the epi object handled by epi2tree function
   # to build a transmission tree, we reverse the time for infections time
@@ -593,6 +630,8 @@ transNetworkPastDemographic <- function(datalist = datalist, endpoint = 40){
     transNet$rate.2back.infec.vload <- rate2.don[[q]] # rate of change of the donor from present to before previous viral load > DON.
     transNet$rate.1back.samp.vload <- rate1.rec[[q]] # rate of change of the recipient from present to previous viral load > REC.
     transNet$rate.2back.samp.vload <- rate2.rec[[q]] # rate of change of the recipient from present to before previous viral load > REC.
+    transNet$flag.samp <- ord.flag.raw[[q]]$val.y # flag for sampling status
+    # transNet$orignId <- ord.flag.raw[[q]]$id # original IDs
 
     transm.Colescent.ls[[q]] <- transNet
   }
