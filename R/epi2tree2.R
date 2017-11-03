@@ -26,7 +26,7 @@ epi2tree2 <- function(epi){
 
       intervals <- c(epi$itimes[node.i], inf.t) - c(inf.t, dt)
 
-          # intervals <- epi$itimes[node.i] - dt
+     # intervals <- epi$itimes[node.i] - dt
 
 
       ages <- c(inf.t, dt)
