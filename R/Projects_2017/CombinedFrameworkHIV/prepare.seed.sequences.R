@@ -340,3 +340,69 @@ write.dna(G, file = "hiv.seq.G.pol.j.fasta",nbcol = 1, colsep = " ", colw = 4000
 #   a     c     g     t
 # 0.390 0.170 0.228 0.213
 # >
+
+# Monday 6 Nov. 2017 > Subtyping
+
+# Subtype A
+# read_file("~/RSimpactHelp/R/Projects_2017/HIV_Seq_K03455.txt")
+clean.hiv.seq.A <- read_file("hiv.seq.A.pol.j.fasta")
+clean.hiv.seq.B <- read_file("hiv.seq.B.pol.j.fasta")
+clean.hiv.seq.C <- read_file("hiv.seq.C.pol.j.fasta")
+clean.hiv.seq.D <- read_file("hiv.seq.D.pol.j.fasta")
+clean.hiv.seq.G <- read_file("hiv.seq.G.pol.j.fasta")
+
+
+hiv.seq.A.pol.part1.800 <- substr(clean.hiv.seq.A, 1,800)
+hiv.seq.A.pol.part2.800 <- substr(clean.hiv.seq.A, 801,1600)
+hiv.seq.A.pol.part3.800 <- substr(clean.hiv.seq.A, 1601,2400)
+hiv.seq.A.pol.part4.612 <- substr(clean.hiv.seq.A, 2401,3012)
+write(hiv.seq.A.pol.part1.800, file = "hiv.seq.A.pol.part1.800.fasta")
+write(hiv.seq.A.pol.part2.800, file = "hiv.seq.A.pol.part2.800.fasta")
+write(hiv.seq.A.pol.part3.800, file = "hiv.seq.A.pol.part3.800.fasta")
+write(hiv.seq.A.pol.part4.612, file = "hiv.seq.A.pol.part4.612.fasta")
+
+# Subtype B
+
+hiv.seq.B.pol.part1.800 <- substr(clean.hiv.seq.B, 1,800)
+hiv.seq.B.pol.part2.800 <- substr(clean.hiv.seq.B, 801,1600)
+hiv.seq.B.pol.part3.800 <- substr(clean.hiv.seq.B, 1601,2400)
+hiv.seq.B.pol.part4.612 <- substr(clean.hiv.seq.B, 2401,3012)
+write(hiv.seq.B.pol.part1.800, file = "hiv.seq.B.pol.part1.800.fasta")
+write(hiv.seq.B.pol.part2.800, file = "hiv.seq.B.pol.part2.800.fasta")
+write(hiv.seq.B.pol.part3.800, file = "hiv.seq.B.pol.part3.800.fasta")
+write(hiv.seq.B.pol.part4.612, file = "hiv.seq.B.pol.part4.612.fasta")
+
+# Subtype C
+
+hiv.seq.C.pol.part1.800 <- substr(clean.hiv.seq.C, 1,800)
+hiv.seq.C.pol.part2.800 <- substr(clean.hiv.seq.C, 801,1600)
+hiv.seq.C.pol.part3.800 <- substr(clean.hiv.seq.C, 1601,2400)
+hiv.seq.C.pol.part4.612 <- substr(clean.hiv.seq.C, 2401,3012)
+write(hiv.seq.C.pol.part1.800, file = "hiv.seq.C.pol.part1.800.fasta")
+write(hiv.seq.C.pol.part2.800, file = "hiv.seq.C.pol.part2.800.fasta")
+write(hiv.seq.C.pol.part3.800, file = "hiv.seq.C.pol.part3.800.fasta")
+write(hiv.seq.C.pol.part4.612, file = "hiv.seq.C.pol.part4.612.fasta")
+
+# Subtype D
+
+hiv.seq.D.pol.part1.800 <- substr(clean.hiv.seq.D, 1,800)
+hiv.seq.D.pol.part2.800 <- substr(clean.hiv.seq.D, 801,1600)
+hiv.seq.D.pol.part3.800 <- substr(clean.hiv.seq.D, 1601,2400)
+hiv.seq.D.pol.part4.612 <- substr(clean.hiv.seq.D, 2401,3012)
+write(hiv.seq.D.pol.part1.800, file = "hiv.seq.D.pol.part1.800.fasta")
+write(hiv.seq.D.pol.part2.800, file = "hiv.seq.D.pol.part2.800.fasta")
+write(hiv.seq.D.pol.part3.800, file = "hiv.seq.D.pol.part3.800.fasta")
+write(hiv.seq.D.pol.part4.612, file = "hiv.seq.D.pol.part4.612.fasta")
+
+# Subtype G
+
+hiv.seq.G.pol.part1.800 <- substr(clean.hiv.seq.G, 1,800)
+hiv.seq.G.pol.part2.800 <- substr(clean.hiv.seq.G, 801,1600)
+hiv.seq.G.pol.part3.800 <- substr(clean.hiv.seq.G, 1601,2400)
+hiv.seq.G.pol.part4.612 <- substr(clean.hiv.seq.G, 2401,3012)
+write(hiv.seq.G.pol.part1.800, file = "hiv.seq.G.pol.part1.800.fasta")
+write(hiv.seq.G.pol.part2.800, file = "hiv.seq.G.pol.part2.800.fasta")
+write(hiv.seq.G.pol.part3.800, file = "hiv.seq.G.pol.part3.800.fasta")
+write(hiv.seq.G.pol.part4.612, file = "hiv.seq.G.pol.part4.612.fasta")
+
+# All splitted seq will be subtyped
