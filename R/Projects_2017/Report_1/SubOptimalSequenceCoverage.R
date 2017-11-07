@@ -3,6 +3,7 @@
 
 setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/")
 
+
 ## Load required packages
 
 pacman::p_load(devtools, Rcpp, ape, expoTree, data.table, phylosim, RSimpactCyan,
@@ -10,19 +11,25 @@ pacman::p_load(devtools, Rcpp, ape, expoTree, data.table, phylosim, RSimpactCyan
                phyclust, DECIPHER,treedater,geiger,picante)
 
 
+
+#######################
+# Step 1: Run Simpact # # for A: 4000 individuals(1800M&2200W) and B: 8000 individuals(3800M&4200W)
+#######################
+
 ## Run Simpact for specific parameter combination
 
 age.distr <- agedistr.creator(shape = 5, scale = 65)
 cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
+                                 population.msm = "no",
                                  population.simtime = 40, #20, #40,  #25 for validation. 20 for calibration
-                                 population.nummen = 3000, # 3800, #2500,
-                                 population.numwomen = 3000, #4200, #2500,
+                                 population.nummen = 3800, # 3800, #2500,
+                                 population.numwomen = 4200, #4200, #2500,
                                  hivseed.time = 10, # 10,
                                  hivseed.type = "amount",
-                                 hivseed.amount = 20, #30,
+                                 hivseed.amount = 40, #30,
                                  hivseed.age.min = 20,
                                  hivseed.age.max = 50,
-                                 hivtransmission.param.a = -1,
+                                 hivtransmission.param.a = -1, # -1,
                                  hivtransmission.param.b = -90,
                                  hivtransmission.param.c = 0.5,
                                  hivtransmission.param.f1 = log(2), #log(inputvector[2]) , #log(2),
@@ -45,9 +52,9 @@ cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
 cfg.list["formation.hazard.agegapry.baseline"] <- 2
 cfg.list["mortality.aids.survtime.C"] <- 65
 cfg.list["mortality.aids.survtime.k"] <- -0.2
-cfg.list["monitoring.fraction.log_viralload"] <- 0.3
-cfg.list["dropout.interval.dist.uniform.min"] <- 100
-cfg.list["dropout.interval.dist.uniform.max"] <- 200
+cfg.list["monitoring.fraction.log_viralload"] <- 0 # 0.3
+cfg.list["dropout.interval.dist.uniform.min"] <- 1000
+cfg.list["dropout.interval.dist.uniform.max"] <- 2000
 
 cfg.list["person.survtime.logoffset.dist.type"] <- "normal"
 cfg.list["person.survtime.logoffset.dist.normal.mu"] <- 0
@@ -60,7 +67,9 @@ cfg.list["person.agegap.woman.dist.type"] <- "normal" #"fixed"
 
 cfg.list["mortality.aids.survtime.C"] <- 65
 cfg.list["mortality.aids.survtime.k"] <- -0.2
-cfg.list["monitoring.cd4.threshold"] <- 0
+cfg.list["monitoring.cd4.threshold"] <- 10000
+cfg.list["person.art.accept.threshold.dist.fixed.value"] <- 1
+cfg.list["diagnosis.baseline"] <- -2
 
 
 
@@ -69,10 +78,10 @@ cfg.list["monitoring.cd4.threshold"] <- 0
 
 # Let's introduce ART, and evaluate whether the HIV prevalence drops less  rapidly
 art.intro <- list()
-art.intro["time"] <- 25
-art.intro["person.art.accept.threshold.dist.fixed.value"] <- 0.5 # inputvector[4] ######### 0.5
-art.intro["diagnosis.baseline"] <- 100 # 0#100
-art.intro["monitoring.cd4.threshold"] <- 100 # 1200
+art.intro["time"] <- 0.0001 # 25
+art.intro["person.art.accept.threshold.dist.fixed.value"] <- 1 # 0.5 # inputvector[4] ######### 0.5
+art.intro["diagnosis.baseline"] <- -2 # 0#100
+art.intro["monitoring.cd4.threshold"] <- 10000 # 1200
 
 ### add something about diagnosis
 art.intro["diagnosis.agefactor"] <- 0
@@ -88,26 +97,26 @@ art.intro["diagnosis.isdiagnosedfactor"] <- 0
 
 # Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2013:500
 
-art.intro2 <- list()
-art.intro2["time"] <- 25 + 5 # inputvector[5] ######### 30
-art.intro2["monitoring.cd4.threshold"] <- 200
-
-art.intro3 <- list()
-art.intro3["time"] <- 33 # inputvector[4] + inputvector[5] + inputvector[6] ########### 33
-art.intro3["monitoring.cd4.threshold"] <- 350
-
-art.intro4 <- list()
-art.intro4["time"] <- 3 # inputvector[4] + inputvector[5] + inputvector[6] + inputvector[7] ########### 36
-art.intro4["monitoring.cd4.threshold"] <- 500
-
-art.intro5 <- list()
-art.intro5["time"] <- 38
-art.intro5["monitoring.cd4.threshold"] <- 5000 # This is equivalent to immediate access
-art.intro5["person.art.accept.threshold.dist.fixed.value"] <- 0.5 # inputvector[8] ########### 0.75
+# art.intro2 <- list()
+# art.intro2["time"] <- 25 + 5 # inputvector[5] ######### 30
+# art.intro2["monitoring.cd4.threshold"] <- 200
+#
+# art.intro3 <- list()
+# art.intro3["time"] <- 33 # inputvector[4] + inputvector[5] + inputvector[6] ########### 33
+# art.intro3["monitoring.cd4.threshold"] <- 350
+#
+# art.intro4 <- list()
+# art.intro4["time"] <- 3 # inputvector[4] + inputvector[5] + inputvector[6] + inputvector[7] ########### 36
+# art.intro4["monitoring.cd4.threshold"] <- 500
+#
+# art.intro5 <- list()
+# art.intro5["time"] <- 38
+# art.intro5["monitoring.cd4.threshold"] <- 5000 # This is equivalent to immediate access
+# art.intro5["person.art.accept.threshold.dist.fixed.value"] <- 0.5 # inputvector[8] ########### 0.75
 
 # tasp.indicator <- inputvector[9] # 1 if the scenario is TasP, 0 if the scenario is current status
 
-interventionlist <- list(art.intro, art.intro2, art.intro3, art.intro4, art.intro5)
+interventionlist <- list(art.intro) #, art.intro2, art.intro3, art.intro4, art.intro5)
 
 intervention <- interventionlist # scenario(interventionlist, tasp.indicator)
 
@@ -136,7 +145,7 @@ cfg.list["person.eagerness.woman.dist.gamma.b"] <- inputvector[9]
 cfg <- cfg.list
 
 cfg["population.maxevents"] <- as.numeric(cfg.list["population.simtime"][1]) * as.numeric(cfg.list["population.nummen"][1]) * 3
-cfg["monitoring.fraction.log_viralload"] <- 0.3
+# cfg["monitoring.fraction.log_viralload"] <- 0.3
 cfg["person.vsp.toacute.x"] <- 5 # See Bellan PLoS Medicine
 
 seedid <- inputvector[1]
@@ -152,8 +161,8 @@ cfg["conception.alpha_base"] <- inputvector[14] #is conception.alpha.base (highe
 cfg["dissolution.alpha_0"] <- inputvector[15]
 cfg["dissolution.alpha_4"] <- inputvector[16]
 
-
-# Run Simpact
+# #
+# # # # Run Simpact
 results <- simpact.run(configParams = cfg,
                        destDir = "temp",
                        agedist = age.distr,
@@ -161,14 +170,20 @@ results <- simpact.run(configParams = cfg,
                        intervention = intervention)
 
 datalist <- readthedata(results)
+#
+# table(datalist$etable$eventname)
+#
+# ## Save the output
+# save(datalist, file = "MasterModelSubOptimalSeqCovearge.datalistA.RData")
 
-## Save the output
-save(datalist, file = "MasterModelSubOptimalSeqCovearge.datalist.RData")
+save(datalist, file = "MasterModelSubOptimalSeqCovearge.datalistB.RData")
 
 # Read saved output data set
-datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalist.RData"))
+# datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalistA.RData"))
 
+# datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalistB.RData"))
 
+table(datalist$etable$eventname) # check events
 
 # Prevlence per age group and time at a given time-point
 prevalence.df <- prevalence.calculator(datalist = datalist,
@@ -183,22 +198,44 @@ incidence.df <- incidence.calculator(datalist = datalist,
                                      agegroup = c(15, 30), timewindow = c(10, 20))
 
 
+
+###########################################
+# Step 2: Construct transmission networks #
+###########################################
+
+
 # Resource required RSimpactHelp function in my branch
 source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff2.R")
 source("/home/david/RSimpactHelp/R/trans.network2tree.R")
+source("/home/david/RSimpactHelp/R/epi2tree2.R")
 
+datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalistA.RData"))
 
 simpact.trans.net <- transmNetworkBuilder.diff2(datalist = datalist, endpoint = 40)
 
-
+smallest.branches <- rep(NA, times = length(simpact.trans.net))
+for (list.element in 1:length(simpact.trans.net)){
+  net.list <- simpact.trans.net[[list.element]]
+  if(length(net.list$id) > 2){
+    tree.tr <- epi2tree2(net.list)
+    smallest.branch <- min(tree.tr$edge.length)
+    smallest.branches[list.element] <- smallest.branch
+  }
+}
+min(smallest.branches, na.rm = TRUE) #
+## seeds and transmission network sizes:
+# A: 10 >>6, 18 >>20, 19 >>3, 21 >>3, 22 >>1403, 24 >>716, 27 >>370, 32 >>20, 37>>5
+# B: 4 >>3, 12 >>1079, 19 >>4, 21 >>3, 22 >>3032, 24 >>809, 28 >>3, 34 >>3 39 >>5
+which(smallest.branches!="NA")
 
 ###################################################################################################
-# Scenario 1 - C
+
+# Scenario 1 - B
 #
 # one subtype of the virus (HIV-1-C) for all seeds
 # complete sampling for a transmission network of one seed
 # same sampling time interval (e.g.: five or three years) for a transmission network of one seed
-setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario1/")
+setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario1_A/")
 
 
 ## (i) Sequence simulation
@@ -238,7 +275,7 @@ for(i in 1:length(trans.net)){
     # # Simulate sequences, this require compiled toold seq-gen
     # # random sequence which will be simulated is choosen in the pool
     # seq.rand <- sample(1:30,1) # chose one sequence in first 30's in the seed sequence pool named "seed.seq.fasta"
-    seq.rand <- 3
+    seq.rand <- 1
     #
     # tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = ""))
     # n.tr <- numb.tr(tree = tr)
@@ -248,14 +285,14 @@ for(i in 1:length(trans.net)){
     seed.id <- tree.n$id[1]
 
     # call the seed sequences and rename the file
-    file.copy(paste("C.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""))
+    file.copy(paste("B.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
     # add the number of tree in the file and
-    write(n.tr,file = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+    write(n.tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
     # the tree, to prepare the file to simulate the evolution of the virus across the tree
-    write.tree(tr,file = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
-    file.rename(from = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.C.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+    write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+    file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
 
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.C.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >C.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
 
 
     # a: shape parameter of Gamma > Gamma Rate Heterogeneity
@@ -275,118 +312,13 @@ for(i in 1:length(trans.net)){
 
 IDs.transm <- num.i # vector of of seeds chosen in the list of seeds
 
-# c(3,  4,  7,  8,  9, 10, 11, 12, 14)
-# c(6, 7, 2144, 23, 3475, 851, 5, 27, 3)
-
-## (ii) Construct time stamped phylogenetic trees
-
-
-# Function to tranform dates in named vector to be handled by treedater
-
-# Function to tranform dates in named vector to be handled by treedater
-
-dates.Transform.NamedVector  <- function(dates=dates){
-  dates.val <- datalist$itable$population.simtime[1] - dates$V2 + 1977 # 1977+dates$V2 # dates
-  names(dates.val) <- as.character(dates$V1) # names are the names of the tips
-  return(dates.val)
-}
-
-
-## (ii.a) Construct phylogenetic trees
-
-# Many tools to build the trees: within R like ape, phangorn, and outside compiled tools like iq-tree and FastTree
-
-for (j in 1:length(IDs.transm)){
-
-  id.trans <- IDs.transm[j]
-  # External IQ-TREE
-  # system(" ./iqtree-omp -s HIV.Env.gene.fasta -m GTR+R4 -nt AUTO -alrt 1000 -bb 1000")
-  # Consensus tree written to HIV.Env.gene.fasta.contree
-  # Reading input trees file HIV.Env.gene.fasta.contree
-  # Log-likelihood of consensus tree: -10565.685
-  #
-  # Analysis results written to:
-  #   IQ-TREE report:                HIV.Env.gene.fasta.iqtree
-  # Maximum-likelihood tree:       HIV.Env.gene.fasta.treefile
-  # Likelihood distances:          HIV.Env.gene.fasta.mldist
-  #
-  # Ultrafast bootstrap approximation results written to:
-  #   Split support values:          HIV.Env.gene.fasta.splits.nex
-  # Consensus tree:                HIV.Env.gene.fasta.contree
-  # Screen log file:               HIV.Env.gene.fasta.log
-
-  system(paste("./iqtree-omp -s", paste("C.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""), "-m GTR+R4 -nt AUTO -alrt 1000 -bb 1000"))
-
-
-}
-
-
-
-
-
-## (ii.b) Internal node optimisation
-
-
-# Named the vector of sampling times by IDs (crucil to match tips IDs and sampling date)
-for (j in 1:length(IDs.transm)){
-
-  id.trans <- IDs.transm[j]
-
-  tree.const <- read.tree(paste("C.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""))
-
-  samp.dates <- read.csv(paste("samplingtimes_seed_number_",id.trans,".csv", sep = ""))
-
-  time.samp <- dates.Transform.NamedVector(dates=samp.dates)
-
-  tree.tips <- as.numeric(tree.const$tip.label)
-
-  Ord.tree.dates <- vector()
-  for(i in 1:length(tree.tips)){
-    for(j in 1:length(time.samp)){
-      if(tree.tips[i] == samp.dates$V1[j]){
-        Ord.tree.dates <- c(Ord.tree.dates, time.samp[j])
-      }
-    }
-  }
-
-  # Use of library(treedater) to calibrate internal nodes
-  dater.tree <- dater(tree.const, Ord.tree.dates, s = 1000) # s is the length of sequence
-
-  # Save the tree
-  write.tree(dater.tree, file = paste("calibratedTree_",id.trans,".nwk", sep = ""))
-  ###########################################################################################
-  ###########################################################################################
-  #
-  #   # With changed label names, make sure the vector of sampling dates is renamed as wells
-  #
-  #   # Rename the tree by adding sampling date
-  # g <- tree.const
-  # a <- g$tip.label # label names
-  # d <- as.character(round(Ord.tree.dates, digits = 2)) # sampling dates
-  # g$tip.label <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-  #
-  # renamed.Ord.tree.dates <- Ord.tree.dates
-  # names(renamed.Ord.tree.dates) <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-  #
-  # # Use of library(treedater) to calibrate internal nodes
-  # dater.tree.g <- dater(g, renamed.Ord.tree.dates, s = 1000) # s is the length of sequence
-
-  #   # Save the tree
-  #   write.tree(dater.tree.g, file = paste("calibratedTree_",id.trans,"_pref.nwk", sep = ""))
-
-}
-
-
-
-
-
-# Scenario 2 - C
+# Scenario 2 - B
 #
 # one subtype of the virus (HIV-1-C) for all seeds
 # complete sampling for a transmission network of all seeds
 # same sampling time interval (e.g.: five or three years) for a transmission network of all seeds
 
-setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario2/")
+setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario2_A/")
 
 
 ## (i) Sequence simulation
@@ -394,7 +326,6 @@ setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario2/")
 # Use external tool seq-gen it is fast more than phylosim embeded in RSimpactHelp
 
 # Note: transmission network with less than 3 individuals will not be considered
-
 seed=123
 trans.net <- simpact.trans.net # all transmission networks
 num.trees <- vector() # ID of seeds # will be 0 because the transformation required to handle transmission tree from transmission network
@@ -426,7 +357,7 @@ for(i in 1:length(trans.net)){
     # # Simulate sequences, this require compiled toold seq-gen
     # # random sequence which will be simulated is choosen in the pool
     # seq.rand <- sample(1:30,1) # chose one sequence in first 30's in the seed sequence pool named "seed.seq.fasta"
-    seq.rand <- 3
+    seq.rand <- 1
     #
     # tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = ""))
     # n.tr <- numb.tr(tree = tr)
@@ -436,14 +367,14 @@ for(i in 1:length(trans.net)){
     seed.id <- tree.n$id[1]
 
     # call the seed sequences and rename the file
-    file.copy(paste("C.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""))
+    file.copy(paste("hiv.seq.B.pol.j.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
     # add the number of tree in the file and
-    write(n.tr,file = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+    write(n.tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
     # the tree, to prepare the file to simulate the evolution of the virus across the tree
-    write.tree(tr,file = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
-    file.rename(from = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.C.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+    write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+    file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
 
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.C.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >C.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k 1 <hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
 
 
     # a: shape parameter of Gamma > Gamma Rate Heterogeneity
@@ -458,6 +389,7 @@ for(i in 1:length(trans.net)){
 
   }
 }
+
 
 # Chosen transmission networks with at least 3 individuals
 
