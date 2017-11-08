@@ -235,7 +235,8 @@ which(smallest.branches!="NA")
 # one subtype of the virus (HIV-1-C) for all seeds
 # complete sampling for a transmission network of one seed
 # same sampling time interval (e.g.: five or three years) for a transmission network of one seed
-setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario1_A/")
+# setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario1_A/")
+setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario1_B/")
 
 
 ## (i) Sequence simulation
@@ -285,14 +286,14 @@ for(i in 1:length(trans.net)){
     seed.id <- tree.n$id[1]
 
     # call the seed sequences and rename the file
-    file.copy(paste("B.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
+    file.copy(paste("hiv.seq.B.pol.j.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
     # add the number of tree in the file and
     write(n.tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
     # the tree, to prepare the file to simulate the evolution of the virus across the tree
     write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
     file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
 
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3935, 0.1708, 0.2060, 0.2297 -a 0.9 -i 0.80 -g 4 -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -n1 -k 1 <hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
 
 
     # a: shape parameter of Gamma > Gamma Rate Heterogeneity
@@ -312,14 +313,16 @@ for(i in 1:length(trans.net)){
 
 IDs.transm <- num.i # vector of of seeds chosen in the list of seeds
 
+
 # Scenario 2 - B
 #
 # one subtype of the virus (HIV-1-C) for all seeds
 # complete sampling for a transmission network of all seeds
 # same sampling time interval (e.g.: five or three years) for a transmission network of all seeds
 
-setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario2_A/")
+# setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario2_A/")
 
+setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario2_B/")
 
 ## (i) Sequence simulation
 
@@ -374,7 +377,7 @@ for(i in 1:length(trans.net)){
     write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
     file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
 
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k 1 <hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3935, 0.1708, 0.2060, 0.2297 -a 0.9 -i 0.80 -g 4 -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -n1 -k 1 <hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
 
 
     # a: shape parameter of Gamma > Gamma Rate Heterogeneity
@@ -390,121 +393,20 @@ for(i in 1:length(trans.net)){
   }
 }
 
-
 # Chosen transmission networks with at least 3 individuals
 
 IDs.transm <- num.i # vector of of seeds chosen in the list of seeds
 
-# c(3,  4,  7,  8,  9, 10, 11, 12, 14)
-# c(6, 7, 2144, 23, 3475, 851, 5, 27, 3)
-
-## (ii) Construct time stamped phylogenetic trees
 
 
-# Function to tranform dates in named vector to be handled by treedater
-
-# Function to tranform dates in named vector to be handled by treedater
-
-dates.Transform.NamedVector  <- function(dates=dates){
-  dates.val <- datalist$itable$population.simtime[1] - dates$V2 + 1977 # 1977+dates$V2 # dates
-  names(dates.val) <- as.character(dates$V1) # names are the names of the tips
-  return(dates.val)
-}
-
-
-## (ii.a) Construct phylogenetic trees
-
-# Many tools to build the trees: within R like ape, phangorn, and outside compiled tools like iq-tree and FastTree
-
-for (j in 1:length(IDs.transm)){
-
-  id.trans <- IDs.transm[j]
-  # External IQ-TREE
-  # system(" ./iqtree-omp -s HIV.Env.gene.fasta -m GTR+R4 -nt AUTO -alrt 1000 -bb 1000")
-  # Consensus tree written to HIV.Env.gene.fasta.contree
-  # Reading input trees file HIV.Env.gene.fasta.contree
-  # Log-likelihood of consensus tree: -10565.685
-  #
-  # Analysis results written to:
-  #   IQ-TREE report:                HIV.Env.gene.fasta.iqtree
-  # Maximum-likelihood tree:       HIV.Env.gene.fasta.treefile
-  # Likelihood distances:          HIV.Env.gene.fasta.mldist
-  #
-  # Ultrafast bootstrap approximation results written to:
-  #   Split support values:          HIV.Env.gene.fasta.splits.nex
-  # Consensus tree:                HIV.Env.gene.fasta.contree
-  # Screen log file:               HIV.Env.gene.fasta.log
-
-  system(paste("./iqtree-omp -s", paste("C.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""), "-m GTR+R4 -nt AUTO -alrt 1000 -bb 1000"))
-
-
-}
-
-
-
-
-
-## (ii.b) Internal node optimisation
-
-
-# Named the vector of sampling times by IDs (crucil to match tips IDs and sampling date)
-for (j in 1:length(IDs.transm)){
-
-  id.trans <- IDs.transm[j]
-
-  tree.const <- read.tree(paste("C.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""))
-
-  samp.dates <- read.csv(paste("samplingtimes_seed_number_",id.trans,".csv", sep = ""))
-
-  time.samp <- dates.Transform.NamedVector(dates=samp.dates)
-
-  tree.tips <- as.numeric(tree.const$tip.label)
-
-  Ord.tree.dates <- vector()
-  for(i in 1:length(tree.tips)){
-    for(j in 1:length(time.samp)){
-      if(tree.tips[i] == samp.dates$V1[j]){
-        Ord.tree.dates <- c(Ord.tree.dates, time.samp[j])
-      }
-    }
-  }
-
-  # Use of library(treedater) to calibrate internal nodes
-  dater.tree <- dater(tree.const, Ord.tree.dates, s = 1000) # s is the length of sequence
-
-  # Save the tree
-  write.tree(dater.tree, file = paste("calibratedTree_",id.trans,".nwk", sep = ""))
-  ###########################################################################################
-  ###########################################################################################
-  #
-  #   # With changed label names, make sure the vector of sampling dates is renamed as wells
-  #
-  #   # Rename the tree by adding sampling date
-  # g <- tree.const
-  # a <- g$tip.label # label names
-  # d <- as.character(round(Ord.tree.dates, digits = 2)) # sampling dates
-  # g$tip.label <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-  #
-  # renamed.Ord.tree.dates <- Ord.tree.dates
-  # names(renamed.Ord.tree.dates) <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-  #
-  # # Use of library(treedater) to calibrate internal nodes
-  # dater.tree.g <- dater(g, renamed.Ord.tree.dates, s = 1000) # s is the length of sequence
-
-  #   # Save the tree
-  #   write.tree(dater.tree.g, file = paste("calibratedTree_",id.trans,"_pref.nwk", sep = ""))
-
-}
-
-
-# Scenario 3 - A- B- C.
+# Scenario 3 - A- B- G
 #
 # different subtypes of the virus (HIV-1-A-C-D-G) for all seeds
 # complete sampling for a transmission network of one seed
 # same sampling time interval (e.g.: five or three years) for a transmission network of one seed
 
-setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario3/")
-
+# setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario3_A/")
+setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario3_B/")
 ## (i) Sequence simulation
 
 # Use external tool seq-gen it is fast more than phylosim embeded in RSimpactHelp
@@ -542,7 +444,7 @@ for(i in 1:length(trans.net)){
     # # Simulate sequences, this require compiled toold seq-gen
     # # random sequence which will be simulated is choosen in the pool
     # seq.rand <- sample(1:30,1) # chose one sequence in first 30's in the seed sequence pool named "seed.seq.fasta"
-    seq.rand <- 3
+    seq.rand <- 1
     #
     # tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = ""))
     # n.tr <- numb.tr(tree = tr)
@@ -551,187 +453,121 @@ for(i in 1:length(trans.net)){
 
     seed.id <- tree.n$id[1]
 
-    # A
-    ####
-    # call the seed sequences and rename the file
-    file.copy(paste("A.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""))
-    # add the number of tree in the file and
-    write(n.tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
-    # the tree, to prepare the file to simulate the evolution of the virus across the tree
-    write.tree(tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
-    file.rename(from = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+    if(i==22){ # subtype B
+      # call the seed sequences and rename the file
+      file.copy(paste("hiv.seq.B.pol.j.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
+      # add the number of tree in the file and
+      write(n.tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+      write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+      file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
 
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >A.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
-
-
-    # B
-    ####
-    # call the seed sequences and rename the file
-    file.copy(paste("B.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
-    # add the number of tree in the file and
-    write(n.tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
-    # the tree, to prepare the file to simulate the evolution of the virus across the tree
-    write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
-    file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
-
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+      system(paste("./seq-gen -mGTR -f 0.3935, 0.1708, 0.2060, 0.2297 -a 0.9 -i 0.80 -g 4 -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -n1 -k 1 <hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
 
 
-    # C
-    ####
-    # call the seed sequences and rename the file
-    file.copy(paste("C.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""))
-    # add the number of tree in the file and
-    write(n.tr,file = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
-    # the tree, to prepare the file to simulate the evolution of the virus across the tree
-    write.tree(tr,file = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
-    file.rename(from = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.C.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+      # a: shape parameter of Gamma > Gamma Rate Heterogeneity
+      # g: category of Gamma > Discrete Gamma Rate Heterogeneity
+      # r: rate matrix
+      # z: seed
 
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.C.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >C.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+      # Keep sampling dates
+      id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+
+      write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
+
+    }
+
+    else if(i==24){ # subtype A
+      # call the seed sequences and rename the file
+      file.copy(paste("hiv.seq.A.pol.j.fasta", sep = ""),paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""))
+      # add the number of tree in the file and
+      write(n.tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+      write.tree(tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+      file.rename(from = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+
+      system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -n1 -k 1 <hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >A.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
 
 
-    # a: shape parameter of Gamma > Gamma Rate Heterogeneity
-    # g: category of Gamma > Discrete Gamma Rate Heterogeneity
-    # r: rate matrix
-    # z: seed
+      # a: shape parameter of Gamma > Gamma Rate Heterogeneity
+      # g: category of Gamma > Discrete Gamma Rate Heterogeneity
+      # r: rate matrix
+      # z: seed
 
-    # Keep sampling dates
-    id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+      # Keep sampling dates
+      id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
 
-    write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
+      write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
+
+    }
+    else if(i==27){ # subtype G
+      # call the seed sequences and rename the file
+      file.copy(paste("hiv.seq.G.pol.j.fasta", sep = ""),paste("hiv.seq.G.pol.j.fasta",i,".nwk", sep = ""))
+      # add the number of tree in the file and
+      write(n.tr,file = paste("hiv.seq.G.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+      write.tree(tr,file = paste("hiv.seq.G.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+      file.rename(from = paste("hiv.seq.G.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.G.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+
+      system(paste("./seq-gen -mGTR -f 0.3987, 0.1563, 0.2202, 0.2249 -a 0.9 -i 0.80 -g 4 -r 1.4520, 9.9166, 1.3332, 1.2652, 14.9356, 1.0000 -n1 -k 1 <hiv.seq.G.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >G.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+
+
+      # a: shape parameter of Gamma > Gamma Rate Heterogeneity
+      # g: category of Gamma > Discrete Gamma Rate Heterogeneity
+      # r: rate matrix
+      # z: seed
+
+      # Keep sampling dates
+      id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+
+      write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
+
+    }
+    else{ # subtype B
+      # call the seed sequences and rename the file
+      file.copy(paste("hiv.seq.B.pol.j.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
+      # add the number of tree in the file and
+      write(n.tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+      write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+      file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+
+      system(paste("./seq-gen -mGTR -f 0.3935, 0.1708, 0.2060, 0.2297 -a 0.9 -i 0.80 -g 4 -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -n1 -k 1 <hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+
+
+      # a: shape parameter of Gamma > Gamma Rate Heterogeneity
+      # g: category of Gamma > Discrete Gamma Rate Heterogeneity
+      # r: rate matrix
+      # z: seed
+
+      # Keep sampling dates
+      id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+      write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
+    }
+  }
 
   }
-}
 
 # Chosen transmission networks with at least 3 individuals
 
 IDs.transm <- num.i # vector of of seeds chosen in the list of seeds
 
-# c(3,  4,  7,  8,  9, 10, 11, 12, 14)
-# c(6, 7, 2144, 23, 3475, 851, 5, 27, 3)
-
-## (ii) Construct time stamped phylogenetic trees
 
 
-# Function to tranform dates in named vector to be handled by treedater
-
-# Function to tranform dates in named vector to be handled by treedater
-
-dates.Transform.NamedVector  <- function(dates=dates){
-  dates.val <- datalist$itable$population.simtime[1] - dates$V2 + 1977 # 1977+dates$V2 # dates
-  names(dates.val) <- as.character(dates$V1) # names are the names of the tips
-  return(dates.val)
-}
-
-
-## (ii.a) Construct phylogenetic trees
-
-# Many tools to build the trees: within R like ape, phangorn, and outside compiled tools like iq-tree and FastTree
-
-for (j in 1:length(IDs.transm)){
-
-  id.trans <- IDs.transm[j]
-  # External IQ-TREE
-  # system(" ./iqtree-omp -s HIV.Env.gene.fasta -m GTR+R4 -nt AUTO -alrt 1000 -bb 1000")
-  # Consensus tree written to HIV.Env.gene.fasta.contree
-  # Reading input trees file HIV.Env.gene.fasta.contree
-  # Log-likelihood of consensus tree: -10565.685
-  #
-  # Analysis results written to:
-  #   IQ-TREE report:                HIV.Env.gene.fasta.iqtree
-  # Maximum-likelihood tree:       HIV.Env.gene.fasta.treefile
-  # Likelihood distances:          HIV.Env.gene.fasta.mldist
-  #
-  # Ultrafast bootstrap approximation results written to:
-  #   Split support values:          HIV.Env.gene.fasta.splits.nex
-  # Consensus tree:                HIV.Env.gene.fasta.contree
-  # Screen log file:               HIV.Env.gene.fasta.log
-
-
-  system(paste("./iqtree-omp -s", paste("A.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""), "-m GTR+R4 -nt AUTO -alrt 1000 -bb 1000"))
-
-
-
-  system(paste("./iqtree-omp -s", paste("A.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""), "-m GTR+R4 -nt AUTO -alrt 1000 -bb 1000"))
-
-
-
-  system(paste("./iqtree-omp -s", paste("C.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""), "-m GTR+R4 -nt AUTO -alrt 1000 -bb 1000"))
-
-
-}
-
-
-
-
-
-## (ii.b) Internal node optimisation
-
-
-# Named the vector of sampling times by IDs (crucil to match tips IDs and sampling date)
-for (j in 1:length(IDs.transm)){
-
-  id.trans <- IDs.transm[j]
-
-  tree.const <- read.tree(paste("C.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""))
-
-  samp.dates <- read.csv(paste("samplingtimes_seed_number_",id.trans,".csv", sep = ""))
-
-  time.samp <- dates.Transform.NamedVector(dates=samp.dates)
-
-  tree.tips <- as.numeric(tree.const$tip.label)
-
-  Ord.tree.dates <- vector()
-  for(i in 1:length(tree.tips)){
-    for(j in 1:length(time.samp)){
-      if(tree.tips[i] == samp.dates$V1[j]){
-        Ord.tree.dates <- c(Ord.tree.dates, time.samp[j])
-      }
-    }
-  }
-
-  # Use of library(treedater) to calibrate internal nodes
-  dater.tree <- dater(tree.const, Ord.tree.dates, s = 1000) # s is the length of sequence
-
-  # Save the tree
-  write.tree(dater.tree, file = paste("calibratedTree_",id.trans,".nwk", sep = ""))
-  ###########################################################################################
-  ###########################################################################################
-  #
-  #   # With changed label names, make sure the vector of sampling dates is renamed as wells
-  #
-  #   # Rename the tree by adding sampling date
-  # g <- tree.const
-  # a <- g$tip.label # label names
-  # d <- as.character(round(Ord.tree.dates, digits = 2)) # sampling dates
-  # g$tip.label <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-  #
-  # renamed.Ord.tree.dates <- Ord.tree.dates
-  # names(renamed.Ord.tree.dates) <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-  #
-  # # Use of library(treedater) to calibrate internal nodes
-  # dater.tree.g <- dater(g, renamed.Ord.tree.dates, s = 1000) # s is the length of sequence
-
-  #   # Save the tree
-  #   write.tree(dater.tree.g, file = paste("calibratedTree_",id.trans,"_pref.nwk", sep = ""))
-
-}
-
-
-
-# Scenario 4 - A- B- C.
+# Scenario 4 - A- B- G
 #
 # different subtypes of the virus (HIV-1-A-C-D-G) for all seeds
 # complete sampling for a transmission network of all seeds
 # same sampling time interval (e.g.: five or three years) for a transmission network of all seeds
 
-setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario4/")
-
+# setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario4_A/")
+setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario4_B/")
 ## (i) Sequence simulation
 
 # Use external tool seq-gen it is fast more than phylosim embeded in RSimpactHelp
 
 # Note: transmission network with less than 3 individuals will not be considered
+
 
 seed=123
 trans.net <- simpact.trans.net # all transmission networks
@@ -764,7 +600,7 @@ for(i in 1:length(trans.net)){
     # # Simulate sequences, this require compiled toold seq-gen
     # # random sequence which will be simulated is choosen in the pool
     # seq.rand <- sample(1:30,1) # chose one sequence in first 30's in the seed sequence pool named "seed.seq.fasta"
-    seq.rand <- 3
+    seq.rand <- 1
     #
     # tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = ""))
     # n.tr <- numb.tr(tree = tr)
@@ -773,169 +609,101 @@ for(i in 1:length(trans.net)){
 
     seed.id <- tree.n$id[1]
 
-    # A
-    ####
-    # call the seed sequences and rename the file
-    file.copy(paste("A.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""))
-    # add the number of tree in the file and
-    write(n.tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
-    # the tree, to prepare the file to simulate the evolution of the virus across the tree
-    write.tree(tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
-    file.rename(from = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+    if(i==22){ # subtype B
+      # call the seed sequences and rename the file
+      file.copy(paste("hiv.seq.B.pol.j.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
+      # add the number of tree in the file and
+      write(n.tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+      write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+      file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
 
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >A.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
-
-
-    # B
-    ####
-    # call the seed sequences and rename the file
-    file.copy(paste("B.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
-    # add the number of tree in the file and
-    write(n.tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
-    # the tree, to prepare the file to simulate the evolution of the virus across the tree
-    write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
-    file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
-
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+      system(paste("./seq-gen -mGTR -f 0.3935, 0.1708, 0.2060, 0.2297 -a 0.9 -i 0.80 -g 4 -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -n1 -k 1 <hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
 
 
-    # C
-    ####
-    # call the seed sequences and rename the file
-    file.copy(paste("C.pool.gene.pol.fasta", sep = ""),paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""))
-    # add the number of tree in the file and
-    write(n.tr,file = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
-    # the tree, to prepare the file to simulate the evolution of the virus across the tree
-    write.tree(tr,file = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
-    file.rename(from = paste("hiv.seq.C.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.C.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+      # a: shape parameter of Gamma > Gamma Rate Heterogeneity
+      # g: category of Gamma > Discrete Gamma Rate Heterogeneity
+      # r: rate matrix
+      # z: seed
 
-    system(paste("./seq-gen -mGTR -f 0.393,0.172,0.223,0.212  -a 0.9 -g 4 -r 3.37,14.50,1.44,1.21,14.50,1.00 -n1 -k",seq.rand,"<hiv.seq.C.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >C.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+      # Keep sampling dates
+      id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+
+      write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
+
+    }
+
+    else if(i==24){ # subtype A
+      # call the seed sequences and rename the file
+      file.copy(paste("hiv.seq.A.pol.j.fasta", sep = ""),paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""))
+      # add the number of tree in the file and
+      write(n.tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+      write.tree(tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+      file.rename(from = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+
+      system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -n1 -k 1 <hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >A.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
 
 
-    # a: shape parameter of Gamma > Gamma Rate Heterogeneity
-    # g: category of Gamma > Discrete Gamma Rate Heterogeneity
-    # r: rate matrix
-    # z: seed
+      # a: shape parameter of Gamma > Gamma Rate Heterogeneity
+      # g: category of Gamma > Discrete Gamma Rate Heterogeneity
+      # r: rate matrix
+      # z: seed
 
-    # Keep sampling dates
-    id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+      # Keep sampling dates
+      id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
 
-    write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
+      write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
 
+    }
+    else if(i==27){ # subtype G
+      # call the seed sequences and rename the file
+      file.copy(paste("hiv.seq.G.pol.j.fasta", sep = ""),paste("hiv.seq.G.pol.j.fasta",i,".nwk", sep = ""))
+      # add the number of tree in the file and
+      write(n.tr,file = paste("hiv.seq.G.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+      write.tree(tr,file = paste("hiv.seq.G.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+      file.rename(from = paste("hiv.seq.G.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.G.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+
+      system(paste("./seq-gen -mGTR -f 0.3987, 0.1563, 0.2202, 0.2249 -a 0.9 -i 0.80 -g 4 -r 1.4520, 9.9166, 1.3332, 1.2652, 14.9356, 1.0000 -n1 -k 1 <hiv.seq.G.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >G.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+
+
+      # a: shape parameter of Gamma > Gamma Rate Heterogeneity
+      # g: category of Gamma > Discrete Gamma Rate Heterogeneity
+      # r: rate matrix
+      # z: seed
+
+      # Keep sampling dates
+      id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+
+      write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
+
+    }
+    else{ # subtype B
+      # call the seed sequences and rename the file
+      file.copy(paste("hiv.seq.B.pol.j.fasta", sep = ""),paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""))
+      # add the number of tree in the file and
+      write(n.tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+      write.tree(tr,file = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
+      file.rename(from = paste("hiv.seq.B.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
+
+      system(paste("./seq-gen -mGTR -f 0.3935, 0.1708, 0.2060, 0.2297 -a 0.9 -i 0.80 -g 4 -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -n1 -k 1 <hiv.seq.B.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >B.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
+
+
+      # a: shape parameter of Gamma > Gamma Rate Heterogeneity
+      # g: category of Gamma > Discrete Gamma Rate Heterogeneity
+      # r: rate matrix
+      # z: seed
+
+      # Keep sampling dates
+      id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+      write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
+    }
   }
+
 }
 
 # Chosen transmission networks with at least 3 individuals
 
 IDs.transm <- num.i # vector of of seeds chosen in the list of seeds
-
-# c(3,  4,  7,  8,  9, 10, 11, 12, 14)
-# c(6, 7, 2144, 23, 3475, 851, 5, 27, 3)
-
-## (ii) Construct time stamped phylogenetic trees
-
-
-# Function to tranform dates in named vector to be handled by treedater
-
-# Function to tranform dates in named vector to be handled by treedater
-
-dates.Transform.NamedVector  <- function(dates=dates){
-  dates.val <- datalist$itable$population.simtime[1] - dates$V2 + 1977 # 1977+dates$V2 # dates
-  names(dates.val) <- as.character(dates$V1) # names are the names of the tips
-  return(dates.val)
-}
-
-
-## (ii.a) Construct phylogenetic trees
-
-# Many tools to build the trees: within R like ape, phangorn, and outside compiled tools like iq-tree and FastTree
-
-for (j in 1:length(IDs.transm)){
-
-  id.trans <- IDs.transm[j]
-  # External IQ-TREE
-  # system(" ./iqtree-omp -s HIV.Env.gene.fasta -m GTR+R4 -nt AUTO -alrt 1000 -bb 1000")
-  # Consensus tree written to HIV.Env.gene.fasta.contree
-  # Reading input trees file HIV.Env.gene.fasta.contree
-  # Log-likelihood of consensus tree: -10565.685
-  #
-  # Analysis results written to:
-  #   IQ-TREE report:                HIV.Env.gene.fasta.iqtree
-  # Maximum-likelihood tree:       HIV.Env.gene.fasta.treefile
-  # Likelihood distances:          HIV.Env.gene.fasta.mldist
-  #
-  # Ultrafast bootstrap approximation results written to:
-  #   Split support values:          HIV.Env.gene.fasta.splits.nex
-  # Consensus tree:                HIV.Env.gene.fasta.contree
-  # Screen log file:               HIV.Env.gene.fasta.log
-
-
-  system(paste("./iqtree-omp -s", paste("A.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""), "-m GTR+R4 -nt AUTO -alrt 1000 -bb 1000"))
-
-
-
-  system(paste("./iqtree-omp -s", paste("A.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""), "-m GTR+R4 -nt AUTO -alrt 1000 -bb 1000"))
-
-
-
-  system(paste("./iqtree-omp -s", paste("C.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""), "-m GTR+R4 -nt AUTO -alrt 1000 -bb 1000"))
-
-
-}
-
-
-
-
-
-## (ii.b) Internal node optimisation
-
-
-# Named the vector of sampling times by IDs (crucil to match tips IDs and sampling date)
-for (j in 1:length(IDs.transm)){
-
-  id.trans <- IDs.transm[j]
-
-  tree.const <- read.tree(paste("C.Epidemic",id.trans,".Sequences.gene.pol.fasta",sep = ""))
-
-  samp.dates <- read.csv(paste("samplingtimes_seed_number_",id.trans,".csv", sep = ""))
-
-  time.samp <- dates.Transform.NamedVector(dates=samp.dates)
-
-  tree.tips <- as.numeric(tree.const$tip.label)
-
-  Ord.tree.dates <- vector()
-  for(i in 1:length(tree.tips)){
-    for(j in 1:length(time.samp)){
-      if(tree.tips[i] == samp.dates$V1[j]){
-        Ord.tree.dates <- c(Ord.tree.dates, time.samp[j])
-      }
-    }
-  }
-
-  # Use of library(treedater) to calibrate internal nodes
-  dater.tree <- dater(tree.const, Ord.tree.dates, s = 1000) # s is the length of sequence
-
-  # Save the tree
-  write.tree(dater.tree, file = paste("calibratedTree_",id.trans,".nwk", sep = ""))
-  ###########################################################################################
-  ###########################################################################################
-  #
-  #   # With changed label names, make sure the vector of sampling dates is renamed as wells
-  #
-  #   # Rename the tree by adding sampling date
-  # g <- tree.const
-  # a <- g$tip.label # label names
-  # d <- as.character(round(Ord.tree.dates, digits = 2)) # sampling dates
-  # g$tip.label <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-  #
-  # renamed.Ord.tree.dates <- Ord.tree.dates
-  # names(renamed.Ord.tree.dates) <- paste(a, "_", d, sep = "") # label_names+sampling_dates
-  #
-  # # Use of library(treedater) to calibrate internal nodes
-  # dater.tree.g <- dater(g, renamed.Ord.tree.dates, s = 1000) # s is the length of sequence
-
-  #   # Save the tree
-  #   write.tree(dater.tree.g, file = paste("calibratedTree_",id.trans,"_pref.nwk", sep = ""))
-
-}
-
