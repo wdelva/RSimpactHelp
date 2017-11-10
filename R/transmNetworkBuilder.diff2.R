@@ -371,6 +371,43 @@ transmNetworkBuilder.diff2 <- function(datalist = datalist, endpoint = 40){
   # to build a transmission tree, we reverse the time for infections time
   # itimes show how old is a given transmitted infection
 
+  ## filter: Gender and TOB
+  fil.id  <- vector("list", length(seeds.id))
+  pers.df <- vector("list", length(seeds.id))
+  for (i in 1:length(seeds.id)) {
+    fil.id[[i]] <- ord.flag.raw[[i]]$id
+
+    intermd.id <- fil.id[[i]]
+
+    pers <- filter(infec.all,  infec.all$ID%in%intermd.id)
+
+    pers.df[[i]] <- pers
+
+  }
+
+  # reordering
+  pers.filter <- vector("list", length(seeds.id))
+  for (i in 1:length(seeds.id)) {
+    pers.i <- pers.df[[i]]
+    ids.dt <- ord.flag.raw[[i]]$id
+    person.gender <- vector()
+    person.tob <- vector()
+    q <- vector()
+    for (j in 1:length(ids.dt)){
+      for (k in 1:length(ids.dt)) {
+        if(ids.dt[j]==pers.i$ID[k]){
+          person.gender <- c(person.gender,pers.i$Gender[k])
+          person.tob <- c(person.tob,pers.i$TOB[k])
+          q <- c(q,ids.dt[j])
+        }
+      }
+    }
+    id.gender.tob.i <- as.data.frame(cbind( q, person.gender, person.tob))
+    names(id.gender.tob.i) <- c("ID", "Gender", "TOB")
+    p <- id.gender.tob.i
+    pers.filter[[i]] <- p
+
+  }
 
   # initialize the list of of epi object (one per seed)
 
@@ -384,6 +421,8 @@ transmNetworkBuilder.diff2 <- function(datalist = datalist, endpoint = 40){
     transNet$parent <- dat.recdontime[[i]][,4]
     transNet$dtypes <- ord.flag.raw[[i]]$val.y
     transNet$orignId <- ord.flag.raw[[i]]$id
+    transNet$Gender <- pers.filter[[i]]$Gender
+    transNet$TOB <- pers.filter[[i]]$TOB
 
     transm.ls[[i]] <- transNet
   }
