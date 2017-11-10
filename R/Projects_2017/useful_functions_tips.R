@@ -1395,3 +1395,130 @@ extern.dist.tips <- function(phylo.tree){
   tips.branch.leng <- tips.branch.leng.raw
   return(tips.branch.leng)
 }
+
+
+
+### Transmission trees & Transmission network
+
+# take data in the following directory
+setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/")
+datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalistA.RData"))
+# A: 10 >>6, 18 >>20, 19 >>3, 21 >>3, 22 >>1403, 24 >>716, 27 >>370, 32 >>20, 37>>5
+# Resource required RSimpactHelp function in my branch
+source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff2.R")
+source("/home/david/RSimpactHelp/R/trans.network2tree.R")
+source("/home/david/RSimpactHelp/R/phylogenetictree.trend.R")
+
+
+simpact.trans.net <- transmNetworkBuilder.diff2(datalist = datalist, endpoint = 40)
+
+smallest.branches <- rep(NA, times = length(simpact.trans.net))
+for (list.element in 1:length(simpact.trans.net)){
+  net.list <- simpact.trans.net[[list.element]]
+  if(length(net.list$id) > 2){
+    tree.tr <- epi2tree2(net.list)
+    smallest.branch <- min(tree.tr$edge.length)
+    smallest.branches[list.element] <- smallest.branch
+  }
+}
+min(smallest.branches, na.rm = TRUE) #
+# A: 10 >>6, 18 >>20, 19 >>3, 21 >>3, 22 >>1403, 24 >>716, 27 >>370, 32 >>20, 37>>5
+
+net.10 <- simpact.trans.net[[10]] # 6
+graph.build.10 <- as.data.frame(net.10)
+graph.build.10[,4] <- as.character(graph.build.10$parent) # donors
+graph.build.10[,3] <- as.character(graph.build.10$id) # recipients
+gag.10 = as.matrix(graph.build.10)
+ga.graph.10 = graph.edgelist(gag.10[,4:3])
+V(ga.graph.10)$color <- "red"
+transNet.yrs.Old.10 <- delete.vertices(ga.graph.10, "-1")
+tree.10 <- trans.network2tree(transnetwork = net.10)
+trend.10 <- phylogenetictree.trend(tree.10)
+
+net.18 <- simpact.trans.net[[18]] # 20
+graph.build.18 <- as.data.frame(net.18)
+graph.build.18[,4] <- as.character(graph.build.18$parent) # donors
+graph.build.18[,3] <- as.character(graph.build.18$id) # recipients
+gag.18 = as.matrix(graph.build.18)
+ga.graph.18 = graph.edgelist(gag.18[,4:3])
+V(ga.graph.18)$color <- "red"
+transNet.yrs.Old.18 <- delete.vertices(ga.graph.18, "-1")
+tree.18 <- trans.network2tree(transnetwork = net.18)
+trend.18 <- phylogenetictree.trend(tree.18)
+
+net.19 <- simpact.trans.net[[19]] # 3
+graph.build.19 <- as.data.frame(net.19)
+graph.build.19[,4] <- as.character(graph.build.19$parent) # donors
+graph.build.19[,3] <- as.character(graph.build.19$id) # recipients
+gag.19 = as.matrix(graph.build.19)
+ga.graph.19 = graph.edgelist(gag.19[,4:3])
+V(ga.graph.19)$color <- "red"
+transNet.yrs.Old.19 <- delete.vertices(ga.graph.19, "-1")
+tree.19 <- trans.network2tree(transnetwork = net.19)
+trend.19 <- phylogenetictree.trend(tree.19)
+
+net.21 <- simpact.trans.net[[21]] # 3
+graph.build.21 <- as.data.frame(net.21)
+graph.build.21[,4] <- as.character(graph.build.21$parent) # donors
+graph.build.21[,3] <- as.character(graph.build.21$id) # recipients
+gag.21 = as.matrix(graph.build.21)
+ga.graph.21 = graph.edgelist(gag.21[,4:3])
+V(ga.graph.21)$color <- "red"
+transNet.yrs.Old.21 <- delete.vertices(ga.graph.21, "-1")
+tree.21 <- trans.network2tree(transnetwork = net.21)
+trend.21 <- phylogenetictree.trend(tree.21)
+
+net.22 <- simpact.trans.net[[22]] # 1403
+graph.build.22 <- as.data.frame(net.22)
+graph.build.22[,4] <- as.character(graph.build.22$parent) # donors
+graph.build.22[,3] <- as.character(graph.build.22$id) # recipients
+gag.22 = as.matrix(graph.build.22)
+ga.graph.22 = graph.edgelist(gag.22[,4:3])
+V(ga.graph.22)$color <- "red"
+transNet.yrs.Old.22 <- delete.vertices(ga.graph.22, "-1")
+tree.22 <- trans.network2tree(transnetwork = net.22)
+trend.22 <- phylogenetictree.trend(tree.22)
+
+net.24 <- simpact.trans.net[[24]] # 716
+graph.build.24 <- as.data.frame(net.24)
+graph.build.24[,4] <- as.character(graph.build.24$parent) # donors
+graph.build.24[,3] <- as.character(graph.build.24$id) # recipients
+gag.24 = as.matrix(graph.build.24)
+ga.graph.24 = graph.edgelist(gag.24[,4:3])
+V(ga.graph.24)$color <- "red"
+transNet.yrs.Old.24 <- delete.vertices(ga.graph.24, "-1")
+tree.24 <- trans.network2tree(transnetwork = net.24)
+trend.24 <- phylogenetictree.trend(tree.24)
+
+net.27 <- simpact.trans.net[[27]] # 370
+graph.build.27 <- as.data.frame(net.27)
+graph.build.27[,4] <- as.character(graph.build.27$parent) # donors
+graph.build.27[,3] <- as.character(graph.build.27$id) # recipients
+gag.27 = as.matrix(graph.build.27)
+ga.graph.27 = graph.edgelist(gag.27[,4:3])
+V(ga.graph.27)$color <- "red"
+transNet.yrs.Old.27 <- delete.vertices(ga.graph.27, "-1")
+tree.27 <- trans.network2tree(transnetwork = net.27)
+trend.27 <- phylogenetictree.trend(tree.27)
+
+net.32 <- simpact.trans.net[[32]] # 20
+graph.build.32 <- as.data.frame(net.32)
+graph.build.32[,4] <- as.character(graph.build.32$parent) # donors
+graph.build.32[,3] <- as.character(graph.build.32$id) # recipients
+gag.32 = as.matrix(graph.build.32)
+ga.graph.32 = graph.edgelist(gag.32[,4:3])
+V(ga.graph.32)$color <- "red"
+transNet.yrs.Old.32 <- delete.vertices(ga.graph.32, "-1")
+tree.32 <- trans.network2tree(transnetwork = net.32)
+trend.32 <- phylogenetictree.trend(tree.32)
+
+net.37 <- simpact.trans.net[[37]] # 5
+graph.build.37 <- as.data.frame(net.37)
+graph.build.37[,4] <- as.character(graph.build.37$parent) # donors
+graph.build.37[,3] <- as.character(graph.build.37$id) # recipients
+gag.37 = as.matrix(graph.build.37)
+ga.graph.37 = graph.edgelist(gag.37[,4:3])
+V(ga.graph.37)$color <- "red"
+transNet.yrs.Old.37 <- delete.vertices(ga.graph.37, "-1")
+tree.37 <- trans.network2tree(transnetwork = net.37)
+trend.37 <- phylogenetictree.trend(tree.37)
