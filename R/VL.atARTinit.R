@@ -28,15 +28,26 @@ vl.atARTinit <- function(datalist = datalist, agegroup = c(15, 30),
   vl.atARTinit.Count <- subset(vl.atARTinit.Count, TreatTime !=Inf)
 
   #VL within a selected threshhold
-  vl.atARTinit.Count <- vl.atARTinit.Count %>%
-    dplyr::mutate(VLThresholdatARTinit = (viralload[1] <= log10SPVL &  log10SPVL <= viralload[2]))
+  vl.at.treatment.df <- datalist$vltable %>%
+    subset(ID %in% vl.atARTinit.Count$ID) %>%
+    filter(Desc == "Started ART", Time >= timewindow[1],
+           Time <= timewindow[2]) %>%
+    group_by(ID) %>%
+    filter(row_number() == n()) %>%
+    data.frame()
 
-  # log10SPVL is not affected by treatment
+  vl.at.treatment.df <- vl.at.treatment.df %>%
+    dplyr::select(ID, Log10SPVL) %>%
+    dplyr::mutate(vl.atARTinit = (viralload[1] <= Log10SPVL &
+                                    Log10SPVL <= viralload[2]))
+
   #provide a summary of those that are on treatment and those that started within a threshold
-  vl.atARTinit.Count <- data.frame(dplyr::summarise(dplyr::group_by(vl.atARTinit.Count, Gender),
-                                                    TotalCases = n(),
-                                                    VLatARTinitThreshold =sum(VLThresholdatARTinit)))
-
+  vl.atARTinit.Count <- vl.at.treatment.df %>%
+    group_by(Gender) %>%
+    summarise(
+      TotalCases = n(),
+      VLatARTinitThreshold =sum(VLThresholdatARTinit, na.rm = TRUE)) %>%
+    as.data.frame()
 
   return(vl.atARTinit.Count)
 }
