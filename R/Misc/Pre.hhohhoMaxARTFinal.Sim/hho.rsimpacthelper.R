@@ -31,6 +31,7 @@ simpact.config.inputs <- function(design.points = 10,
     for(i in 1:resample.count){
 
       # Re-sample from the same grid as initially selected
+      set.seed(1)
       rlhs <- augmentLHS(rlhs, design.points)
     }
     rlhs <- tail(rlhs, design.points)
@@ -60,7 +61,6 @@ simpact.config.inputs <- function(design.points = 10,
 
   ##This will create the input file for the simpact
   simpactInputParams <- cbind.data.frame(sim.id = 1:design.points, rlhs, lhs.df)
-
 
   return(simpactInputParams)
 
