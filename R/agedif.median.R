@@ -103,14 +103,14 @@ agedif.median <- function(df, agegroup, timepoint,
   adbygender <- subdf2 %>%
     dplyr::group_by(Gender) %>%
     dplyr::summarise(n = n(),
-              median = median(AgeGap),
+              median = median(AgeGap, na.rm = TRUE),
               Q1 = as.numeric(summary(AgeGap)["1st Qu."]),
               Q3 = as.numeric(summary(AgeGap)["3rd Qu."]))
 
   # Calculate median age difference overall
   adoverall <- subdf2 %>%
     dplyr::summarise(n = n(),
-              median = median(AgeGap),
+              median = median(AgeGap, na.rm = TRUE),
               Q1 = as.numeric(summary(AgeGap)["1st Qu."]),
               Q3 = as.numeric(summary(AgeGap)["3rd Qu."]))
 
