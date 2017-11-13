@@ -1,11 +1,6 @@
 #' A function that determines the facility the client attended
 #' Assumption is that the client facility will never change once asssigned
 #'
-#'
-#' TO REVISE (Need to get the first time that ART was started then reset when
-#' drop out and look at the VL six month after, Ignore everthing else
-#' after this)
-#'
 #' @param datalist The datalist that is produced by \code{\link{readthedata}}
 #' @return the datalist with facility attached to each client
 #'
