@@ -19,7 +19,7 @@
 cd4.atARTinit <- function(datalist = datalist,
                           agegroup = c(15, 30),
                           timewindow = c(15, 30),
-                          cd4count=350, site="All"){
+                          cd4count = 350, site="All"){
 
   cd4.atARTinit <- age.group.time.window(datalist = datalist,
                                         agegroup = agegroup,
@@ -32,8 +32,10 @@ cd4.atARTinit <- function(datalist = datalist,
                      TStart > timewindow[1] & TStart < timewindow[2])
 
   ##What if the person dropped out and come back again?
-  art.df <- data.frame(dplyr::summarise(dplyr::group_by(art.df, ID, Gender),
-                                       CD4atARTstart = min(CD4atARTstart)))
+  art.df <- art.df %>%
+    group_by(ID, Gender) %>%
+    summarise(CD4atARTstart = min(CD4atARTstart, na.rm = TRUE)) %>%
+    as.data.frame()
 
   #indicate those who started their treatment when their CD4 count was below a given threshold
   art.df <- art.df %>% dplyr::mutate(ART.start.CD4 = CD4atARTstart < cd4count)
@@ -42,9 +44,11 @@ cd4.atARTinit <- function(datalist = datalist,
   raw.df <- dplyr::left_join(x = raw.df, y = art.df, by = c("ID", "Gender"))
 
   #provide a summary of those that are on treatment and those that started below a threshold
-  cd4count.atARTInit <- data.frame(dplyr::summarise(dplyr::group_by(raw.df, Gender),
-                                                    TotalCases = n(),
-                                                    LessCD4initThreshold =sum(ART.start.CD4)))
+  cd4count.atARTInit <- raw.df %>%
+    group_by(Gender) %>%
+    summarise(TotalCases = n(),
+              LessCD4initThreshold = sum(ART.start.CD4, na.rm = TRUE)) %>%
+    as.data.frame()
 
   return(cd4count.atARTInit)
 }
