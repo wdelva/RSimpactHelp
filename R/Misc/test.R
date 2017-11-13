@@ -1,11 +1,11 @@
 ## Testing the results from a simply simpact.run
-#rm(list=ls())
+rm(list=ls())
 pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, magrittr, dplyr, exactci,nlme,
                ggplot2, readcsvcolumns, survival, KMsurv, tidyr, lhs)
 
 #Set up simulation parameters and initiate simulation
 sim.start.full <- as.Date("1970-03-31")
-maxart.starttime <- as.Date("2014-09-01")
+maxart.starttime <- as.Date("2022-09-01")
 maxart.endtime <- as.Date("2017-08-31")
 sim.end.full <- as.Date("2019-03-31")
 seed.hiv.time <- round(as.numeric(difftime(as.Date("1986-03-31"), sim.start.full, units = "days")/365.242),0)
@@ -22,7 +22,7 @@ iv <- intervention.introduced(simulation.type = simulation.type)
 
 #initial population
 
-init.population.total <- 3000
+init.population.total <- 1000
 women.frac <- 0.5253
 num.women.prop <- round(women.frac * init.population.total, 0)
 num.men.prop <- init.population.total - num.women.prop
@@ -68,6 +68,20 @@ testoutput <- simpact.run(configParams = testinput,
                           seed = 8)
 
 datalist.test <- readthedata(testoutput)
+
+#without
+load("temp/WITH.chunk.datalist.cmUAaoBZhN.rda")
+#load("temp/TESTwithout.chunk.datalist.QVlvhYNbxA.rda")
+
+
+cd4.atARTinit(datalist = chunk.datalist.test,
+                          agegroup = c(15, 40),
+                          timewindow = c(15, 40),
+                          cd4count=500, site="All")
+#with
+#load("temp/chunk.datalist.jxCVnbLNOS.rda")
+load("temp/WITHOUT.chunk.datalist.xtYjBifkQD.rda")
+
 
 #datalist.test$ptable <- client.facility(datalist = datalist.test, site = "MaxART")
 #datalist.test$ptable$pfacility[datalist.test$ptable$pfacility.value > 15] <- "Not Hhohho"
