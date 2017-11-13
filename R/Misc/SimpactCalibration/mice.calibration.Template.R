@@ -1,13 +1,16 @@
 #This function will calibrate from that simulated dataset
+mice.calibration <- function(simpact.sim.df, method.id = 1, cores_2_use = 4,
+                             out.sets = 20, iter.num = 15, seed.id = 2525,
+                             printflag = FALSE){
 
-mice.calibration <- function(simpact.sim.df, method.id = 1, out.sets = 5, iter.num = 5, seed.id = 2525){
-
-
+  #Add the necessary functions
+  source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/hho.rsimpacthelper.R")
   #Just to get the varied parameter names
   source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.simpact.parameters.R")
   inPUT.df.complete <- head(source.simpact.parameters(),1)
   input.parameter.names <- names(dplyr::select(inPUT.df.complete, contains(".")))
   input.parameter.names <- input.parameter.names[2:length(input.parameter.names)]
+  par.imputed <- length(input.parameter.names)
 
   #get the target values and their names
   source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.summary.statistics.creator.R")
@@ -18,42 +21,49 @@ mice.calibration <- function(simpact.sim.df, method.id = 1, out.sets = 5, iter.n
   ### target parameters with NA in simpact varied parameters
   target.parameter.na <- c(target.values, rep(NA, length(input.parameter.names)))
 
-  #Get only the rows that do not have NA from simpact simulations.
-  simpact.sim.df <- subset(simpact.sim.df, complete.cases(simpact.sim.df))
-
   if(nrow(simpact.sim.df) > 10){
 
     #get only the df with the Target values and Simpact varied parameters
     simpact.sim.df <- simpact.sim.df[ , (names(simpact.sim.df) %in% filter.names)]
 
-    ########      Now create the df for mice imputation #########################
+    ######## Now create the df for mice imputation #########################
     complete.df.wna <- rbind(simpact.sim.df, target.parameter.na)
-
 
     #selected methods used
     cal.list <- c("pmm", "norm", "norm.boot")
 
-    #calibration
-    mice.imputted.df <- mice(complete.df.wna, m=out.sets, maxit = iter.num,
-                             method = cal.list[method.id], seed = seed.id)
+    out.sets <- out.sets%/%cores_2_use + out.sets%%cores_2_use
 
-    #collect all the imputed sets
-    mice.out.imputted.df <- tail(mice::complete(mice.imputted.df,1),1)
+    cl <- makeCluster(cores_2_use)
+    clusterSetRNGStream(cl, seed.id)
+    registerDoParallel(cl)
 
-    for (i in 2:out.sets){
-      complete.mice.wo.na <- mice::complete(mice.imputted.df,i)
-      mice.out.imputted.df <- rbind(mice.out.imputted.df, tail(complete.mice.wo.na,1))
-    }
+    imp_merged <-
+      foreach(no = 1:cores_2_use,
+              .combine = ibind,
+              .packages = "mice") %dopar%
+              {
+                mice(complete.df.wna, m = out.sets, printFlag = printflag,
+                     maxit = iter.num, method = cal.list[method.id])
+              }
+    stopCluster(cl)
 
-    #remove all the rows with out of range imputed files
-    mice.out.imputted.df <- subset(mice.out.imputted.df, person.agegap.man.dist.normal.sigma > 0)
+    mice.imputted.df <- unlist(imp_merged$imp) %>%
+      matrix(., byrow = FALSE, ncol = par.imputed) %>%
+      as.data.frame()
+
+    #give the calibrated values names
+    names(mice.imputted.df) <- input.parameter.names
+
+    mice.out.imputted.df <- subset(mice.imputted.df, person.agegap.man.dist.normal.sigma > 0)
+    mice.out.imputted.df <- subset(mice.out.imputted.df, person.agegap.woman.dist.normal.sigma > 0)
     mice.out.imputted.df <- subset(mice.out.imputted.df, hivtransmission.param.f1 > 0)
 
-    mice.out.imputted.df$method <- cal.list[method.id]
-
     #save the data if needed.
+    t <- as.numeric(Sys.time())
+    set.seed((t - floor(t)) * 1e8)
     save.string <- paste0(sample(c(LETTERS,letters), 5), collapse = "")
-    write.csv(mice.calibration, file = paste0(dirname,"/mice.",cal.list[method.id],".",save.string,
+    write.csv(mice.out.imputted.df, file = paste0(dirname,"mice.",cal.list[method.id],".",save.string,
                                               ".",training.df), row.names = FALSE)
   }else{
 
