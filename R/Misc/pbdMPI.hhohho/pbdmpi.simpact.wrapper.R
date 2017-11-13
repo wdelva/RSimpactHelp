@@ -1,4 +1,5 @@
 #loading packages
+#pacman::p_unload(all)
 pacman::p_load(RSimpactCyan, data.table, magrittr, dplyr, EasyABC,
                mice, tidyr, lhs, tidyr, exactci, readcsvcolumns, pbdMPI)
 
@@ -13,19 +14,21 @@ if(comp == "win"){dirname <- "~/MaxART/RSimpactHelp"}else if(comp=="lin"){
 
 ###call simpact.wrapper.model
 source("R/Misc/pbdMPI.hhohho/pbdmpi.simpact.simulation.R")
+#local source file#
+#dirname <- "~/Documents/100000.Pre.Hhoho.OutFiles"
+##simpact simulation traing dataset analysed and saved data
+cal.datalist <- "foreach.test11-4-SummaryOutPut-jVtuoQwTsR-foreach.csv" # "PreHhohho.Repeat.1e5.SSE.df.csv"
+save.name <- "pbdmpi.test1.cal" # ""
+##Read the saved data from the Simpact simulation
+cal.datalist <- data.frame(read.csv(file = paste0(dirname,"/", cal.datalist), header = TRUE))
 
-training.df <- pbdMPI.simulation.wrapper(sim.seed = 1,   #what seed to use
-                                          design.points = 4, #
-                                          par.repeat = 1, #each row is repeated once.
-                                          min.sim = 1, max.sim = 4,
-                                          datalist = NA, #Not set initially
-                                          cal.simulation = FALSE)
-
-
-#Write the final dataframe for analysis.
-#rand.string.fin <- paste0(sample(c(LETTERS,letters), 10), collapse = "")
-#filename.run.fun <- paste0(dirname,"/","ModelOutPutSimulated-df-",rand.string.fin,"-pdbMPI.csv")
-#write.csv(training.df, file = filename.run.fun, row.names = FALSE)
+#Run the simulation.
+training.df <- pbdMPI.simulation.wrapper(set.seed.id = 1,   #what seed to use
+                                         design.points = 4, #
+                                         par.repeat = 2, #each row is repeated once.
+                                         min.sim = 1, max.sim = 4,
+                                         datalist = NA, #cal.datalist,  #Not set initially
+                                         cal.simulation = FALSE)
 
 #We can now do the analysis.
 
