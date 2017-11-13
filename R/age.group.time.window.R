@@ -32,10 +32,11 @@ age.group.time.window <- function(datalist = datalist, agegroup = c(15, 30),
   DTexists.timewindow <- DTexists.timewindow %>%
     dplyr::mutate(LowerTimeAgeGroup = TOB + agegroup[1],
                   LowerTimeWindow = timewindow[1],
-                  exposure.start = pmax(LowerTimeAgeGroup, LowerTimeWindow),
+                  exposure.start = pmax(LowerTimeAgeGroup, LowerTimeWindow, na.rm = TRUE),
                   UpperTimeAgeGroup = TOB + agegroup[2], #Convert upper age of interest into time
                   UpperTimeWindow = timewindow[2],
-                  exposure.end = pmin(TOD, pmin(UpperTimeAgeGroup, UpperTimeWindow)),
+                  exposure.end = pmin(TOD, pmin(UpperTimeAgeGroup, UpperTimeWindow, na.rm = TRUE),
+                                      na.rm = TRUE),
                   exposure.time = exposure.end - exposure.start,
                   #Exposure time (Everyone with exposure time greater than 0)
                   real.exposure.time = exposure.time > 0
