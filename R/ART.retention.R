@@ -63,14 +63,14 @@ ART.retention <- function(datalist = datalist,
     #restrict the list to the right agegroup
     DT.treatment <- subset(DT.treatment, ID %in% age.group.ART$ID)
 
-
+    DT.treatment$Gender <- as.factor(DT.treatment$Gender)
 
     DT.treatment$retention <- DT.treatment$TEnd > DT.treatment$retention.time
 
     DT.treatment.retention <- DT.treatment %>%
       group_by(Gender) %>%
       summarise(TotalCases = n(),
-                ART.retention = sum(retention),
+                ART.retention = sum(retention, na.rm = TRUE),
                 percentage = ART.retention / TotalCases * 100 ) %>%
       as.data.frame
 
@@ -81,8 +81,8 @@ ART.retention <- function(datalist = datalist,
     DT.treatment.retention <- as.data.frame(matrix(NA, 3, 4))
   }else{
   DT.treatment.retention <- rbind(DT.treatment.retention,
-                                  c(NA, nrow(DT.treatment), sum(DT.treatment$retention),
-                                    sum(DT.treatment$retention)/nrow(DT.treatment)*100) )
+                                  c(NA, nrow(DT.treatment), sum(DT.treatment$retention, na.rm = TRUE),
+                                    sum(DT.treatment$retention, na.rm = TRUE)/nrow(DT.treatment)*100) )
   }
 
   names(DT.treatment.retention) <- c("Gender","TotalCases","ART.retention", "percentage")
