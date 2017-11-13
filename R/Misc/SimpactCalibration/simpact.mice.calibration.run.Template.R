@@ -1,6 +1,7 @@
 #loading packages
-pacman::p_load(RSimpactCyan, data.table, magrittr, dplyr, EasyABC,
-               mice, tidyr, lhs, tidyr, exactci, readcsvcolumns, pbdMPI)
+#pacman::p_unload(all)
+pacman::p_load(RSimpactCyan, data.table, magrittr, dplyr, EasyABC, foreach,
+               mice, tidyr, lhs, tidyr, exactci, readcsvcolumns, pbdMPI, doParallel)
 
 comp <- "lin" #lin #mac #chpc #gent
 
@@ -35,7 +36,7 @@ for (k in 1:model.cal.count){
 
   if(sim.cal.count == 0){
 
-    training.df <- simpact.simulation.wrapper(sim.seed = 1,   #what seed to use
+    training.df <- easyABC.simulation.wrapper(sim.seed = 1,   #what seed to use
                                               design.points = 10, #
                                               par.repeat = 1, #each row is repeated once.
                                               min.sim = 1, max.sim = 4,
@@ -49,7 +50,7 @@ for (k in 1:model.cal.count){
       if(nrow(calibrated.datalist) > 5){
         #calibration returned enough rows to continue simulation
 
-        training.df <- simpact.simulation.wrapper(sim.seed = 1,   #what seed to use
+        training.df <- easyABC.simulation.wrapper(sim.seed = 1,   #what seed to use
                                                   design.points = 10, #
                                                   par.repeat = 1, #each row is repeated once.
                                                   min.sim = NA, max.sim = NA, #will use all rows
