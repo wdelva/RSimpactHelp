@@ -46,7 +46,6 @@ vl.suppressed <- function(datalist = datalist,
   #cut off in months
   .months <- timepoint - lessmonths/12
 
-
   #look at the treatment table
   #get the treatment started before the timepoint
   #was on treatment within the time window to check VL
