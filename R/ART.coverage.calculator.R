@@ -47,41 +47,45 @@ ART.coverage.calculator <- function(datalist = datalist,
   # Now we apply the left_join dplyr function to add the ART status to raw.df.
   raw.df <- dplyr::left_join(x = raw.df, y = art.df, by = c("ID", "Gender"))
 
-  if (nrow(raw.df) > 0 & sum(raw.df$Infected)>0) {
+  if (nrow(raw.df) > 0 & sum(raw.df$Infected, na.rm = TRUE)>0) {
     raw.df$onART <- !is.na(raw.df$TStart)
 
     #Now we apply some dplyr function to get the sum of cases and population size per gender.
-    raw.df$Gender <- as.character(raw.df$Gender)
+    raw.df$Gender <- as.factor(raw.df$Gender)
 
-    ART.coverage.df <- dplyr::summarise(dplyr::group_by(raw.df, Gender),
-                                     popsize = length(Gender),
-                                     sum.cases = sum(Infected),
-                                     sum.onART = sum(onART),
-                                     pointprevalence = sum(Infected) / length(Gender),
-                                     pointprevalence.95.ll = as.numeric(
-                                       binom.test(x=sum(Infected),n=length(Gender))$conf.int)[1],
-                                     pointprevalence.95.ul = as.numeric(
-                                       binom.test(x=sum(Infected),n=length(Gender))$conf.int)[2],
-                                     ART.coverage = sum(onART) / sum(Infected),
-                                     ART.coverage.95.ll = as.numeric(
-                                       binom.test(x=sum(onART),n=sum(Infected))$conf.int)[1],
-                                     ART.coverage.95.ul = as.numeric(
-                                       binom.test(x=sum(onART),n=sum(Infected))$conf.int)[2]
+    ART.coverage.df <- raw.df %>%
+      dplyr::group_by(Gender) %>%
+      dplyr::summarise(popsize = length(Gender),
+                       sum.cases = sum(Infected, na.rm = TRUE),
+                       sum.onART = sum(onART, na.rm = TRUE),
+                       pointprevalence = sum(Infected, na.rm = TRUE) / length(Gender),
+                       pointprevalence.95.ll = as.numeric(
+                         binom.test(x=sum(Infected, na.rm = TRUE),
+                                    n=length(Gender))$conf.int)[1],
+                       pointprevalence.95.ul = as.numeric(
+                         binom.test(x=sum(Infected, na.rm = TRUE),
+                                    n=length(Gender))$conf.int)[2],
+                       ART.coverage = sum(onART, na.rm = TRUE) / sum(Infected, na.rm = TRUE),
+                       ART.coverage.95.ll = as.numeric(
+                         binom.test(x=sum(onART, na.rm = TRUE),
+                                    n=sum(Infected, na.rm = TRUE))$conf.int)[1],
+                       ART.coverage.95.ul = as.numeric(
+                         binom.test(x=sum(onART, na.rm = TRUE),
+                                    n=sum(Infected, na.rm = TRUE))$conf.int)[2]
                                      )
 
     #ART.coverage.df <- ART.coverage.all.df #rbind(ART.coverage.df, ART.coverage.all.df)
   } else {
-    ART.coverage.df <- data.frame(Gender = NA,
-                                  popsize = NA,
-                                  sum.cases = NA,
-                                  sum.onART = NA,
-                                  pointprevalence = NA,
-                                  pointprevalence.95.ll = NA,
-                                  pointprevalence.95.ul = NA,
-                                  ART.coverage = NA,
-                                  ART.coverage.95.ll = NA,
-                                  ART.coverage.95.ul = NA
-                                  )
+    ART.coverage.df <- data.frame(Gender = c(NA, NA, NA),
+                                  popsize = c(NA, NA, NA),
+                                  sum.cases = c(NA, NA, NA),
+                                  sum.onART = c(NA, NA, NA),
+                                  pointprevalence = c(NA, NA, NA),
+                                  pointprevalence.95.ll = c(NA, NA, NA),
+                                  pointprevalence.95.ul = c(NA, NA, NA),
+                                  ART.coverage = c(NA, NA, NA),
+                                  ART.coverage.95.ll = c(NA, NA, NA),
+                                  ART.coverage.95.ul = c(NA, NA, NA))
   }
   return(ART.coverage.df)
 }
