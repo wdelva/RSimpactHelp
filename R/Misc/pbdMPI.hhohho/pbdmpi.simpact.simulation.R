@@ -1,8 +1,8 @@
 #!/usr/bin/env/ Rscript
 #get the necessary libraries
 
-pbdMPI.simulation.wrapper <- function(sim.seed = 1,   #what seed to use
-                                       design.points = 10, #
+pbdMPI.simulation.wrapper <- function(set.seed.id = 1,   #what seed to use
+                                       design.points = 16, #
                                        par.repeat = 1, #each row is repeated once.
                                        ncluster.use = 4, #Not useful in this
                                        min.sim = 1, max.sim = 4,
@@ -16,73 +16,84 @@ pbdMPI.simulation.wrapper <- function(sim.seed = 1,   #what seed to use
   #source simpact set parameters
   source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.simpact.parameters.R")
 
+  #what are the varied parameters
+  #datalist obtained from the calibration for simulation
+  inPUT.df.complete  <-  head(source.simpact.parameters(),1)
+
+  #set the prior names - varied parameters
+  preprior.chunk <- names(dplyr::select(inPUT.df.complete, contains(".")))
+  preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
+
+
   if(cal.simulation == FALSE ){
 
-    #This will get the initial parameters based on the sampled parameters
+    #This will get the initial sampled parameters
     inPUT.df.complete <- source.simpact.parameters(init.design.points = design.points, resample = 1)
 
-    #set the prior names - varied parameters
-    preprior.chunk <- names(dplyr::select(inPUT.df.complete, contains(".")))
-    preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
-
     #select only simpact parameters
-    inANDout.df.chunk <- cbind(sim.id = 1:nrow(inPUT.df.complete),
-                               subset(inPUT.df.complete, select = preprior.names.chunk))
+    inANDout.df.chunk <- subset(inPUT.df.complete, select = c("sim.id", preprior.names.chunk))
 
-    #select a chunk to process
-    sel.id.list <- c(min.sim:max.sim)  # or c(1,3,5)
+    #check if min and max makes sense.
+    if(max.sim > nrow(inANDout.df.chunk)){max.sim <- nrow(inANDout.df.chunk)}
+    if(min.sim < 1){min.sim <- 1}
+
+    #indicate the simulation ids that you require.
+    sel.id.list <- c(min.sim:max.sim) #or c(1, 4, 19)
+
+    #select a subset of the parameter set
+    inANDout.df.chunk <- as.data.frame(subset(inANDout.df.chunk, sim.id %in% sel.id.list))
 
   }else{
 
-    #datalist obtained from the calibration for simulation
-
-    inPUT.df.complete  <-  head(source.simpact.parameters(),1)
-
-    #set the prior names - varied parameters
-    preprior.chunk <- names(dplyr::select(inPUT.df.complete, contains(".")))
-    preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
-
+    #inANDout.df.chunk <- datalist
     #select only simpact parameters
-    inANDout.df.chunk <- cbind(sim.id = 1:nrow(datalist),
-                               subset(datalist, select = preprior.names.chunk))
+    inANDout.df.chunk <- subset(datalist, select = c("sim.id", preprior.names.chunk))
 
-    #Will simulate all the calibrated parameter values
-    sel.id.list <- c(1:nrow(inANDout.df.chunk))
+    #incase there are dublicate sim.id return only the unique ones.
+    inANDout.df.chunk <- inANDout.df.chunk[!duplicated(inANDout.df.chunk[,c("sim.id")]),]
 
   }
 
-  #select a subset of the parameter set
-  inANDout.df.chunk <- as.data.frame(subset(inANDout.df.chunk, sim.id %in% sel.id.list))
-  inANDout.df.chunk <- inANDout.df.chunk[!is.na(inANDout.df.chunk$sim.id),]
+  inANDout.df.chunk.uni <- inANDout.df.chunk  #preserve the original inputfile
 
   #If you want to repeat the same parameter set many times default is just one.
-  #inANDout.df.chunk <- inANDout.df.chunk[rep(seq_len(nrow(inANDout.df.chunk)), par.repeat), ]
+  if(par.repeat != 1){
 
-  inANDout.df.chunk <- bind_rows(replicate(par.repeat, inANDout.df.chunk, simplify = FALSE))
+    inANDout.df.chunk <- bind_rows(replicate(par.repeat, inANDout.df.chunk, simplify = FALSE))
 
-  inANDout.df.chunk <- inANDout.df.chunk %>%
-    group_by(sim.id) %>%
-    mutate(sim.seed = sim.seed:(sim.seed+n()-1)) %>%
-    as.data.frame
+    inANDout.df.chunk <- inANDout.df.chunk %>%
+      group_by(sim.id) %>%
+      mutate(sim.seed = set.seed.id:(set.seed.id+n()-1),
+             sim.sim.id = sim.id) %>%
+      as.data.frame
+
+    inANDout.df.chunk$sim.id <- 1:nrow(inANDout.df.chunk)
+    inANDout.df.chunk$sim.id <- as.numeric(inANDout.df.chunk$sim.id)
+
+  }
+
+  #check if your df is being created correctly
+  file.name.test.df <- paste0(dirname,"/", min.sim, "-",
+                              max.sim,"-df.repeat-pdbMPI.csv")
+
+  write.csv(inANDout.df.chunk, file = file.name.test.df, row.names = FALSE)
 
   #indicate the target statitics that you want to hit
   source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.summary.statistics.creator.R")
-  ##Each of these should be calculated after each run, else we give an NA
+  #use if you want to compute the final simulation
+  #source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/final.pre.hho.summary.statistics.creator.R")
 
-  #initialise distributed computing
-  init()
-  .comm.size <- comm.size()
-  .comm.rank <- comm.rank()
-  .hostname <- Sys.info()["nodename"]
+  ##Each of these should be calculated after each run, else we give an NA
 
   ############   MAIN Simulation is here #######################
   simpact4ABC.chunk.wrapper <- function(simpact.chunk.prior){
 
     #This needs to be read by each processor
-    pacman::p_load(data.table, tidyr, dplyr, EasyABC, magrittr, exactci,
+    pacman::p_load(data.table, tidyr, dplyr, magrittr, exactci,
                    fBasics, exactci, RSimpactCyan, readcsvcolumns, lhs)
 
     source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.summary.statistics.creator.R")
+    #source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/final.pre.hho.summary.statistics.creator.R")
 
     err.functionGEN <- function(e){
       if (length(grep("MAXEVENTS",e$message)) != 0)
@@ -94,7 +105,7 @@ pbdMPI.simulation.wrapper <- function(sim.seed = 1,   #what seed to use
 
     simpact.chunk.run <- function(input.chunk.params){
 
-      pacman::p_load(data.table, tidyr, dplyr, EasyABC, magrittr, exactci,
+      pacman::p_load(data.table, tidyr, dplyr, magrittr, exactci,
                      fBasics, exactci, RSimpactCyan, readcsvcolumns, lhs)
 
       #Source all latest RSimpactHelper functions
@@ -102,16 +113,11 @@ pbdMPI.simulation.wrapper <- function(sim.seed = 1,   #what seed to use
 
       source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.simpact.parameters.R")
       getparam.names <- head(source.simpact.parameters(),1)
-
-      #if you are doing many simulation you can also use a pre-prepared file
-      #and read in a csv file.
-      #getparam.names <- data.frame(read.csv(file = paste0(dirname,"PARAMETER_FILE.csv"),
-      #                                         header = TRUE, stringsAsFactors = FALSE) )
-
       getparam.names <- names(dplyr::select(getparam.names, contains(".")))
       input.varied.params.plus <- getparam.names[2:length(getparam.names)]
 
       source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.summary.statistics.creator.R")
+      #source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/final.pre.hho.summary.statistics.creator.R")
 
       #Set MaxART Simpact simulation?
       simpact.set.simulation(simulation.type)
@@ -148,13 +154,13 @@ pbdMPI.simulation.wrapper <- function(sim.seed = 1,   #what seed to use
       iv.chunk <- intervention.introduced(simulation.type = "pre.hhohho", simulation.start = sim.start.full)
 
       #The first parameter is set to be the seed value
-      seed.chunk.id <- input.chunk.params[1]
+      seed.chunk.id <- input.chunk.params$seed.value[1]
 
       #set up the parameters to be varied in the model starting from 2:length of the varied params.
-      j <- 1
+      #j <- 1
       for (cfg.chunk.par in input.varied.params.plus){
-        j <- j + 1
-        assign.chunk.cfg.value <- input.chunk.params[j]
+        #j <- j + 1
+        assign.chunk.cfg.value <- input.chunk.params[,cfg.chunk.par][1]
         cfg.chunk[cfg.chunk.par][[1]] <- assign.chunk.cfg.value
         #setting up a value that is depended on the other input (we can do this for many other as needed)
         if(cfg.chunk.par == "hivtransmission.param.f1"){
@@ -185,8 +191,7 @@ pbdMPI.simulation.wrapper <- function(sim.seed = 1,   #what seed to use
 
       }
 
-      sub.dir.rename <- paste0("temp/",generate.filename(10))
-
+      sub.dir.rename <- paste0("temp/", generate.filename(10))
 
       testoutput <- simpact.run(configParams = cfg.chunk,
                                 destDir = sub.dir.rename,
@@ -209,7 +214,7 @@ pbdMPI.simulation.wrapper <- function(sim.seed = 1,   #what seed to use
       chunk.datalist.test <- readthedata(testoutput)
 
       #save each of the run output. (NICE to have)
-      #save(chunk.datalist.test, file = paste0("temp/chunk.datalist.",substring(sub.dir.rename, 6, 15),".rda"))
+      #save(chunk.datalist.test, file = paste0("temp/TESTPARAM.chunk.datalist.",substring(sub.dir.rename, 6, 15),".rda"))
 
       #delete all the file created during the current simulation (Save on cluster space)
       unlink(paste0(sub.dir.rename,"/"), recursive = TRUE)
@@ -221,6 +226,7 @@ pbdMPI.simulation.wrapper <- function(sim.seed = 1,   #what seed to use
 
         #get the summary statistics for each run
         source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.sim.summary.targets.creator.R")
+        #source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/final.pre.hho.sim.summary.targets.creator.R")
 
         ##get the summary statistics as indicated by target.variables
         out.statistic <- pre.hhohho.sim.summary.creator(chunk.datalist.test)
@@ -246,76 +252,81 @@ pbdMPI.simulation.wrapper <- function(sim.seed = 1,   #what seed to use
     #pbdApply needs input as matrix
     df.chunk.split <- as.data.frame(t(df.chunk.split))
     names(df.chunk.split) <- df.names.chunk
-    chunk.sim.id <- df.chunk.split$sim.id
+
+    #select only the varied parameters.
+    simpact.chunk.par <- subset(df.chunk.split, select = preprior.names.chunk)
 
     #set seed
-    seed.value <- df.chunk.split$sim.seed
-
-    simpact.chunk.prior <- list()
-
-    for (i in preprior.names.chunk){
-      #allow easyABC to sample the same sampled simpact value
-      prior.chunk.val <- list(c("runif", 1 , as.numeric(df.chunk.split[1, i]),
-                                as.numeric(df.chunk.split[1, i])), c("dunif", 0, 1))
-      simpact.chunk.prior[[length(simpact.chunk.prior) + 1]] <- prior.chunk.val
+    if(par.repeat != 1){
+      seed.value <- as.numeric(df.chunk.split$sim.seed)
+      chunk.sim.id <- df.chunk.split$sim.sim.id
+    }else{
+      seed.value <- set.seed.id
+      chunk.sim.id <- df.chunk.split$sim.id
     }
 
-    print(paste("Working on simulation number: ", chunk.sim.id, sep=" "))
+    simpact.chunk.par$seed.value <- seed.value
 
-    #invoke the ABC_rejection method repeating the number of simulation once for each chunk row.
-    ABC.chunk.result <- ABC_rejection(model = simpact4ABC.chunk.wrapper,
-                                          prior = simpact.chunk.prior,
-                                          nb_simul= 1,
-                                          use_seed = TRUE,
-                                          seed_count = seed.value,
-                                          n_cluster = 1)
+    print(paste("Working on simulation number: ", chunk.sim.id, " SeeId: ", seed.value, sep=" "))
+
+    ABC.results.chunk.statistics <- simpact4ABC.chunk.wrapper(simpact.chunk.par)
 
     #Save the statistics results with the chunk row sim.id
-    ABC.results.chunk.statistics <- c(ABC.chunk.result$stats, chunk.sim.id)
+    ABC.results.chunk.statistics <- c(ABC.results.chunk.statistics, chunk.sim.id)
 
     #turn the result to a single value (string) which will be unpacked later
-    #Artificate of pbdApply (need to return a singlevalue)
+    #Artifact of pbdApply (need to return a singlevalue)
     ABC.results.chunk.statistics <- paste(unlist(ABC.results.chunk.statistics), collapse = "|")
 
     return(ABC.results.chunk.statistics)
 
   }
 
+  #initialise distributed computing
+  init()
+  .comm.size <- comm.size()
+  .comm.rank <- comm.rank()
+  .hostname <- Sys.info()["nodename"]
+
+  #turn the input.data.frame to a matrix
   matrix.input.df <- as.matrix(inANDout.df.chunk)
   res <- pbdApply(matrix.input.df, 1, sim.run, pbd.mode = "mw")
 
+  #process the resulting summary statistics
   if(.comm.rank==0){
 
     res <- as.data.frame(res)
 
     chunk.summary.stats.df <- read.table(text = res$res, sep = "|", colClasses = "numeric")
+    chunk.summary.stats.df <- as.data.frame(chunk.summary.stats.df)
+
+    #give the calibrated values names
     names(chunk.summary.stats.df) <- c(target.variables,"sim.id")
 
     #collect the parameters and the target statistics
-    inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk, by = "sim.id")
+    inputANDoutput.chunk.df  <- left_join(chunk.summary.stats.df, inANDout.df.chunk.uni, by = "sim.id")
 
+    if(par.repeat != 1){
+      inputANDoutput.chunk.df <- inputANDoutput.chunk.df %>% arrange(sim.id) #order by sim.id
+    }
+
+    #Save the results to file.
     rand.string <- paste0(sample(c(LETTERS,letters), 10), collapse = "")
-
-    filename.run <- paste0(dirname,"/",min.sim,"-SummaryOutPut-",rand.string,"-pdbMPI.csv")
+    filename.run <- paste0(dirname,"/", save.name, min.sim,"-", max.sim,
+                           "-SummaryOutPut-",rand.string,"-pdbMPI.csv")
 
     write.csv(inputANDoutput.chunk.df, file = filename.run, row.names = FALSE)
 
-    #Returns the df that contains the simulated statistics with
-    #respective simpact parameters
-
+    #check how long the simulation took in seconds.
     end.sim.time <- as.numeric(proc.time()[3]) - start.sim.time
-
     print(end.sim.time)
 
+    #Returns the df that contains the simulated statistics with
+    #respective simpact parameters
     return(inputANDoutput.chunk.df)
 
   }
-
+  #close all the cores
   finalize()
 }
-
-
-
-
-
 
