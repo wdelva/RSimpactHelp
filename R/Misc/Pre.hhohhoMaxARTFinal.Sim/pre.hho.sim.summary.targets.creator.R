@@ -22,11 +22,22 @@ more.months <- twelve.months + six.months
 
 pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
+
+  #when do we want the retention time
+  maxart.ret.timepoint <- difftime(maxart.endtime, sim.start.full, units = "days")/days.in.yr
+  maxart.ret.timepoint <- round(as.numeric(maxart.ret.timepoint),0)
+  maxart.starttime.ret <- round(as.numeric(difftime(maxart.starttime, sim.start.full, units = "days")/days.in.yr),0)
+  ret.end <- round(as.numeric(difftime(maxart.endtime,maxart.starttime, units = "days"))/days.in.yr,0) * 12
+
   #creator a range of summary statistics
   sim.datalist$ptable$age <- sim.datalist$itable$maxart.starttime[1] - sim.datalist$ptable$TOB
+  sim.datalist$ptable$age.end.study <- maxart.ret.timepoint - sim.datalist$ptable$TOB
 
+  #turn 18 during or before MaxART end and Got infected during or before MaxART end
   #get the MaxART population group
-  maxart.study.pop <- dplyr::filter(sim.datalist$ptable,  age >= 18 & InfectTime!=Inf)
+  maxart.study.pop <- dplyr::filter(sim.datalist$ptable,
+                                      age.end.study >=18 & InfectTime!=Inf &
+                                      InfectTime < maxart.ret.timepoint)
 
   #Total clients
   all.maxart <- nrow(maxart.study.pop)
@@ -43,11 +54,6 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   all.art.init <- dplyr::select(hhohho.all.art.coverage.var, contains(".all"))
   hhohho.art.initiated.tar.values <- as.numeric(all.art.init*100)
 
-  #when do we want the retention time
-  maxart.ret.timepoint <- difftime(maxart.endtime, sim.start.full, units = "days")/days.in.yr
-  maxart.ret.timepoint <- round(as.numeric(maxart.ret.timepoint),0)
-  maxart.starttime.ret <- round(as.numeric(difftime(maxart.starttime ,sim.start.full, units = "days")/days.in.yr),0)
-  ret.end <- round(as.numeric(difftime(maxart.endtime,maxart.starttime, units = "days"))/days.in.yr,0) * 12
 
   #### Max Retention ####################################
   max.ret.tar <- length(row.names(max.art.retention.all))
@@ -83,9 +89,12 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   for(vl in 1:max.vl.sup.tar.dim){
 
-    if(vl==3){maxart.ret.timepoint <- shims.vl.timepoint}
+    if(vl==3){
+      maxart.ret.timepoint <- shims.vl.timepoint
+      vl.datalist <- sim.datalist
+      }else{vl.datalist <- chunk.datalist.test.all}
 
-    vl.sup.all <- vl.suppressed(datalist = chunk.datalist.test.all,
+    vl.sup.all <- vl.suppressed(datalist = vl.datalist,
                                 timepoint = maxart.ret.timepoint, vlcutoff = 1000,
                                lessmonths = max.vl.sup.list[vl], site="All")
 
