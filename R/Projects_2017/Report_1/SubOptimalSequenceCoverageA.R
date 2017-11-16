@@ -319,11 +319,11 @@ setwd("/home/david/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis1_A/Seed_22/")
 datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalistA.RData"))
 
 
-# 1.1. Full phylogenetic tree for seed 22
+# 1.1. Full phylogenetic tree for seed 22 - 100% of sequences
 
 # Sampling dates in calender time
 dates.Transform.NamedVector  <- function(dates=dates){
-  dates.val <- 1977+40-dates$V2 # dates datalist$itable$population.simtime[1] - dates$V2 + 1977
+  dates.val <- 1977+40-as.numeric(dates$V2) # dates datalist$itable$population.simtime[1] - dates$V2 + 1977
   names(dates.val) <- as.character(dates$V1) # names are the names of the tips
   return(dates.val)
 }
@@ -358,7 +358,8 @@ d=node.age(dater.tree.22)
 
 save(dater.tree.22, file = paste("dated.tree.A.seed.22.seq.100.1403.Rdata", sep = ""))
 
-# 1.2. Full network for seed 2
+# 1.2. Full network for seed 2 - 100% of individuals
+
 simpact.trans.net <- transmNetworkBuilder.diff2(datalist = datalist, endpoint = 40)
 simpact.trans.net.22 <- simpact.trans.net[[22]]
 
@@ -846,9 +847,313 @@ save(dater.tree.22.24.27, file = paste("dated.tree.A.seed.22.24.27seq.1098.Rdata
 
 
 
+# 2.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years - 90% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.90.988.fasta", sep = ""), paste(">A.Epidemic22.24.27Sequences.gene.pol.7yrs.90.988.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.p90 <- read.tree(paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.90.988.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.p90 <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis2_A/7_Years_back_all_seeds/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.p90$V1 <- as.character(samp.dates.22.24.27.p90$V1)
+samp.dates.22.24.27.p90$V2 <- as.numeric(as.character(samp.dates.22.24.27.p90$V2))
+
+time.samp.22.24.27.p90 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.p90)
+
+tree.tips.22.24.27.p90 <- (tree.fasttree.22.24.27.p90$tip.label) # length==1098
+
+c.samp.dates.22.24.27.p90<- as.character(samp.dates.22.24.27.p90$V1)
+
+Ord.tree.dates.22.24.27.p90 <- vector() # order the dates according to tips order in the tree
+for(i in 1:length(tree.tips.22.24.27.p90)){
+  for(j in 1:length(time.samp.22.24.27.p90)){
+    if(tree.tips.22.24.27.p90[i] == c.samp.dates.22.24.27.p90[j]){
+      Ord.tree.dates.22.24.27.p90 <- c(Ord.tree.dates.22.24.27.p90, time.samp.22.24.27.p90[j])
+    }
+  }
+}
+
+# calibrate internal nodes
+dater.tree.22.24.27.p90 <- dater(tree.fasttree.22.24.27.p90,
+                             Ord.tree.dates.22.24.27.p90,
+                             s = 3012,
+                             omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.p90, file = paste("dated.tree.A.seed.22.24.27seq.p90.988.Rdata", sep = ""))
 
 # W <- node.age(e)
 
+
+# 3.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years - 80% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.80.878.fasta", sep = ""), paste(">A.Epidemic22.24.27Sequences.gene.pol.7yrs.80.878.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.p80 <- read.tree(paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.80.878.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.p80 <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis2_A/7_Years_back_all_seeds/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.p80$V1 <- as.character(samp.dates.22.24.27.p80$V1)
+samp.dates.22.24.27.p80$V2 <- as.numeric(as.character(samp.dates.22.24.27.p80$V2))
+
+time.samp.22.24.27.p80 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.p80)
+
+tree.tips.22.24.27.p80 <- (tree.fasttree.22.24.27.p80$tip.label) # length==1098
+
+c.samp.dates.22.24.27.p80<- as.character(samp.dates.22.24.27.p80$V1)
+
+Ord.tree.dates.22.24.27.p80 <- vector() # order the dates according to tips order in the tree
+for(i in 1:length(tree.tips.22.24.27.p80)){
+  for(j in 1:length(time.samp.22.24.27.p80)){
+    if(tree.tips.22.24.27.p80[i] == c.samp.dates.22.24.27.p80[j]){
+      Ord.tree.dates.22.24.27.p80 <- c(Ord.tree.dates.22.24.27.p80, time.samp.22.24.27.p80[j])
+    }
+  }
+}
+
+# calibrate internal nodes
+dater.tree.22.24.27.p80 <- dater(tree.fasttree.22.24.27.p80,
+                                 Ord.tree.dates.22.24.27.p80,
+                                 s = 3012,
+                                 omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.p80, file = paste("dated.tree.A.seed.22.24.27seq.p80.878.Rdata", sep = ""))
+
+
+
+# 4.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years - 70% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.70.769.fasta", sep = ""), paste(">A.Epidemic22.24.27Sequences.gene.pol.7yrs.70.769.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.p70 <- read.tree(paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.70.769.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.p70 <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis2_A/7_Years_back_all_seeds/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.p70$V1 <- as.character(samp.dates.22.24.27.p70$V1)
+samp.dates.22.24.27.p70$V2 <- as.numeric(as.character(samp.dates.22.24.27.p70$V2))
+
+time.samp.22.24.27.p70 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.p70)
+
+tree.tips.22.24.27.p70 <- (tree.fasttree.22.24.27.p70$tip.label) # length==1098
+
+c.samp.dates.22.24.27.p70<- as.character(samp.dates.22.24.27.p70$V1)
+
+Ord.tree.dates.22.24.27.p70 <- vector() # order the dates according to tips order in the tree
+for(i in 1:length(tree.tips.22.24.27.p70)){
+  for(j in 1:length(time.samp.22.24.27.p70)){
+    if(tree.tips.22.24.27.p70[i] == c.samp.dates.22.24.27.p70[j]){
+      Ord.tree.dates.22.24.27.p70 <- c(Ord.tree.dates.22.24.27.p70, time.samp.22.24.27.p70[j])
+    }
+  }
+}
+
+# calibrate internal nodes
+dater.tree.22.24.27.p70 <- dater(tree.fasttree.22.24.27.p70,
+                                 Ord.tree.dates.22.24.27.p70,
+                                 s = 3012,
+                                 omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.p70, file = paste("dated.tree.A.seed.22.24.27seq.p70.769.Rdata", sep = ""))
+
+
+# 5.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years - 60% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.60.659.fasta", sep = ""), paste(">A.Epidemic22.24.27Sequences.gene.pol.7yrs.60.659.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.p60 <- read.tree(paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.60.659.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.p60 <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis2_A/7_Years_back_all_seeds/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.p60$V1 <- as.character(samp.dates.22.24.27.p60$V1)
+samp.dates.22.24.27.p60$V2 <- as.numeric(as.character(samp.dates.22.24.27.p60$V2))
+
+time.samp.22.24.27.p60 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.p60)
+
+tree.tips.22.24.27.p60 <- (tree.fasttree.22.24.27.p60$tip.label) # length==1098
+
+c.samp.dates.22.24.27.p60<- as.character(samp.dates.22.24.27.p60$V1)
+
+Ord.tree.dates.22.24.27.p60 <- vector() # order the dates according to tips order in the tree
+for(i in 1:length(tree.tips.22.24.27.p60)){
+  for(j in 1:length(time.samp.22.24.27.p60)){
+    if(tree.tips.22.24.27.p60[i] == c.samp.dates.22.24.27.p60[j]){
+      Ord.tree.dates.22.24.27.p60 <- c(Ord.tree.dates.22.24.27.p60, time.samp.22.24.27.p60[j])
+    }
+  }
+}
+
+# calibrate internal nodes
+dater.tree.22.24.27.p60 <- dater(tree.fasttree.22.24.27.p60,
+                                 Ord.tree.dates.22.24.27.p60,
+                                 s = 3012,
+                                 omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.p60, file = paste("dated.tree.A.seed.22.24.27seq.p60.659.Rdata", sep = ""))
+
+
+
+# 6.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years - 50% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.50.549.fasta", sep = ""), paste(">A.Epidemic22.24.27Sequences.gene.pol.7yrs.50.549.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.p50 <- read.tree(paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.50.549.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.p50 <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis2_A/7_Years_back_all_seeds/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.p50$V1 <- as.character(samp.dates.22.24.27.p50$V1)
+samp.dates.22.24.27.p50$V2 <- as.numeric(as.character(samp.dates.22.24.27.p50$V2))
+
+time.samp.22.24.27.p50 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.p50)
+
+tree.tips.22.24.27.p50 <- (tree.fasttree.22.24.27.p50$tip.label) # length==1098
+
+c.samp.dates.22.24.27.p50<- as.character(samp.dates.22.24.27.p50$V1)
+
+Ord.tree.dates.22.24.27.p50 <- vector() # order the dates according to tips order in the tree
+for(i in 1:length(tree.tips.22.24.27.p50)){
+  for(j in 1:length(time.samp.22.24.27.p50)){
+    if(tree.tips.22.24.27.p50[i] == c.samp.dates.22.24.27.p50[j]){
+      Ord.tree.dates.22.24.27.p50 <- c(Ord.tree.dates.22.24.27.p50, time.samp.22.24.27.p50[j])
+    }
+  }
+}
+
+# calibrate internal nodes
+dater.tree.22.24.27.p50 <- dater(tree.fasttree.22.24.27.p50,
+                                 Ord.tree.dates.22.24.27.p50,
+                                 s = 3012,
+                                 omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.p50, file = paste("dated.tree.A.seed.22.24.27seq.p50.549.Rdata", sep = ""))
+
+
+# 7.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years - 40% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.40.440.fasta", sep = ""), paste(">A.Epidemic22.24.27Sequences.gene.pol.7yrs.40.440.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.p40 <- read.tree(paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.40.440.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.p40 <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis2_A/7_Years_back_all_seeds/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.p40$V1 <- as.character(samp.dates.22.24.27.p40$V1)
+samp.dates.22.24.27.p40$V2 <- as.numeric(as.character(samp.dates.22.24.27.p40$V2))
+
+time.samp.22.24.27.p40 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.p40)
+
+tree.tips.22.24.27.p40 <- (tree.fasttree.22.24.27.p40$tip.label) # length==1098
+
+c.samp.dates.22.24.27.p40<- as.character(samp.dates.22.24.27.p40$V1)
+
+Ord.tree.dates.22.24.27.p40 <- vector() # order the dates according to tips order in the tree
+for(i in 1:length(tree.tips.22.24.27.p40)){
+  for(j in 1:length(time.samp.22.24.27.p40)){
+    if(tree.tips.22.24.27.p40[i] == c.samp.dates.22.24.27.p40[j]){
+      Ord.tree.dates.22.24.27.p40 <- c(Ord.tree.dates.22.24.27.p40, time.samp.22.24.27.p40[j])
+    }
+  }
+}
+
+# calibrate internal nodes
+dater.tree.22.24.27.p40 <- dater(tree.fasttree.22.24.27.p40,
+                                 Ord.tree.dates.22.24.27.p40,
+                                 s = 3012,
+                                 omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.p40, file = paste("dated.tree.A.seed.22.24.27seq.p40.440.Rdata", sep = ""))
+
+
+# 8.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years - 30% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.30.330.fasta", sep = ""), paste(">A.Epidemic22.24.27Sequences.gene.pol.7yrs.30.330.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.p30 <- read.tree(paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.30.330.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.p30 <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis2_A/7_Years_back_all_seeds/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.p30$V1 <- as.character(samp.dates.22.24.27.p30$V1)
+samp.dates.22.24.27.p30$V2 <- as.numeric(as.character(samp.dates.22.24.27.p30$V2))
+
+time.samp.22.24.27.p30 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.p30)
+
+tree.tips.22.24.27.p30 <- (tree.fasttree.22.24.27.p30$tip.label) # length==1098
+
+c.samp.dates.22.24.27.p30<- as.character(samp.dates.22.24.27.p30$V1)
+
+Ord.tree.dates.22.24.27.p30 <- vector() # order the dates according to tips order in the tree
+for(i in 1:length(tree.tips.22.24.27.p30)){
+  for(j in 1:length(time.samp.22.24.27.p30)){
+    if(tree.tips.22.24.27.p30[i] == c.samp.dates.22.24.27.p30[j]){
+      Ord.tree.dates.22.24.27.p30 <- c(Ord.tree.dates.22.24.27.p30, time.samp.22.24.27.p30[j])
+    }
+  }
+}
+
+# calibrate internal nodes
+dater.tree.22.24.27.p30 <- dater(tree.fasttree.22.24.27.p30,
+                                 Ord.tree.dates.22.24.27.p30,
+                                 s = 3012,
+                                 omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.p30, file = paste("dated.tree.A.seed.22.24.27seq.p30.330.Rdata", sep = ""))
+
+
+
+# 9.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years - 20% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.20.220.fasta", sep = ""), paste(">A.Epidemic22.24.27Sequences.gene.pol.7yrs.20.220.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.p20 <- read.tree(paste("A.Epidemic22.24.27Sequences.gene.pol.7yrs.20.220.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.p20 <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis2_A/7_Years_back_all_seeds/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.p20$V1 <- as.character(samp.dates.22.24.27.p20$V1)
+samp.dates.22.24.27.p20$V2 <- as.numeric(as.character(samp.dates.22.24.27.p20$V2))
+
+time.samp.22.24.27.p20 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.p20)
+
+tree.tips.22.24.27.p20 <- (tree.fasttree.22.24.27.p20$tip.label) # length==1098
+
+c.samp.dates.22.24.27.p20<- as.character(samp.dates.22.24.27.p20$V1)
+
+Ord.tree.dates.22.24.27.p20 <- vector() # order the dates according to tips order in the tree
+for(i in 1:length(tree.tips.22.24.27.p20)){
+  for(j in 1:length(time.samp.22.24.27.p20)){
+    if(tree.tips.22.24.27.p20[i] == c.samp.dates.22.24.27.p20[j]){
+      Ord.tree.dates.22.24.27.p20 <- c(Ord.tree.dates.22.24.27.p20, time.samp.22.24.27.p20[j])
+    }
+  }
+}
+
+# calibrate internal nodes
+dater.tree.22.24.27.p20 <- dater(tree.fasttree.22.24.27.p20,
+                                 Ord.tree.dates.22.24.27.p20,
+                                 s = 3012,
+                                 omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.p20, file = paste("dated.tree.A.seed.22.24.27seq.p20.220.Rdata", sep = ""))
 
 
 # Scenario 3 - A- B- G
@@ -1045,7 +1350,7 @@ id.27 <- setdiff(simpact.trans.net[[27]]$id, net.seed27$id) # Done! - 191
 
 setwd("/home/david/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis3_A/7_yrs_all_seeds_diff_subtype/")
 
-# 1.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A and G - 100% of individuals
+# 1.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 100% of individuals
 
 # (i) tree construction
 system(paste("./FastTree  <", paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.fasta", sep = ""), paste(">A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.fasta.tree", sep = "")))
@@ -1083,8 +1388,335 @@ dater.tree.22.24.27.A.A.G <- dater(tree.fasttree.22.24.27.A.A.G,
                              omega0 = 0.00475) # s is the length of sequence
 
 save(dater.tree.22.24.27.A.A.G, file = paste("dated.tree.A.A.G.seed.22.24.27seq.895.179.24.Rdata", sep = ""))
+# V <- node.age(dater.tree.22.24.27.A.A.G) # with the two clades I got one internal node of age 1365.782
 
-V <- node.age(dater.tree.22.24.27.A.A.G) # with the two clades I got one internal node of age 1365.782
+
+
+# 2.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 90% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.90.988.fasta", sep = ""), paste(">A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.90.988.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.A.A.G.p90 <- read.tree(paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.90.988.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.A.A.G.p90  <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis3_A/7_yrs_all_seeds_diff_subtype/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.A.A.G.p90$V1 <- as.character(samp.dates.22.24.27.A.A.G.p90$V1)
+samp.dates.22.24.27.A.A.G.p90$V2 <- as.numeric(as.character(samp.dates.22.24.27.A.A.G.p90$V2))
+
+time.samp.22.24.27.A.A.G.p90 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.A.A.G.p90)
+
+tree.tips.22.24.27.A.A.G.p90 <- (tree.fasttree.22.24.27.A.A.G.p90$tip.label) # length==1098
+
+c.samp.dates.22.24.27.A.A.G.p90<- as.character(samp.dates.22.24.27.A.A.G.p90$V1)
+
+Ord.tree.dates.22.24.27.A.A.G.p90 <- vector() # order the dates according to tips order in the tree
+t <- vector() # tips
+for(i in 1:length(tree.tips.22.24.27.A.A.G.p90)){
+  for(j in 1:length(time.samp.22.24.27.A.A.G.p90)){
+    if(tree.tips.22.24.27.A.A.G.p90[i] == c.samp.dates.22.24.27.A.A.G.p90[j]){
+      Ord.tree.dates.22.24.27.A.A.G.p90 <- c(Ord.tree.dates.22.24.27.A.A.G.p90, time.samp.22.24.27.A.A.G.p90[j])
+      t <- c(t, tree.tips.22.24.27.A.A.G.p90[i])
+    }
+  }
+}
+
+
+# calibrate internal nodes
+dater.tree.22.24.27.A.A.G.p90 <- dater(tree.fasttree.22.24.27.A.A.G.p90,
+                                       Ord.tree.dates.22.24.27.A.A.G.p90,
+                                       s = 3012,
+                                       omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.A.A.G.p90, file = paste("dated.tree.A.A.G.seed.22.24.27seq.895.179.24.p90.988.Rdata", sep = ""))
+
+
+# 3.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 80% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.80.878.fasta", sep = ""), paste(">A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.80.878.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.A.A.G.p80 <- read.tree(paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.80.878.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.A.A.G.p80  <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis3_A/7_yrs_all_seeds_diff_subtype/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.A.A.G.p80$V1 <- as.character(samp.dates.22.24.27.A.A.G.p80$V1)
+samp.dates.22.24.27.A.A.G.p80$V2 <- as.numeric(as.character(samp.dates.22.24.27.A.A.G.p80$V2))
+
+time.samp.22.24.27.A.A.G.p80 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.A.A.G.p80)
+
+tree.tips.22.24.27.A.A.G.p80 <- (tree.fasttree.22.24.27.A.A.G.p80$tip.label) # length==1098
+
+c.samp.dates.22.24.27.A.A.G.p80<- as.character(samp.dates.22.24.27.A.A.G.p80$V1)
+
+Ord.tree.dates.22.24.27.A.A.G.p80 <- vector() # order the dates according to tips order in the tree
+t <- vector() # tips
+for(i in 1:length(tree.tips.22.24.27.A.A.G.p80)){
+  for(j in 1:length(time.samp.22.24.27.A.A.G.p80)){
+    if(tree.tips.22.24.27.A.A.G.p80[i] == c.samp.dates.22.24.27.A.A.G.p80[j]){
+      Ord.tree.dates.22.24.27.A.A.G.p80 <- c(Ord.tree.dates.22.24.27.A.A.G.p80, time.samp.22.24.27.A.A.G.p80[j])
+      t <- c(t, tree.tips.22.24.27.A.A.G.p80[i])
+    }
+  }
+}
+
+
+# calibrate internal nodes
+dater.tree.22.24.27.A.A.G.p80 <- dater(tree.fasttree.22.24.27.A.A.G.p80,
+                                       Ord.tree.dates.22.24.27.A.A.G.p80,
+                                       s = 3012,
+                                       omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.A.A.G.p80, file = paste("dated.tree.A.A.G.seed.22.24.27seq.895.179.24.p80.878.Rdata", sep = ""))
+
+
+
+# 4.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 70% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.70.769.fasta", sep = ""), paste(">A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.70.769.fasta.tree", sep = "")))
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.A.A.G.p70 <- read.tree(paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.70.769.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.A.A.G.p70  <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis3_A/7_yrs_all_seeds_diff_subtype/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.A.A.G.p70$V1 <- as.character(samp.dates.22.24.27.A.A.G.p70$V1)
+samp.dates.22.24.27.A.A.G.p70$V2 <- as.numeric(as.character(samp.dates.22.24.27.A.A.G.p70$V2))
+
+time.samp.22.24.27.A.A.G.p70 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.A.A.G.p70)
+
+tree.tips.22.24.27.A.A.G.p70 <- (tree.fasttree.22.24.27.A.A.G.p70$tip.label) # length==1098
+
+c.samp.dates.22.24.27.A.A.G.p70<- as.character(samp.dates.22.24.27.A.A.G.p70$V1)
+
+Ord.tree.dates.22.24.27.A.A.G.p70 <- vector() # order the dates according to tips order in the tree
+t <- vector() # tips
+for(i in 1:length(tree.tips.22.24.27.A.A.G.p70)){
+  for(j in 1:length(time.samp.22.24.27.A.A.G.p70)){
+    if(tree.tips.22.24.27.A.A.G.p70[i] == c.samp.dates.22.24.27.A.A.G.p70[j]){
+      Ord.tree.dates.22.24.27.A.A.G.p70 <- c(Ord.tree.dates.22.24.27.A.A.G.p70, time.samp.22.24.27.A.A.G.p70[j])
+      t <- c(t, tree.tips.22.24.27.A.A.G.p70[i])
+    }
+  }
+}
+
+
+# calibrate internal nodes
+dater.tree.22.24.27.A.A.G.p70 <- dater(tree.fasttree.22.24.27.A.A.G.p70,
+                                       Ord.tree.dates.22.24.27.A.A.G.p70,
+                                       s = 3012,
+                                       omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.A.A.G.p70, file = paste("dated.tree.A.A.G.seed.22.24.27seq.895.179.24.p70.769.Rdata", sep = ""))
+
+
+# 5.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 60% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.60.659.fasta", sep = ""), paste(">A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.60.659.fasta.tree", sep = "")))
+
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.A.A.G.p60 <- read.tree(paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.60.659.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.A.A.G.p60  <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis3_A/7_yrs_all_seeds_diff_subtype/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.A.A.G.p60$V1 <- as.character(samp.dates.22.24.27.A.A.G.p60$V1)
+samp.dates.22.24.27.A.A.G.p60$V2 <- as.numeric(as.character(samp.dates.22.24.27.A.A.G.p60$V2))
+
+time.samp.22.24.27.A.A.G.p60 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.A.A.G.p60)
+
+tree.tips.22.24.27.A.A.G.p60 <- (tree.fasttree.22.24.27.A.A.G.p60$tip.label) # length==1098
+
+c.samp.dates.22.24.27.A.A.G.p60<- as.character(samp.dates.22.24.27.A.A.G.p60$V1)
+
+Ord.tree.dates.22.24.27.A.A.G.p60 <- vector() # order the dates according to tips order in the tree
+t <- vector() # tips
+for(i in 1:length(tree.tips.22.24.27.A.A.G.p60)){
+  for(j in 1:length(time.samp.22.24.27.A.A.G.p60)){
+    if(tree.tips.22.24.27.A.A.G.p60[i] == c.samp.dates.22.24.27.A.A.G.p60[j]){
+      Ord.tree.dates.22.24.27.A.A.G.p60 <- c(Ord.tree.dates.22.24.27.A.A.G.p60, time.samp.22.24.27.A.A.G.p60[j])
+      t <- c(t, tree.tips.22.24.27.A.A.G.p60[i])
+    }
+  }
+}
+
+
+# calibrate internal nodes
+dater.tree.22.24.27.A.A.G.p60 <- dater(tree.fasttree.22.24.27.A.A.G.p60,
+                                       Ord.tree.dates.22.24.27.A.A.G.p60,
+                                       s = 3012,
+                                       omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.A.A.G.p60, file = paste("dated.tree.A.A.G.seed.22.24.27seq.895.179.24.p60.659.Rdata", sep = ""))
+
+
+# 6.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 50% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.50.549.fasta", sep = ""), paste(">A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.50.549.fasta.tree", sep = "")))
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.A.A.G.p50 <- read.tree(paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.50.549.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.A.A.G.p50  <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis3_A/7_yrs_all_seeds_diff_subtype/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.A.A.G.p50$V1 <- as.character(samp.dates.22.24.27.A.A.G.p50$V1)
+samp.dates.22.24.27.A.A.G.p50$V2 <- as.numeric(as.character(samp.dates.22.24.27.A.A.G.p50$V2))
+
+time.samp.22.24.27.A.A.G.p50 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.A.A.G.p50)
+
+tree.tips.22.24.27.A.A.G.p50 <- (tree.fasttree.22.24.27.A.A.G.p50$tip.label) # length==1098
+
+c.samp.dates.22.24.27.A.A.G.p50<- as.character(samp.dates.22.24.27.A.A.G.p50$V1)
+
+Ord.tree.dates.22.24.27.A.A.G.p50 <- vector() # order the dates according to tips order in the tree
+t <- vector() # tips
+for(i in 1:length(tree.tips.22.24.27.A.A.G.p50)){
+  for(j in 1:length(time.samp.22.24.27.A.A.G.p50)){
+    if(tree.tips.22.24.27.A.A.G.p50[i] == c.samp.dates.22.24.27.A.A.G.p50[j]){
+      Ord.tree.dates.22.24.27.A.A.G.p50 <- c(Ord.tree.dates.22.24.27.A.A.G.p50, time.samp.22.24.27.A.A.G.p50[j])
+      t <- c(t, tree.tips.22.24.27.A.A.G.p50[i])
+    }
+  }
+}
+
+
+# calibrate internal nodes
+dater.tree.22.24.27.A.A.G.p50 <- dater(tree.fasttree.22.24.27.A.A.G.p50,
+                                       Ord.tree.dates.22.24.27.A.A.G.p50,
+                                       s = 3012,
+                                       omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.A.A.G.p50, file = paste("dated.tree.A.A.G.seed.22.24.27seq.895.179.24.p50.549.Rdata", sep = ""))
+
+
+# 7.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 40% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.40.440.fasta", sep = ""), paste(">A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.40.440.fasta.tree", sep = "")))
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.A.A.G.p40 <- read.tree(paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.40.440.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.A.A.G.p40  <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis3_A/7_yrs_all_seeds_diff_subtype/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.A.A.G.p40$V1 <- as.character(samp.dates.22.24.27.A.A.G.p40$V1)
+samp.dates.22.24.27.A.A.G.p40$V2 <- as.numeric(as.character(samp.dates.22.24.27.A.A.G.p40$V2))
+
+time.samp.22.24.27.A.A.G.p40 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.A.A.G.p40)
+
+tree.tips.22.24.27.A.A.G.p40 <- (tree.fasttree.22.24.27.A.A.G.p40$tip.label) # length==1098
+
+c.samp.dates.22.24.27.A.A.G.p40<- as.character(samp.dates.22.24.27.A.A.G.p40$V1)
+
+Ord.tree.dates.22.24.27.A.A.G.p40 <- vector() # order the dates according to tips order in the tree
+t <- vector() # tips
+for(i in 1:length(tree.tips.22.24.27.A.A.G.p40)){
+  for(j in 1:length(time.samp.22.24.27.A.A.G.p40)){
+    if(tree.tips.22.24.27.A.A.G.p40[i] == c.samp.dates.22.24.27.A.A.G.p40[j]){
+      Ord.tree.dates.22.24.27.A.A.G.p40 <- c(Ord.tree.dates.22.24.27.A.A.G.p40, time.samp.22.24.27.A.A.G.p40[j])
+      t <- c(t, tree.tips.22.24.27.A.A.G.p40[i])
+    }
+  }
+}
+
+
+# calibrate internal nodes
+dater.tree.22.24.27.A.A.G.p40 <- dater(tree.fasttree.22.24.27.A.A.G.p40,
+                                       Ord.tree.dates.22.24.27.A.A.G.p40,
+                                       s = 3012,
+                                       omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.A.A.G.p40, file = paste("dated.tree.A.A.G.seed.22.24.27seq.895.179.24.p40.440.Rdata", sep = ""))
+
+
+
+# 8.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 30% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.30.330.fasta", sep = ""), paste(">A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.30.330.fasta.tree", sep = "")))
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.A.A.G.p30 <- read.tree(paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.30.330.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.A.A.G.p30  <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis3_A/7_yrs_all_seeds_diff_subtype/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.A.A.G.p30$V1 <- as.character(samp.dates.22.24.27.A.A.G.p30$V1)
+samp.dates.22.24.27.A.A.G.p30$V2 <- as.numeric(as.character(samp.dates.22.24.27.A.A.G.p30$V2))
+
+time.samp.22.24.27.A.A.G.p30 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.A.A.G.p30)
+
+tree.tips.22.24.27.A.A.G.p30 <- (tree.fasttree.22.24.27.A.A.G.p30$tip.label) # length==1098
+
+c.samp.dates.22.24.27.A.A.G.p30<- as.character(samp.dates.22.24.27.A.A.G.p30$V1)
+
+Ord.tree.dates.22.24.27.A.A.G.p30 <- vector() # order the dates according to tips order in the tree
+t <- vector() # tips
+for(i in 1:length(tree.tips.22.24.27.A.A.G.p30)){
+  for(j in 1:length(time.samp.22.24.27.A.A.G.p30)){
+    if(tree.tips.22.24.27.A.A.G.p30[i] == c.samp.dates.22.24.27.A.A.G.p30[j]){
+      Ord.tree.dates.22.24.27.A.A.G.p30 <- c(Ord.tree.dates.22.24.27.A.A.G.p30, time.samp.22.24.27.A.A.G.p30[j])
+      t <- c(t, tree.tips.22.24.27.A.A.G.p30[i])
+    }
+  }
+}
+
+
+# calibrate internal nodes
+dater.tree.22.24.27.A.A.G.p30 <- dater(tree.fasttree.22.24.27.A.A.G.p30,
+                                       Ord.tree.dates.22.24.27.A.A.G.p30,
+                                       s = 3012,
+                                       omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.A.A.G.p30, file = paste("dated.tree.A.A.G.seed.22.24.27seq.895.179.24.p30.330.Rdata", sep = ""))
+
+
+# 9.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 20% of individuals
+
+# (i) tree construction
+system(paste("./FastTree  <", paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.30.330.fasta", sep = ""), paste(">A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.30.330.fasta.tree", sep = "")))
+
+# (ii) internal node calibration
+tree.fasttree.22.24.27.A.A.G.p20 <- read.tree(paste("A.A.GEpidemic22.27.24Sequences.gene.pol.7yrs.895.179.24.p.30.330.fasta.tree", sep = ""))
+
+samp.dates.22.24.27.A.A.G.p20  <- read.csv("~/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis3_A/7_yrs_all_seeds_diff_subtype/samplingtimes_seed_number_22.24.27.csv", dec = ",")
+
+samp.dates.22.24.27.A.A.G.p20$V1 <- as.character(samp.dates.22.24.27.A.A.G.p20$V1)
+samp.dates.22.24.27.A.A.G.p20$V2 <- as.numeric(as.character(samp.dates.22.24.27.A.A.G.p20$V2))
+
+time.samp.22.24.27.A.A.G.p20 <- dates.Transform.NamedVector(dates=samp.dates.22.24.27.A.A.G.p20)
+
+tree.tips.22.24.27.A.A.G.p20 <- (tree.fasttree.22.24.27.A.A.G.p20$tip.label) # length==1098
+
+c.samp.dates.22.24.27.A.A.G.p20<- as.character(samp.dates.22.24.27.A.A.G.p20$V1)
+
+Ord.tree.dates.22.24.27.A.A.G.p20 <- vector() # order the dates according to tips order in the tree
+t <- vector() # tips
+for(i in 1:length(tree.tips.22.24.27.A.A.G.p20)){
+  for(j in 1:length(time.samp.22.24.27.A.A.G.p20)){
+    if(tree.tips.22.24.27.A.A.G.p20[i] == c.samp.dates.22.24.27.A.A.G.p20[j]){
+      Ord.tree.dates.22.24.27.A.A.G.p20 <- c(Ord.tree.dates.22.24.27.A.A.G.p20, time.samp.22.24.27.A.A.G.p20[j])
+      t <- c(t, tree.tips.22.24.27.A.A.G.p20[i])
+    }
+  }
+}
+
+
+# calibrate internal nodes
+dater.tree.22.24.27.A.A.G.p20 <- dater(tree.fasttree.22.24.27.A.A.G.p20,
+                                       Ord.tree.dates.22.24.27.A.A.G.p20,
+                                       s = 3012,
+                                       omega0 = 0.00475) # s is the length of sequence
+
+save(dater.tree.22.24.27.A.A.G.p20, file = paste("dated.tree.A.A.G.seed.22.24.27seq.895.179.24.p20.330.Rdata", sep = ""))
+
+
 
 # Scenario 4 - A- B- G
 #
