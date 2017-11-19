@@ -5,8 +5,9 @@ properties_tree <- function(tree=epi.tree){
   library(phangorn)
   library(ape)
   library(apTreeshape)
+  x <- as.phylo(tree)
 
-  epi.tree.shape <- as.treeshape(tree)
+  epi.tree.shape <- as.treeshape(x)
 
   ntips <- length(tree$tip.label)
 
