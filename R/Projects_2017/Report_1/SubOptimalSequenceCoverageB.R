@@ -836,7 +836,8 @@ dater.tree.12.22.24 <- dater(tree.fasttree.12.22.24,
 save(dater.tree.12.22.24, file = paste("dated.tree.A.seed.12.22.24seq.1904.Rdata", sep = ""))
 #e <- get(load("dated.tree.A.seed.12.22.24seq.1904.Rdata"))
 
-
+tr.scenario2B <- get(load("dated.tree.A.seed.12.22.24seq.1904.Rdata"))
+write.tree(tr.scenario2B, file = "tr.scenario2B.12.22.24.1904.HIVA.tree")
 
 # 2.1 Phylogenetic tree for all seeds 12-22-24 in past 7 years - 90% of individuals
 
@@ -1409,7 +1410,8 @@ dater.tree.12.22.24.G.A.G <- dater(tree.fasttree.12.22.24.G.A.G,
 
 save(dater.tree.12.22.24.G.A.G, file = paste("dated.tree.G.A.G.seed.12.22.24seq.p100.1904.Rdata", sep = ""))
 
-
+tr.scenario3B <- get(load("dated.tree.G.A.G.seed.12.22.24seq.p100.1904.Rdata"))
+write.tree(tr.scenario3B, file = "tr.scenario3B.12.22.24.1904.HIVGAG.tree")
 
 # 2.1 Phylogenetic tree for all seeds 22-24-27 in past 7 years for subtypes A-A and G - 90% of individuals
 
@@ -1741,8 +1743,7 @@ save(dater.tree.12.22.24.G.A.G.p20, file = paste("dated.tree.G.A.G.seed.12.22.24
 # Scenario 4 - A- B- G
 #
 # different subtypes of the virus (HIV-1-A-B-G) for all seeds
-# complete sampling for a transmission network of all seeds
-# same sampling time interval (e.g.: five or three years) for a transmission network of all seeds
+# complete sampling in pasy seven years, and study the effect of gender and age on sampling
 
 setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario4_B/")
 
@@ -1867,4 +1868,184 @@ for(i in 1:length(trans.net)){
 # Chosen transmission networks with at least 3 individuals
 
 IDs.transm <- num.i # vector of of seeds chosen in the list of seeds
+
+
+#######################
+# Scenario 4 Analysis #
+#######################
+
+
+setwd("/home/david/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis4_B")
+datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalistB.RData"))
+simpact.trans.net <- transmNetworkBuilder.diff2(datalist = datalist, endpoint = 40)
+save(simpact.trans.net, file="simpact.trans.net.B.RData")
+
+seeds.great3 <- c(4, 12, 19, 21, 22, 24, 28, 34, 39) # seeds with at least 3 transmission events
+
+# Remain with Seeds which have sampled individuals in past 7 years
+seed.7yrs.samp <- vector()
+for (i in 1:length(seeds.great3)){
+  k <- seeds.great3[i]
+  net.i <- as.data.frame(simpact.trans.net[[k]])
+  net.filtered.i <- filter(net.i, dtimes<=7)
+  dtimes <- net.i$dtimes<=7
+  dtimes.elements <- which(dtimes)
+  if(length(dtimes.elements)!=0){
+    seed.7yrs.samp <- c(seed.7yrs.samp, k)
+    save(net.filtered.i, file=paste("filtered.trans.net.seed",k,".Rdata", sep = ""))
+  }
+}
+
+net.seed12 = as.data.frame(get(load("filtered.trans.net.seed12.Rdata"))) # length(net.seed12$id) = 314, subtype G
+net.seed22 = as.data.frame(get(load("filtered.trans.net.seed22.Rdata"))) # length(net.seed22$id) = 1579, subtype A
+net.seed24 = as.data.frame(get(load("filtered.trans.net.seed24.Rdata"))) # length(net.seed24$id) = 11, subtype G
+
+# IDs to exclude in the sequences
+id.12 <- setdiff(simpact.trans.net[[12]]$id, net.seed12$id) # Done! - 765 Ok
+id.22 <- setdiff(simpact.trans.net[[22]]$id, net.seed22$id) # Done! - 1453 Ok
+id.24 <- setdiff(simpact.trans.net[[24]]$id, net.seed24$id) # Done! - 798 Ok
+
+## Let say we want to have sample 70% among these sampled in past year, and we want
+## (i) Gender: 60% of them must be female (1) individuals, 40% males (0)
+## (ii) Age: 90% of them must be below 35 years  old
+## (iii) Gender + Age: 60% women where 90% being under 35 years
+
+net.seed12$TOB <- (40 - net.seed12$TOB) # G
+net.seed22$TOB <- (40 - net.seed22$TOB) # A
+net.seed24$TOB <- (40 - net.seed24$TOB) # G
+
+net.seed12$id <- paste("G.12.", net.seed12$id, sep = "")
+net.seed22$id <- paste("A.22.", net.seed22$id, sep = "")
+net.seed24$id <- paste("G.24.", net.seed24$id, sep = "")
+
+# (i) 70% of 1904 = 1333, and 60% being women (Gender=1) > 800, 40% being men (Gender=0) > 533
+
+net.seeds.12.22.24 <- as.data.table(rbind(net.seed12, net.seed22, net.seed24))
+
+net.seeds.12.22.24.W.60 <- net.seeds.12.22.24[net.seeds.12.22.24$Gender==1]
+net.seeds.12.22.24.M.40 <- net.seeds.12.22.24[net.seeds.12.22.24$Gender==0]
+
+samp.women.60 <- sample(net.seeds.12.22.24.W.60$id, 800)
+samp.men.40 <- sample(net.seeds.12.22.24.M.40$id, 533)
+
+samp.women.60.men.40 <- c(samp.women.60, samp.men.40) # to be used for tree
+
+remove.seq.i <- setdiff(net.seeds.12.22.24$id, samp.women.60.men.40) # 571
+
+# (ii)  70% of 1904 = 1333, and 90% (1200) being below 35 years old
+
+net.seeds.12.22.24.below.35yrs <- net.seeds.12.22.24[net.seeds.12.22.24$TOB <= 35] # 1675
+id.net.seeds.12.22.24.remain <- setdiff(net.seeds.12.22.24$id, net.seeds.12.22.24.below.35yrs$id) # 229
+
+samp.below.35yrs <- sample(net.seeds.12.22.24.below.35yrs$id, 1200) # r
+samp.above.or.less.35yrs <- sample(id.net.seeds.12.22.24.remain, 133) #
+
+samp.80.below.35yrs <- c(samp.below.35yrs, samp.above.or.less.35yrs) # to be used for tree
+
+remove.seq.ii <- setdiff(net.seeds.12.22.24$id, samp.80.below.35yrs) # 571
+
+
+# (iii) 70% of 1904 = 1333, and 50% being women (Gender=1) > 666, 50% being men (Gender=0) > 667
+# and where 90% of women being being under 35 years (600), 67 women being of random age
+net.seeds.12.22.24.W <- net.seeds.12.22.24[net.seeds.12.22.24$Gender==1] # 836
+net.seeds.12.22.24.M <- net.seeds.12.22.24[net.seeds.12.22.24$Gender==0]
+
+samp.men.50 <- sample(net.seeds.12.22.24.M$id, 667)
+
+net.seeds.12.22.24.W.50.90.below.35yrs <- net.seeds.12.22.24.W[net.seeds.12.22.24.W$TOB <= 35] # 770
+
+samp.50.90.below.35yrs <- sample(net.seeds.12.22.24.W.50.90.below.35yrs$id, 600)
+
+dif.samp.women <- setdiff(net.seeds.12.22.24.W$id, net.seeds.12.22.24.W.50.90.below.35yrs$id)
+
+samp.50.10.above.or.less.35yrs <-sample(dif.samp.women, 66)
+
+samp.50.50.W.M.90W.below.35yrs <- c(samp.men.50, samp.60.90.below.35yrs, samp.50.10.above.or.less.35yrs) # to be used for tree
+
+remove.seq.iii <- setdiff(net.seeds.12.22.24$id, samp.50.50.W.M.90W.below.35yrs) # 571
+
+
+# > remove.seq.i
+# [8] "G.12.658"  "G.12.700"  "G.12.727"  "G.12.747"  "G.12.755"  "G.12.759"  "G.12.766"
+# [15] "G.12.769"  "G.12.770"  "G.12.772"  "G.12.775"  "G.12.789"  "G.12.792"  "G.12.806"
+# [22] "G.12.808"  "G.12.813"  "G.12.817"  "G.12.825"  "G.12.828"  "G.12.830"  "G.12.834"
+# [29] "G.12.841"  "G.12.846"  "G.12.848"  "G.12.851"  "G.12.856"  "G.12.862"  "G.12.864"
+# [36] "G.12.868"  "G.12.873"  "G.12.880"  "G.12.882"  "G.12.891"  "G.12.893"  "G.12.894"
+# [43] "G.12.899"  "G.12.901"  "G.12.912"  "G.12.918"  "G.12.919"  "G.12.922"  "G.12.924"
+# [50] "G.12.931"  "G.12.932"  "G.12.933"  "G.12.934"  "G.12.941"  "G.12.947"  "G.12.952"
+# [57] "G.12.953"  "G.12.955"  "G.12.959"  "G.12.960"  "G.12.966"  "G.12.968"  "G.12.970"
+# [64] "G.12.974"  "G.12.975"  "G.12.976"  "G.12.980"  "G.12.981"  "G.12.990"  "G.12.991"
+# [71] "G.12.993"  "G.12.995"  "G.12.997"  "G.12.999"  "G.12.1003" "G.12.1008" "G.12.1009"
+# [78] "G.12.1013" "G.12.1025" "G.12.1029" "G.12.1031" "G.12.1033" "G.12.1035" "G.12.1051"
+# [85] "G.12.1063" "G.12.1064" "G.12.1065" "G.12.1068" "G.12.1071" "G.12.1072" "A.22.682"
+# [92] "A.22.756"  "A.22.814"  "A.22.888"  "A.22.912"  "A.22.956"  "A.22.966"  "A.22.975"
+# [99] "A.22.981"  "A.22.1026" "A.22.1046" "A.22.1064" "A.22.1139" "A.22.1148" "A.22.1167"
+# [106] "A.22.1182" "A.22.1193" "A.22.1205" "A.22.1219" "A.22.1225" "A.22.1228" "A.22.1244"
+# [113] "A.22.1249" "A.22.1266" "A.22.1268" "A.22.1276" "A.22.1298" "A.22.1302" "A.22.1312"
+# [120] "A.22.1324" "A.22.1347" "A.22.1367" "A.22.1368" "A.22.1374" "A.22.1388" "A.22.1391"
+# [127] "A.22.1392" "A.22.1396" "A.22.1397" "A.22.1398" "A.22.1401" "A.22.1407" "A.22.1410"
+# [134] "A.22.1416" "A.22.1423" "A.22.1442" "A.22.1467" "A.22.1468" "A.22.1477" "A.22.1481"
+# [141] "A.22.1485" "A.22.1487" "A.22.1489" "A.22.1493" "A.22.1501" "A.22.1503" "A.22.1505"
+# [148] "A.22.1512" "A.22.1538" "A.22.1555" "A.22.1566" "A.22.1567" "A.22.1585" "A.22.1591"
+# [155] "A.22.1597" "A.22.1606" "A.22.1607" "A.22.1620" "A.22.1622" "A.22.1626" "A.22.1628"
+# [162] "A.22.1633" "A.22.1647" "A.22.1649" "A.22.1661" "A.22.1666" "A.22.1673" "A.22.1684"
+# [169] "A.22.1685" "A.22.1686" "A.22.1689" "A.22.1694" "A.22.1703" "A.22.1708" "A.22.1714"
+# [176] "A.22.1723" "A.22.1733" "A.22.1740" "A.22.1748" "A.22.1751" "A.22.1755" "A.22.1757"
+# [183] "A.22.1769" "A.22.1772" "A.22.1773" "A.22.1776" "A.22.1779" "A.22.1782" "A.22.1783"
+# [190] "A.22.1787" "A.22.1802" "A.22.1803" "A.22.1813" "A.22.1821" "A.22.1822" "A.22.1824"
+# [197] "A.22.1829" "A.22.1831" "A.22.1852" "A.22.1854" "A.22.1857" "A.22.1860" "A.22.1861"
+# [204] "A.22.1864" "A.22.1867" "A.22.1869" "A.22.1873" "A.22.1876" "A.22.1877" "A.22.1882"
+# [211] "A.22.1893" "A.22.1897" "A.22.1900" "A.22.1903" "A.22.1907" "A.22.1910" "A.22.1911"
+# [218] "A.22.1912" "A.22.1913" "A.22.1914" "A.22.1917" "A.22.1918" "A.22.1923" "A.22.1926"
+# [225] "A.22.1932" "A.22.1933" "A.22.1935" "A.22.1939" "A.22.1943" "A.22.1945" "A.22.1946"
+# [232] "A.22.1948" "A.22.1950" "A.22.1952" "A.22.1954" "A.22.1956" "A.22.1962" "A.22.1968"
+# [239] "A.22.1970" "A.22.1972" "A.22.1974" "A.22.1979" "A.22.1987" "A.22.1989" "A.22.1991"
+# [246] "A.22.1992" "A.22.1995" "A.22.1996" "A.22.1998" "A.22.1999" "A.22.2001" "A.22.2011"
+# [253] "A.22.2012" "A.22.2014" "A.22.2017" "A.22.2022" "A.22.2024" "A.22.2027" "A.22.2030"
+# [260] "A.22.2034" "A.22.2036" "A.22.2041" "A.22.2054" "A.22.2059" "A.22.2063" "A.22.2066"
+# [267] "A.22.2067" "A.22.2068" "A.22.2074" "A.22.2077" "A.22.2078" "A.22.2079" "A.22.2080"
+# [274] "A.22.2081" "A.22.2093" "A.22.2101" "A.22.2104" "A.22.2108" "A.22.2109" "A.22.2110"
+# [281] "A.22.2111" "A.22.2115" "A.22.2122" "A.22.2129" "A.22.2131" "A.22.2133" "A.22.2134"
+# [288] "A.22.2135" "A.22.2136" "A.22.2140" "A.22.2142" "A.22.2143" "A.22.2144" "A.22.2148"
+# [295] "A.22.2150" "A.22.2153" "A.22.2154" "A.22.2156" "A.22.2161" "A.22.2168" "A.22.2171"
+# [302] "A.22.2173" "A.22.2175" "A.22.2179" "A.22.2180" "A.22.2186" "A.22.2187" "A.22.2189"
+# [309] "A.22.2191" "A.22.2193" "A.22.2201" "A.22.2204" "A.22.2208" "A.22.2210" "A.22.2211"
+# [316] "A.22.2215" "A.22.2223" "A.22.2224" "A.22.2225" "A.22.2229" "A.22.2230" "A.22.2233"
+# [323] "A.22.2242" "A.22.2243" "A.22.2246" "A.22.2248" "A.22.2252" "A.22.2256" "A.22.2257"
+# [330] "A.22.2260" "A.22.2261" "A.22.2269" "A.22.2270" "A.22.2273" "A.22.2277" "A.22.2278"
+# [337] "A.22.2280" "A.22.2282" "A.22.2285" "A.22.2289" "A.22.2291" "A.22.2292" "A.22.2293"
+# [344] "A.22.2295" "A.22.2305" "A.22.2306" "A.22.2307" "A.22.2308" "A.22.2323" "A.22.2324"
+# [351] "A.22.2327" "A.22.2328" "A.22.2333" "A.22.2334" "A.22.2340" "A.22.2342" "A.22.2346"
+# [358] "A.22.2347" "A.22.2351" "A.22.2352" "A.22.2357" "A.22.2359" "A.22.2360" "A.22.2362"
+# [365] "A.22.2364" "A.22.2369" "A.22.2380" "A.22.2382" "A.22.2386" "A.22.2387" "A.22.2389"
+# [372] "A.22.2394" "A.22.2395" "A.22.2398" "A.22.2406" "A.22.2407" "A.22.2408" "A.22.2416"
+# [379] "A.22.2419" "A.22.2424" "A.22.2426" "A.22.2428" "A.22.2429" "A.22.2432" "A.22.2442"
+# [386] "A.22.2447" "A.22.2448" "A.22.2449" "A.22.2451" "A.22.2454" "A.22.2455" "A.22.2457"
+# [393] "A.22.2462" "A.22.2464" "A.22.2465" "A.22.2466" "A.22.2468" "A.22.2469" "A.22.2471"
+# [400] "A.22.2473" "A.22.2476" "A.22.2478" "A.22.2480" "A.22.2481" "A.22.2483" "A.22.2485"
+# [407] "A.22.2486" "A.22.2493" "A.22.2494" "A.22.2497" "A.22.2498" "A.22.2506" "A.22.2507"
+# [414] "A.22.2508" "A.22.2515" "A.22.2522" "A.22.2527" "A.22.2528" "A.22.2529" "A.22.2533"
+# [421] "A.22.2534" "A.22.2540" "A.22.2541" "A.22.2542" "A.22.2545" "A.22.2546" "A.22.2550"
+# [428] "A.22.2555" "A.22.2557" "A.22.2562" "A.22.2563" "A.22.2568" "A.22.2572" "A.22.2574"
+# [435] "A.22.2575" "A.22.2582" "A.22.2585" "A.22.2586" "A.22.2588" "A.22.2591" "A.22.2593"
+# [442] "A.22.2594" "A.22.2595" "A.22.2597" "A.22.2598" "A.22.2610" "A.22.2617" "A.22.2622"
+# [449] "A.22.2623" "A.22.2625" "A.22.2628" "A.22.2629" "A.22.2641" "A.22.2642" "A.22.2644"
+# [456] "A.22.2649" "A.22.2652" "A.22.2654" "A.22.2655" "A.22.2666" "A.22.2667" "A.22.2668"
+# [463] "A.22.2669" "A.22.2672" "A.22.2673" "A.22.2681" "A.22.2687" "A.22.2691" "A.22.2692"
+# [470] "A.22.2693" "A.22.2695" "A.22.2697" "A.22.2698" "A.22.2705" "A.22.2706" "A.22.2709"
+# [477] "A.22.2712" "A.22.2714" "A.22.2726" "A.22.2729" "A.22.2732" "A.22.2736" "A.22.2741"
+# [484] "A.22.2742" "A.22.2744" "A.22.2746" "A.22.2747" "A.22.2749" "A.22.2751" "A.22.2759"
+# [491] "A.22.2760" "A.22.2764" "A.22.2769" "A.22.2780" "A.22.2783" "A.22.2785" "A.22.2787"
+# [498] "A.22.2788" "A.22.2789" "A.22.2796" "A.22.2799" "A.22.2802" "A.22.2810" "A.22.2816"
+# [505] "A.22.2821" "A.22.2822" "A.22.2823" "A.22.2828" "A.22.2829" "A.22.2833" "A.22.2834"
+# [512] "A.22.2836" "A.22.2839" "A.22.2854" "A.22.2859" "A.22.2860" "A.22.2862" "A.22.2864"
+# [519] "A.22.2865" "A.22.2867" "A.22.2869" "A.22.2873" "A.22.2876" "A.22.2879" "A.22.2885"
+# [526] "A.22.2888" "A.22.2889" "A.22.2892" "A.22.2895" "A.22.2898" "A.22.2899" "A.22.2900"
+# [533] "A.22.2904" "A.22.2905" "A.22.2907" "A.22.2910" "A.22.2911" "A.22.2914" "A.22.2916"
+# [540] "A.22.2918" "A.22.2919" "A.22.2921" "A.22.2922" "A.22.2923" "A.22.2924" "A.22.2931"
+# [547] "A.22.2933" "A.22.2937" "A.22.2943" "A.22.2945" "A.22.2948" "A.22.2950" "A.22.2956"
+# [554] "A.22.2965" "A.22.2969" "A.22.2971" "A.22.2984" "A.22.2985" "A.22.2986" "A.22.2990"
+# [561] "A.22.2999" "A.22.3001" "A.22.3002" "A.22.3012" "A.22.3018" "A.22.3022" "A.22.3024"
+# [568] "A.22.3027" "G.24.706"  "G.24.787"  "G.24.795"
+# >
 
