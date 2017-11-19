@@ -315,7 +315,7 @@ IDs.transm <- num.i # vector of of seeds chosen in the list of seeds
 # Scenario 1 Analysis #
 #######################
 
-setwd("/home/david/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis1_A/Seed_22/")
+setwd("/home/david/Dropbox/ANALYSIS_NOVEMBER_2017/Analysis1_A/Complete_Transmission_Seed_22/")
 datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalistA.RData"))
 
 
@@ -360,7 +360,11 @@ save(dater.tree.22, file = paste("dated.tree.A.seed.22.seq.100.1403.Rdata", sep 
 
 # 1.2. Full network for seed 2 - 100% of individuals
 
-simpact.trans.net <- transmNetworkBuilder.diff2(datalist = datalist, endpoint = 40)
+# simpact.trans.net <- transmNetworkBuilder.diff2(datalist = datalist, endpoint = 40)
+# save(simpact.trans.net, file="simpact.trans.net.Rdata")
+
+simpact.trans.net <- get(load("simpact.trans.net.Rdata"))
+
 simpact.trans.net.22 <- simpact.trans.net[[22]]
 
 
@@ -377,6 +381,13 @@ graph.f.22 = graph.edgelist(graph.22[,1:2])
 source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/properties_network.R")
 properties.trans.net.22 <- properties_network(graph = graph.f.22)
 save(properties.trans.net.22, file = paste("trans.net.A.seed.22.seq.100.1403.Rdata", sep = ""))
+
+source("/home/david/RSimpactHelp/R/Projects_2017/Portugal_David/properties_tree.R")
+tree.A.seed22 <- get(load("dated.tree.A.seed.22.seq.100.1403.Rdata"))
+tree.A.seed22.t <- write.tree(tree.A.seed22, file = "tree.A.seed22.tree")
+
+read.tree.A.seed22 <- read.tree("tree.A.seed22.tree")
+properties.tree.22 <- properties_tree(read.tree.A.seed22)
 
 
 # 2.1. Phylogenetic tree for seed 22 - 90% of individuals
@@ -1159,8 +1170,7 @@ save(dater.tree.22.24.27.p20, file = paste("dated.tree.A.seed.22.24.27seq.p20.22
 # Scenario 3 - A- B- G
 #
 # different subtypes of the virus (HIV-1-A-B-G) for all seeds
-# complete sampling for a transmission network of one seed
-# same sampling time interval of seven years
+# complete sampling in pasy seven years
 
 setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario3_A/")
 
@@ -1718,11 +1728,11 @@ save(dater.tree.22.24.27.A.A.G.p20, file = paste("dated.tree.A.A.G.seed.22.24.27
 
 
 
+
 # Scenario 4 - A- B- G
 #
 # different subtypes of the virus (HIV-1-A-B-G) for all seeds
-# complete sampling for a transmission network of all seeds
-# same sampling time interval (e.g.: five or three years) for a transmission network of all seeds
+# complete sampling in pasy seven years, and study the effect of gender and age on sampling
 
 setwd("/home/david/RSimpactHelp/R/Projects_2017/Report_1/Scenario4_A/")
 
