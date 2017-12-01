@@ -1522,3 +1522,26 @@ V(ga.graph.37)$color <- "red"
 transNet.yrs.Old.37 <- delete.vertices(ga.graph.37, "-1")
 tree.37 <- trans.network2tree(transnetwork = net.37)
 trend.37 <- phylogenetictree.trend(tree.37)
+
+
+
+# retrieve and rename automatically sampling date from tree
+
+
+setwd("/home/david/Desktop/TestNamedTree/")
+
+# for phylogenies constructed from sequences retrieved online
+
+tree.rd <- read.tree("testtree.nwk") # read the tree with taxons being named with sampling date
+
+tips.names <- tree.rd$tip.label
+
+dates.vec <- vector()
+for(i in 1:length(tips.names)){
+  d <- gsub('[A-z]', '', tips.names[i]) # remove all alphabet
+  r <- gsub('[..]', '', d) # remove all dots and concatenate the string in a numeric
+  l <- nchar(r) # count the length of the above number
+  x <- l-4 # the date we want must be of elngth 4 ("YYYY), we will strip x digits from r
+  date.i <- substr(r, 1, nchar(r)-x) # remove the x digits and remane by the sampling dates
+  dates.vec <- c(dates.vec, date.i)
+}
