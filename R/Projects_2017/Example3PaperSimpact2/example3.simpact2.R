@@ -496,6 +496,12 @@ N <- node.age(dater.tree)
 int.node.age <- N$Ti # internal nodes ages
 ##########################################
 
+# begin 1.12.2017
+dated.tree.3 <- get(load("dated.tree.object_seed_3.Rdata"))
+pb <- parboot.treedater(dated.tree.3)
+# end 1.12.2017
+
+
 
 latest.samp <- N$timeToMRCA+N$timeOfMRCA # latest sampling date
 
