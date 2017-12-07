@@ -33,75 +33,48 @@
 #' @import dplyr
 #' @export
 
-degree.df.maker <- function(dataframe.df,
-                            agegroup = c(15, 30),
-                            hivstatus = 0,
-                            survey.time = 40,
-                            window.width = 1,
-                            gender.degree = "female",
-                            only.new = TRUE){
-
-
-  # Before filtering dataframe.df, we need to reshape the dataframe.df,
-  # so that there is one row (duplicated because of gender) per relid (relationship)
-  # instead of one row (duplicated) per relationship episode.
-
-  # The dataframe of relationship episodes must be turned into a dataframe of relationships.
+degree.df.maker <- function(dataframe.df, agegroup = c(15, 30), hivstatus = 0,
+                             survey.time = 40, window.width = 1, gender.degree = "female",
+                             only.new = TRUE)
+{
   dataframe.rels.df <- dataframe.df
-  dataframe.rels.df <- subset(dataframe.rels.df, select = -c(episodeorder, FormTime, DisTime))
+  dataframe.rels.df <- dplyr::select(dataframe.rels.df, -episodeorder, -FormTime, -DisTime)
   dataframe.rels.df <- unique.data.frame(dataframe.rels.df)
-
-  rels.form.dis.df <- dplyr::summarise(dplyr::group_by(dataframe.df, relid),
-                   FormTime = min(FormTime),
-                   DisTime = max(DisTime))
-
-  dfnew <- dplyr::left_join(x = dataframe.rels.df,
-                     y = rels.form.dis.df,
-                     by = "relid")
-
-  #Also only subset the relationships for alive people at the time of the survey
-  dfnew <- subset(dfnew, TOD > survey.time)
-
-
-  # Now we filter dfnew, based on hivstatus at the time of the survey.
-
-  {if (hivstatus==0){
-    dfnew <- dplyr::filter(dfnew,
-                           InfectTime > survey.time)
-  }
-    else if
-    (hivstatus==1){
-      dfnew <- dplyr::filter(dfnew,
-                             InfectTime <= survey.time)
+  rels.form.dis.df <- dplyr::summarise(dplyr::group_by(dataframe.df,
+                                                       relid), FormTime = min(FormTime), DisTime = max(DisTime))
+  dfnew <- dplyr::left_join(x = dataframe.rels.df, y = rels.form.dis.df,
+                            by = "relid")
+  dfnew <- dplyr::filter(dfnew, TOD > survey.time)
+  {
+    if (hivstatus == 0) {
+      dfnew <- dplyr::filter(dfnew, InfectTime > survey.time)
+    }
+    else if (hivstatus == 1) {
+      dfnew <- dplyr::filter(dfnew, InfectTime <= survey.time)
     }
   }
-
-  # newly formed relationships "else" ongoing relationships.
-  {if(only.new)
-  {dfnew <- dplyr::filter(dfnew,
-                   FormTime >= survey.time-window.width,
-                   FormTime < survey.time,
-                   DisTime > survey.time-window.width,
-                   #InfectTime > survey.time; InfectTime <= survey.time
-                   Gender==gender.degree,survey.time-TOB>=agegroup[1], survey.time-TOB<agegroup[2])}
-    else
-    {dfnew <- dplyr::filter(dfnew,
-                   FormTime < survey.time,
-                   DisTime > survey.time-window.width,
-                   Gender==gender.degree,survey.time-TOB>=agegroup[1], survey.time-TOB<agegroup[2])}
+  {
+    if (only.new) {
+      dfnew <- dplyr::filter(dfnew, FormTime >= survey.time -
+                               window.width, FormTime < survey.time, DisTime >
+                               survey.time - window.width, Gender == gender.degree,
+                             survey.time - TOB >= agegroup[1], survey.time -
+                               TOB < agegroup[2])
+    }
+    else {
+      dfnew <- dplyr::filter(dfnew, FormTime < survey.time,
+                             DisTime > survey.time - window.width, Gender ==
+                               gender.degree, survey.time - TOB >= agegroup[1],
+                             survey.time - TOB < agegroup[2])
+    }
   }
-  # unique relid's(those in the relationship) of each ID.
-  uniqueOut <- dfnew %>%
-    dplyr::select(ID, relid) %>%
-    distinct %>%
-    rename(Degree= relid)
-  # counting total number of relationships each ID has.
-  if(dim(uniqueOut)[1]!=0){
-    degreedata.df <- aggregate(Degree ~ ID, data = uniqueOut, length)
+  uniqueOut <- dfnew %>% dplyr::select(ID, relid) %>% distinct %>%
+    rename(Degree = relid)
+  if (dim(uniqueOut)[1] != 0) {
+    degreedata.df <- aggregate(Degree ~ ID, data = uniqueOut,
+                               length)
+  } else {
+    degreedata.df <- data.frame(ID = NA, Degree = NA)
   }
-  else{
-    degreedata.df <-data.frame(ID=NA,Degree=NA)
-  }
-
   return(degreedata.df)
 }
