@@ -58,21 +58,18 @@ readthedata <- function(modeloutput){
     outputtables <- list(ptable = ptable, rtable = rtable, etable = etable,
                          ttable = ttable, itable = itable, ltable = ltable,
                          vltable = vltable, ftable = ftable)
-  }
-  else if(file.exists(facilitiesxylogfilename) && !file.exists(periodiclogfilename)){
+  }else if(file.exists(facilitiesxylogfilename) && !file.exists(periodiclogfilename)){
     ftable <- data.table::fread(facilitiesxylogfilename, sep = ",", skip = 0)
 
     outputtables <- list(ptable = ptable, rtable = rtable, etable = etable,
                          ttable = ttable, itable = itable, vltable = vltable, ftable = ftable)
 
-  }
-  else if(!file.exists(facilitiesxylogfilename) && file.exists(periodiclogfilename) ){
+  }else if(!file.exists(facilitiesxylogfilename) && file.exists(periodiclogfilename) ){
     ltable <- data.table::fread(periodiclogfilename, sep = ",", skip = 0)
 
     outputtables <- list(ptable = ptable, rtable = rtable, etable = etable,
                          ttable = ttable, itable = itable, ltable = ltable, vltable = vltable)
-  }
-  else {
+  }else{
     outputtables <- list(ptable = ptable, rtable = rtable,
                          etable = etable, ttable = ttable, itable = itable, vltable = vltable)
   }

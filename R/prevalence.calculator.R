@@ -25,8 +25,12 @@ prevalence.calculator <- function(datalist = datalist,
   # First we only take the data of people who were alive at the timepoint
   DTalive.infected <- alive.infected(datalist = datalist, timepoint = timepoint)
 
-  DTalive.infected.agegroup <- subset(DTalive.infected, TOB <= timepoint - agegroup[1] &
-                                        TOB > timepoint - agegroup[2])
+
+  DTalive.infected <- DTalive.infected %>%
+    mutate(age = timepoint - TOB)
+
+  DTalive.infected.agegroup <- subset(DTalive.infected, age >= agegroup[1]  &
+                                        age < agegroup[2])
 
   raw.df <- data.frame(DTalive.infected.agegroup)
   if(nrow(raw.df)>0){

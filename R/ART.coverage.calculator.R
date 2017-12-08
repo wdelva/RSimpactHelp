@@ -26,6 +26,7 @@ ART.coverage.calculator <- function(datalist = datalist,
                                   timepoint = 30, site="All"){
 
   # First we only take the data of people who were alive at the timepoint
+
   DTalive.infected <- alive.infected(datalist = datalist,
                                      timepoint = timepoint, site = site)
 

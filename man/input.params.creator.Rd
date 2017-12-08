@@ -51,7 +51,11 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   mortality.aids.survtime.C = 62, mortality.aids.survtime.k = -0.2,
   conception.alpha_base = -2.35, diagnosis.baseline = -100,
   monitoring.cd4.threshold = 0.1, monitoring.fraction.log_viralload = 0.3,
-  birth.boygirlratio = 0.5024876, simulation.type = "simpact-cyan")
+  birth.pregnancyduration.dist.type = "fixed",
+  birth.pregnancyduration.dist.fixed.value = 268/365,
+  birth.boygirlratio = 1/2.01, simulation.type = "simpact-cyan",
+  monitoring.cd4.threshold.prestudy = 350,
+  monitoring.cd4.threshold.instudy.controlstage = 350)
 }
 \arguments{
 \item{mortality.normal.weibull.shape}{Specifies the shape of a Weibull distribution to make
@@ -223,10 +227,20 @@ if below this value}
 
 \item{monitoring.fraction.log_viralload}{the setpoint viral load will be dropped by this fraction}
 
+\item{birth.pregnancyduration.dist.type}{duration of pregnancy}
+
+\item{birth.pregnancyduration.dist.fixed.value}{the option is fixed and set to 9 months}
+
 \item{birth.boygirlratio}{the probability of a newly born to be boy}
 
 \item{simulation.type}{To distinguish parameters that vary from the type of simulation
 being perfomed (simpact-cyan) e.g you can use maxart as well}
+
+\item{monitoring.cd4.threshold.prestudy}{cd4 values prestudy}
+
+\item{monitoring.cd4.threshold.instudy.controlstage}{cd4 values during the control phase
+# @param monitoring.cd4.threshold.instudy.transitionstage cd4 threshold when site is transitioning
+# @param monitoring.cd4.threshold.instudy.interventionstage cd threshold not needed during the intervention stage}
 }
 \value{
 a list of model parameters that can be used as input for simpact.run()

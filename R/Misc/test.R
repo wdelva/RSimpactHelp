@@ -1,39 +1,102 @@
 ## Testing the results from a simply simpact.run
-pacman::p_load(RSimpactCyan, RSimpactHelper, lhs)
+#rm(list=ls())
+pacman::p_load(RSimpactCyan, RSimpactHelper, data.table, magrittr, dplyr, exactci,nlme,
+               ggplot2, readcsvcolumns, survival, KMsurv, tidyr, lhs)
 
-simulation.type <- "simpact-cyan"#"maxart"#
-
+#Set up simulation parameters and initiate simulation
+sim.start.full <- as.Date("1970-03-31")
+maxart.starttime <- as.Date("2014-09-01")
+maxart.endtime <- as.Date("2017-08-31")
+sim.end.full <- as.Date("2019-03-31")
+seed.hiv.time <- round(as.numeric(difftime(as.Date("1986-03-31"), sim.start.full, units = "days")/365.242),0)
+sim.duration <- round(as.numeric(difftime(sim.end.full,sim.start.full, units = "days")/365.242),0)
+simulation.type <- "maxart"#"simpact-cyan"#
 simpact.set.simulation(simulation.type)
 
-agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
 
+agedist.data.frame <- agedistr.creator(shape = 5, scale = 65)
+#agedist.data.frame <- agedistr.creator(shape = 2, scale = 25)
+#This matches the 1970 UN population
 
 iv <- intervention.introduced(simulation.type = simulation.type)
 
+#initial population
 
-testinput <- input.params.creator(population.simtime = 40,
-                                  population.numwomen = 1000,
-                                  population.nummen = 1000,
+init.population.total <- 3000
+women.frac <- 0.5253
+num.women.prop <- round(women.frac * init.population.total, 0)
+num.men.prop <- init.population.total - num.women.prop
+
+testinput <- input.params.creator(population.simtime = sim.duration,
+                                  population.numwomen = num.women.prop, # 1051, #1000,
+                                  population.nummen = num.men.prop, # 949, #1000,
+                                  person.art.accept.threshold.dist.fixed.value = 0.9,
+                                  debut.debutage = 10,  #maxart
+                                  hivseed.time = seed.hiv.time, #1986 seed HIV
                                   simulation.type = simulation.type)
 
+if(simulation.type == "maxart"){
+  testinput$facilities.randomization <- "${SIMPACT_DATA_DIR}maxart-randomization.csv"
+  testinput$maxart.starttime <- round(as.numeric(difftime(maxart.starttime ,sim.start.full, units = "days")/365),0)
+  #testinput$person.geo.dist2d.discrete.maskfile <- "${SIMPACT_DATA_DIR}hhohho_mask.tiff"
+}
+
+generate.filename <- function(how.long){
+
+  rn <- sample(1:100,1)
+  t <- as.numeric(Sys.time())
+  set.seed((t - floor(t)) * 1e8)
+  chars <- c(letters, LETTERS)
+  sub.dir.sim.id <-  paste0(sample(chars,how.long), collapse = "")
+
+  noise.sample1 <- sample(8:15,1, replace = TRUE)
+  sub.dir.sim.id.ext <- paste0(sample(chars,noise.sample1), collapse = "")
+  noise.sample <- sample(1:1000,1)
+  noise.sample2 <- sample(8:17,1, replace = TRUE)
+  sub.dir.sim.id <- paste0(sub.dir.sim.id.ext,
+                           paste0(sample(chars,noise.sample2), collapse = ""),noise.sample, rn)
+
+  return(sub.dir.sim.id)
+}
+
+sub.dir.rename <- paste0("temp/",generate.filename(10))
 
 testoutput <- simpact.run(configParams = testinput,
-                          destDir = "temp",
+                          destDir = sub.dir.rename,
                           agedist = agedist.data.frame,
                           intervention = iv,
-                          seed = 2)
+                          seed = 8)
 
 datalist.test <- readthedata(testoutput)
 
+#datalist.test$ptable <- client.facility(datalist = datalist.test, site = "MaxART")
+#datalist.test$ptable$pfacility[datalist.test$ptable$pfacility.value > 15] <- "Not Hhohho"
+
+table(datalist.test$ptable$pfacility)
+
 pop.growth.calculator(datalist = datalist.test,
                       timewindow = c(0,
-                          timewindow.max=unique(datalist.test$itable$population.simtime)))
+                          timewindow.max=datalist.test$itable$population.simtime[1]))
 
-incidence.calculator(datalist = datalist.test, agegroup = c(20, 25),
-                     timewindow = c(32, 34), only.active = "No")
+#check incidence within the study window
 
-prevalence.calculator(datalist = datalist.test, agegroup = c(18, 20),
-                    timepoint = 34)
+inc.study.time.u <- as.numeric(difftime(maxart.starttime, sim.start.full, units = "days"))
+inc.study.time.d <- as.numeric(difftime(maxart.endtime, sim.start.full, units = "days"))
+
+inc.study.time.u <- round(inc.study.time.u/365.242,0)
+inc.study.time.d <- round(inc.study.time.d/365.242,0)
+
+
+incidence.calculator(datalist = datalist.test, agegroup = c(10, 49),
+                     timewindow = c(inc.study.time.u, inc.study.time.d),
+                     only.active = "No")
+
+prevalence.calculator(datalist = datalist.test, agegroup = c(10, 50),
+                    timepoint = inc.study.time.d)
+
+
+###################################################################################################
+
 
 #Example of Latin hypercube sample (each row and column is filled
 #with one point)
@@ -45,7 +108,7 @@ prevalence.calculator(datalist = datalist.test, agegroup = c(18, 20),
 #Generate higher dimmension sampling similarly
 #Avoid the propabaility that all sampling points come from the same local region
 set.seed(1)
-n.points <- 20000
+n.points <- 20
 rlhs.test <- randomLHS(n.points, 2)
 break.point = 1/n.points
 axis.range <- seq(0,1,break.point)
