@@ -6,10 +6,10 @@
 #' @return A list, containing dataframes for the output of the model run:
 #' ptable (people), rtable (relationships), etable (events), ttable (HIV treatment episodes),
 #' itable (input parameters), ltable (bookkeeping log) if created and vltable (HIV viral load)
-#@examples
-#cfg <- list()
-#modeloutput <- simpact.run(configParams = cfg, destDir = "temp")
-#datalist <- readthedata(modeloutput)
+#' @examples
+#' cfg <- list()
+#' modeloutput <- simpact.run(configParams = cfg, destDir = "temp")
+#' datalist <- readthedata(modeloutput)
 #'
 #' @importFrom data.table fread
 #' @importFrom data.table setDT
@@ -18,6 +18,7 @@
 #' @export
 
 readthedata <- function(modeloutput){
+  
   path <- as.character(modeloutput["outputfile"])
   outputID <- as.character(modeloutput["id"])
   DestDir <- sub(pattern = paste0(outputID, "output.txt"), replacement = "", x = path, fixed=T)
