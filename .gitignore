@@ -3,3 +3,6 @@
 .RData
 temp/
 .*.csv
+.DS_Store
+.gitignore
+*.Rproj
