@@ -8,7 +8,7 @@
 #' itable (input parameters), ltable (bookkeeping log) if created and vltable (HIV viral load)
 #' @examples
 #' cfg <- list()
-#' modeloutput <- simpact.run(configParams = cfg, destDir = "temp")
+#' modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp")
 #' datalist <- readthedata(modeloutput)
 #'
 #' @importFrom data.table fread
