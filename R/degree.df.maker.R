@@ -35,52 +35,51 @@
 
 degree.df.maker <- function(df, agegroup = c(15, 30), hivstatus = 0,
                          survey.time = 40, window.width = 1, 
-                         gender.degree = "female", only.new = TRUE)
-{
+                         gender.degree = "female", only.new = TRUE){
+
+  # The time the window starts
   time.start.window <- survey.time - window.width
   
   reldf <- df %>%
-    dplyr::group_by(Gender, relid) %>%
-    dplyr::mutate(RelFormTime = min(FormTime),
-                  RelDisTime = max(DisTime)) %>%
+    dplyr::group_by(Gender, relid) %>% # Since each episode is duplicated for each gender
+    dplyr::mutate(RelFormTime = min(FormTime), # Var with the start of rel
+                  RelDisTime = max(DisTime)) %>% # Var with end of rel
     dplyr::ungroup() %>%
-    dplyr::distinct(Gender, relid, .keep_all = TRUE) %>%
-    dplyr::filter(TOD > survey.time)
+    dplyr::distinct(Gender, relid, .keep_all = TRUE) %>% # Keep only first row per relationship
+    dplyr::filter(TOD > survey.time) # Remove rels from people who died before survey
   
-  {
-    if (hivstatus == 0) {
-      dfnew <- dfnew %>%
-        dplyr::filter(InfectTime > survey.time)
-    }
-    else if (hivstatus == 1) {
-      dfnew <- dfnew %>%
-        dplyr::filter(InfectTime <= survey.time)
-    }
-    }
-  
-  {
-    if (only.new) {
-      dfnew <- dfnew %>%
-        dplyr::filter(RelFormTime >= time.start.window, 
-                      RelFormTime < survey.time, 
-                      RelDisTime > time.start.window, 
-                      Gender == gender.degree,
-                      (survey.time - TOB) >= agegroup[1], 
-                      (survey.time - TOB) < agegroup[2])
-    }
-    else {
-      dfnew <- dfnew %>%
-        dplyr::filter(RelFormTime < survey.time,
-                      RelDisTime > time.start.window, 
-                      Gender == gender.degree, 
-                      (survey.time - TOB) >= agegroup[1],
-                      (survey.time - TOB) < agegroup[2])
-    }
+  # Removing relationships from either HIV pos or neg people
+  if (hivstatus == 0) {
+    dfnew <- dfnew %>%
+      dplyr::filter(InfectTime > survey.time)
+  } else if (hivstatus == 1) {
+    dfnew <- dfnew %>%
+      dplyr::filter(InfectTime <= survey.time)
   }
+
   
+ 
+  if (only.new) {
+    dfnew <- dfnew %>%
+      dplyr::filter(RelFormTime >= time.start.window, # Rel starts after start of window
+                    RelFormTime < survey.time, # Rel starts before the survey
+                    RelDisTime > time.start.window, # Rel ends after start of window
+                    Gender == gender.degree, # Keep specified gender only
+                    (survey.time - TOB) >= agegroup[1], # Lower bound of age group
+                    (survey.time - TOB) < agegroup[2]) # Upper bound of age group
+  } else {
+    dfnew <- dfnew %>%
+      dplyr::filter(RelFormTime < survey.time, # Must start before the survey
+                    RelDisTime > time.start.window, # Must end after the start of window
+                    Gender == gender.degree, 
+                    (survey.time - TOB) >= agegroup[1],
+                    (survey.time - TOB) < agegroup[2])
+  }
+
+  # Now create table that has the degree for each person
   degree.df <- dfnew %>%
-    group_by(ID) %>%
-    summarise(Degree = n())
+    dplyr::group_by(ID) %>% # By person
+    dplyr::summarise(Degree = n()) # Count how many rows
   
   return(degree.df)
 }
