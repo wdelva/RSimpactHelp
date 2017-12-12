@@ -21,23 +21,28 @@ readthedata <- function(modeloutput){
   
   path <- as.character(modeloutput["outputfile"])
   outputID <- as.character(modeloutput["id"])
-  DestDir <- sub(pattern = paste0(outputID, "output.txt"), replacement = "", x = path, fixed=T)
-  personlogfilename <- paste0(DestDir, outputID, "personlog.csv")
-  relationlogfilename <- paste0(DestDir, outputID, "relationlog.csv")
-  eventlogfilename <- paste0(DestDir, outputID, "eventlog.csv")
-  treatmentlogfilename <- paste0(DestDir, outputID, "treatmentlog.csv")
-  inputparamlogfilename <- paste0(DestDir, outputID, "settingslog.csv")
-  periodiclogfilename <- paste0(DestDir, outputID, "periodiclog.csv")
-  viralloadlogfilename <- paste0(DestDir, outputID, "hivviralloadlog.csv")
-  facilitiesxylogfilename <- paste0(DestDir, outputID, "facilitypositions.csv")
+  DestDir <- sub(pattern = paste0(outputID, "output.txt"), 
+                 replacement = "", 
+                 x = path, 
+                 fixed = T)
+  personfile <- paste0(DestDir, outputID, "personlog.csv")
+  relationfile <- paste0(DestDir, outputID, "relationlog.csv")
+  eventfile <- paste0(DestDir, outputID, "eventlog.csv")
+  treatmentfile <- paste0(DestDir, outputID, "treatmentlog.csv")
+  inputparamfile <- paste0(DestDir, outputID, "settingslog.csv")
+  periodicfile <- paste0(DestDir, outputID, "periodiclog.csv")
+  viralloadfile <- paste0(DestDir, outputID, "hivviralloadlog.csv")
+  facilitiesxyfile <- paste0(DestDir, outputID, "facilitypositions.csv")
 
-  ptable <- data.table::fread(personlogfilename, sep = ",", skip = 0)
-  vltable <- data.table::fread(viralloadlogfilename, sep = ",", skip = 0)
-  rtable <- data.table::fread(relationlogfilename, sep = ",", skip = 0)
-  readetable <- readcsvcolumns::read.csv.columns(eventlogfilename, has.header = FALSE,
+  ptable <- data.table::fread(personfile, sep = ",", skip = 0)
+  vltable <- data.table::fread(viralloadfile, sep = ",", skip = 0)
+  rtable <- data.table::fread(relationfile, sep = ",", skip = 0)
+  readetable <- readcsvcolumns::read.csv.columns(eventfile, 
+                                                 has.header = FALSE,
                                                  column.types = "rssiirsiir")
   etable <- data.table::setDT(readetable)
   etable.colnames <- colnames(etable)
+  
   if (ncol(etable) == 10){
     data.table::setnames(etable, etable.colnames,
              c("eventtime", "eventname", "p1name", "p1ID", "p1gender",
@@ -45,34 +50,59 @@ readthedata <- function(modeloutput){
   } else {
     data.table::setnames(etable, etable.colnames,
              c("eventtime", "eventname", "p1name", "p1ID", "p1gender",
-               "p1age", "p2name", "p2ID", "p2gender", "p2age", "extradescript", "value"))
+               "p1age", "p2name", "p2ID", "p2gender", "p2age", 
+               "extradescript", "value"))
 
   }
-  ttable <- data.table::fread(treatmentlogfilename, sep  = ",", skip = 0)
-  itable <- data.table::fread(inputparamlogfilename, sep  = ",", skip = 0)
+  
+  ttable <- data.table::fread(treatmentfile, sep  = ",", skip = 0)
+  itable <- data.table::fread(inputparamfile, sep  = ",", skip = 0)
 
-  if (file.exists(periodiclogfilename) && file.exists(facilitiesxylogfilename) ){
-    ltable <- data.table::fread(periodiclogfilename, sep = ",", skip = 0)
+  if (file.exists(periodicfile) && file.exists(facilitiesxyfile)){
+    
+    ltable <- data.table::fread(periodicfile, sep = ",", skip = 0)
 
-    ftable <- data.table::fread(facilitiesxylogfilename, sep = ",", skip = 0)
+    ftable <- data.table::fread(facilitiesxyfile, sep = ",", skip = 0)
 
-    outputtables <- list(ptable = ptable, rtable = rtable, etable = etable,
-                         ttable = ttable, itable = itable, ltable = ltable,
-                         vltable = vltable, ftable = ftable)
-  }else if(file.exists(facilitiesxylogfilename) && !file.exists(periodiclogfilename)){
-    ftable <- data.table::fread(facilitiesxylogfilename, sep = ",", skip = 0)
+    outputtables <- list(ptable = ptable, 
+                         rtable = rtable, 
+                         etable = etable,
+                         ttable = ttable, 
+                         itable = itable, 
+                         ltable = ltable,
+                         vltable = vltable, 
+                         ftable = ftable)
+    
+  }else if(file.exists(facilitiesxyfile) && !file.exists(periodicfile)){
+    
+    ftable <- data.table::fread(facilitiesxyfile, sep = ",", skip = 0)
 
-    outputtables <- list(ptable = ptable, rtable = rtable, etable = etable,
-                         ttable = ttable, itable = itable, vltable = vltable, ftable = ftable)
+    outputtables <- list(ptable = ptable, 
+                         rtable = rtable, 
+                         etable = etable,
+                         ttable = ttable, 
+                         itable = itable, 
+                         vltable = vltable, 
+                         ftable = ftable)
 
-  }else if(!file.exists(facilitiesxylogfilename) && file.exists(periodiclogfilename) ){
-    ltable <- data.table::fread(periodiclogfilename, sep = ",", skip = 0)
+  }else if(!file.exists(facilitiesxyfile) && file.exists(periodicfile)){
+    
+    ltable <- data.table::fread(periodicfile, sep = ",", skip = 0)
 
-    outputtables <- list(ptable = ptable, rtable = rtable, etable = etable,
-                         ttable = ttable, itable = itable, ltable = ltable, vltable = vltable)
+    outputtables <- list(ptable = ptable, 
+                         rtable = rtable, 
+                         etable = etable,
+                         ttable = ttable, 
+                         itable = itable, 
+                         ltable = ltable, 
+                         vltable = vltable)
   }else{
-    outputtables <- list(ptable = ptable, rtable = rtable,
-                         etable = etable, ttable = ttable, itable = itable, vltable = vltable)
+    outputtables <- list(ptable = ptable, 
+                         rtable = rtable,
+                         etable = etable, 
+                         ttable = ttable, 
+                         itable = itable, 
+                         vltable = vltable)
   }
 
   return(outputtables)
