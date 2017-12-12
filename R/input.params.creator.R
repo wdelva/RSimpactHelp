@@ -279,7 +279,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$formationmsm.hazard.type <- formationmsm.hazard.type
   input.params$formationmsm.hazard.simple.alpha_0 <- formationmsm.hazard.simple.alpha_0
   input.params$formationmsm.hazard.simple.alpha_12 <- formationmsm.hazard.simple.alpha_12
-  input.params$formationmsm.hazard.simple.alpha_5 <- formationmsm.hazard.simple.alpha_5 # The factor α5 controls the relative importance of the age gap between the partners.
+  input.params$formationmsm.hazard.simple.alpha_5 <- formationmsm.hazard.simple.alpha_5 # The factor (alpha)5 controls the relative importance of the age gap between the partners.
   input.params$formationmsm.hazard.simple.alpha_6 <- formationmsm.hazard.simple.alpha_6  # weight for sum of eagerness parameters
   input.params$formationmsm.hazard.simple.alpha_7 <- formationmsm.hazard.simple.alpha_7
   input.params$birth.pregnancyduration.dist.type <- birth.pregnancyduration.dist.type
