@@ -1,32 +1,37 @@
-#' Degree distribution of recent sexual relationships.
+#' Degree distribution of persons in recent sexual relationships.
 #'
-#' Creates a table of two columns, "ID" and "degree" from the df dataframe,
-#' with specific degrees of new relationships or ongoing relationships among women within
-#' specified age group. The degree distribution shows the total number of relationships that
-#' were ongoing (if only.new == FALSE) at some time in the survey window
-#' or that were newly formed (if only.new == TRUE) during the survey window.
-#'
-#' @param dataframe.df The dataframe that is produced by \code{\link{agemix.df.maker}}
-#' @param survey.time Time point of the cross-sectional survey.
-#' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that
-#' should be retained, e.g. c(15, 30)
-#' @param hivstatus HIV status at the time of the survey. Options are 2, means all; 0
-#' means only HIV-negative, 1 means only HIV-positive.
-#' @param window.width Time period before the survey e.g 1 year before the survey.
-#' @param gender.degree The gender of the results
-#' @param only.new Logical indicator. If TRUE, only relationships that were newly started
-#' during window.width are counted
-#' (i.e. the individual was NEVER in a relationship with these partners before
-#'  the start of the window).
-#' If FALSE, all relationships that were ongoing at some point during the
-#' window.width are counted.
-#'
-#' @return A dataframe, degree.df that has the columns "ID", "degree", and a fraction of women
-#' with >1 sexual partner in the last year.
-#@examples
-#data(dataframe.df)
-#degree.df <- degree.df.maker(dataframe.df, agegroup = c(15, 30), hivstatus = 0,
-#survey.time = 10, window.width = 1, only.new = TRUE)
+#' Creates a dataframe for the degree distribution of persons specified from the
+#' dataset produced by \code{\link{agemix.df.maker}}. This function allows users
+#' to specify whether they want new relationships or ongoing relationships among
+#' a specified age group, gender, or HIV status of persons in the dataset. 
+#' 
+#' @param df The dataframe that is produced by \code{\link{agemix.df.maker}}
+#' @param agegroup Boundaries of the age group (lower bound <= age < upper
+#'   bound) that should be retained. Should be expressed as a vector of two
+#'   integers. e.g. c(15, 30)
+#' @param hivstatus HIV status at the time of the survey. Options are: 0 = only
+#'   HIV-negative, 1 = only HIV-positive, 2 = all
+#' @param survey.time Numeric integer representing the time point of the
+#'   cross-sectional glance at the data
+#' @param window.width Numeric integer representing how long before the
+#'   cross-sectional glance should you look at the data. E.g 1 year before the
+#'   survey
+#' @param gender.degree The gender or the persons in the data. c("male",
+#'   "female")
+#' @param only.new Logical indicator. If TRUE, only relationships that were
+#'   newly started during window.width are counted (i.e. the individual was
+#'   NEVER in a relationship with these partners before the start of the
+#'   window). If FALSE, all relationships that were ongoing at some point during
+#'   the window.width are counted.
+#'   
+#' @return A dataframe that has the columns "ID" and "Degree"
+#' 
+#' @examples
+#' cfg <- list()
+#' modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp")
+#' dl <- readthedata(modeloutput)
+#' rels.df <- agemix.df.maker(datalist = dl)
+#' degree.df <- degree.df.maker(rels.df, agegroup = c(20, 30), hivstatus = 1)
 
 #' @importFrom magrittr %>%
 #' @importFrom stats aggregate
@@ -40,7 +45,7 @@ degree.df.maker <- function(df, agegroup = c(15, 30), hivstatus = 0,
   # The time the window starts
   time.start.window <- survey.time - window.width
   
-  reldf <- df %>%
+  dfnew <- df %>%
     dplyr::group_by(Gender, relid) %>% # Since each episode is duplicated for each gender
     dplyr::mutate(RelFormTime = min(FormTime), # Var with the start of rel
                   RelDisTime = max(DisTime)) %>% # Var with end of rel

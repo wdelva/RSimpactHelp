@@ -2,42 +2,50 @@
 % Please edit documentation in R/degree.df.maker.R
 \name{degree.df.maker}
 \alias{degree.df.maker}
-\title{Degree distribution of recent sexual relationships.}
+\title{Degree distribution of persons in recent sexual relationships.}
 \usage{
-degree.df.maker(dataframe.df, agegroup = c(15, 30), hivstatus = 0,
-  survey.time = 40, window.width = 1, gender.degree = "female",
-  only.new = TRUE)
+degree.df.maker(df, agegroup = c(15, 30), hivstatus = 0, survey.time = 40,
+  window.width = 1, gender.degree = "female", only.new = TRUE)
 }
 \arguments{
-\item{dataframe.df}{The dataframe that is produced by \code{\link{agemix.df.maker}}}
+\item{df}{The dataframe that is produced by \code{\link{agemix.df.maker}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that
-should be retained, e.g. c(15, 30)}
+\item{agegroup}{Boundaries of the age group (lower bound <= age < upper
+bound) that should be retained. Should be expressed as a vector of two
+integers. e.g. c(15, 30)}
 
-\item{hivstatus}{HIV status at the time of the survey. Options are 2, means all; 0
-means only HIV-negative, 1 means only HIV-positive.}
+\item{hivstatus}{HIV status at the time of the survey. Options are: 0 = only
+HIV-negative, 1 = only HIV-positive, 2 = all}
 
-\item{survey.time}{Time point of the cross-sectional survey.}
+\item{survey.time}{Numeric integer representing the time point of the
+cross-sectional glance at the data}
 
-\item{window.width}{Time period before the survey e.g 1 year before the survey.}
+\item{window.width}{Numeric integer representing how long before the
+cross-sectional glance should you look at the data. E.g 1 year before the
+survey}
 
-\item{gender.degree}{The gender of the results}
+\item{gender.degree}{The gender or the persons in the data. c("male",
+"female")}
 
-\item{only.new}{Logical indicator. If TRUE, only relationships that were newly started
-during window.width are counted
-(i.e. the individual was NEVER in a relationship with these partners before
- the start of the window).
-If FALSE, all relationships that were ongoing at some point during the
-window.width are counted.}
+\item{only.new}{Logical indicator. If TRUE, only relationships that were
+newly started during window.width are counted (i.e. the individual was
+NEVER in a relationship with these partners before the start of the
+window). If FALSE, all relationships that were ongoing at some point during
+the window.width are counted.}
 }
 \value{
-A dataframe, degree.df that has the columns "ID", "degree", and a fraction of women
-with >1 sexual partner in the last year.
+A dataframe that has the columns "ID" and "Degree"
 }
 \description{
-Creates a table of two columns, "ID" and "degree" from the df dataframe,
-with specific degrees of new relationships or ongoing relationships among women within
-specified age group. The degree distribution shows the total number of relationships that
-were ongoing (if only.new == FALSE) at some time in the survey window
-or that were newly formed (if only.new == TRUE) during the survey window.
+Creates a dataframe for the degree distribution of persons specified from the
+dataset produced by \code{\link{agemix.df.maker}}. This function allows users
+to specify whether they want new relationships or ongoing relationships among
+a specified age group, gender, or HIV status of persons in the dataset.
+}
+\examples{
+cfg <- list()
+modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp")
+dl <- readthedata(modeloutput)
+rels.df <- agemix.df.maker(datalist = dl)
+degree.df <- degree.df.maker(rels.df, agegroup = c(20, 30), hivstatus = 1)
 }
