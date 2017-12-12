@@ -71,15 +71,16 @@ agemix.df.maker <- function(datalist) {
     dplyr::left_join(dfrfemale, by = "ID") %>% # Merge person to relationship data
     dplyr::select(-ID1) # Remove the male ID variable
 
+  # Create full dataframe with additional variables
   df <- dplyr::bind_rows(dfmale, dffemale) %>% # Combine male and female relationships
     dplyr::arrange(Gender, ID, relid, FormTime) %>% # Sort by timing of episode
     dplyr::group_by(Gender, ID, relid) %>% # By gender, person, and relationship
     dplyr::mutate(episodeorder = row_number(), # Order of episodes
-           agerepisform = FormTime - TOB, # Age at start of episode
-           agerelform = dplyr::first(agerepisform)) %>% # Age at first episode
+                  agerepisform = FormTime - TOB, # Age at start of episode
+                  agerelform = dplyr::first(agerepisform)) %>% # Age at first episode
     dplyr::ungroup() %>%
     dplyr::mutate(Gender = factor(Gender, labels = c("male", "female")),
-           pagerelform = ifelse(Gender == "male",
+                  pagerelform = ifelse(Gender == "male",
                                 agerelform - AgeGap, # Age of partner if female
                                 agerelform + AgeGap)) # Age of partner if male
 
