@@ -33,48 +33,56 @@
 #' @import dplyr
 #' @export
 
-degree.df.maker <- function(dataframe.df, agegroup = c(15, 30), hivstatus = 0,
-                             survey.time = 40, window.width = 1, gender.degree = "female",
-                             only.new = TRUE)
+degree.df.maker <- function(df, agegroup = c(15, 30), hivstatus = 0,
+                         survey.time = 40, window.width = 1, 
+                         gender.degree = "female", only.new = TRUE)
 {
-  dataframe.rels.df <- dataframe.df
-  dataframe.rels.df <- dplyr::select(dataframe.rels.df, -episodeorder, -FormTime, -DisTime)
-  dataframe.rels.df <- unique.data.frame(dataframe.rels.df)
-  rels.form.dis.df <- dplyr::summarise(dplyr::group_by(dataframe.df,
-                                                       relid), FormTime = min(FormTime), DisTime = max(DisTime))
-  dfnew <- dplyr::left_join(x = dataframe.rels.df, y = rels.form.dis.df,
-                            by = "relid")
-  dfnew <- dplyr::filter(dfnew, TOD > survey.time)
+  time.start.window <- survey.time - window.width
+  
+  reldf <- df %>%
+    dplyr::group_by(Gender, relid) %>%
+    dplyr::mutate(RelFormTime = min(FormTime),
+                  RelDisTime = max(DisTime)) %>%
+    dplyr::ungroup() %>%
+    dplyr::distinct(Gender, relid, .keep_all = TRUE) %>%
+    dplyr::filter(TOD > survey.time)
+  
   {
     if (hivstatus == 0) {
-      dfnew <- dplyr::filter(dfnew, InfectTime > survey.time)
+      dfnew <- dfnew %>%
+        dplyr::filter(InfectTime > survey.time)
     }
     else if (hivstatus == 1) {
-      dfnew <- dplyr::filter(dfnew, InfectTime <= survey.time)
+      dfnew <- dfnew %>%
+        dplyr::filter(InfectTime <= survey.time)
     }
-  }
+    }
+  
   {
     if (only.new) {
-      dfnew <- dplyr::filter(dfnew, FormTime >= survey.time -
-                               window.width, FormTime < survey.time, DisTime >
-                               survey.time - window.width, Gender == gender.degree,
-                             survey.time - TOB >= agegroup[1], survey.time -
-                               TOB < agegroup[2])
+      dfnew <- dfnew %>%
+        dplyr::filter(RelFormTime >= time.start.window, 
+                      RelFormTime < survey.time, 
+                      RelDisTime > time.start.window, 
+                      Gender == gender.degree,
+                      (survey.time - TOB) >= agegroup[1], 
+                      (survey.time - TOB) < agegroup[2])
     }
     else {
-      dfnew <- dplyr::filter(dfnew, FormTime < survey.time,
-                             DisTime > survey.time - window.width, Gender ==
-                               gender.degree, survey.time - TOB >= agegroup[1],
-                             survey.time - TOB < agegroup[2])
+      dfnew <- dfnew %>%
+        dplyr::filter(RelFormTime < survey.time,
+                      RelDisTime > time.start.window, 
+                      Gender == gender.degree, 
+                      (survey.time - TOB) >= agegroup[1],
+                      (survey.time - TOB) < agegroup[2])
     }
   }
-  uniqueOut <- dfnew %>% dplyr::select(ID, relid) %>% distinct %>%
-    rename(Degree = relid)
-  if (dim(uniqueOut)[1] != 0) {
-    degreedata.df <- aggregate(Degree ~ ID, data = uniqueOut,
-                               length)
-  } else {
-    degreedata.df <- data.frame(ID = NA, Degree = NA)
-  }
-  return(degreedata.df)
+  
+  degree.df <- dfnew %>%
+    group_by(ID) %>%
+    summarise(Degree = n())
+  
+  return(degree.df)
 }
+
+
