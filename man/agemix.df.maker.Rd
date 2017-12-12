@@ -2,39 +2,45 @@
 % Please edit documentation in R/agemix.df.maker.R
 \name{agemix.df.maker}
 \alias{agemix.df.maker}
-\title{Create dataframe for age-mixing calculations.}
+\title{Create dataframe for relationship analyses.}
 \usage{
 agemix.df.maker(datalist)
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
+\item{datalist}{The list object that is produced by \code{\link{readthedata}}}
 }
 \value{
-A dataframe
+A dataframe, with the following additional columns generated:
+\describe{
+    \item{relid}{Unique relationship identier. It combines the unique ID for
+    the male parter in the relationship first, and the female partner second.}
+    \item{episodeorder}{This indicates the order in which the episodes 
+    occured.}
+    \item{ageepisform}{This indicates the age that the person was when the
+    episode was formed.}
+    \item{agerelform}{The age of the person when when the relationship 
+    began. In other words, the age at the first episode.} 
+    \item{pagerelform}{This is the age of the partner when the
+    relationship began.}   
+      
+ }
 }
 \description{
-The dataframe that is produced keeps columns from the relationship table
-and merges them with person-level attributes. A unique id relid for each
-relationship is generated that combines the unique ID for the male partner
-first and the female partner second in the relationship.
+Produces a dataframe of relationships from list created by \code{\link{readthedata}}.
 }
 \details{
-The resulting dataframe is in a long format where each row/observation
-represents an episode from each relationship. Each relationship episode is
-represented twice: once for each man in the dataset who was the male partner
-in that relationship, and once for each woman who was the female partner in
-the relationship. This allows the user to conduct stratified analyses based
+The resulting dataframe is in a long format where each row/observation 
+represents an episode from each relationship. Each relationship episode is 
+represented twice: once for each man in the dataset who was the male partner 
+in that relationship, and once for each woman who was the female partner in 
+the relationship. This allows the user to conduct stratified analyses based 
 on gender. For relationships where there is more than one episode, there will
-be multiple rows. The order in which the episodes occur are numbered in
-ascending order with the column episodeorder.
-
-Additional columns generated:
-agerelform - The age of the person when when the relationship began. In
-      other words, the age at the first episode
-agerelform - The age of their partner when the relationship began.
+be multiple rows.
 }
 \examples{
-data(datalist)
-agemix.df <- agemix.df.maker(datalist = datalist)
+cfg <- list()
+modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp")
+dl <- readthedata(modeloutput)
+agemix.df <- agemix.df.maker(datalist = dl)
 
 }

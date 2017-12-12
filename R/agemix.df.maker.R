@@ -8,18 +8,22 @@
 #' in that relationship, and once for each woman who was the female partner in 
 #' the relationship. This allows the user to conduct stratified analyses based 
 #' on gender. For relationships where there is more than one episode, there will
-#' be multiple rows. The order in which the episodes occur are numbered in 
-#' ascending order with the column episodeorder.
-
-#' agerelform - The age of their partner when the relationship began.
+#' be multiple rows.
 #'
 #' @param datalist The list object that is produced by \code{\link{readthedata}}
 #' @return A dataframe, with the following additional columns generated:
 #' \describe{
 #'     \item{relid}{Unique relationship identier. It combines the unique ID for
-#'     the male parter first, and the female partner second in the relationship.}
-#'     \item{agerelform}{The age of the person when when the relationship began. In
-#'       other words, the age at the first episode} 
+#'     the male parter in the relationship first, and the female partner second.}
+#'     \item{episodeorder}{This indicates the order in which the episodes 
+#'     occured.}
+#'     \item{ageepisform}{This indicates the age that the person was when the
+#'     episode was formed.}
+#'     \item{agerelform}{The age of the person when when the relationship 
+#'     began. In other words, the age at the first episode.} 
+#'     \item{pagerelform}{This is the age of the partner when the
+#'     relationship began.}   
+#'       
 #'  }
 #' @examples
 #' cfg <- list()
@@ -43,26 +47,26 @@ agemix.df.maker <- function(datalist) {
 
   # Create relationship table for men
   dfrmale <- datalist$rtable %>% # Extract relationship table
-    data.frame() %>% # Format as tibble
+    tibble::tibble() %>% # Format as tibble
     dplyr::rename(ID = ID1) %>% # Rename the male ID variable
     dplyr::mutate(relid = paste0(ID, ID2)) # Create unique rel id
   
   # Create relationship table for women
   dfrfemale <- datalist$rtable %>% 
-    data.frame() %>%
+    tibble::tibble() %>%
     dplyr::rename(ID = ID2) %>% # Rename the female ID variable
     dplyr::mutate(relid = paste0(ID1, ID))
 
   # Create person-level table for men
   dfmale <- datalist$ptable %>%
-    data.frame() %>%
+    tibble::tibble() %>%
     dplyr::filter(Gender == 0) %>% # Keep only men
     dplyr::left_join(dfrmale, by = "ID") %>% # Merge person to relationship data
     dplyr::select(-ID2) # Remove the female ID variable
   
   # Create person-level table for women
   dffemale <- datalist$ptable %>%
-    data.frame() %>%
+    tibble::tibble() %>%
     dplyr::filter(Gender == 1) %>% # Keep only women
     dplyr::left_join(dfrfemale, by = "ID") %>% # Merge person to relationship data
     dplyr::select(-ID1) # Remove the male ID variable
@@ -76,8 +80,8 @@ agemix.df.maker <- function(datalist) {
     dplyr::ungroup() %>%
     dplyr::mutate(Gender = factor(Gender, labels = c("male", "female")),
            pagerelform = ifelse(Gender == "male",
-                                agerelform - AgeGap,
-                                agerelform + AgeGap))
+                                agerelform - AgeGap, # Age of partner if female
+                                agerelform + AgeGap)) # Age of partner if male
 
   return(df)
 }
