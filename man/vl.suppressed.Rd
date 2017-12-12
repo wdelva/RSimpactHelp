@@ -6,7 +6,7 @@
 virally suppressed 6 or more months
 after ART initiation, at a paticular point in the simulation time}
 \usage{
-vl.suppressed(datalist = datalist, timepoint = 30, vlcutoff = 1000,
+vl.suppressed(datalist = datalist, timepoint = 35, vlcutoff = 1000,
   lessmonths = 6, site = "All")
 }
 \arguments{

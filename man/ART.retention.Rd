@@ -6,8 +6,8 @@
 at 6 or more months after ART initiation,
 at a paticular point in the simulation time}
 \usage{
-ART.retention(datalist = datalist, ARTtimewindow = c(20, 34),
-  retentiontimeMonths = 12, site = "All")
+ART.retention(datalist = datalist, agegroup = c(15, 150),
+  ARTtimewindow = c(20, 34), retentiontimeMonths = 12, site = "All")
 }
 \arguments{
 \item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
