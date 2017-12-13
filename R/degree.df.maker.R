@@ -62,8 +62,6 @@ degree.df.maker <- function(df, agegroup = c(15, 30), hivstatus = 0,
       dplyr::filter(InfectTime <= survey.time)
   }
 
-  
- 
   if (only.new) {
     dfnew <- dfnew %>%
       dplyr::filter(RelFormTime >= time.start.window, # Rel starts after start of window
