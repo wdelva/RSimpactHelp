@@ -18,58 +18,54 @@
 #' @import dplyr
 #' @export
 
-prevalence.calculator <- function(datalist = datalist,
-                                  agegroup = c(15, 30),
+prevalence.calculator <- function(datalist = datalist, 
+                                  agegroup = c(15, 30), 
                                   timepoint = 30){
-
+  
   # First we only take the data of people who were alive at the timepoint
-  DTalive.infected <- alive.infected(datalist = datalist, timepoint = timepoint)
-
-
-  DTalive.infected <- DTalive.infected %>%
-    mutate(age = timepoint - TOB)
-
-  DTalive.infected.agegroup <- subset(DTalive.infected, age >= agegroup[1]  &
-                                        age < agegroup[2])
-
-  raw.df <- data.frame(DTalive.infected.agegroup)
-  if(nrow(raw.df)>0){
+  df.alive.infect <- alive.infected(datalist = datalist, 
+                                    timepoint = timepoint)
+  
+  df.alive.infect <- df.alive.infect %>%
+    dplyr::mutate(age = timepoint - TOB) %>%
+    dplyr::filter(age >= agegroup[1],
+                  age < agegroup[2])
+  
+  
+  if(nrow(df.alive.infect) > 0){
     # Now we apply dplyr function to get sum of cases and sum of exposure.time per gender.
-    prevalence.df <- dplyr::summarise(dplyr::group_by(raw.df, Gender),
-                                     popsize = length(Gender),
-                                     sum.cases = sum(Infected),
-                                     pointprevalence = sum(Infected) / length(Gender),
-                                     pointprevalence.95.ll = as.numeric(
-                                       binom.test(x=sum(Infected),n=length(Gender))$conf.int)[1],
-                                     pointprevalence.95.ul = as.numeric(
-                                       binom.test(x=sum(Infected),n=length(Gender))$conf.int)[2]
-                                     )
-    prevalence.all.df <- dplyr::summarise(raw.df,
-                                    popsize = length(Gender),
-                                    sum.cases = sum(Infected),
-                                    pointprevalence = sum(Infected) / length(Gender),
-                                    pointprevalence.95.ll = as.numeric(
-                                      binom.test(x=sum(Infected),n=length(Gender))$conf.int)[1],
-                                    pointprevalence.95.ul = as.numeric(
-                                      binom.test(x=sum(Infected),n=length(Gender))$conf.int)[2]
-                                    )
-
-
-    prevalence.all.df <- cbind(Gender = NA, prevalence.all.df)
-
-
-    prevalence.df <- rbind(prevalence.df, prevalence.all.df)
+    prevalence.df <- df.alive.infect %>%
+      dplyr::group_by(Gender) %>%
+      dplyr::summarise(popsize = n(),
+                       sum.cases = sum(Infected)) %>%
+      dplyr::mutate(pointprevalence = sum.cases / popsize) %>%
+      dplyr::group_by(Gender, popsize, sum.cases) %>%
+      dplyr::mutate(pointprevalence.95.ll = binom.test(sum.cases, popsize)$conf.int[1],
+                    pointprevalence.95.ul = binom.test(sum.cases, popsize)$conf.int[2])
+    
+    prevalence.all.df <- df.alive.infect %>%
+      dplyr::summarise(Gender = NA,
+                       popsize = n(),
+                       sum.cases = sum(Infected)) %>%
+      dplyr::mutate(pointprevalence = sum.cases / popsize) %>%
+      dplyr::group_by(popsize, sum.cases) %>%
+      dplyr::mutate(pointprevalence.95.ll = binom.test(sum.cases, popsize)$conf.int[1],
+                    pointprevalence.95.ul = binom.test(sum.cases, popsize)$conf.int[2]) 
+    
+    
+    prevalence.df <- bind_rows(prevalence.df, prevalence.all.df)
+    
   } else {
-
+    
     prevalence.df <- data.frame(Gender = c(NA,NA,NA),
                                 popsize = c(NA,NA,NA),
                                 sum.cases = c(NA,NA,NA),
                                 pointprevalence = c(NA,NA,NA),
                                 pointprevalence.95.ll = c(NA,NA,NA),
                                 pointprevalence.95.ul = c(NA,NA,NA)
-                                )
+    )
   }
-
+  
   return(prevalence.df)
 }
 
