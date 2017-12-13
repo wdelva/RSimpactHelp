@@ -33,7 +33,6 @@
 #'
 #' @importFrom  magrittr %>%
 #' @import dplyr
-#' @import tibble
 #' @export
 
 agemix.df.maker <- function(datalist) {
@@ -46,27 +45,23 @@ agemix.df.maker <- function(datalist) {
   }
 
   # Create relationship table for men
-  dfrmale <- datalist$rtable %>% # Extract relationship table
-    tibble::tibble() %>% # Format as tibble
+  dfrmale <- datalist$rtable %>% # Extract relationship table 
     dplyr::rename(ID = ID1) %>% # Rename the male ID variable
     dplyr::mutate(relid = paste0(ID, ID2)) # Create unique rel id
   
   # Create relationship table for women
   dfrfemale <- datalist$rtable %>% 
-    tibble::tibble() %>%
     dplyr::rename(ID = ID2) %>% # Rename the female ID variable
     dplyr::mutate(relid = paste0(ID1, ID))
 
   # Create person-level table for men
   dfmale <- datalist$ptable %>%
-    tibble::tibble() %>%
     dplyr::filter(Gender == 0) %>% # Keep only men
     dplyr::left_join(dfrmale, by = "ID") %>% # Merge person to relationship data
     dplyr::select(-ID2) # Remove the female ID variable
   
   # Create person-level table for women
   dffemale <- datalist$ptable %>%
-    tibble::tibble() %>%
     dplyr::filter(Gender == 1) %>% # Keep only women
     dplyr::left_join(dfrfemale, by = "ID") %>% # Merge person to relationship data
     dplyr::select(-ID1) # Remove the male ID variable
