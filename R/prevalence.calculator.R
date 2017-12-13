@@ -22,10 +22,11 @@ prevalence.calculator <- function(datalist = datalist,
                                   agegroup = c(15, 30), 
                                   timepoint = 30){
   
-  # First we only take the data of people who were alive at the timepoint
+  # Using alive.infect() take a subset who were alive at the timepoint
   df.alive.infect <- alive.infected(datalist = datalist, 
                                     timepoint = timepoint)
   
+  # Retain only those who are in the specified age groups
   df.alive.infect <- df.alive.infect %>%
     dplyr::mutate(age = timepoint - TOB) %>%
     dplyr::filter(age >= agegroup[1],
@@ -33,18 +34,19 @@ prevalence.calculator <- function(datalist = datalist,
   
   
   if(nrow(df.alive.infect) > 0){
-    # Now we apply dplyr function to get sum of cases and sum of exposure.time per gender.
+    
+    # Create summary table of prevalence by gender
     prevalence.df <- df.alive.infect %>%
-      dplyr::group_by(Gender) %>%
-      dplyr::summarise(popsize = n(),
-                       sum.cases = sum(Infected)) %>%
-      dplyr::mutate(pointprevalence = sum.cases / popsize) %>%
-      dplyr::group_by(Gender, popsize, sum.cases) %>%
-      dplyr::mutate(pointprevalence.95.ll = binom.test(sum.cases, popsize)$conf.int[1],
-                    pointprevalence.95.ul = binom.test(sum.cases, popsize)$conf.int[2])
+      dplyr::group_by(Gender) %>% # Stratify data by gender
+      dplyr::summarise(popsize = n(), # Total observations for each gender
+                       sum.cases = sum(Infected)) %>% # Total cases for each gender
+      dplyr::mutate(pointprevalence = sum.cases / popsize) %>% # New var for prevalence
+      dplyr::group_by(Gender, popsize, sum.cases) %>% # Need to group, so each row is a group. 
+      dplyr::mutate(pointprevalence.95.ll = binom.test(sum.cases, popsize)$conf.int[1], # binom.test is not vectorized
+                    pointprevalence.95.ul = binom.test(sum.cases, popsize)$conf.int[2]) # Upper limit
     
     prevalence.all.df <- df.alive.infect %>%
-      dplyr::summarise(Gender = NA,
+      dplyr::summarise(Gender = NA, # Create column for gender
                        popsize = n(),
                        sum.cases = sum(Infected)) %>%
       dplyr::mutate(pointprevalence = sum.cases / popsize) %>%
@@ -53,9 +55,9 @@ prevalence.calculator <- function(datalist = datalist,
                     pointprevalence.95.ul = binom.test(sum.cases, popsize)$conf.int[2]) 
     
     
-    prevalence.df <- bind_rows(prevalence.df, prevalence.all.df)
+    prevalence.df <- bind_rows(prevalence.df, prevalence.all.df) # Combine stratified, and overall prev
     
-  } else {
+  } else { # In the rare event that a simulated data set has zero observations
     
     prevalence.df <- data.frame(Gender = c(NA,NA,NA),
                                 popsize = c(NA,NA,NA),
