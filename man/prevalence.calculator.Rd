@@ -8,24 +8,31 @@ prevalence.calculator(datalist = datalist, agegroup = c(15, 30),
   timepoint = 30)
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
+\item{datalist}{The list object that is produced by \code{\link{readthedata}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should
-be retained, e.g. c(15, 30)}
+\item{agegroup}{Boundaries of the age group (lower bound <= age < upper 
+bound) that should be retained. Should be expressed as a vector of two 
+integers. e.g. c(15, 30)}
 
-\item{timepoint}{Point in time at which the HIV prevalence should be calculated.}
+\item{timepoint}{Point in simulation time at which HIV prevalence should be
+calculated}
 }
 \value{
-a dataframe with prevalence estimate and surrounding confidence bounds,
-for the specified time point and age group, overall, and stratified by gender
+A data frame with prevalence estimate and surrounding confidence 
+  bounds, for the specified time point and age group, overall, and stratified
+  by gender.
 }
 \description{
-Calculate the HIV prevalence at a point in time, for specific age groups and gender strata.
+Produces a data frame that contains the overall, and gender-stratified,
+HIV prevalence at a specified point in simulation time and for a specific
+age group.
 }
 \examples{
-data(datalist)
-prevalence.df <- prevalence.calculator(datalist = datalist, agegroup = c(15, 30),
-timepoint = 30)
-prevalence.df
+cfg <- list() 
+modeloutput <- RSimpactCyan::simpact.run(configParams = cfg,
+destDir = "temp") 
+dl <- readthedata(modeloutput) 
+prev.df <- prevalence.calculator(datalist = dl, agegroup = c(15, 30), timepoint = 30) 
+prev.df
 
 }
