@@ -20,26 +20,27 @@ alive.infected <- function(datalist = datalist,
                            timepoint = 40,
                            site = "All") {
   
-  # arguments are the personlog data.table and a point in time
+  # Use personlog of the datalist
   df <- datalist$ptable 
   
+  # Check to see if a specific site has been specified
   if (site == "All") {
     
     df.alive <- df %>%
-      dplyr::filter(TOB <= timepoint,
-                    TOD > timepoint)
+      dplyr::filter(TOB <= timepoint, # Keep those born before timepoint
+                    TOD > timepoint) # Keep those died after timepoint
     
   } else{
     
     df.alive <- df %>%
       dplyr::filter(TOB <= timepoint,
                     TOD > timepoint,
-                    pfacility == site)
+                    pfacility == site) # Keep those at the facility specified
   }
   
   # Now we allocate infection status to all alive people in our table
   df.alive <- df.alive %>%
-    dplyr::mutate(Infected = (timepoint >= InfectTime))
+    dplyr::mutate(Infected = (timepoint >= InfectTime)) # TRUE if time point is after infection time
   
   return(df.alive)
 }
