@@ -2,30 +2,35 @@
 % Please edit documentation in R/alive.infected.R
 \name{alive.infected}
 \alias{alive.infected}
-\title{Subset the datalist ptable to include only people who were alive at a point
- in time and add their HIV status at that point in time.}
+\title{Subset people alive at a point in time and adds their HIV status.}
 \usage{
 alive.infected(datalist = datalist, timepoint = 40, site = "All")
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
+\item{datalist}{The list object that is produced by \code{\link{readthedata}}}
 
-\item{timepoint}{Point in time at which the subset should be created and HIV status
-should be evaluated.}
+\item{timepoint}{Point in time at which the subset should be created and HIV 
+status should be evaluated.}
 
-\item{site}{Select only the particular site from the study, if all ignore site/use all sites.}
+\item{site}{Users can specify a particular site they are interested in. The 
+default is "All", which means that persons from all sites should be 
+included.}
 }
 \value{
-a data.table that only includes people who were alive at the timepoint and that
-records their HIV status.
+A data frame that contains a newly generated variable called 
+  "Infected" that records the HIV status of persons at the time point
+  indicated.
 }
 \description{
-Subset the datalist ptable to include only people who were alive at a point
- in time and add their HIV status at that point in time.
+Produces a data frame that contains persons from the simulation that were
+alive at a specified point in time. The new data frame also contains a
+variable that indicates whether or not the person was infected with HIV at
+that point in time.
 }
 \examples{
-data(datalist)
-alive.at.twenty.dt <- alive.infected(datalist = datalist, timepoint = 20,
-site = "All")
+cfg <- list()
+modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp")
+dl <- readthedata(modeloutput)
+alive.at.twenty.df <- alive.infected(datalist = dl, timepoint = 20)
 
 }
