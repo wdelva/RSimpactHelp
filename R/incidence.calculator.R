@@ -122,17 +122,17 @@ incidence.calculator <- function(datalist = datalist,
     
     # Create summary table of incidence by gender
     incidence.df <- df4.plus %>%
-      dplyr::group_by(Gender) %>%
-      dplyr::summarise(sum.exposure.time = sum(exposure.time),
-                       sum.incident.cases = sum(incident.case)) %>%
-      dplyr::mutate(incidence = sum.incident.cases / sum.exposure.time) %>%
-      dplyr::group_by(Gender, sum.exposure.time, sum.incident.cases) %>%
-      dplyr::mutate(incidence.95.ll = exactci::poisson.exact(sum.incident.cases, sum.exposure.time)$conf.int[1],
-                    incidence.95.ul = exactci::poisson.exact(sum.incident.cases, sum.exposure.time)$conf.int[2])
+      dplyr::group_by(Gender) %>% # Stratify by gender
+      dplyr::summarise(sum.exposure.time = sum(exposure.time), # Add all exposure time by gender
+                       sum.incident.cases = sum(incident.case)) %>% # Add all incident cases by gender
+      dplyr::mutate(incidence = sum.incident.cases / sum.exposure.time) %>% # Calc incidence
+      dplyr::group_by(Gender, sum.exposure.time, sum.incident.cases) %>% # Need to group, so each row is a group.
+      dplyr::mutate(incidence.95.ll = exactci::poisson.exact(sum.incident.cases, sum.exposure.time)$conf.int[1], # Because poisson.exact is 
+                    incidence.95.ul = exactci::poisson.exact(sum.incident.cases, sum.exposure.time)$conf.int[2]) # not a vectorized function
     
     # Now overall incidence 
     incidence.all.df <- df4.plus %>%
-      dplyr::summarise(Gender = NA,
+      dplyr::summarise(Gender = NA, # Create column for gender
                        sum.exposure.time = sum(exposure.time),
                        sum.incident.cases = sum(incident.case)) %>%
       dplyr::mutate(incidence = sum.incident.cases / sum.exposure.time) %>%
@@ -147,7 +147,7 @@ incidence.calculator <- function(datalist = datalist,
     incidence.df <- bind_rows(incidence.df, incidence.all.df) %>%
       ungroup()
     
-  }else{
+  }else{ # In the rare event that a simulated data set has zero observations
     
     incidence.df <- data.frame(Gender = c(NA,NA,NA),
                                sum.exposure.time = c(NA,NA,NA),
