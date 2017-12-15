@@ -1545,3 +1545,122 @@ for(i in 1:length(tips.names)){
   date.i <- substr(r, 1, nchar(r)-x) # remove the x digits and remane by the sampling dates
   dates.vec <- c(dates.vec, date.i)
 }
+
+
+
+
+
+## Random graphs and networks
+
+
+library(igraph)
+
+# 1. Random network model (Erdős-Rényi)
+#
+# There are two definitions of random network:
+#
+# G(N,L) model: N nodes are connected with L randomly placed links (Erdős-Rényi)
+# G(N,p) model: each pair of N nodes is connected with probability p (Gilbert)
+# G(N,L) fixes the total number of links,
+# and G(N,p) fixes the probabliity that two nodes is connected or not.
+
+g1 <- erdos.renyi.game(500, 350, type = "gnm")
+plot(g1, vertex.label= NA, edge.arrow.size=0.02,vertex.size = 0.5, xlab = "Random Network: G(N,L) model")
+
+g2 <- erdos.renyi.game(500, 0.0035, type = "gnp")
+plot(g2, vertex.label= NA, edge.arrow.size=0.02,vertex.size = 0.5, xlab = "Random Network: G(N,p) model")
+
+#
+# 2. Small world model (Watts-Strogatz)
+#
+# The small world phenomenon also known as six degrees of separation.
+# Two individual people on Earth are just six people “distance” from each other.
+# (Was known earlier… Investigated facebook data it is just 4.74)
+#
+# Small world model play with dimensionality of lattice (like a 2D, 3D lattice).
+# There is an initial lattice structure of nodes with links to its k closest neighbors.
+# The next proporties of rewiring probability that means each edge has probability p
+# that it will be rewired to the graph as a random edge.
+
+g3 <- watts.strogatz.game(1, 500, 1, 0.35, loops = FALSE, multiple = FALSE)
+plot(g3, vertex.label= NA, edge.arrow.size=0.02,vertex.size = 0.5, xlab = "Small world model")
+
+
+# 3. Scale free network (Barabási-Albert)
+#
+# A scale-free network is a network whose degree distribution follows a power law.
+# If a network is directed, the scale-free proporty applies separately to the in- and out-degrees.
+#
+# Barabasi suggests that the degrees of nodes should examine firstly, what kind of distribution it follows.
+# Nodes with widely different degrees coexist in the same network, there are hubs and small degree nodes
+# in the network at same time.
+#
+# 3.1. Dynamic mode
+#
+# In this model, an edge is most likely to attach to nodes with higher degrees.
+# The network begins with an initial network of m nodes.
+# m ≥≥ 2 and the degree of each node in the initial network should be at least 1, otherwise it will always remain
+# disconnected from the rest of the network.
+#
+# In the Barabasi-Albert model, new nodes are added to the network one at a time.
+# Each new node is connected to m existing nodes with a probability that is proportional to the number of links
+# that the existing nodes already have.
+
+g4 <- barabasi.game(500, power = 1.2, m = NULL, out.dist = NULL, out.seq = NULL,
+                   out.pref = FALSE, zero.appeal = 1, directed = FALSE,
+                   algorithm ="psumtree", start.graph = NULL)
+plot(g4, vertex.label= NA, edge.arrow.size=0.02,vertex.size = 0.5, xlab = "Scale-free network model")
+
+#
+# 3.2. Static mode
+#
+# In this case static.power.law.game() function can be used with known power law exponent, # of edges, # of nodes.
+
+g5 <- static.power.law.game(500, 500, exponent.out= 2.2, exponent.in = -1, loops = FALSE, multiple = FALSE, finite.size.correction = TRUE)
+plot(g5, vertex.label= NA, edge.arrow.size=0.02,vertex.size = 0.5, xlab = "Scale-free network model (static)")
+
+
+
+setwd("/home/david/Documents/Analysis_for_Manuscripts_December2017_EAC/A_C_D_Bdi/")
+
+
+tree.rd <- read.tree("A_C_D_BurundiUnique.fas.tree") # read the tree with taxons being named with sampling date
+
+sampling.dates.sequences.fun <- function(tree=tree.rd){
+  tips.names <- tree.rd$tip.label
+
+  dates.vec <- vector()
+  for(i in 1:length(tips.names)){
+    h <- gsub("A1", '', tips.names[i])
+    d <- gsub('[A-z]', '', h) # remove all alphabet
+    r <- gsub('[..]', '', d) # remove all dots and concatenate the string in a numeric A1.BI.2002.02BU_U1524.AM260313 | A1.BI.2007.102_1039.HG780761
+    l <- nchar(r) # count the length of the above number
+    x <- l-4 # the date we want must be of elngth 4 ("YYYY), we will strip x digits from r
+    date.i <- substr(r, 1, nchar(r)-x) # remove the x digits and remane by the sampling dates
+    dates.vec <- c(dates.vec, date.i)
+  }
+
+  dates.num <- as.numeric(dates.vec) # -823 -402 -121
+  names(dates.num) <- tree.rd$tip.label
+
+  return(dates.num)
+}
+
+
+dates.tips <- sampling.dates.sequences.fun(tree=tree.rd)
+
+
+# calibrate internal nodes
+dater.tree <- dater(tree.rd,
+                             dates.tips,
+                             s = 1269) # s is the length of sequence
+
+pb <- parboot.treedater(dater.tree)
+
+plot.parboot.ltt(pb)
+
+
+write.tree(dater.tree, file="A_C_D_BurundiUnique.tree.calib.nwk")
+
+# Package for tree topology
+library(treetop)
