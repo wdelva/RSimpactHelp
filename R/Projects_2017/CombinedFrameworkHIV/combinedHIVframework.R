@@ -35,7 +35,7 @@
 rm(list = ls())
 
 ## Set the working environment
-setwd("/home/david/Documents/CombinedFrameworkHIVToy")
+setwd("/home/david/RSimpactHelp/R/Projects_2017/CombinedFrameworkHIV/")
 
 
 ## Load required R packages
