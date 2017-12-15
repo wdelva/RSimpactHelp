@@ -2,6 +2,11 @@
 ##############################
 
 
+# Package for tree topology statistics
+library(treetop)
+
+
+
 # EX. 0
 
 library(ape)
