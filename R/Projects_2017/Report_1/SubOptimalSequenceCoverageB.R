@@ -410,7 +410,7 @@ dater.tree.22.90 <- dater(tree.fasttree.22.90,
                           s = 3012,
                           omega0 = 0.00475) # s is the length of sequence
 
-save(dater.tree.22.90, file = paste("dated.tree.A.seed.22.seq.90.2426.Rdata", sep = ""))
+save(dater.tree.22.90, file = paste("dated.tree.A.seed.22.seq.90.2729.Rdata", sep = ""))
 
 
 
@@ -833,10 +833,10 @@ dater.tree.12.22.24 <- dater(tree.fasttree.12.22.24,
                              s = 3012,
                              omega0 = 0.00475) # s is the length of sequence
 
-save(dater.tree.12.22.24, file = paste("dated.tree.A.seed.12.22.24seq.1904.Rdata", sep = ""))
+save(dater.tree.12.22.24, file = paste("dated.tree.A.seed.12.22.24Seq.p100.1904.Rdata", sep = ""))
 #e <- get(load("dated.tree.A.seed.12.22.24seq.1904.Rdata"))
 
-tr.scenario2B <- get(load("dated.tree.A.seed.12.22.24seq.1904.Rdata"))
+tr.scenario2B <- get(load("dated.tree.A.seed.12.22.24Seq.p100.1904.Rdata"))
 write.tree(tr.scenario2B, file = "tr.scenario2B.12.22.24.1904.HIVA.tree")
 
 # 2.1 Phylogenetic tree for all seeds 12-22-24 in past 7 years - 90% of individuals
