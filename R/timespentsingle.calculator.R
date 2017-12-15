@@ -1,23 +1,35 @@
 #' Calculate time spent being single.
 #'
-#' Calculate the time spent not being in any relationships.
+#' Calculates the time spent not being in any relationships, among the subset of
+#' women-only who are in the specified age groups during the period of interest.
+#' This function allows users to specify different definitions of "being
+#' single". Under a "Strict" definition, all time spent not being in a
+#' relationship will be calculated per person. Under the definition called "Harling", time
+#' is excluded from being single if the person spent part of the year in a
+#' relationship. The Harling definition is derived from Harling et al. 2014. 
+#' This function is called by the \code{\link{incidence.calculator}} function
+#' and used to optionally exclude exposure time in incidence calculations.
 #'
-#' @param datalist The datalist that is produced by \code{\link{readthedata}}
-#' @param agegroup Boundaries of the age group (lower bound <= age < upper bound)
-#' that should be retained, e.g. c(15, 30)
-#' @param timewindow Boundaries of the time window (lower bound < time <= upper bound)
-#' that should be retained, e.g. c(20, 30)
-#' @param type If type is "Strict", all time spent being not being in any relationship
-#' will be excluded from exposure time.
-#' If type is "Harling", time will be excluded from exposure time in blocks of one year,
-#' if the person spent that entire block not in any relationship.
-#' @return a vector with time spent not being in any relationships, per person.
+#' @param datalist The list object that is produced by \code{\link{readthedata}}
+#' @param agegroup Boundaries of the age group (lower bound <= age < upper 
+#'   bound) that should be retained. Should be expressed as a vector of two 
+#'   integers. e.g. c(15, 30)
+#' @param timewindow Boundaries of the time window (lower bound < time <= upper 
+#'   bound) that should be retained. Should be expressed as a vector of two 
+#'   integers. e.g. c(20, 30)
+#' @param type If type is "Strict", all time spent being not being in any 
+#'   relationship will be excluded from exposure time. If type is "Harling", 
+#'   time will be excluded from exposure time in blocks of one year, if the 
+#'   person spent that entire block not in any relationship.
+#' @return A dataframe with a column of women indentifiers (woman.ID) and a
+#'   column for the time they spent being single (sum.norels.timespent).
 #' @examples
-#' data(datalist)
-#' timespentsingle <- timespentsingle.calculator(datalist = datalist,
-#' agegroup = c(15, 30), timewindow = c(20, 30), type = "Strict")
+#' cfg <- list() 
+#' modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp") 
+#' dl <- readthedata(modeloutput) 
+#' timespentsingle <- timespentsingle.calculator(datalist = dl, agegroup = c(15, 30), timewindow = c(20, 30), type = "Strict")
 #' timespentsingle
-#'
+#' 
 #' @importFrom magrittr %>%
 #' @import dplyr
 #' @export
