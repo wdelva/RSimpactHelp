@@ -290,9 +290,14 @@ for(v in 1:length(simpact.output.raw)){
       dna.samp <- read.phylip(file = paste("sequence_at_samp_",k,"_net_",v,".fasta", sep = ""), sep = ",")
       matrix.dna <- dna.samp$org.code
       dna.vec <- vector()
-      for(i in 1:nrow(matrix.dna)){
-        dna.vec <- c(dna.vec,matrix.dna[i,])
+      # for(i in 1:nrow(matrix.dna)){
+      #   dna.vec <- c(dna.vec,matrix.dna[i,])
+      # }
+      for(j in 1:nrow(matrix.dna)){ # consider each row
+        col.i <- paste(matrix.dna[j,], sep="", collapse="")
+        dna.vec <- c(dna.vec,col.i) # list of sequences
       }
+
       consensus.seq <- ConsensusSequence(DNAStringSet(dna.vec), threshold=0.8)
       write.dna(consensus.seq,file = paste("consensus.seq.raw_net_",v,".fas", sep = ""), format = "fasta", nbcol=-1,
                 append = TRUE) # the name of seq all are "1"
