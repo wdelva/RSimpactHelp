@@ -27,123 +27,147 @@ timespentsingle.calculator <- function(datalist = datalist,
                                        agegroup = c(15, 30),
                                        timewindow = c(20, 30),
                                        type = "Strict"){
-  time.of.lowerbound.agegroup <- datalist$ptable$TOB + agegroup[1]
-  time.of.lowerbound.timewind <- timewindow[1]
-  exposure.start <- pmax(time.of.lowerbound.agegroup, time.of.lowerbound.timewind)
-  time.of.upperbound.agegroup <- datalist$ptable$TOB + agegroup[2]
-  time.of.upperbound.timewind <- timewindow[2]
-  time.of.HIV.infection <- datalist$ptable$InfectTime
-
-  exposure.end <- pmin(time.of.HIV.infection,
-                       pmin(time.of.upperbound.agegroup, time.of.upperbound.timewind))
-
-  #Thus the naive exposure time, before tidying up
-  exposure.time <- exposure.end - exposure.start
-
-  # We create a vector to see who REALLY had exposure time
-  real.exposure.time <- exposure.time > 0
-  exposure.time[real.exposure.time == FALSE] <- 0
-
+  
+  # Scalars
+  lwr.agegroup <- agegroup[1]
+  upr.agegroup <- agegroup[2]
+  lwr.timewindow <- timewindow[1]
+  upr.timewindow <- timewindow[2]
+  pop.simtime <- datalist$itable$population.simtime[1]
+  
+  # Data frames from the list
+  df <- datalist$ptable
+  df.event <- datalist$etable
+  
+  # Calculate naive exposure time
+  # 1. Determine the time person is 15yo
+  # 2. Determine the time person is 30yo
+  # 3. Their exposure starts whichever comes last: lwr bound age, or lwr window
+  # 4. Their exposure ends whichever comes 1st: upr bound age, upr window, or
+  # infected with HIV
+  # 5. Subtract exposure start from exposure end
+  df1 <- df %>%
+    dplyr::mutate(time.lwr.agegroup = TOB + lwr.agegroup,
+                  time.upr.agegroup = TOB + upr.agegroup,
+                  exposure.start = pmax(time.lwr.agegroup, lwr.timewindow),        
+                  exposure.end = pmin(InfectTime, 
+                                      time.upr.agegroup, 
+                                      upr.timewindow),
+                  exposure.time = exposure.end - exposure.start)
+  
+  # If the exposure time is negative, then they had no exposure during the
+  # timewindow or agegroup of interest
+  df2 <- df1 %>%
+    dplyr::mutate(had.exposure.time = exposure.time > 0,
+                  exposure.time = ifelse(exposure.time < 0, 
+                                         0, 
+                                         exposure.time))
+  
   # Now we check who of the people with the real exposure time had the event
-  # Their InfectTime must be after their exposure.time started, and before or at exposure.end
-  infection.after.exposure.start <- datalist$ptable$InfectTime > exposure.start
-  infection.before.or.at.exposure.end <- datalist$ptable$InfectTime <= exposure.end
-  infection.in.timewindow <- infection.after.exposure.start & infection.before.or.at.exposure.end
-
-  datalist$ptable$incident.case <- infection.in.timewindow
-  datalist$ptable$exposure.times <- exposure.time
-  datalist$ptable$exposure.start <- exposure.start
-  datalist$ptable$exposure.end <- exposure.end
-
-  raw.df <- data.frame(datalist$ptable)
-  women.filtered.df <- dplyr::filter(raw.df,
-                                     exposure.times > 0,
-                                     Gender == 1)
-
-  women.rel.status.change <- dplyr::filter(datalist$etable,
-                                           eventname == "dissolution" | eventname == "formation",
-                                           p2gender == 1,
-                                           p2ID %in% women.filtered.df$ID)
-  women.rel.status.change$woman.ID <- women.rel.status.change$p2ID
-  women.debut <- dplyr::filter(datalist$etable,
-                                           eventname == "debut",
-                                           p1gender == 1,
-                                           p1ID %in% women.filtered.df$ID)
-  women.debut$woman.ID <- women.debut$p1ID
-  women.rel.status.change <- rbind(women.rel.status.change, women.debut)
-  # Merely to facilitate visual inspection:
-  women.rel.status.change <- women.rel.status.change[order(women.rel.status.change$woman.ID,
-                                                           women.rel.status.change$eventtime), ]
-  women.rel.status.change$change <- NULL  #in case the woman.rel.status.change is an empty df.
-  women.rel.status.change$change[women.rel.status.change$eventname == "debut"] <- 0
-  women.rel.status.change$change[women.rel.status.change$eventname == "formation"] <- 1
-  women.rel.status.change <- women.rel.status.change %>% dplyr::group_by(woman.ID) %>%
-    dplyr::mutate(numrels = cumsum(change))
-  women.rel.status.change <- women.rel.status.change %>%
+  # Their InfectTime must be after their exposure.time started, 
+  # and before or at exposure.end
+  df3 <- df2 %>%
+    dplyr::mutate(incident.case = (InfectTime > exposure.start & 
+                                     InfectTime <= exposure.end))
+  
+  # Create dataset with only women
+  women <- df3 %>%
+    dplyr::filter(exposure.time > 0 & Gender == 1)
+  
+  # Create dataset of dissolution and formation events for women
+  # Keep only events for the women that are in the women dataset
+  women.rel.change <- df.event %>%
+    dplyr::filter((eventname == "dissolution" | eventname == "formation"),
+                  p2gender == 1,
+                  p2ID %in% women$ID) %>%
+    dplyr::rename(woman.ID = p2ID)
+  
+  # Create dataset of sexual debut events for women
+  women.deb <- df.event %>%
+    dplyr::filter(eventname == "debut",
+                  p1gender == 1,
+                  p1ID %in% women$ID) %>%
+    dplyr::rename(woman.ID = p1ID)
+  
+  # Combine both events datasets and create change variable
+  women.rel.change2 <- bind_rows(women.rel.change, women.deb) %>%
+    dplyr::arrange(woman.ID, eventtime) 
+  
+  # Create variables for:
+  # 1. Indicator of when a relationship was added or subtracted at event time
+  # 2. The total number of relationships woman had at a given event time
+  # 3. The difference between each subsequent event time, within a woman
+  women.rel.change3 <- women.rel.change2 %>%
+    dplyr::mutate(change = ifelse(eventname == "debut", 0,
+                                  ifelse(eventname == "formation", 1, -1))) %>%
     dplyr::group_by(woman.ID) %>%
-    dplyr::mutate(timespent = diff(c(eventtime, as.numeric(datalist$itable$population.simtime[1]))))
-  # We only to keep rows for the events (periods) that the woman spent not in any relationships
-  women.no.rels <- dplyr::filter(women.rel.status.change,
-                                 numrels == 0)
-  women.no.rels$norels.start <- women.no.rels$eventtime
-  women.no.rels$norels.end <- women.no.rels$eventtime + women.no.rels$timespent
-
+    dplyr::mutate(numrels = cumsum(change),
+                  timespent = diff(c(eventtime, pop.simtime))) # Where only 1 event
+                                                               # use simulation time
+  
+  # We only to keep rows for the events (periods) that the woman spent not in 
+  # any relationships
+  # Create vars for start and end of not being in a relationship
+  women.zero.rels <- women.rel.change3 %>%
+    dplyr::filter(numrels == 0) %>%
+    dplyr::mutate(norels.start = eventtime,
+                  norels.end = eventtime + timespent)
+  
   # Now we augment the women.no.rels dataset with the exposure.start and
-  #exposure.end data from the women.filtered.df dataset
-  women.no.rels.plus <- dplyr::left_join(x = women.no.rels,
-                                         y = women.filtered.df,
-                                         by = c("woman.ID" = "ID"))
-
-  # The real start of the time period of being single is pmax(norels.start, exposure.start)
-  # The real end of the time period of being single is pmin(norels.end, exposure.end)
-  women.no.rels.plus$norels.start.real <- pmax(women.no.rels.plus$norels.start,
-                                               women.no.rels.plus$exposure.start)
-  women.no.rels.plus$norels.end.real <- pmin(women.no.rels.plus$norels.end,
-                                             women.no.rels.plus$exposure.end)
-
-  # This is the naive time period spent single, before tidying up
-  norels.time <- women.no.rels.plus$norels.end.real - women.no.rels.plus$norels.start.real
-
-  # a vector to see which episodes were REALLY spent single during the exposure time window
-  really.norels.time <- norels.time > 0
-  women.no.rels.plus.clean <- women.no.rels.plus[really.norels.time, ]
-  women.no.rels.plus.clean$norels.timespent <- women.no.rels.plus.clean$norels.end.real -
-    women.no.rels.plus.clean$norels.start.real
-
-  # For the Harling version
-  # How far in the calendar year did the interview with the woman take place
-  #(baseline at time of exposure.start, and then each time 1 year thereafter)
-  fract.survey <- women.no.rels.plus.clean$exposure.start %% 1
-
-  # How far in the calendar year did the period of being single start?
-  fract.norels.start.real <- women.no.rels.plus.clean$norels.start.real %% 1
-
-  move.to.last.survey <- ceiling(fract.survey - fract.norels.start.real)
-
-  women.no.rels.plus.clean$norels.start.surveytime<-ceiling(women.no.rels.plus.clean$norels.start.real)+
-    fract.survey - move.to.last.survey
-
-  women.no.rels.plus.clean$norels.end.surveytime<-floor(women.no.rels.plus.clean$norels.end.real)+
-    fract.survey - move.to.last.survey
-
+  # exposure.end data from the women
+  women.zero.rels.plus <- women.zero.rels %>%
+    dplyr::left_join(women, by = c("woman.ID" = "ID"))
+  
+  # Create indicator of real start and end time of being single 
+  # 1. Real start is whichever comes last: start of being single, or exposure start
+  # 2. Real end is whichever comes 1st: end of being single, or exposure end
+  # 3. Time spent not being in a relationship
+  # Then remove rows where no time was spent single
+  women.zero.rels.plus2 <- women.zero.rels.plus %>%
+    dplyr::mutate(norels.start.real = pmax(norels.start, exposure.start),
+                  norels.end.real = pmin(norels.end, exposure.end),
+                  norels.time = norels.end.real - norels.start.real) %>%
+    dplyr::filter(norels.time > 0)
+  
+  # For the Harling version, need indicators for:
+  # 1. How far in calendar year did interview with the woman take place
+  # The baseline survey is at start of exposure, and then 1 year thereafter
+  # 2. How far in calendar year did period of being single start
+  # 3. Move to last survey
+  # 4. In what annual survey did being single start
+  # 5. In what annual survey did being single end
+  women.zero.rels.plus3 <- women.zero.rels.plus2 %>%
+    dplyr::mutate(frac.survey = exposure.start %% 1, # 1 
+                  frac.norels.start.real = norels.start.real %% 1, # 2 
+                  move.to.last.survey = ceiling(frac.survey - frac.norels.start.real), # 3 
+                  norels.start.surveytime = 
+                    ceiling(norels.start.real) + frac.survey - move.to.last.survey, # 4
+                  norels.end.surveytime = 
+                    floor(norels.end.real) + frac.survey - move.to.last.survey) # 5
+  
   # Only counting time spent single in whole calendar year blocks
-  women.no.rels.plus.clean$norels.timespent.Harling <- pmax(0,
-                                                            women.no.rels.plus.clean$norels.end.surveytime -
-                                                              women.no.rels.plus.clean$norels.start.surveytime)
-
-  # Only counting time spent single in whole calendar year blocks
-  women.no.rels.plus.clean %>% dplyr::mutate(norels.timespent.Harling = pmax(0, norels.end.surveytime -
-                                                                        norels.start.surveytime))
-
-
+  women.zero.rels.plus4 <- women.zero.rels.plus3 %>%
+    dplyr::mutate(norels.time.Harling = pmax(0, (norels.end.surveytime - 
+                                                   norels.start.surveytime)))
+  
   if (type == "Strict"){
-    # Now we sum the true time spent being single in the exposure time window, per woman
-    norels.timespent.df <- dplyr::summarise(dplyr::group_by(women.no.rels.plus.clean, woman.ID),
-                                            sum.norels.timespent = sum(norels.timespent))
-    norels.timespent.tobereturned.df <- norels.timespent.df
-  } else { # That means the type is "Harling". Now we only sum norels.timespent in blocks of one year
-    norels.timespent.df <- dplyr::summarise(dplyr::group_by(women.no.rels.plus.clean, woman.ID),
-                                            sum.norels.timespent = sum(norels.timespent.Harling))
+    
+    # Now we sum the true time spent being single in the exposure time window, 
+    # per woman
+    norels.time.df <- women.zero.rels.plus4 %>%
+      dplyr::group_by(woman.ID) %>%
+      dplyr::summarise(sum.norels.timespent = sum(norels.time))
+    
+  } else { 
+    
+    # That means the type is "Harling". 
+    # Now we only sum norels.timespent in blocks of one year
+    norels.time.df <- women.zero.rels.plus4 %>%
+      dplyr::group_by(woman.ID) %>%
+      dplyr::summarise(sum.norels.timespent = sum(norels.time.Harling))
+    
   }
-  return(norels.timespent.df)
+  
+  return(norels.time.df)
+  
 }
