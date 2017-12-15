@@ -8,34 +8,40 @@ incidence.calculator(datalist = datalist, agegroup = c(15, 30),
   timewindow = c(20, 30), only.active = "No")
 }
 \arguments{
-\item{datalist}{The datalist that is produced by \code{\link{readthedata}}}
+\item{datalist}{The list object that is produced by \code{\link{readthedata}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that
-should be retained, e.g. c(15, 30)}
+\item{agegroup}{Boundaries of the age group (lower bound <= age < upper 
+bound) that should be retained. Should be expressed as a vector of two 
+integers. e.g. c(15, 30)}
 
-\item{timewindow}{Boundaries of the time window (lower bound < time <= upper bound)
-that should be retained, e.g. c(20, 30)}
+\item{timewindow}{of the time window (lower bound < time <= upper bound) that
+should be retained. Should be expressed as a vector of two integers. e.g.
+c(20, 30)}
 
-\item{only.active}{Should only women who are in sexual relationships contribute
-exposure time (~ Harling)?
-If "Strict", all time spent being not being in any relationship will be excluded
-from exposure time.
-If "Harling", time will be excluded from exposure time in blocks of one year, if the
-person spent that entire block not in any relationship.
-If "No", exposure time is being contributed, even while not in any relationships.}
+\item{only.active}{Should only women who are in sexual relationships 
+contribute exposure time? If "Strict", all time spent being single will be
+excluded from exposure time. If "Harling", time will be excluded from
+exposure time in blocks of one year, if the person spent that entire block
+not in any relationship. If "No", exposure time is being contributed, even
+while not in any relationships. WARNING: The "Harling" and "Strict" 
+estimates currently only work for women. So the resulting data frame will
+still contain incidence estimates for men as if you selected "No".}
 }
 \value{
-a dataframe with cases, exposure time, incidence estimate and
-surrounding confidence bounds,
-for the specified time window and age group, overall, and stratified by gender
+A dataframe with cases, exposure times, incidence estimates and 
+  surrounding confidence bounds, for the specified time window and age group,
+  overall, and stratified by gender.
 }
 \description{
-Calculate the HIV incidence in a time window and for specific age groups and gender strata.
+Produces a data frame that contains the overall, and gender-stratified,
+HIV incidence at a specified time window and for a specific
+age group.
 }
 \examples{
-data(datalist)
-incidence.df <- incidence.calculator(datalist = datalist,
- agegroup = c(15, 30), timewindow = c(20, 30))
+cfg <- list() 
+modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp") 
+dl <- readthedata(modeloutput) 
+incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30))
 incidence.df
 
 }

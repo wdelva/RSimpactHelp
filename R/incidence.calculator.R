@@ -1,26 +1,32 @@
 #' Calculate HIV incidence, overall and stratified.
 #'
-#' Calculate the HIV incidence in a time window and for specific age groups and gender strata.
+#' Produces a data frame that contains the overall, and gender-stratified,
+#' HIV incidence at a specified time window and for a specific
+#' age group.
 #'
-#' @param datalist The datalist that is produced by \code{\link{readthedata}}
-#' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that
-#' should be retained, e.g. c(15, 30)
-#' @param timewindow Boundaries of the time window (lower bound < time <= upper bound)
-#' that should be retained, e.g. c(20, 30)
-#' @param only.active Should only women who are in sexual relationships contribute
-#' exposure time (~ Harling)?
-#' If "Strict", all time spent being not being in any relationship will be excluded
-#' from exposure time.
-#' If "Harling", time will be excluded from exposure time in blocks of one year, if the
-#' person spent that entire block not in any relationship.
-#' If "No", exposure time is being contributed, even while not in any relationships.
-#' @return a dataframe with cases, exposure time, incidence estimate and
-#' surrounding confidence bounds,
-#' for the specified time window and age group, overall, and stratified by gender
+#' @param datalist The list object that is produced by \code{\link{readthedata}}
+#' @param agegroup Boundaries of the age group (lower bound <= age < upper 
+#'   bound) that should be retained. Should be expressed as a vector of two 
+#'   integers. e.g. c(15, 30)
+#' @param timewindow of the time window (lower bound < time <= upper bound) that
+#'   should be retained. Should be expressed as a vector of two integers. e.g.
+#'   c(20, 30)
+#' @param only.active Should only women who are in sexual relationships 
+#'   contribute exposure time? If "Strict", all time spent being single will be
+#'   excluded from exposure time. If "Harling", time will be excluded from
+#'   exposure time in blocks of one year, if the person spent that entire block
+#'   not in any relationship. If "No", exposure time is being contributed, even
+#'   while not in any relationships. WARNING: The "Harling" and "Strict" 
+#'   estimates currently only work for women. So the resulting data frame will
+#'   still contain incidence estimates for men as if you selected "No".
+#' @return A dataframe with cases, exposure times, incidence estimates and 
+#'   surrounding confidence bounds, for the specified time window and age group,
+#'   overall, and stratified by gender.
 #' @examples
-#' data(datalist)
-#' incidence.df <- incidence.calculator(datalist = datalist,
-#'  agegroup = c(15, 30), timewindow = c(20, 30))
+#' cfg <- list() 
+#' modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp") 
+#' dl <- readthedata(modeloutput) 
+#' incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30))
 #' incidence.df
 #'
 #' @importFrom exactci poisson.exact
