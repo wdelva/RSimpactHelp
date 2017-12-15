@@ -31,98 +31,132 @@ incidence.calculator <- function(datalist = datalist,
                                  agegroup = c(15, 30),
                                  timewindow = c(20, 30),
                                  only.active = "No"){
-  time.of.lowerbound.agegroup <- datalist$ptable$TOB + agegroup[1]
-  time.of.lowerbound.timewind <- timewindow[1]
-  exposure.start <- pmax(time.of.lowerbound.agegroup, time.of.lowerbound.timewind)
-  time.of.upperbound.agegroup <- datalist$ptable$TOB + agegroup[2]
-  time.of.upperbound.timewind <- timewindow[2]
-  time.of.HIV.infection <- datalist$ptable$InfectTime
-
-  exposure.end <- pmin(time.of.HIV.infection,
-                       pmin(time.of.upperbound.agegroup, time.of.upperbound.timewind))
-  exposure.time <- exposure.end - exposure.start #This is naive exposure time, before tidying up
-  real.exposure.time <- exposure.time > 0 #We create a vector to see who REALLY had exposure time
-  exposure.time[real.exposure.time == FALSE] <- 0
-
+  
+  # Incidence is calculated in 3 steps.
+  # 1. Calculate PY of exposure per person
+  # 2. Calculate whether the person had the event or not
+  # 3. Divide events by sum of PY.
+  
+  # 1. Calculation of PY of exposure per person. Exposure time starts at the max
+  # of the lower bound of the timewindow and the time at which the person reaches
+  # the lower bound of the age group. Exposure time ends at the min of the upper
+  # bound of the timewindow, the time at which the person reaches the upper bound
+  # of the age group, and the time at which the person gets infected with HIV.
+  # Any negative exposure time will be reset to zero.
+  
+  # Scalars
+  lwr.agegroup <- agegroup[1]
+  upr.agegroup <- agegroup[2]
+  lwr.timewindow <- timewindow[1]
+  upr.timewindow <- timewindow[2]
+  
+  # Data frames from the list
+  df <- datalist$ptable
+  
+  # Calculate naive exposure time
+  # 1. Determine the time person is X yo
+  # 2. Determine the time person is Y yo
+  # 3. Their exposure starts whichever comes last: lwr bound age, or lwr window
+  # 4. Their exposure ends whichever comes 1st: upr bound age, upr window, or
+  # infected with HIV
+  # 5. Subtract exposure start from exposure end
+  df1 <- df %>%
+    dplyr::mutate(time.lwr.agegroup = TOB + lwr.agegroup,
+                  time.upr.agegroup = TOB + upr.agegroup,
+                  exposure.start = pmax(time.lwr.agegroup, lwr.timewindow),        
+                  exposure.end = pmin(InfectTime, 
+                                      time.upr.agegroup, 
+                                      upr.timewindow),
+                  exposure.time = exposure.end - exposure.start)
+  
+  # If the exposure time is negative, then they had no exposure during the
+  # timewindow or agegroup of interest
+  df2 <- df1 %>%
+    dplyr::mutate(had.exposure.time = exposure.time > 0,
+                  exposure.time = ifelse(exposure.time < 0, 
+                                         0, 
+                                         exposure.time))
+  
   # Now we check who of the people with the real exposure time had the event
-  # Their InfectTime must be after their exposure.time started, and before or at exposure.end
-  infection.after.exposure.start <- datalist$ptable$InfectTime > exposure.start
-  infection.before.or.at.exposure.end <- datalist$ptable$InfectTime <= exposure.end
-  infection.in.timewindow <- infection.after.exposure.start & infection.before.or.at.exposure.end
-
-
-  datalist$ptable$incident.case <- infection.in.timewindow
-  datalist$ptable$exposure.times <- exposure.time
-
-  raw.df <- data.frame(datalist$ptable)
-  raw.plus.df <- raw.df
-
+  # Their InfectTime must be after their exposure.time started, 
+  # and before or at exposure.end
+  df3 <- df2 %>%
+    dplyr::mutate(incident.case = (InfectTime > exposure.start & 
+                                     InfectTime <= exposure.end))
+  
+  # Create a copy for the special case below
+  df3.plus <- df3 
+  
+  # If the user specifies that they want "Strict" or "Harling" definition
+  # of exposure time 
   if (only.active != "No"){
+    
+    # timespentsingle.calculator() calculates time not in a relationship
+    # for each woman
     norels.timespent.df <- timespentsingle.calculator(datalist = datalist,
                                                       agegroup = agegroup,
                                                       timewindow = timewindow,
                                                       type = only.active)
-    raw.plus.df <- dplyr::left_join(x = raw.df,
-                             y = norels.timespent.df,
-                             by = c("ID" = "woman.ID"))
-    raw.plus.df$sum.norels.timespent[is.na(raw.plus.df$sum.norels.timespent)] <- 0
-    raw.plus.df$exposure.times <- raw.plus.df$exposure.times - raw.plus.df$sum.norels.timespent
+    
+    # Combine the person-exposure dataset to the time spent single dataset
+    df3.plus <- df3.plus %>%
+      dplyr::left_join(norels.timespent.df,
+                       by = c("ID" = "woman.ID"))
+    
+    # Modify variables for:
+    # 1. If there wasn't any time spent single, replace with 0
+    # 2. Update exposure time by subtracting the time spent single
+    df3.plus <- df3.plus %>%
+      dplyr::mutate(sum.norels.timespent = ifelse(is.na(sum.norels.timespent), # 1
+                                                  0, 
+                                                  sum.norels.timespent),
+                    exposure.time = exposure.time - sum.norels.timespent) # 2
+    
   }
-
-  raw.plus.filtered.df <- dplyr::filter(raw.plus.df, exposure.times >= 0)
-
-  if(nrow(raw.plus.filtered.df) > 0){
-
-  # Now we apply some dplyr function to get the sum of cases and sum of exposure.time per gender.
-  incidence.df <- dplyr::summarise(dplyr::group_by(raw.plus.filtered.df, Gender),
-                                   sum.exposure.time = sum(exposure.times),
-                                   sum.incident.cases = sum(incident.case),
-                                   incidence = sum(incident.case) / sum(exposure.times),
-                                   incidence.95.ll = as.numeric(
-                                     exactci::poisson.exact(x=sum(incident.case),
-                                                            T=sum(exposure.times))$conf.int)[1],
-                                   incidence.95.ul = as.numeric(
-                                     exactci::poisson.exact(x=sum(incident.case),
-                                                            T=sum(exposure.times))$conf.int)[2]
-                                   )
-
-  # Now we add the overall incidence to this dataframe
-  incidence.all.df <- dplyr::summarise(raw.plus.filtered.df,
-                                  sum.exposure.time = sum(exposure.times),
-                                  sum.incident.cases = sum(incident.case),
-                                  incidence = sum(incident.case) / sum(exposure.times),
-                                  incidence.95.ll = as.numeric(
-                                    exactci::poisson.exact(x = sum(incident.case),
-                                                           T=sum(exposure.times))$conf.int)[1],
-                                  incidence.95.ul = as.numeric(
-                                    exactci::poisson.exact(x = sum(incident.case),
-                                                           T=sum(exposure.times))$conf.int)[2]
-                            )
-
-
-  incidence.all.df <- cbind(Gender = NA,incidence.all.df)
-
-  incidence.df <- rbind(incidence.df, incidence.all.df)
+  
+  # Keep people who had exposure time
+  df4.plus <- df3.plus %>%
+    dplyr::filter(exposure.time >= 0)
+  
+  if(nrow(df4.plus) > 0){
+    
+    # Create summary table of incidence by gender
+    incidence.df <- df4.plus %>%
+      dplyr::group_by(Gender) %>%
+      dplyr::summarise(sum.exposure.time = sum(exposure.time),
+                       sum.incident.cases = sum(incident.case)) %>%
+      dplyr::mutate(incidence = sum.incident.cases / sum.exposure.time) %>%
+      dplyr::group_by(Gender, sum.exposure.time, sum.incident.cases) %>%
+      dplyr::mutate(incidence.95.ll = exactci::poisson.exact(sum.incident.cases, sum.exposure.time)$conf.int[1],
+                    incidence.95.ul = exactci::poisson.exact(sum.incident.cases, sum.exposure.time)$conf.int[2])
+    
+    # Now overall incidence 
+    incidence.all.df <- df4.plus %>%
+      dplyr::summarise(Gender = NA,
+                       sum.exposure.time = sum(exposure.time),
+                       sum.incident.cases = sum(incident.case)) %>%
+      dplyr::mutate(incidence = sum.incident.cases / sum.exposure.time) %>%
+      dplyr::group_by(sum.exposure.time, sum.incident.cases) %>%
+      dplyr::mutate(incidence.95.ll = exactci::poisson.exact(sum.incident.cases, 
+                                                             sum.exposure.time)$conf.int[1],
+                    incidence.95.ul = exactci::poisson.exact(sum.incident.cases, 
+                                                             sum.exposure.time)$conf.int[2])
+    
+    
+    # Combine stratified, and overall incidence
+    incidence.df <- bind_rows(incidence.df, incidence.all.df) %>%
+      ungroup()
+    
   }else{
+    
     incidence.df <- data.frame(Gender = c(NA,NA,NA),
                                sum.exposure.time = c(NA,NA,NA),
                                sum.incident.cases = c(NA,NA,NA),
                                incidence = c(NA,NA,NA),
                                incidence.95.ll = c(NA,NA,NA),
-                               incidence.95.ul = c(NA,NA,NA)
-    )
+                               incidence.95.ul = c(NA,NA,NA))
   }
+  
   return(incidence.df)
+  
 }
-
-# Incidence is calculated in 3 steps.
-# 1. Calculate PY of exposure per person
-# 2. Calculate whether the person had the event or not
-# 3. Divide events by sum of PY.
-
-# 1. Calculation of PY of exposure per person. Exposure time starts at the max
-# of the lower bound of the timewindow and the time at which the person reaches
-# the lower bound of the age group. Exposure time ends at the min of the upper
-# bound of the timewindow, the time at which the person reaches the upper bound
-# of the age group, and the time at which the person gets infected with HIV.
-# Any negative exposure time will be reset to zero.
