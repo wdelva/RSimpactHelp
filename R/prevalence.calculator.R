@@ -61,8 +61,9 @@ prevalence.calculator <- function(datalist = datalist,
       dplyr::mutate(pointprevalence.95.ll = binom.test(sum.cases, popsize)$conf.int[1],
                     pointprevalence.95.ul = binom.test(sum.cases, popsize)$conf.int[2]) 
     
-    
-    prevalence.df <- bind_rows(prevalence.df, prevalence.all.df) # Combine stratified, and overall prev
+    # Combine stratified, and overall prev
+    prevalence.df <- bind_rows(prevalence.df, prevalence.all.df) %>%
+      ungroup()
     
   } else { # In the rare event that a simulated data set has zero observations
     
@@ -71,8 +72,7 @@ prevalence.calculator <- function(datalist = datalist,
                                 sum.cases = c(NA,NA,NA),
                                 pointprevalence = c(NA,NA,NA),
                                 pointprevalence.95.ll = c(NA,NA,NA),
-                                pointprevalence.95.ul = c(NA,NA,NA)
-    )
+                                pointprevalence.95.ul = c(NA,NA,NA))
   }
   
   return(prevalence.df)
