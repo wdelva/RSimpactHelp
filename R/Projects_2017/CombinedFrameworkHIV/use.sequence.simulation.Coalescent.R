@@ -12,9 +12,13 @@
 #'  at sampling times, a consensus sequence for each individual is obtained from
 #'  a pool of viruses of that individual
 
-############################################################
-# Remember to use rates and frquencies of the chosen gene! #
-############################################################
+pacman::p_load(devtools, Rcpp, ape, expoTree, data.table, phylosim, RSimpactCyan,
+               RSimpactHelper, readr, phangorn, Biostrings, dplyr, adephylo,
+               phyclust, DECIPHER,treedater,geiger,picante)
+
+setwd("~/Desktop/TestCombinedFrameworkHIV/TEST3/")
+
+master.datalist <- get(load("master.datalist.RData")) #, .GlobalEnv) #load(file="master.datalist.RData")
 
 # Transmission network in a raw form with suppllement data includes viral load, CD4, etc.
 seed=123
@@ -44,10 +48,15 @@ for(v in 1:length(simpact.output.raw)){
 
       # Viral load at infection times and sampling times
 
+      # generation time > http://www.pnas.org/content/96/5/2187.full
+      #  The estimate of viral generation time using the coalescent method is 1.2 days per generation
+      # and is close to that obtained by mathematical modeling (1.8 days per generation)
+
       vl.inf <- 10*round(seed2.dat$infec.vload[i]) # viral load of the donors at time point of infecting someone else
       vl.samp <- 10*round(seed2.dat$samp.vload[i]) # viral load (of the recipients) at sampling time
-      t.inf <- seed2.dat$t.infec[i] # infection time for recipients, time interval from when the current donor j
+      t.inf <- (365*seed2.dat$t.infec[i])/1.2 # infection time for recipients, time interval from when the current donor j
       # got the infection from a donor i (or seeding event) until when current donor j transmits to recipient k
+
       t.samp <- seed2.dat$t.samp[i] #sampling time for recipients, time when recipient k has been sampled (diadnosed or removed by death)
 
       past.demographic.inf <- c(round(seed2.dat$rate.2back.infec.vload[i], digits = 3), round(seed2.dat$rate.1back.infec.vload[i], digits = 3)) #, 0.01) # a vector of change rates of viral loads from infection time to time to transmit the infection
@@ -130,16 +139,16 @@ for(v in 1:length(simpact.output.raw)){
         }
         numb.trees.seed <- numb.tr(tree=seed.tree.trans) # count number of trees generated (normally one)
 
-        file.copy(paste("HIV.Pol.gene.fasta", sep = ""),paste("HIV.Pol.gene.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
+        file.copy(paste("hiv.seq.A.pol.j.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
 
-        write(numb.trees.seed,file = "HIV.Pol.gene.bis.nwk", append = TRUE) # add the number of tree in the file and
-        write.tree(seed.tree.trans,file = "HIV.Pol.gene.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
-        file.rename(from = "HIV.Pol.gene.bis.nwk", to = paste("HIV.Pol.gene.bis",seed.id,".nwk", sep = ""))
+        write(numb.trees.seed,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and
+        write.tree(seed.tree.trans,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
+        file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
 
-        seq.rand <- 3 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+        seq.rand <- 1 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
         # Sequence of the seed at the first tramsmission event
-        system(paste("./seq-gen -mGTR -f 0.3887782, 0.1646746, 0.2277556, 0.2187915 -a 0.9 -g 4 -r 0.00125, 0.00125, 0.00125, 0.00125, 0.00125, 0.00125 -n1 -k",seq.rand,"< HIV.Pol.gene.bis",seed.id,".nwk -z", seed,"> sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z", seed,"> sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta",sep = ""))
 
         # a: shape parameter of Gamma > Gamma Rate Heterogeneity
         # g: category of Gamma > Discrete Gamma Rate Heterogeneity
@@ -157,17 +166,17 @@ for(v in 1:length(simpact.output.raw)){
     seed.tree.samp <- read.tree(paste("tree_at_for_",seed.id,"_samp_net_",v,".nwk", sep = "")) # tree at sampling time of the seed
     numb.tree.samp <- numb.tr(tree=seed.tree.samp) # count number of trees generated (normally one)
 
-    file.copy(paste("HIV.Pol.gene.fasta", sep = ""),paste("HIV.Pol.gene.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
+    file.copy(paste("hiv.seq.A.pol.j.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
 
-    write(numb.tree.samp,file = "HIV.Pol.gene.bis.nwk", append = TRUE) # add the number of tree in the file and
-    write.tree(seed.tree.samp,file = "HIV.Pol.gene.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
-    file.rename(from = "HIV.Pol.gene.bis.nwk", to = paste("HIV.Pol.gene.bis",seed.id,".nwk", sep = ""))
+    write(numb.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and
+    write.tree(seed.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
+    file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
 
-    seq.rand <- 3 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+    seq.rand <- 1 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
     # Sequence of the seed at the sampling (diagnosis/removal) event
 
-    system(paste("./seq-gen -mGTR -f 0.3887782, 0.1646746, 0.2277556, 0.2187915 -a 0.9 -g 4 -r 0.00125, 0.00125, 0.00125, 0.00125, 0.00125, 0.00125 -n1 -k",seq.rand,"< HIV.Pol.gene.bis",seed.id,".nwk -z",seed,"> sequence_at_samp_",seed.id,"_net_",v,".fasta",sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z",seed,"> sequence_at_samp_",seed.id,"_net_",v,".fasta",sep = ""))
 
 
     # (iii) Sampling of recipients from the seed donor in XXX$id[2]
@@ -187,15 +196,15 @@ for(v in 1:length(simpact.output.raw)){
         seed.tree.samp <- read.tree(paste("tree_at_for_",rec.seed,"_samp_net_",v,".nwk", sep = "")) # tree at sampling time of the seed
         numb.tree.samp <- numb.tr(tree=seed.tree.samp) # count number of trees generated (normally one)
 
-        file.copy(paste("sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta", sep = ""),paste("HIV.Pol.gene.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
-        write(numb.tree.samp,file = "HIV.Pol.gene.bis.nwk", append = TRUE) # add the number of tree in the file and
-        write.tree(seed.tree.samp,file = "HIV.Pol.gene.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
-        file.rename(from = "HIV.Pol.gene.bis.nwk", to = paste("HIV.Pol.gene.bis",seed.id,".nwk", sep = ""))
+        file.copy(paste("sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
+        write(numb.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and
+        write.tree(seed.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
+        file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
 
-        seq.rand <- 3 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+        seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
         # Sequence of the first recipient at the sampling (diagnosis/removal) event
-        system(paste("./seq-gen -mGTR -f 0.3887782, 0.1646746, 0.2277556, 0.2187915 -a 0.9 -g 4 -r 0.00125, 0.00125, 0.00125, 0.00125, 0.00125, 0.00125 -n1 -k",seq.rand,"< HIV.Pol.gene.bis",seed.id,".nwk -z",seed,"> sequence_at_samp_",rec.seed,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z",seed,"> sequence_at_samp_",rec.seed,"_net_",v,".fasta",sep = ""))
       }
     }
 
@@ -222,7 +231,7 @@ for(v in 1:length(simpact.output.raw)){
 
     for(i in 3:length(seed2.dat$rec.IDs)){ # start at 3 bcz the seed and 1st transmission already simulated
       # random number for random sequence to infect new individual
-      seq.rand <- 3 # sample(1:10,1)
+      seq.rand <- sample(1:10,1)
       # recipients - k and donors - h
       k <- seed2.dat$rec.IDs[i] # 219 recipients
       h <- seed2.dat$don.IDs[i] # 1408 donors
@@ -235,9 +244,9 @@ for(v in 1:length(simpact.output.raw)){
         file.copy(paste("sequence_from_",prev.par,"_to_",h,"_net_",v,".fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # h is going to give one of what (s)he got previously from prev.par
         write(numb.trees,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
         write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-        file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("HIV.Pol.gene.bis",h,".nwk", sep = ""))
+        file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
         # file.remove()
-        system(paste("./seq-gen -mGTR -f 0.3887782, 0.1646746, 0.2277556, 0.2187915 -a 0.9 -g 4 -r 0.00125, 0.00125, 0.00125, 0.00125, 0.00125, 0.00125 -n1 -k",seq.rand,"< HIV.Pol.gene.bis",h,".nwk > sequence_from_",h,"_to_",k,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,"_net_",v,".fasta",sep = ""))
       }
     }
 
@@ -256,7 +265,7 @@ for(v in 1:length(simpact.output.raw)){
 
     for(i in 3:length(seed2.dat$rec.IDs)){ # start at 3 bcz the seed and 1st transmission already simulated
       # random number for random sequence to infect new individual
-      seq.rand <- 3 # sample(1:10,1)
+      seq.rand <- sample(1:10,1)
       # recipients - k and donors - h
       k <- seed2.dat$rec.IDs[i] # [3]=219, recipients
       h <- seed2.dat$don.IDs[i] # [3]=1408, donors
@@ -270,9 +279,9 @@ for(v in 1:length(simpact.output.raw)){
         file.copy(paste("sequence_from_",prev.par,"_to_",h,"_net_",v,".fasta", sep = ""),paste("Sequence_",h,".bis.nwk", sep = "")) # pool of seq of the donor to the current donor
         write(numb.trees,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
         write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
-        file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("HIV.Pol.gene.bis",h,".nwk", sep = ""))
+        file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
         # file.remove()
-        system(paste("./seq-gen -mGTR -f 0.3887782, 0.1646746, 0.2277556, 0.2187915 -a 0.9 -g 4 -r 0.00125, 0.00125, 0.00125, 0.00125, 0.00125, 0.00125 -n1 -k",seq.rand,"< HIV.Pol.gene.bis",h,".nwk > sequence_at_samp_",k,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,"_net_",v,".fasta",sep = ""))
       }
     }
 
@@ -293,12 +302,13 @@ for(v in 1:length(simpact.output.raw)){
       #   dna.vec <- c(dna.vec,matrix.dna[i,])
       # }
       for(j in 1:nrow(matrix.dna)){ # consider each row
-        col.i <- paste(matrix.dna[j,], sep="", collapse="")
+        col.i <- paste(matrix.dna[j,][1], sep="", collapse="")
         dna.vec <- c(dna.vec,col.i) # list of sequences
       }
-
       consensus.seq <- ConsensusSequence(DNAStringSet(dna.vec), threshold=0.8)
-      write.dna(consensus.seq,file = paste("consensus.seq.raw_net_",v,".fas", sep = ""), format = "fasta", nbcol=-1,
+      write.dna(consensus.seq,
+                file = paste("consensus.seq.raw_net_",v,".fas", sep = ""),
+                format = "fasta", nbcol=-1,
                 append = TRUE) # the name of seq all are "1"
 
       label.names <- c(label.names,k) # Individuals IDs
