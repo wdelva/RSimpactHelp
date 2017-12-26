@@ -12,6 +12,14 @@
 #'  at sampling times, a consensus sequence for each individual is obtained from
 #'  a pool of viruses of that individual
 
+pacman::p_load(devtools, Rcpp, ape, expoTree, data.table, phylosim, RSimpactCyan,
+               RSimpactHelper, readr, phangorn, Biostrings, dplyr, adephylo,
+               phyclust, DECIPHER,treedater,geiger,picante)
+
+setwd("~/Desktop/TestCombinedFrameworkHIV/TEST3/")
+
+master.datalist <- get(load("master.datalist.RData")) #, .GlobalEnv) #load(file="master.datalist.RData")
+
 # Transmission network in a raw form with suppllement data includes viral load, CD4, etc.
 seed=123
 
@@ -131,16 +139,16 @@ for(v in 1:length(simpact.output.raw)){
         }
         numb.trees.seed <- numb.tr(tree=seed.tree.trans) # count number of trees generated (normally one)
 
-        file.copy(paste("seed.seq.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
+        file.copy(paste("hiv.seq.A.pol.j.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
 
         write(numb.trees.seed,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and
         write.tree(seed.tree.trans,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
         file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
 
-        seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+        seq.rand <- 1 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
         # Sequence of the seed at the first tramsmission event
-        system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z", seed,"> sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z", seed,"> sequence_from_",seed.id,"_to_",rec.seed,"_net_",v,".fasta",sep = ""))
 
         # a: shape parameter of Gamma > Gamma Rate Heterogeneity
         # g: category of Gamma > Discrete Gamma Rate Heterogeneity
@@ -158,17 +166,17 @@ for(v in 1:length(simpact.output.raw)){
     seed.tree.samp <- read.tree(paste("tree_at_for_",seed.id,"_samp_net_",v,".nwk", sep = "")) # tree at sampling time of the seed
     numb.tree.samp <- numb.tr(tree=seed.tree.samp) # count number of trees generated (normally one)
 
-    file.copy(paste("seed.seq.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
+    file.copy(paste("hiv.seq.A.pol.j.fasta", sep = ""),paste("seed.seq.bis.nwk", sep = "")) # call the seed sequences - pool of viruses
 
     write(numb.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # add the number of tree in the file and
     write.tree(seed.tree.samp,file = "seed.seq.bis.nwk", append = TRUE) # the tree, to prepare the file to simulate the evolution of the virus across the tree
     file.rename(from = "seed.seq.bis.nwk", to = paste("seed.seq.bis",seed.id,".nwk", sep = ""))
 
-    seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
+    seq.rand <- 1 # sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
     # Sequence of the seed at the sampling (diagnosis/removal) event
 
-    system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z",seed,"> sequence_at_samp_",seed.id,"_net_",v,".fasta",sep = ""))
+    system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z",seed,"> sequence_at_samp_",seed.id,"_net_",v,".fasta",sep = ""))
 
 
     # (iii) Sampling of recipients from the seed donor in XXX$id[2]
@@ -196,7 +204,7 @@ for(v in 1:length(simpact.output.raw)){
         seq.rand <- sample(1:10,1) # random number correponds to random sequence chosed in the pool of viruses
 
         # Sequence of the first recipient at the sampling (diagnosis/removal) event
-        system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z",seed,"> sequence_at_samp_",rec.seed,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",seed.id,".nwk -z",seed,"> sequence_at_samp_",rec.seed,"_net_",v,".fasta",sep = ""))
       }
     }
 
@@ -238,7 +246,7 @@ for(v in 1:length(simpact.output.raw)){
         write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
         file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
         # file.remove()
-        system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_from_",h,"_to_",k,"_net_",v,".fasta",sep = ""))
       }
     }
 
@@ -273,7 +281,7 @@ for(v in 1:length(simpact.output.raw)){
         write.tree(tr.ms,file = paste("Sequence_",h,".bis.nwk", sep = ""), append = TRUE)
         file.rename(from = paste("Sequence_",h,".bis.nwk", sep = ""), to = paste("seed.seq.bis",h,".nwk", sep = ""))
         # file.remove()
-        system(paste("./seq-gen -mGTR -f 0.3,0.2,0.2,0.3 -a 0.9 -g 4 -r 1 1 1 1 1 1 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,"_net_",v,".fasta",sep = ""))
+        system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k",seq.rand,"< seed.seq.bis",h,".nwk > sequence_at_samp_",k,"_net_",v,".fasta",sep = ""))
       }
     }
 
@@ -294,12 +302,13 @@ for(v in 1:length(simpact.output.raw)){
       #   dna.vec <- c(dna.vec,matrix.dna[i,])
       # }
       for(j in 1:nrow(matrix.dna)){ # consider each row
-        col.i <- paste(matrix.dna[j,], sep="", collapse="")
+        col.i <- paste(matrix.dna[j,][1], sep="", collapse="")
         dna.vec <- c(dna.vec,col.i) # list of sequences
       }
-
       consensus.seq <- ConsensusSequence(DNAStringSet(dna.vec), threshold=0.8)
-      write.dna(consensus.seq,file = paste("consensus.seq.raw_net_",v,".fas", sep = ""), format = "fasta", nbcol=-1,
+      write.dna(consensus.seq,
+                file = paste("consensus.seq.raw_net_",v,".fas", sep = ""),
+                format = "fasta", nbcol=-1,
                 append = TRUE) # the name of seq all are "1"
 
       label.names <- c(label.names,k) # Individuals IDs
