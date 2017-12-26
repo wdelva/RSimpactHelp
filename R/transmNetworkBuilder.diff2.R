@@ -85,7 +85,7 @@ transmNetworkBuilder.diff2 <- function(datalist = datalist, endpoint = 40){
   # Take the table of donors, recipients and time of infection
   # which is NewrecDonTimeOrd and make a graph object
 
-  library(igraph)
+  # library(igraph)
 
   ga <- recDonTimeOrd
 
