@@ -1,4 +1,4 @@
-#' Simulate the sequences for individual in the transmissiion network
+#' Simulate the sequences for individual in the transmissiion network using phylosim
 #'
 #' From the \code{\link{transnetwork2tree()}} we have the object of the transmission tree.
 #' We then can simulate the consesus sequences of individuals using GTR+Gamma model
