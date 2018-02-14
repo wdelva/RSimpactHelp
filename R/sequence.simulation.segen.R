@@ -7,7 +7,11 @@
 #' @param seed.file File containing seed HIV sequences
 
 
-sequence.simulation.seqgen <- function(dir = dir, datalist = datalist, seeds.num = 123, endpoint = 40, seed.file = "hiv.seq.A.pol.j.fasta"){
+sequence.simulation.seqgen <- function(dir = dir,
+                                       datalist = datalist,
+                                       seeds.num = 123,
+                                       endpoint = 40,
+                                       seed.file = "hiv.seq.A.pol.j.fasta"){
 
 
 
