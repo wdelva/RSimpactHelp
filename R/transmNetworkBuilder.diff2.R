@@ -43,6 +43,7 @@ transmNetworkBuilder.diff2 <- function(datalist = datalist, endpoint = 40){
   recDonTime <- cbind(id.infec.origin.all, id.infec.all, time.infec.all)
   recDonTime.data <- as.data.frame(recDonTime)
 
+
   ## order the table by time of infection (increasing)
   recDonTimeOrd <- recDonTime.data[order(recDonTime.data$time.infec.all),]
 
