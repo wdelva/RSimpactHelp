@@ -17,7 +17,7 @@
 #' Additional columns generated:
 #' agerelform - The age of the person when when the relationship began. In
 #'       other words, the age at the first episode
-#' agerelform - The age of their partner when the relationship began.
+#' pagerelform - The age of their partner when the relationship began.
 #'
 #' @param datalist The datalist that is produced by \code{\link{readthedata}}
 #' @return A dataframe
