@@ -52,7 +52,7 @@ cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
 cfg.list["formation.hazard.agegapry.baseline"] <- 2
 cfg.list["mortality.aids.survtime.C"] <- 65
 cfg.list["mortality.aids.survtime.k"] <- -0.2
-cfg.list["monitoring.fraction.log_viralload"] <- 0 # 0.3
+cfg.list["monitoring.fraction.log_viralload"] <- 0.3
 cfg.list["dropout.interval.dist.uniform.min"] <- 1000
 cfg.list["dropout.interval.dist.uniform.max"] <- 2000
 
