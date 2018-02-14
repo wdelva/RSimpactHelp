@@ -350,7 +350,7 @@ for (j in 1:length(IDs.transm)){
   # Compiling FastTree
   # gcc -DUSE_DOUBLE -O3 -finline-functions -funroll-loops -Wall -o FastTree FastTree.c -lm
 
-  system(paste("./FastTree  <", paste("B.EpidemicSequences_seed_",id.trans,".fasta", sep = ""), paste(">B.EpidemicSequences_seed_",id.trans,".fasta.tree", sep = "")))
+  system(paste("./FastTree  -nt <", paste("B.EpidemicSequences_seed_",id.trans,".fasta", sep = ""), paste(">B.EpidemicSequences_seed_",id.trans,".fasta.tree", sep = "")))
 
 
 }
