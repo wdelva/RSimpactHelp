@@ -7,10 +7,8 @@ setwd("/home/david/RSimpactHelp/R/Projects_2017/Example3PaperSimpact2/")
 ## Load required packages
 
 pacman::p_load(devtools, Rcpp, ape, expoTree, data.table, phylosim, RSimpactCyan,
-               RSimpactHelper, readr, phangorn, Biostrings, dplyr, adephylo,
+               RSimpactHelper, readr, phangorn, Biostrings, dplyr, adephylo,igraph,
                phyclust, DECIPHER,treedater,geiger,picante)
-
-
 
 #######################
 # Step 1: Run Simpact #
@@ -161,37 +159,36 @@ cfg["conception.alpha_base"] <- inputvector[14] #is conception.alpha.base (highe
 cfg["dissolution.alpha_0"] <- inputvector[15]
 cfg["dissolution.alpha_4"] <- inputvector[16]
 
-# #
+#
 # # # # Run Simpact
-# results <- simpact.run(configParams = cfg,
-#                        destDir = "temp",
-#                        agedist = age.distr,
-#                        seed = seedid,
-#                        intervention = intervention)
-#
-# datalist <- readthedata(results)
-#
+results <- simpact.run(configParams = cfg,
+                       destDir = "temp",
+                       agedist = age.distr,
+                       seed = seedid,
+                       intervention = intervention)
+
+datalist <- readthedata(results)
 # table(datalist$etable$eventname)
 #
 # ## Save the output
 # save(datalist, file = "MasterModelSubOptimalSeqCovearge.datalist.RData")
 
 # Read saved output data set
-datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalist.RData"))
+# datalist <- get(load("MasterModelSubOptimalSeqCovearge.datalist.RData"))
 
-table(datalist$etable$eventname) # check events
+# table(datalist$etable$eventname) # check events
 
 # Prevlence per age group and time at a given time-point
-prevalence.df <- prevalence.calculator(datalist = datalist,
-                                       agegroup = c(15, 30),
-                                       timepoint = 10)
+# prevalence.df <- prevalence.calculator(datalist = datalist,
+#                                        agegroup = c(15, 30),
+#                                        timepoint = 10)
 
-prevalence.df.plot <-prevalence.plotter(datalist = datalist, agegroup = c(15, 50))
+# prevalence.df.plot <-prevalence.plotter(datalist = datalist, agegroup = c(15, 50))
 
 
 # Incidence per age group in a given time-window
-incidence.df <- incidence.calculator(datalist = datalist,
-                                     agegroup = c(15, 30), timewindow = c(10, 20))
+# incidence.df <- incidence.calculator(datalist = datalist,
+#                                      agegroup = c(15, 30), timewindow = c(10, 20))
 
 
 
@@ -201,7 +198,8 @@ incidence.df <- incidence.calculator(datalist = datalist,
 
 
 # Resource required RSimpactHelp function in my branch
-source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff2.R")
+source("/user/data/gent/vsc400/vsc40070/phylo/transmNetworkBuilder.diff2.R")
+source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff3.R")
 source("/home/david/RSimpactHelp/R/trans.network2tree.R")
 source("/home/david/RSimpactHelp/R/epi2tree2.R")
 
@@ -217,16 +215,16 @@ for (list.element in 1:length(simpact.trans.net)){
     smallest.branches[list.element] <- smallest.branch
   }
 }
-min(smallest.branches, na.rm = TRUE) #
+#min(smallest.branches, na.rm = TRUE) #
 ## seeds and transmission network sizes:
 # 2>>10,  3>>212,  8>>20, 10>>10, 12>>3, 16>>13, 19>>1741
-which(smallest.branches!="NA")
+#which(smallest.branches!="NA")
 
-epi.dt <- simpact.trans.net[[3]] #
-tree.tr <- trans.network2tree(epi.dt)
-summary(tree.tr) # some branch lengths are negative with Gabriel function
-plot(tree.tr, root.edge = TRUE, show.tip.label=FALSE)
-axisPhylo(backward = FALSE)
+#epi.dt <- simpact.trans.net[[3]] #
+#tree.tr <- trans.network2tree(epi.dt)
+#summary(tree.tr) # some branch lengths are negative with Gabriel function
+#plot(tree.tr, root.edge = TRUE, show.tip.label=FALSE)
+#axisPhylo(backward = FALSE)
 
 
 ###############################
@@ -247,7 +245,7 @@ for(i in 1:length(trans.net)){
 
   tree.n <- trans.net[[i]] # transmission network for i^th seed
 
-  if(nrow(as.data.frame(tree.n)) >= 3){
+  if(nrow(as.data.frame(tree.n)) >= 50){
     tree.i <- trans.network2tree(transnetwork = tree.n)
     num.trees <- c(num.trees,tree.n$id[1])
     num.i <- c(num.i,i)
@@ -285,7 +283,7 @@ for(i in 1:length(trans.net)){
     write.tree(tr,file = paste("seed.seq.bis",i,".nwk", sep = ""), append = TRUE)
     file.rename(from = paste("seed.seq.bis",i,".nwk", sep = ""), to = paste("seed.seq.bis",i,"Id",seed.id,".nwk", sep = ""))
 
-    system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230 -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< seed.seq.bis",i,"Id",seed.id,".nwk -z",seed," > B.EpidemicSequences_seed_",i,".fasta",sep = ""))
+    system(paste("seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230 -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< seed.seq.bis",i,"Id",seed.id,".nwk -z",seed," > B.EpidemicSequences_seed_",i,".fasta",sep = ""))
 
     # a: shape parameter of Gamma > Gamma Rate Heterogeneity
     # g: category of Gamma > Discrete Gamma Rate Heterogeneity
@@ -293,8 +291,12 @@ for(i in 1:length(trans.net)){
     # s: scale which is the substitution rate of pol gene
     # z: seed
 
+    # # Keep sampling dates
+    # id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+
     # Keep sampling dates
-    id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
+    id.samplingtime <- as.data.frame(cbind(paste(i,".",tree.n$id, ".A", sep = ""), tree.n$dtimes)) # IDs and their samling times in the transmission network
+
 
     write.csv(id.samplingtime,file=paste("samplingtimes_seed_",i,".csv", sep = ""))
 
@@ -307,19 +309,14 @@ IDs.transm <- num.i # vector of of seeds chosen in the list of seeds
 
 
 #####################################################
-# Step 4: Construct time stamped phylogenetic trees #  We chosse seed 3 with 212 individuals
+# Step 4: Construct time stamped phylogenetic trees #
 #####################################################
 
-#
-# # Forward times strating with 0 the seeding time
-# vv=as.data.table(trans.net[[3]])
-# vv$itimes <- 30-vv$itimes
-# vv$dtimes <- 30-vv$dtimes
 
 # Function to tranform dates in named vector to be handled by treedater
 
 dates.Transform.NamedVector  <- function(dates=dates){
-  dates.val <- 1977+40-dates$V2 # dates datalist$itable$population.simtime[1] - dates$V2 + 1977
+  dates.val <- datalist$itable$population.simtime[1] - dates$V2 + 1977 # dates
   names(dates.val) <- as.character(dates$V1) # names are the names of the tips
   return(dates.val)
 }
@@ -350,20 +347,14 @@ for (j in 1:length(IDs.transm)){
   # Compiling FastTree
   # gcc -DUSE_DOUBLE -O3 -finline-functions -funroll-loops -Wall -o FastTree FastTree.c -lm
 
-  system(paste("./FastTree  -nt <", paste("B.EpidemicSequences_seed_",id.trans,".fasta", sep = ""), paste(">B.EpidemicSequences_seed_",id.trans,".fasta.tree", sep = "")))
+  system(paste("FastTree -gtr -nt <", paste("B.EpidemicSequences_seed_",id.trans,".fasta", sep = ""), paste(">B.EpidemicSequences_seed_",id.trans,".fasta.tree", sep = "")))
 
 
 }
 
-# Test
-# setwd("/home/david/Desktop/FastTRee/")
-# w=2
-# system(paste("./FastTree  <", paste("B.EpidemicSequences_seed_",w,".fasta", sep = ""), paste(">B.EpidemicSequences_seed_",w,".fasta.tree", sep = "")))
 
 # 4.2. Internal node optimisation requires sampled dates
 
-# 2>>10,  3>>212,  8>>20, 10>>10, 12>>3, 16>>13, 19>>1741
-IDs.transm <- c(2,3,8,10,12,16,19)
 
 for (j in 1:length(IDs.transm)){
 
@@ -375,7 +366,7 @@ for (j in 1:length(IDs.transm)){
 
   time.samp <- dates.Transform.NamedVector(dates=samp.dates)
 
-  tree.tips <- as.numeric(tree.const$tip.label)
+  tree.tips <- as.character(tree.const$tip.label)
 
   Ord.tree.dates <- vector()
   for(i in 1:length(tree.tips)){
@@ -417,55 +408,55 @@ for (j in 1:length(IDs.transm)){
 
 }
 
-IDs.transm <- c(2,3,8,10,12,16,19)
+# IDs.transm <- c(2,3,8,10,12,16,19)
 
-test.t.dated.2 <- get(load("dated.tree.object_seed_2.Rdata"))
-N.2 <- node.age(test.t.dated.2)
-int.node.age.2 <- N.2$Ti # internal nodes ages
-latest.samp.2 <- N.2$timeToMRCA+N.2$timeOfMRCA # latest sampling date
-
-plot(test.t.dated.2, label.offset=0.1)  #the label.offset argument moves the species names a bit to the right (try different values!)
-nodelabels() #add node numbers
-tiplabels() #add tip numbers
-
-
-
-test.t.dated.3 <- get(load("dated.tree.object_seed_3.Rdata"))
-N.3 <- node.age(test.t.dated.3)
-int.node.age.3 <- N.3$Ti # internal nodes ages
-latest.samp.3 <- N.3$timeToMRCA+N.3$timeOfMRCA # latest sampling date
-
-test.t.dated.8 <- get(load("dated.tree.object_seed_8.Rdata"))
-N.8 <- node.age(test.t.dated.8)
-int.node.age.8 <- N.8$Ti # internal nodes ages
-latest.samp.8 <- N.8$timeToMRCA+N.8$timeOfMRCA # latest sampling date
-
-test.t.dated.10 <- get(load("dated.tree.object_seed_10.Rdata"))
-N.10 <- node.age(test.t.dated.10)
-int.node.age.10 <- N.10$Ti # internal nodes ages
-latest.samp.10 <- N.10$timeToMRCA+N.10$timeOfMRCA # latest sampling date
-
-test.t.dated.12 <- get(load("dated.tree.object_seed_12.Rdata"))
-N.12 <- node.age(test.t.dated.12)
-int.node.age.12 <- N.12$Ti # internal nodes ages
-latest.samp.12 <- N.12$timeToMRCA+N.12$timeOfMRCA # latest sampling date
-
-test.t.dated.16 <- get(load("dated.tree.object_seed_16.Rdata"))
-N.16 <- node.age(test.t.dated.16)
-int.node.age.16 <- N.16$Ti # internal nodes ages
-latest.samp.16 <- N.16$timeToMRCA+N.16$timeOfMRCA # latest sampling date
-
-test.t.dated.19 <- get(load("dated.tree.object_seed_19.Rdata"))
-N.19 <- node.age(test.t.dated.19)
-int.node.age.19 <- N.19$Ti # internal nodes ages
-latest.samp.19 <- N.19$timeToMRCA+N.19$timeOfMRCA # latest sampling date
+#test.t.dated.2 <- get(load("dated.tree.object_seed_2.Rdata"))
+#N.2 <- node.age(test.t.dated.2)
+#int.node.age.2 <- N.2$Ti # internal nodes ages
+#latest.samp.2 <- N.2$timeToMRCA+N.2$timeOfMRCA # latest sampling date
+#
+#plot(test.t.dated.2, label.offset=0.1)  #the label.offset argument moves the species names a bit to the right (try different values!)
+#nodelabels() #add node numbers
+#tiplabels() #add tip numbers
 
 
-#### We choose seed 3 for the example
 
-id.trans <- 3
+#test.t.dated.3 <- get(load("dated.tree.object_seed_3.Rdata"))
+#N.3 <- node.age(test.t.dated.3)
+#int.node.age.3 <- N.3$Ti # internal nodes ages
+#latest.samp.3 <- N.3$timeToMRCA+N.3$timeOfMRCA # latest sampling date
 
-tree.const <- read.tree(paste("B.EpidemicSequences_seed_",id.trans,".fasta.treefile", sep = ""))
+#test.t.dated.8 <- get(load("dated.tree.object_seed_8.Rdata"))
+#N.8 <- node.age(test.t.dated.8)
+#int.node.age.8 <- N.8$Ti # internal nodes ages
+#latest.samp.8 <- N.8$timeToMRCA+N.8$timeOfMRCA # latest sampling date
+
+#test.t.dated.10 <- get(load("dated.tree.object_seed_10.Rdata"))
+#N.10 <- node.age(test.t.dated.10)
+#int.node.age.10 <- N.10$Ti # internal nodes ages
+#latest.samp.10 <- N.10$timeToMRCA+N.10$timeOfMRCA # latest sampling date
+
+#test.t.dated.12 <- get(load("dated.tree.object_seed_12.Rdata"))
+#N.12 <- node.age(test.t.dated.12)
+#int.node.age.12 <- N.12$Ti # internal nodes ages
+#latest.samp.12 <- N.12$timeToMRCA+N.12$timeOfMRCA # latest sampling date
+
+#test.t.dated.16 <- get(load("dated.tree.object_seed_16.Rdata"))
+#N.16 <- node.age(test.t.dated.16)
+#int.node.age.16 <- N.16$Ti # internal nodes ages
+#latest.samp.16 <- N.16$timeToMRCA+N.16$timeOfMRCA # latest sampling date
+
+#test.t.dated.19 <- get(load("dated.tree.object_seed_19.Rdata"))
+#N.19 <- node.age(test.t.dated.19)
+#int.node.age.19 <- N.19$Ti # internal nodes ages
+#latest.samp.19 <- N.19$timeToMRCA+N.19$timeOfMRCA # latest sampling date
+
+
+#### We choose seed 5 for the example
+
+id.trans <- 5
+
+tree.const <- read.tree(paste("B.EpidemicSequences_seed_",id.trans,".fasta.tree", sep = ""))
 
 samp.dates <- read.csv(paste("samplingtimes_seed_",id.trans,".csv", sep = ""))
 
@@ -497,31 +488,29 @@ int.node.age <- N$Ti # internal nodes ages
 ##########################################
 
 # begin 1.12.2017
-dated.tree.3 <- get(load("dated.tree.object_seed_3.Rdata"))
-pb <- parboot.treedater(dated.tree.3)
+dated.tree.5 <- get(load("dated.tree.object_seed_5.Rdata"))
+pb <- parboot.treedater(dated.tree.5)
 # end 1.12.2017
-
-
 
 latest.samp <- N$timeToMRCA+N$timeOfMRCA # latest sampling date
 
 
-## Transmission network of seed 3
+## Transmission network of seed 5
 trans.net <- simpact.trans.net
-int.node.age <- int.node.age.3
-tra.net.3 <- trans.net[[3]]
+#int.node.age <- int.node.age.5
+tra.net.5 <- trans.net[[5]]
 
-tra.net.3$dtimes <- abs(tra.net.3$dtimes-40)+1977 #(endpoint=40)
-tra.net.3$itimes <- abs(tra.net.3$itimes-40)+1977 #(endpoint=40) 10>1990, -> +1980
+tra.net.5$dtimes <- abs(tra.net.5$dtimes-40)+1977 #(endpoint=40)
+tra.net.5$itimes <- abs(tra.net.5$itimes-40)+1977 #(endpoint=40) 10>1990, -> +1980
 
 min.val = 1977
-max.val = round(max(tra.net.3$itimes))
+max.val = round(max(tra.net.5$itimes))
 
 
 step.int=1
 d <- (max.val-min.val)/step.int
 
-dat.f.trans <- as.data.frame(tra.net.3)
+dat.f.trans <- as.data.frame(tra.net.5)
 dt.node.age.dt <- int.node.age
 
 numb.tra <- vector()
@@ -540,7 +529,7 @@ for (i in 1:d) {
 
 
 
-graph.build <- as.data.frame(trans.net[[3]])
+graph.build <- as.data.frame(trans.net[[5]])
 
 graph.build[,4] <- as.character(graph.build$parent) # donors
 graph.build[,3] <- as.character(graph.build$id) # recipients
@@ -557,37 +546,37 @@ transNet.yrs.Old <- delete.vertices(ga.graph, "-1")
 #################
 
 # 1. Transmission network from simpact                           # 1 #
-plot.igraph(transNet.yrs.Old, edge.arrow.size=0.1, vertex.size=5,
-            edge.color="black",
-            asp = 1,
-            xlim = c(-1, 2),
-            ylim = c(-0.5,0.5),
-            vertex.frame.color="black",
-            vertex.label.color="black",
-            #vertex.label = NULL,
-            layout = layout_with_kk,
-            edge.width = 1,
-            vertex.label.cex=0.1,
-            vertex.label.dist=0.0, edge.curved=0.0, asp=0, margin=0
-            #main = "True transmission network"
-)
+#plot.igraph(transNet.yrs.Old, edge.arrow.size=0.1, vertex.size=5,
+#            edge.color="black",
+#            asp = 1,
+#            xlim = c(-1, 2),
+#            ylim = c(-0.5,0.5),
+#            vertex.frame.color="black",
+#            vertex.label.color="black",
+#            #vertex.label = NULL,
+#            layout = layout_with_kk,
+#            edge.width = 1,
+#            vertex.label.cex=0.1,
+#            vertex.label.dist=0.0, edge.curved=0.0, asp=0, margin=0
+#            #main = "True transmission network"
+#)
 
 # 2. Phylogenetic tree
 
-plot(dater.tree, show.tip.label=FALSE,
-     edge.width=1,
-     edge.color="blue") # Try a few different settings!
-axisPhylo(backward = FALSE)
+#plot(dater.tree, show.tip.label=FALSE,
+#     edge.width=1,
+#     edge.color="blue") # Try a few different settings!
+#axisPhylo(backward = FALSE)
 
 
 # 3. Transmission events and internal nodes
-x <- i.vec
-plot(x, int.node.vec, type="b", col="red", lwd=2,
-     xlab = "Calendar time",
-     ylab = "Count") # 1 > 1
-lines(x, numb.tra, col='green3', type='b', lwd=2)
-legend("topleft", legend = c("Internal nodes", "Transmission events"),
-       col=c("red","green3"), pch=1)
+#x <- i.vec
+#plot(x, int.node.vec, type="b", col="red", lwd=2,
+#     xlab = "Calendar time",
+#     ylab = "Count") # 1 > 1
+#lines(x, numb.tra, col='green3', type='b', lwd=2)
+#legend("topleft", legend = c("Internal nodes", "Transmission events"),
+#       col=c("red","green3"), pch=1)
 
 
 # Object for plotting by ggplot
@@ -599,5 +588,4 @@ SimpactPaperPhyloExample$int.node.vec <- int.node.vec
 SimpactPaperPhyloExample$numb.tra <- numb.tra
 save(SimpactPaperPhyloExample, file = "SimpactPaperPhyloExample.RData")
 
-fig.obj <- get(load("SimpactPaperPhyloExample.RData"))
-
+#fig.obj <- get(load("SimpactPaperPhyloExample.RData"))
