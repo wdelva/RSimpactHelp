@@ -246,11 +246,18 @@ transmNetworkBuilder.diff3 <- function(datalist = datalist, endpoint = 40){
 
   # Searching sampling and removal times
 
-  diagnosis.event <- as.data.frame(datalist$etable[eventname == "diagnosis"])
+  # change >>> sampling time == start of the treatment
+
+  diagnosis.event <- as.data.frame(datalist$etable[eventname == "(treatment)"]) # as.data.frame(datalist$etable[eventname == "diagnosis"])
   death.hiv.event <- as.data.frame(datalist$etable[eventname == "aidsmortality"])
   death.norm.event <- as.data.frame(datalist$etable[eventname == "normalmortality"])
   keeps <- c("p1ID","eventtime")
 
+  # Check if treatment times == TreatTime in person table
+  # treatment.event <- as.data.frame(datalist$etable[eventname == "(treatment)"])
+  # head(treatment.event)
+  # a  <- datalist$ptable[ID == "XY"] # XY being a valu from treatment.event$p1ID
+  # a$TreatTime
   diagnosis <- diagnosis.event[keeps]
   aids.death <- death.hiv.event[keeps]
   normal.death <- death.norm.event[keeps]
@@ -519,7 +526,4 @@ transmNetworkBuilder.diff3 <- function(datalist = datalist, endpoint = 40){
   return(transm.ls)
 
 }
-
-
-
 
