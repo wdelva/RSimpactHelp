@@ -20,8 +20,8 @@ age.distr <- agedistr.creator(shape = 5, scale = 65)
 cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
                                  population.msm = "no",
                                  population.simtime = 40, #20, #40,  #25 for validation. 20 for calibration
-                                 population.nummen = 1500, # 3800, #2500,
-                                 population.numwomen = 2000, #4200, #2500,
+                                 population.nummen = 600, # 3800, #2500,
+                                 population.numwomen = 600, #4200, #2500,
                                  hivseed.time = 10, # 10,
                                  hivseed.type = "amount",
                                  hivseed.amount = 20, #30,
@@ -50,7 +50,7 @@ cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
 cfg.list["formation.hazard.agegapry.baseline"] <- 2
 cfg.list["mortality.aids.survtime.C"] <- 65
 cfg.list["mortality.aids.survtime.k"] <- -0.2
-cfg.list["monitoring.fraction.log_viralload"] <- 0 # 0.3
+cfg.list["monitoring.fraction.log_viralload"] <- 0 #0.3
 cfg.list["dropout.interval.dist.uniform.min"] <- 1000
 cfg.list["dropout.interval.dist.uniform.max"] <- 2000
 
@@ -65,8 +65,8 @@ cfg.list["person.agegap.woman.dist.type"] <- "normal" #"fixed"
 
 cfg.list["mortality.aids.survtime.C"] <- 65
 cfg.list["mortality.aids.survtime.k"] <- -0.2
-cfg.list["monitoring.cd4.threshold"] <- 10000
-cfg.list["person.art.accept.threshold.dist.fixed.value"] <- 1
+cfg.list["monitoring.cd4.threshold"] <- 0 # 0 means nobody qualifies for ART
+cfg.list["person.art.accept.threshold.dist.fixed.value"] <- 0.4
 cfg.list["diagnosis.baseline"] <- -2
 
 
@@ -76,10 +76,9 @@ cfg.list["diagnosis.baseline"] <- -2
 
 # Let's introduce ART, and evaluate whether the HIV prevalence drops less  rapidly
 art.intro <- list()
-art.intro["time"] <- 0.0001 # 25
-art.intro["person.art.accept.threshold.dist.fixed.value"] <- 1 # 0.5 # inputvector[4] ######### 0.5
+art.intro["time"] <- 20
 art.intro["diagnosis.baseline"] <- -2 # 0#100
-art.intro["monitoring.cd4.threshold"] <- 10000 # 1200
+art.intro["monitoring.cd4.threshold"] <- 100 # 1200
 
 ### add something about diagnosis
 art.intro["diagnosis.agefactor"] <- 0
@@ -94,34 +93,41 @@ art.intro["diagnosis.isdiagnosedfactor"] <- 0
 
 
 # Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2013:500
+art.intro1 <- list()
+art.intro1["time"] <- 22
+art.intro1["diagnosis.baseline"] <- -2 # 0#100
+art.intro1["monitoring.cd4.threshold"] <- 150 # 1200
 
-# art.intro2 <- list()
-# art.intro2["time"] <- 25 + 5 # inputvector[5] ######### 30
-# art.intro2["monitoring.cd4.threshold"] <- 200
-#
-# art.intro3 <- list()
-# art.intro3["time"] <- 33 # inputvector[4] + inputvector[5] + inputvector[6] ########### 33
-# art.intro3["monitoring.cd4.threshold"] <- 350
-#
-# art.intro4 <- list()
-# art.intro4["time"] <- 3 # inputvector[4] + inputvector[5] + inputvector[6] + inputvector[7] ########### 36
-# art.intro4["monitoring.cd4.threshold"] <- 500
-#
-# art.intro5 <- list()
-# art.intro5["time"] <- 38
-# art.intro5["monitoring.cd4.threshold"] <- 5000 # This is equivalent to immediate access
-# art.intro5["person.art.accept.threshold.dist.fixed.value"] <- 0.5 # inputvector[8] ########### 0.75
+
+art.intro2 <- list()
+art.intro2["time"] <- 25 # inputvector[5] ######### 30
+art.intro2["monitoring.cd4.threshold"] <- 200
+
+art.intro3 <- list()
+art.intro3["time"] <- 30 # inputvector[4] + inputvector[5] + inputvector[6] ########### 33
+art.intro3["monitoring.cd4.threshold"] <- 350
+
+art.intro4 <- list()
+art.intro4["time"] <- 33 # inputvector[4] + inputvector[5] + inputvector[6] + inputvector[7] ########### 36
+art.intro4["monitoring.cd4.threshold"] <- 500
+
+art.intro5 <- list()
+art.intro5["time"] <- 36
+art.intro5["monitoring.cd4.threshold"] <- 700 # This is equivalent to immediate access
 
 # tasp.indicator <- inputvector[9] # 1 if the scenario is TasP, 0 if the scenario is current status
 
-interventionlist <- list(art.intro) #, art.intro2, art.intro3, art.intro4, art.intro5)
+interventionlist <- list(art.intro, art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
 
 intervention <- interventionlist # scenario(interventionlist, tasp.indicator)
 
 
 
 
-inputvector <- c(123,1.1, 0.25, 0, 3, 0.23, 0.23, 45, 45, -0.5, 2.8, -0.2, -0.2, -2.5, -0.52, -0.05)
+inputvector <- c(123, 1.05, 0.25, 0, 3, 0.23, 0.23, 45, 45, -0.7, 2.8,
+                 -0.3, -0.3,
+                 -2.7, # conception
+                 -0.52, -0.05)
 
 
 cfg.list["hivtransmission.param.f1"] = log(inputvector[2])
@@ -146,7 +152,7 @@ cfg["population.maxevents"] <- as.numeric(cfg.list["population.simtime"][1]) * a
 # cfg["monitoring.fraction.log_viralload"] <- 0.3
 cfg["person.vsp.toacute.x"] <- 5 # See Bellan PLoS Medicine
 
-seedid <- inputvector[1]
+seedid <- inputvector[1] + j
 #cfg["person.agegap.man.dist.fixed.value"] <- -2 # inputvector[2]
 #cfg["person.agegap.woman.dist.fixed.value"] <- -2 # inputvector[2]
 cfg["formation.hazard.agegapry.gap_factor_man_exp"] <- inputvector[10] ######### -0.5
@@ -158,6 +164,7 @@ cfg["formation.hazard.agegapry.numrel_woman"] <- inputvector[13]
 cfg["conception.alpha_base"] <- inputvector[14] #is conception.alpha.base (higher up)
 cfg["dissolution.alpha_0"] <- inputvector[15]
 cfg["dissolution.alpha_4"] <- inputvector[16]
+
 
 #
 # # # # Run Simpact
@@ -294,7 +301,7 @@ for(i in 1:length(trans.net)){
     # # Keep sampling dates
     # id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
 
-    # Keep sampling dates
+    # Keep sampling dates, add "A" on ID-tip- labels to handle them as charcters
     id.samplingtime <- as.data.frame(cbind(paste(i,".",tree.n$id, ".A", sep = ""), tree.n$dtimes)) # IDs and their samling times in the transmission network
 
 
