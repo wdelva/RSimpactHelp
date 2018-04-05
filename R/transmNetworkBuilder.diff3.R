@@ -77,13 +77,13 @@ transmNetworkBuilder.diff3 <- function(datalist = datalist, endpoint = 40){
   pers.infec <- pers.infec.raw[which(pers.infec.raw$InfectTime <= endpoint),]
 
   # person table of infected individuals by seed event
-  pers.table.seed <- subset(pers.infec, pers.infec$InfectType==0)
+  pers.table.seed <- pers.infec[pers.infec$InfectType==0,] # subset(pers.infec, pers.infec$InfectType==0)
 
   # id of people who got infection by seed event: seeds.id
   seeds.id <- pers.table.seed$ID # do
 
   # person table of infected individuals by transmission event
-  pers.table.trans <- subset(pers.infec,pers.infec$InfectType==1)
+  pers.table.trans <- pers.infec[pers.infec$InfectType==1,] # subset(pers.infec,pers.infec$InfectType==1)
 
 
 
@@ -269,11 +269,13 @@ transmNetworkBuilder.diff3 <- function(datalist = datalist, endpoint = 40){
   # or subset(diagnosis, !duplicated(p1ID))
 
   # person table of people alive at the end of simulation >> use of alive.infected() FUNCTION
-  alive.at.endpoint <- alive.infected(datalist = datalist, timepoint = endpoint,
-                                      site = "All")
+  # alive.at.endpoint <- alive.infected(datalist = datalist, timepoint = endpoint,
+  #                                     site = "All") NOT for USE >> it's for these HIV status is recorded
 
   # person table of all people alive at the end of simulation but are HIV positive
-  alive.hiv <- subset(alive.at.endpoint, alive.at.endpoint$InfectType !=-1)
+  # alive.hiv <- subset(alive.at.endpoint, alive.at.endpoint$InfectTime !="Inf") #$InfectType !=-1)
+
+  alive.hiv <- infec.all[infec.all$TOD =="Inf", ] # among infected these who still alive
 
   # person table of people alive at the end of simulation but are HIV positive
   # per seed
@@ -526,8 +528,3 @@ transmNetworkBuilder.diff3 <- function(datalist = datalist, endpoint = 40){
   return(transm.ls)
 
 }
-
-<<<<<<< HEAD
-=======
-
->>>>>>> efade2d4d9b7acc077b7dcbd8659cf105e55572f
