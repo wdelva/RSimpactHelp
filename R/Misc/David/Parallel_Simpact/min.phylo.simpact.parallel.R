@@ -55,7 +55,7 @@ inputvector <- c(1.05, 0.25, 0, 3, 0.23, 0.23, 45, 45, -0.7, 2.8,
 #                  -2.7, # conception
 #                  -0.52, -0.05)
 #
-reps <- 240
+reps <- 1
 
 # Input parameters in matrix form reps times (rows).
 inputmatrix <- matrix(rep(inputvector, reps), byrow = TRUE, nrow = reps)
