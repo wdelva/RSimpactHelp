@@ -79,3 +79,253 @@ prevalence.plotter <- function(datalist = datalist,
 }
 
 
+## Sampling in a given time interval
+
+# 1. Overa-all age-mixing patterns
+###################################
+
+survey.window <- c(20,25)
+
+persontable <- dplyr::filter(datalist$ptable, TOD>=survey.window[1]) # ||TOD<=survey.window[2])
+
+persontable.hiv <- dplyr::filter(persontable, InfectTime!="Inf")
+
+
+indiv.samp <- persontable.hiv$ID
+
+source("R/transmNetworkBuilder.diff3.R")
+
+simpact.trans.net <- transmNetworkBuilder.diff3(datalist = datalist,
+                                                endpoint = datalist$itable$population.simtime[1])
+
+trans.network <- simpact.trans.net
+
+
+# Define function for age-mixing in transmission networks
+
+agemixing.trans.df <- function(datalist = datalist,
+                               trans.network = trans.network){
+
+  pers.infec.raw <- as.data.frame(datalist$ptable[InfectType != -1])
+
+  pers.infec <- pers.infec.raw[which(pers.infec.raw$InfectTime <= datalist$itable$population.simtime[1]),]
+
+  # person table of infected individuals by seed event
+  pers.table.seed <- subset(pers.infec, pers.infec$InfectType==0)
+
+  # id of people who got infection by seed event: seeds.id
+  seeds.id <- pers.table.seed$ID # do
+
+  infectionTable <- vector("list", length(seeds.id))
+
+  for (i in 1: length(seeds.id)) {
+
+    trans.network.i <- as.data.frame(trans.network[[i]])
+
+    if(nrow(trans.network.i) >= 2){
+
+      trans.network.i <- trans.network.i[-1,]
+
+      rrtable <- as.data.frame(cbind(trans.network.i$RecId, trans.network.i$DonId,
+                                     trans.network.i$GenderRec, trans.network.i$GenderDon,
+                                     trans.network.i$TOBRec, trans.network.i$TOBDon,
+                                     trans.network.i$InfecTime, trans.network.i$SampTime))
+
+      names(rrtable) <- c("RecId", "DonId", "GenderRec",
+                          "GenderDon", "TOBRec", "TOBDon", "InfecTime", "SampTime")
+
+      rrtable.men <- subset(rrtable, rrtable$GenderDon=="0")
+      rrtable.women <- subset(rrtable, rrtable$GenderDon=="1")
+
+      ids.men <- rrtable.men$DonId
+      ids.men.part.w <- rrtable.men$RecId
+      age.gap.ID1 <- abs(rrtable.men$TOBDon) - abs(rrtable.men$TOBRec) # men are donors
+      tob.men.ID1 <- rrtable.men$TOBDon
+      tob.women.ID1 <- rrtable.men$TOBRec
+
+      age.men.ID1 <- abs(rrtable.men$TOBDon) + rrtable.men$InfecTime
+      age.women.ID1 <- abs(rrtable.men$TOBRec) + rrtable.men$InfecTime
+
+      infectime.m <- rrtable.men$InfecTime
+      samptime.m <- rrtable.men$SampTime
+
+      ID1.m <- ids.men
+      ID2.m <- ids.men.part.w
+      age.gap.m <- age.gap.ID1
+      infectime.m <- infectime.m
+
+      infectable.m <- cbind(ID1.m, ID2.m, tob.men.ID1, tob.women.ID1, age.men.ID1, age.women.ID1, age.gap.m, infectime.m, samptime.m)
+
+      ids.women <- rrtable.women$DonId
+      ids.women.part.m <- rrtable.women$RecId
+      age.gap.ID2 <- abs(rrtable.women$TOBRec) - abs(rrtable.women$TOBDon) # women are receptors
+      tob.men.ID2 <- rrtable.women$TOBRec
+      tob.women.ID2 <- rrtable.women$TOBDon
+
+      age.men.ID2 <- abs(rrtable.women$TOBDon) + rrtable.women$InfecTime
+      age.women.ID2 <- abs(rrtable.women$TOBRec) + rrtable.women$InfecTime
+
+      infectime.w <- rrtable.women$InfecTime
+      samptime.w <- rrtable.women$SampTime
+
+      ID1.w <- ids.women.part.m
+      ID2.w <- ids.women
+      age.gap.w <- age.gap.ID2
+      infectime.w <- infectime.w
+
+      infectable.w <- cbind(ID1.w, ID2.w, tob.men.ID2, tob.women.ID2, age.men.ID2, age.women.ID2, age.gap.w, infectime.w, samptime.w)
+
+      infectable.i <- as.data.frame(rbind(infectable.m, infectable.w))
+
+      names(infectable.i) <- c("ID1", "ID2", "TOBID1", "TOBID2", "AgeID1", "AgeID2", "AgeGap", "infecttime", "samptime")
+      infectionTable[[i]] <- infectable.i
+    }
+
+
+  }
+
+
+  infecttable <- as.data.frame(rbindlist(infectionTable))
+
+  return(infecttable)
+
+}
+
+
+# Call the function
+
+agemix.df <- agemixing.trans.df(datalist = datalist,
+                                trans.network = trans.network)
+
+agemix.df <- dplyr::filter(agemix.df, infecttime < survey.window[2])
+
+indiv.w <- intersect(agemix.df$ID2, indiv.samp)
+indiv.m <- intersect(agemix.df$ID1, indiv.samp)
+
+rm.non.trans <- setdiff(indiv.samp, c(indiv.w,indiv.m)) # seed individuals who never transmit the infection
+
+indiv.samp.trans <- intersect(indiv.samp, c(indiv.w, indiv.m))
+
+length(indiv.w)+length(indiv.m) # 237
+#  119         &   118
+length(indiv.samp.trans) # 237
+
+indiv.samp.men.agemix.df <- subset(agemix.df, agemix.df$ID1%in%indiv.samp.trans) # indiv.m)
+
+indiv.samp.women.agemix.df <- subset(agemix.df, agemix.df$ID2%in%indiv.samp.trans) # indiv.w)
+
+indiv.samp.agemix.df <- rbind(indiv.samp.men.agemix.df, indiv.samp.women.agemix.df)
+
+indiv.samp.agemix.df <- indiv.samp.agemix.df[!duplicated(indiv.samp.agemix.df), ]
+
+nrow(indiv.samp.agemix.df)
+
+overall.age.mixing.df <- indiv.samp.agemix.df
+
+# Fit mixed effects model to age mixing data
+
+# require  library(lme4)
+
+fit.agemix.trans <- function(datatable = agemix.df){
+
+  datatable <- agemix.df
+
+  agemix.inter <- lmer(AgeID2 ~ AgeID1 + (1|ID1), data = datatable) # choice of age_woman by a man
+
+  return(agemix.inter)
+
+}
+
+
+overall.agemix.fit <- fit.agemix.trans(datatable = overall.age.mixing.df)
+
+
+
+# Visualisation of age mixing in transmission
+
+coef.inter <- fixef(overall.agemix.fit)
+
+age.mix.intercept <- coef.inter[1] # Statistics to save
+
+age.mix.slope <- coef.inter[2] # Statistics to save
+
+#
+x=agemix.df$AgeID1
+y=agemix.df$AgeID2
+plot(x, y, lwd=1, col = "blue",
+     xlab = "Man Age",
+     ylab = "Woman Age")
+abline(coef = c(coef.inter[1], coef.inter[2]))
+
+
+# 2. Age-mixing between younger women < 25 years and men of 25-40 years
+
+indiv.samp.agemix.df$AgeID1 <- abs(indiv.samp.agemix.df$AgeID1)+indiv.samp.agemix.df$infecttime # absolute age
+
+indiv.samp.agemix.df$AgeID2 <- abs(indiv.samp.agemix.df$AgeID2)+indiv.samp.agemix.df$infecttime # absolute age
+
+
+w.25.m.25.40.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2<25, AgeID1>=25 & AgeID1<=40)
+
+
+w.25.m.25.40.agemix.fit <- fit.agemix.trans(datatable = w.25.m.25.40.df)
+
+
+
+# Visualisation of age mixing in transmission
+
+coef.inter <- fixef(w.25.m.25.40.agemix.fit)
+
+age.mix.intercept <- coef.inter[1] # Statistics to save
+
+age.mix.slope <- coef.inter[2] # Statistics to save
+
+#
+x=agemix.df$AgeID1
+y=agemix.df$AgeID2
+plot(x, y, lwd=1, col = "blue",
+     xlab = "Man Age",
+     ylab = "Woman Age")
+abline(coef = c(coef.inter[1], coef.inter[2]))
+
+
+# 3. Women < 25 years and men 25 - 40 years
+
+w.25.m.25.40.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2<25, AgeID1>=25 & AgeID1<=40)
+
+# 4. Women < 25 years and men 41 - 49 years
+
+w.25.m.41.49.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2<25, AgeID1>=41 & AgeID1<=49)
+
+# 5. Women 25 - 40 years and men 25 - 40 years
+
+w.25.40.m.25.40.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2>=25 & AgeID2<=40, AgeID1>=25 & AgeID1<=40)
+
+# 6. Women 25 - 40 years and men 41 - 49 years
+
+w.25.40.m.41.49.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2>=25 & AgeID2<=40, AgeID1>=41 & AgeID1<=49)
+
+
+# 7. Women 41 - 49 years and men 25 - 40 years
+
+w.41.49.m.25.40.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2>=41 & AgeID2<=49, AgeID1>=25 & AgeID1<=40)
+
+
+# 8. Women 25 - 40 years and men 41 - 49 years
+
+w.25.40.m.41.49.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2>=25 & AgeID2<=40, AgeID1>=41 & AgeID1<=49)
+
+
+# 9. Young men < 25 years and women < 25 years !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m.25.w.25.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2<25, AgeID1<25)
+
+
+# 10. Young men < 25 years and women 25 - 40 years
+
+m.25.w.25.40.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2>=25 & AgeID2<=40, AgeID1<25)
+
+# 11. Young men < 25 years and women 41 - 49 years
+
+m.25.w.41.49.df <- dplyr::filter(indiv.samp.agemix.df, AgeID2>=41 & AgeID2<=49, AgeID1<25)
+
