@@ -34,7 +34,7 @@ simpact.parallel <- function(model = phylo.simpact.wrapper,
   #clusterExport(cl, "phylo.simpact.wrapper")
 
   list_simul_summarystat <- parLapplyLB(cl, list_param,
-                                        phylo.simpact.wrapper)
+                                        model)
 
   tab_simul_summarystat <- do.call(rbind, list_simul_summarystat)
 
@@ -50,12 +50,12 @@ inputvector <- c(1.05, 0.25, 0, 3, 0.23, 0.23, 45, 45, -0.7, 2.8,
                  -2.7, # conception
                  -0.52, -0.05)
 #
-# inputvector <- c(151,1.05, 0.25, 0, 3, 0.23, 0.23, 45, 45, -0.7, 2.8,
-#                  -0.3, -0.3,
-#                  -2.7, # conception
-#                  -0.52, -0.05)
+inputvector <- c(151,1.05, 0.25, 0, 3, 0.23, 0.23, 45, 45, -0.7, 2.8,
+                 -0.3, -0.3,
+                 -2.7, # conception
+                 -0.52, -0.05)
 #
-reps <- 1
+reps <- 20
 
 # Input parameters in matrix form reps times (rows).
 inputmatrix <- matrix(rep(inputvector, reps), byrow = TRUE, nrow = reps)
@@ -68,7 +68,7 @@ sim.start.time <- proc.time()[3]
 features.matrix <- simpact.parallel(model = phylo.simpact.wrapper,
                                     actual.input.matrix = inputmatrix,
                                     seed_count = 123,
-                                    n_cluster = 4)
+                                    n_cluster = 8)
 
 sim.end.time <- proc.time()[3] - sim.start.time
 print(paste0("Simulation time: ", round(sim.end.time/60,2), " minutes"))
