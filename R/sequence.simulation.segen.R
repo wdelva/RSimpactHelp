@@ -1,21 +1,25 @@
 #' Simulate sequences data of individual in the transmissiion network using seq-gen
 #'
-#' @param dir Direcotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool
+#' @param dir.seqDirecotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param seeds.num  Seed number for reproducability
 #' @param endopint Only transmission events that took place before this point in simulation time
-#' @param seed.file File containing seed HIV sequences
+#' @param limitTransmEvents Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)
+#' @param seed.file File containing seed HIV sequences in FASTA format, it might be in same repository as seq-gen
 
 
-sequence.simulation.seqgen <- function(dir = dir,
+sequence.simulation.seqgen <- function(dir.seq = dir,
                                        datalist = datalist,
                                        seeds.num = 123,
                                        endpoint = 40,
+                                       limitTransmEvents = 3,
                                        seed.file = "hiv.seq.A.pol.j.fasta"){
 
 
+  # source("R/transmNetworkBuilder.diff3.R")
+  # source("R/epi2tree2.R")
 
-  simpact.trans.net <- transmNetworkBuilder.diff2(datalist = datalist, endpoint = endpoint)
+  simpact.trans.net <- transmNetworkBuilder.diff3(datalist = datalist, endpoint = endpoint)
 
   smallest.branches <- rep(NA, times = length(simpact.trans.net))
   for (list.element in 1:length(simpact.trans.net)){
@@ -29,78 +33,231 @@ sequence.simulation.seqgen <- function(dir = dir,
   min.val <- min(smallest.branches, na.rm = TRUE)
 
   if(min.val <= 0){
+
     print("Some branch lengths are negative - someone transmitted infection after sampling")
+
   }else{
-    current.dir <- getwd()
 
-    dir <- setwd(dir)
+    TransmEventsCountVector <- vector()
 
-    seed <- seeds.num
-
-    trans.net <- simpact.trans.net
-
-    num.i <- vector() # i_th seed in the list of seeds
     for(i in 1:length(trans.net)){
-
-      tree.n <- trans.net[[i]] # transmission network for i^th seed
-
-      if(nrow(as.data.frame(tree.n)) >= 3){
-        tree.i <- trans.network2tree(transnetwork = tree.n)
-        #num.trees <- c(num.trees,tree.n$id[1])
-        num.i <- c(num.i,i)
-
-        # Save the transmission tree
-        write.tree(tree.i, file = paste("tree.model1.seed",i,".nwk", sep = ""))
-
-        tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = ""))
-
-        # # count number of trees generated (normally one)
-        # numb.tr <- function(tree=tree){
-        #     if(length(tree) == 4){
-        #         return(1)
-        #     }else{
-        #         return(length(tree))
-        #     }
-        # }
-        #
-        # # Simulate sequences, this require compiled toold seq-gen
-        # # random sequence which will be simulated is choosen in the pool
-        # seq.rand <- sample(1:30,1) # chose one sequence in first 30's in the seed sequence pool named "seed.seq.fasta"
-        seq.rand <- 1
-        #
-        # tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = ""))
-        # n.tr <- numb.tr(tree = tr)
-
-        n.tr <- 1
-
-        seed.id <- tree.n$id[1]
-
-        # call the seed sequences and rename the file; paste("hiv.seq.A.pol.j.fasta", sep = "")
-        file.copy(seed.file,paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""))
-        # add the number of tree in the file and
-        write(n.tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE) # 1 is the number of tree across which we simulate the sequences
-        # the tree, to prepare the file to simulate the evolution of the virus across the tree
-        write.tree(tr,file = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), append = TRUE)
-        file.rename(from = paste("hiv.seq.A.pol.j.fasta",i,".nwk", sep = ""), to = paste("hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk", sep = ""))
-
-        system(paste("./seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300 -a 0.9410 -i 0.80 -g 4 -r 2.2228, 10.7771, 1.0675, 1.2966, 12.6824, 1.0000 -s 0.00475 -n1 -k 1 <hiv.seq.A.pol.j.fasta",i,"seed",i,".nwk  -z",seed," >A.Epidemic",i,".Sequences.gene.pol.fasta", sep = ""))
-
-
-        # a: shape parameter of Gamma > Gamma Rate Heterogeneity
-        # g: category of Gamma > Discrete Gamma Rate Heterogeneity
-        # r: rate matrix
-        # z: seed
-
-        # Keep sampling dates
-        id.samplingtime <- as.data.frame(cbind(tree.n$id, tree.n$dtimes)) # IDs and their samling times in the transmission network
-
-        write.csv(id.samplingtime,file=paste("samplingtimes_seed_number_",i,".csv", sep = ""))
-
+      trans.net.i.check <- as.data.frame(trans.net[[i]])
+      if(nrow(trans.net.i.check)>=limitTransmEvents){
+        TransmEventsCountVector <- c(TransmEventsCountVector, nrow(trans.net.i.check))
       }
     }
 
-    setwd(current.dir)
+
+    ##### ######################
+    #### Only One transmission network with at least limitTransmEvents each of them
+    ############################
+    if(length(TransmEventsCountVector)==1){
+
+
+
+      num.trees <- vector() # ID of seeds # will be 0 because the transformation required to handle transmission tree from transmission network
+      # constrained to rename IDs to -1, 0, 1, 2, ...
+      num.i <- vector() # i_th seed in the list of seeds
+
+      for(i in 1:length(trans.net)){
+
+        tree.n <- trans.net[[i]] # transmission network for i^th seed
+
+        if(nrow(as.data.frame(tree.n)) >= limitTransmEvents){
+
+          # Construct transmission trees
+          tree.i <- trans.network2tree(transnetwork = tree.n)
+          num.trees <- c(num.trees,tree.n$id[1])
+          num.i <- c(num.i,i)
+
+          tree.j <- tree.i
+          tree.j$tip.label <- paste(i,".", tree.j$tip.label, ".C", sep = "")
+
+          # Save the transmission tree
+          write.tree(tree.j, file = paste0(dir.seq,"/tree.model1.seed_",i,".nwk"))
+
+          # tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = "")
+
+
+          # Keep sampling dates, add "A" on ID in order to handle all ID's as characters
+          id.samplingtime <- as.data.frame(cbind(paste0(i,".",tree.n$id, ".C"), tree.n$dtimes)) # IDs and their sampling times in the transmission network
+
+          write.csv(id.samplingtime,file=paste0(dir.seq,"/samplingtimes_seed_",i,".csv"))
+
+        }
+      }
+
+      IDs.transm <- num.i # vector of seeds with at least 2 transmissions
+
+      p <- IDs.transm[1]
+
+      resolved.combined.tree <- read.tree(file = paste0(dir.seq,"/tree.model1.seed_",p,".nwk"))
+
+
+
+      colitem <- read.csv(paste0(dir.seq,"/samplingtimes_seed_",p,".csv"))
+
+
+      write.csv(colitem, file=paste0(dir.seq,"/samplingtimes.unique.csv"))
+
+
+
+
+      # Prepare to run the sequence simulation
+
+      seq.rand <- 1 # first sequence
+
+      n.tr <- 1 # number of transmission tree
+
+       # # call the seed sequences - pool of viruses and rename the file
+      file.copy(paste0(dir.seq,"/",seed.file),paste0(dir.seq,"/seed.seq.bis.nwk"))
+
+      # add the number of tree in the file and
+      write(n.tr,file = paste0(dir.seq,"/seed.seq.bis.nwk"), append = TRUE)  # n.tr
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+
+      write.tree(resolved.combined.tree,file = paste0(dir.seq,"/seed.seq.bis.nwk"), append = TRUE)
+
+      file.rename(from = paste0(dir.seq,"/seed.seq.bis.nwk"), to = paste0(dir.seq,"/seed.seq.bis.sim.nwk"))
+
+      out.seq.gen.file <- paste0(dir.seq,"/C.Epidemic_seed.seq.bis.sim.nwk.fasta")
+
+      in.seq.gen.file <- paste0(dir.seq,"/seed.seq.bis.sim.nwk")
+
+      system(paste0(paste0(dir.seq,"/"), paste0("seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+
+    }
+
+
+    ##### ######################
+    #### Two or more transmissions networks with at least limitTransmEvents each of them
+    ############################
+
+    if(length(TransmEventsCountVector)>=2){ # at least two transmissions networks ith at least 6
+      # transmissions each
+
+
+      num.trees <- vector() # ID of seeds # will be 0 because the transformation required to handle transmission tree from transmission network
+      # constrained to rename IDs to -1, 0, 1, 2, ...
+      num.i <- vector() # i_th seed in the list of seeds
+
+      for(i in 1:length(trans.net)){
+
+        tree.n <- trans.net[[i]] # transmission network for i^th seed
+
+        if(nrow(as.data.frame(tree.n)) >= limitTransmEvents){
+
+          # Construct transmission trees
+          tree.i <- trans.network2tree(transnetwork = tree.n)
+          num.trees <- c(num.trees,tree.n$id[1])
+          num.i <- c(num.i,i)
+
+          tree.j <- tree.i
+          tree.j$tip.label <- paste(i,".", tree.j$tip.label, ".C", sep = "")
+
+          # Save the transmission tree
+          write.tree(tree.j, file = paste0(dir.seq,"/tree.model1.seed_",i,".nwk"))
+
+          # tr <- read.tree(file = paste("tree.model1.seed",i,".nwk", sep = "")
+
+
+          # Keep sampling dates, add "A" on ID in order to handle all ID's as characters
+          id.samplingtime <- as.data.frame(cbind(paste0(i,".",tree.n$id, ".C"), tree.n$dtimes)) # IDs and their sampling times in the transmission network
+
+          write.csv(id.samplingtime,file=paste0(dir.seq,"/samplingtimes_seed_",i,".csv"))
+
+        }
+      }
+
+      IDs.transm <- num.i # vector of seeds with at least 2 transmissions
+
+
+
+      ### Binding all transmission trees together ###
+      ###############################################
+
+      # Make a list of transmission trees
+
+      trees <- list() # list of all transmission trees
+
+      for(j in 1:length(IDs.transm)){
+        p <- IDs.transm[j]
+        tr <- read.tree(file = paste0(dir.seq,"/tree.model1.seed_",p,".nwk"))
+        trees[[j]] <- tr
+      }
+
+      class(trees)<-"multiPhylo"
+
+      # print(trees,details=TRUE)
+
+      # Function to bind all transmission trees in the list above
+
+      bind.trees<-function(trees){
+        if(length(trees)==2) return(bind.tree(trees[[1]],trees[[2]], where = "root", position = 0))
+        else {
+          trees<-c(bind.tree(trees[[1]],trees[[2]]),
+                   if(length(trees)>2) trees[3:length(trees)])
+          trees<-bind.trees(trees) ## this is the recursive part
+          return(trees)
+        }
+      }
+
+      combined.tree<-bind.trees(trees) # This is a polytomy tree
+
+      # is.binary.tree(combined.tree)
+
+      # resolve polytomies of the combined transmission tree
+
+      resolved.combined.tree <- multi2di(combined.tree) # resolve polytomies
+
+      # is.binary.tree(resolved.combined.tree)
+
+
+      ### Bind sampling dates ###
+      ###########################
+
+      for (i in IDs.transm){
+        if(i==IDs.transm[1]){
+          colitem <- read.csv(paste0(dir.seq,"/samplingtimes_seed_",i,".csv"))
+        }
+        else{
+
+          ritem <- read.csv(paste0(dir.seq,"/samplingtimes_seed_",i,".csv"))
+          colitem <- rbind(colitem, ritem)
+        }
+      }
+
+      write.csv(colitem, file=paste0(dir.seq,"/samplingtimes.all.csv"))
+
+
+      # Prepare to run the sequence simulation
+
+      seq.rand <- 1 # first sequence
+
+      n.tr <- 1 # number of transmission tree
+
+      # # call the seed sequences - pool of viruses and rename the file
+      file.copy(paste0(dir.seq,"/",seed.file),paste0(dir.seq,"/seed.seq.bis.nwk"))
+
+      # add the number of tree in the file and
+      write(n.tr,file = paste0(dir.seq,"/seed.seq.bis.nwk"), append = TRUE)  # n.tr
+      # the tree, to prepare the file to simulate the evolution of the virus across the tree
+
+      write.tree(resolved.combined.tree,file = paste0(dir.seq,"/seed.seq.bis.nwk"), append = TRUE)
+
+      file.rename(from = paste0(dir.seq,"/seed.seq.bis.nwk"), to = paste0(dir.seq,"/seed.seq.bis.sim.nwk"))
+
+      out.seq.gen.file <- paste0(dir.seq,"/C.Epidemic_seed.seq.bis.sim.nwk.fasta")
+      in.seq.gen.file <- paste0(dir.seq,"/seed.seq.bis.sim.nwk")
+
+      system(paste0(paste0(dir.seq,"/"), paste0("seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+
+    }
+
   }
 
+  print("Sequence simulation finished!")
 
 }
+
+
