@@ -30,7 +30,9 @@ returns a list with two elements: 1. Dataframe of relationships
 \description{
 Models the age-mixing pattern for the population simulated in Simpact. The
 user specifies a time point, time window, and age group for which they would
-like to obtain a summary of the age-mixing pattern.
+like to obtain a summary of the age-mixing pattern. The user also specifies
+whether only relationships that started within the time window should be
+used.
 }
 \details{
 The \code{pattern.modeller} function uses the \code{link[nlme]{lme}}

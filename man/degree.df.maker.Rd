@@ -4,8 +4,9 @@
 \alias{degree.df.maker}
 \title{Degree distribution of persons in recent sexual relationships.}
 \usage{
-degree.df.maker(df, agegroup = c(15, 30), hivstatus = 0, survey.time = 40,
-  window.width = 1, gender.degree = "female", only.new = TRUE)
+degree.df.maker(df = rels.episodes.df, agegroup = c(15, 30),
+  hivstatus = 0, survey.time = 40, window.width = 1,
+  gender.degree = "female", only.new = TRUE)
 }
 \arguments{
 \item{df}{The dataframe that is produced by \code{\link{agemix.df.maker}}}
@@ -46,6 +47,6 @@ a specified age group, gender, or HIV status of persons in the dataset.
 cfg <- list()
 modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp")
 dl <- readthedata(modeloutput)
-rels.df <- agemix.df.maker(datalist = dl)
-degree.df <- degree.df.maker(rels.df, agegroup = c(20, 30), hivstatus = 1)
+rels.episodes.df <- agemix.df.maker(datalist = dl)
+degree.df <- degree.df.maker(df = rels.episodes.df, agegroup = c(20, 30), hivstatus = 1)
 }
