@@ -37,7 +37,7 @@ fitting linear mixed effect models that describe the agemixing pattern with
 }
 \examples{
 data(persreldf)
-agemixpatdat <- agemix.rels.df.maker(dataframe = persreldf, agegroup = c(15, 30),
+agemix.rels.df <- agemix.rels.df.maker(dataframe = persreldf, agegroup = c(15, 30),
 timewindow = 1, timepoint = 30, start = FALSE)
 
 }

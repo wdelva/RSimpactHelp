@@ -4,10 +4,12 @@
 \alias{amp.modeller}
 \title{Model age-mixing pattern.}
 \usage{
-amp.modeller(dataframe, agegroup, timepoint, timewindow, start = FALSE)
+amp.modeller(dataframe, agegroup, timepoint, timewindow, start = FALSE,
+  method = "lmer")
 }
 \arguments{
-\item{dataframe}{The dataframe that is produced by \code{\link{agemix.rels.df.maker}}}
+\item{dataframe}{The dataframe that is produced by
+\code{\link{agemix.episodes.df.maker}}}
 
 \item{agegroup}{Boundaries of the age group that should be retained, e.g.
 c(15, 30). The interval is closed on the left and open on the right.}
@@ -22,9 +24,13 @@ timepoint. This should be a whole number.}
 \item{start}{This is a logical indicating that only relationships starting
 after the beginning of the window should be used. If start = FALSE
 relationships could start before the time window. This is the default.}
+
+\item{method}{Should the \code{link[nlme]{lme}} or \code{link[lme4]{lmer}}
+function be used?}
 }
 \value{
-returns a model fitted with \code{link[nlme]{lme}} or \code{link[lme4]{lmer}}
+returns a model fitted with \code{link[nlme]{lme}} or
+  \code{link[lme4]{lmer}}
 }
 \description{
 Models the age-mixing pattern for the population simulated in Simpact. The
@@ -49,7 +55,7 @@ The function produces a fitted model.
 }
 \examples{
 data(persreldf)
-agemixpatdat <- pattern.modeller(dataframe = persreldf, agegroup = c(15, 30),
-timewindow = 1, timepoint = 30)
+agemixpatdat <- amp.modeller(dataframe = persreldf, agegroup = c(15, 30),
+timepoint = 30, timewindow = 1, method = "lmer")
 
 }
