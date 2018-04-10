@@ -21,16 +21,17 @@
 #'
 #'
 #' @examples
-#' transm.ls <- transmNetworkBuilder.diff3(datalist = datalist,endpoint = 40)
+#' transm.ls <- transmission.network.builder(datalist = datalist,endpoint = 40)
 #' @note
 #' transm.ls[[1]] is the transmission network (epi object) of the first seed
 #' @import igraph
 #' @importFrom dplyr left_join
 #' @import data.table
+#' @export
 
 # Build a transmission network data per seed to be handled by epi2tree function of expotree package
 
-transmNetworkBuilder.diff3 <- function(datalist = datalist, endpoint = 40){
+transmission.network.builder <- function(datalist = datalist, endpoint = 40){
 
   # HIV seed time
   hivseed.time <- datalist$etable[eventname=="HIV seeding"]$eventtime
