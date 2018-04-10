@@ -1,6 +1,6 @@
 #' Basci reproductive number
 #'
-#' Compute the  basic reproductive number of a dynamic sexual network simulated with Simpact
+#' Compute HIV basic reproductive number from a dynamic sexual network simulated with Simpact
 #'
 #' @param datalist The datalist that is produced by \code{\link{readthedata}}
 #' @param beta The probability that an infected individual will infect a suceptible partner over the duration of
@@ -10,7 +10,7 @@
 #'
 #' @example ro <- basicnumber.calculator(datalist = datalist, beta = 0.1508, trans.rate.int = trans.rate.int)
 #'
-#'
+#' @export
 
 basicnumber.calculator <- function(datalist = datalist, beta = 0.1508, trans.rate.int = trans.rate.int){
 
