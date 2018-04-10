@@ -1,17 +1,15 @@
-#' Build a transmission tree
+#' Build a transmission tree object from a transmission network
 #'
-#' From the output of the \code{\link{transmNetworkBuilder.baseline()}} or \code{\link{transmNetworkBuilder.diff()}},
-#' we can build the tranmission tree
-#' @param epi The phylo object produced by \code{\link{transmNetworkBuilder.baseline}} or \code{\link{transmNetworkBuilder.diff()}}.
+#' @param epi The phylo object produced by \code{\link{transmission.network.builder}}.
 #' @return Transmission tree object (a phylo object)
 #' @examples
 #'
-#' transm.ls <- transmNetworkBuilder.baseline(datalist = datalist, endpoint = 40)
+#' transm.ls <- transmission.network.builder(datalist = datalist, endpoint = 40)
 #' epi <- transm.ls[[16]]
 #' tree0 <- epi2tree2(transnetwork = epi) # transmission tree of seeds 16
 #'
 #' @import expoTree
-#'
+#' @export
 
 
 epi2tree2 <- function(epi){
