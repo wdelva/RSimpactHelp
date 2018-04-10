@@ -1,11 +1,13 @@
 #' Simulate sequences data of individual in the transmissiion network using seq-gen
 #'
-#' @param dir.seqDirecotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool
+#' @param dir.seq Direcotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param seeds.num  Seed number for reproducability
 #' @param endopint Only transmission events that took place before this point in simulation time
 #' @param limitTransmEvents Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)
 #' @param seed.file File containing seed HIV sequences in FASTA format, it might be in same repository as seq-gen
+#' @return Files of sequences data, sampling dates, and transmission trees
+#' @export
 
 
 sequence.simulation.seqgen <- function(dir.seq = dir,
@@ -16,10 +18,10 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
                                        seed.file = "hiv.seq.A.pol.j.fasta"){
 
 
-  # source("R/transmNetworkBuilder.diff3.R")
+  # source("R/transmission.network.builder.R")
   # source("R/epi2tree2.R")
 
-  simpact.trans.net <- transmNetworkBuilder.diff3(datalist = datalist, endpoint = endpoint)
+  simpact.trans.net <- transmission.network.builder(datalist = datalist, endpoint = endpoint)
 
   smallest.branches <- rep(NA, times = length(simpact.trans.net))
   for (list.element in 1:length(simpact.trans.net)){

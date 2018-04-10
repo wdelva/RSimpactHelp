@@ -1,11 +1,12 @@
 #' COnstruct and calibrate a phylogenetic tree from sequence data
 #'
 #' @param dir.tree Direcotry where we find the FastTree tool
-#' @param dir.seq Direcotry wherewe find sequences and sampling times files
+#' @param dir.seq Direcotry where we find sequences and sampling times files
 #' @param calendar.dates File containing named sampling times for each sequence
 #' @param simseqfile File containing sequences
-#' @param seeds.num  Seed number for reproducability
 #' @param endsim End of simulation # place holder for sequence from simpact when assigning real calendar time
+#' @return A time stamped phylogenetic  tree with annotation of internal nodes dates
+#' @export
 
 phylogenetic.tree.fasttree <- function(dir.seq = dirseqgen,
                                        dir.tree = dirfasttree,
