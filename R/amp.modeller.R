@@ -44,8 +44,9 @@
 #'
 #' @importFrom magrittr %>%
 #' @import dplyr
-#' @import nlme
-#' @import lme4
+#' @importFrom nlme lme
+#' @importFrom nlme varPower
+#' @importFrom lme4 lmer
 #' @export
 #'
 #@importFrom nlme lme
@@ -76,7 +77,7 @@ amp.modeller <- function(dataframe,
                        data = female.rels.df,
                        REML = TRUE)
   }
-  if (method == "lme4") {
+  if (method == "lme") {
     male.model <- lme(pagerelform ~ agerelform0,
                      data = male.rels.df,
                      random = ~1 | ID,
