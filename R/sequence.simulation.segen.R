@@ -3,7 +3,7 @@
 #' @param dir.seq Direcotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param seeds.num  Seed number for reproducability
-#' @param endopint Only transmission events that took place before this point in simulation time
+#' @param endpoint Only transmission events that took place before this point in simulation time
 #' @param limitTransmEvents Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)
 #' @param seed.file File containing seed HIV sequences in FASTA format, it might be in same repository as seq-gen
 #' @return Files of sequences data, sampling dates, and transmission trees

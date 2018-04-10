@@ -31,7 +31,7 @@ ascending order with the column episodeorder.
 Additional columns generated:
 agerelform - The age of the person when when the relationship began. In
       other words, the age at the first episode
-agerelform - The age of their partner when the relationship began.
+pagerelform - The age of their partner when the relationship began.
 }
 \examples{
 data(datalist)

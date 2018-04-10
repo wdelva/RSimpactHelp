@@ -2,7 +2,7 @@
 % Please edit documentation in R/sequence.simulation.R
 \name{sequence.simulation}
 \alias{sequence.simulation}
-\title{Simulate the sequences for individual in the transmissiion network}
+\title{Simulate the sequences for individual in the transmissiion network using phylosim}
 \usage{
 sequence.simulation(transtree = tree0, seedSeq = hivSeq, alpha = 0.9,
   rate.list = rate, base.freq = freq)

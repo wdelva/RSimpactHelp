@@ -38,8 +38,8 @@ destDir <- "/home/david/Desktop/TEST_19_1_2018/temp" # laptop
 age.distr <- agedistr.creator(shape = 5, scale = 65)
 
 #source the input files var name <- cfg.list <- cfg
-cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
-                                 population.msm = "no",
+cfg.list <- input.params.creator( # population.eyecap.fraction = 0.2, #0.21,#1,
+                                 # population.msm = "no",
                                  population.simtime = 40, #20, #40,  #25 for validation. 20 for calibration
                                  population.nummen = 600, #3000, #600, # 3800, #2500,
                                  population.numwomen = 600, # 3000, #600, #4200, #2500,
@@ -126,6 +126,12 @@ art.intro5 <- list()
 art.intro5["time"] <- 36
 art.intro5["monitoring.cd4.threshold"] <- 700 # This is equivalent to immediate access
 
+inputvector <- c(151,1.05, 0.25, 0, 3, 0.23, 0.23, 45, 45, -0.7, 2.8,
+                 -0.3, -0.3,
+                 -2.7, # conception
+                 -0.52, -0.05)
+
+
 # tasp.indicator <- inputvector[9] # 1 if the scenario is TasP, 0 if the scenario is current status
 interventionlist <- list(art.intro, art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
 
@@ -146,6 +152,7 @@ cfg.list["person.eagerness.woman.dist.gamma.b"] <- inputvector[9]
 
 #cfg <- cfg.list
 
+
 cfg.list["population.maxevents"] <- as.numeric(cfg.list["population.simtime"][1]) * as.numeric(cfg.list["population.nummen"][1]) * 3
 # cfg["monitoring.fraction.log_viralload"] <- 0.3
 cfg.list["person.vsp.toacute.x"] <- 5 # See Bellan PLoS Medicine
@@ -163,9 +170,6 @@ cfg.list["conception.alpha_base"] <- inputvector[14] #is conception.alpha.base (
 cfg.list["dissolution.alpha_0"] <- inputvector[15]
 cfg.list["dissolution.alpha_4"] <- inputvector[16]
 
-#
-
-seedid <- 123
 
 results <- simpact.run(configParams = cfg.list,
                        destDir = destDir,
@@ -184,13 +188,13 @@ datalist <- readthedata(results)
 
 
 # Resource required RSimpactHelp function in my branch
-source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff3.R")
-source("/home/david/RSimpactHelp/R/epi2tree2.R")
-source("/home/david/RSimpactHelp/R/trans.network2tree.R")
+# source("/home/david/RSimpactHelp/R/transmNetworkBuilder.diff3.R")
+# source("/home/david/RSimpactHelp/R/epi2tree2.R")
+# source("/home/david/RSimpactHelp/R/trans.network2tree.R")
 
 
 
-simpact.trans.net <- transmNetworkBuilder.diff3(datalist = datalist, endpoint = 40)
+simpact.trans.net <- transmission.network.builder(datalist = datalist, endpoint = 40)
 
 smallest.branches <- rep(NA, times = length(simpact.trans.net))
 for (list.element in 1:length(simpact.trans.net)){
@@ -221,7 +225,7 @@ seed=123
 
 trans.net <- simpact.trans.net # all transmission networks
 
-source("/home/david/RSimpactHelp/R/sequence.simulation.segen.R")
+# source("/home/david/RSimpactHelp/R/sequence.simulation.segen.R")
 
 dirseqgen <- "/home/david/Desktop/TEST_19_1_2018/seqgen"
 
@@ -231,9 +235,6 @@ sequence.simulation.seqgen(dir = dirseqgen,
                            endpoint = 40,
                            limitTransmEvents = 3,
                            seed.file = "hiv.seq.C.pol.j.fasta")
-# Chosen transmission networks with at least 3 individuals
-
-IDs.transm <- which(smallest.branches!="NA") # seeds with at least 3 transmission events
 
 
 #####################################################
@@ -241,7 +242,7 @@ IDs.transm <- which(smallest.branches!="NA") # seeds with at least 3 transmissio
 #####################################################
 
 
-source("/home/david/RSimpactHelp/R/phylogenetic.tree.fasttree.R")
+# source("/home/david/RSimpactHelp/R/phylogenetic.tree.fasttree.R")
 
 
 dirfasttree <- "/home/david/Desktop/TEST_19_1_2018/Fasttree"
@@ -252,4 +253,6 @@ tree.calib <- phylogenetic.tree.fasttree(dir.seq = dirseqgen,
                            calendar.dates = "samplingtimes.all.csv",
                            simseqfile = "C.Epidemic_seed.seq.bis.sim.nwk.fasta",
                            endsim = 40)
+
+
 

@@ -7,18 +7,16 @@
 trans.network2tree(transnetwork = transnetwork)
 }
 \arguments{
-\item{transnetwork}{The phylo object produced by \code{\link{transmNetworkBuilder.baseline}} or \code{\link{transmNetworkBuilder.diff()}}.}
+\item{transnetwork}{The phylo object produced by \code{\link{transmission.network.builder}}.}
 }
 \value{
 Transmission tree object (a phylo object)
 }
 \description{
-From the output of the \code{\link{transmNetworkBuilder.baseline()}} or \code{\link{transmNetworkBuilder.diff()}},
-we can build the tranmission tree
+Build a transmission tree
 }
 \examples{
-
-transm.ls <- transmNetworkBuilder.baseline(datalist = datalist, endpoint = 40)
+transm.ls <- transmission.network.builder(datalist = datalist, endpoint = 40)
 transnetwork <- transm.ls[[16]]
 tree0 <- trans.network2tree(transnetwork = transnetwork) # transmission tree of seeds 16
 

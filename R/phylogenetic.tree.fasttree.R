@@ -1,7 +1,7 @@
-#' COnstruct and calibrate a phylogenetic tree from sequence data
+#' Construct and calibrate a phylogenetic tree from sequence data
 #'
 #' @param dir.tree Direcotry where we find the FastTree tool
-#' @param dir.seq Direcotry where we find sequences and sampling times files
+#' @param dir.seq Direcotry where we find sequences and sampling times files, it may be in the folder where simulation of sequences by \code{\link{sequence.simulation.seqgen()}} taken place
 #' @param calendar.dates File containing named sampling times for each sequence
 #' @param simseqfile File containing sequences
 #' @param endsim End of simulation # place holder for sequence from simpact when assigning real calendar time
@@ -35,7 +35,7 @@ phylogenetic.tree.fasttree <- function(dir.seq = dirseqgen,
 
 
 
-  samp.dates <- read.csv(paste0(calendar.dates))
+  samp.dates <- read.csv(paste0(dirseqgen, "/", calendar.dates))
 
   tree.const <- read.tree(out.fast.tree.file)
 

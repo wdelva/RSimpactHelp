@@ -5,8 +5,8 @@
 #' @param datalist The datalist that is produced by \code{\link{readthedata}}
 #' @param timewindow Boundaries of the time window (lower bound < time <= upper bound)
 #' that should be retained, e.g. c(20, 40)
-#' @param int Logic parameter which is FALSE by deafault and means tha only one value for the transmission rate
-#' needed, it is TRUE when the time window is being split in small time interval and get different
+#' @param int Logic parameter which is FALSE by deafault meaning that only one value for the transmission rate
+#' will be computed, it is TRUE when the time window is being split in small time interval and get different
 #' transmission rates within these time intervals
 #' @param by Time step unit to subdivide the time window
 #' data(datalist)
@@ -15,6 +15,7 @@
 #' transm.rate
 #'
 #' @import dplyr
+#' @export
 
 transmission.rate.calculator <- function(datalist = datalist,
                               timewindow = c(20, 40), int = FALSE, by=1){

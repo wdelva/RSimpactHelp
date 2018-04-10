@@ -1,6 +1,6 @@
-#' Build a cumulative relationships network - an igraph object
+#' Build a cumulative relationships network
 #'
-#' Build a cumulative relationships network from the begining of the simulation untill a given time point.
+#' Build a cumulative relationships network (igraph object) from the begining of the simulation untill a given time point.
 #'
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param endtime Only relationships events that took place before this point in simulation time, are captured in the output.
@@ -11,7 +11,8 @@
 #' plot.igraph(c.net,layout=layout.fruchterman.reingold)
 #' print(c.net, full = igraph_opt("print.full"))
 #' vertex_attr(c.net, index = V(c.net)) # to print the attributes
-#'@import igraph
+#' @import igraph
+#' @export
 
 cum.network <- function(datalist = datalist, endtime = 15){
 
