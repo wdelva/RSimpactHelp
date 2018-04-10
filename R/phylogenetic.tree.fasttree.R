@@ -31,7 +31,12 @@ phylogenetic.tree.fasttree <- function(dir.seq = dirseqgen,
 
   out.fast.tree.file <- paste0(dir.tree,"/", simseqfile ,".tree")
 
+  print("Phylogenetic tree construction start with FastTree")
+
   system(paste0(dir.tree,"/",paste0("FastTree -gtr -nt < ", paste0(dir.seq,"/",simseqfile), paste0("> ", out.fast.tree.file))))
+
+
+  print("End of phylogenetic tree construction with FastTree")
 
 
 
@@ -57,6 +62,9 @@ phylogenetic.tree.fasttree <- function(dir.seq = dirseqgen,
     }
   }
 
+
+  print("Phylogenetic tree internal nodes calibration start with treedater")
+
   # 4.2. Calibrate the phylogenetic tree
 
   # Use of library(treedater) to calibrate internal nodes
@@ -65,7 +73,7 @@ phylogenetic.tree.fasttree <- function(dir.seq = dirseqgen,
 
   write.tree(dater.tree, file = "calibrated.tree.tree")
 
-  print("End of time-stamped phylogenetic tree")
+  print("End of internal nodes calibration for the phylogenetic tree")
 
   return(dater.tree)
 
