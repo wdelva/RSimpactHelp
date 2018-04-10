@@ -3,6 +3,7 @@
 S3method(mean,age.pos.vector.creator)
 S3method(select,summary.params)
 export(ART.coverage.calculator)
+export(ART.coverage.vector.creator)
 export(ART.retention)
 export(age.group.time.window)
 export(agedif.median)
