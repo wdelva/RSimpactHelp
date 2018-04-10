@@ -28,15 +28,15 @@ concurr.pointprev.calculator <- function(datalist = datalist,
   newtimepoint = timepoint - 0.5
   # We only take the data of people who were alive at timepoint
   DTalive.infected <- alive.infected(datalist = datalist, timepoint = newtimepoint, site = "All")
-  agemix <- agemix.df.maker(datalist = datalist)
+  agemix.episodes.df <- agemix.episodes.df.maker(datalist = datalist)
 
   # for males
-  DTalive.infected.agegroup.men <- subset(DTalive.infected,
-                                          TOB <= newtimepoint - agegroup[1] &
-                                            TOB > newtimepoint - agegroup[2] &
-                                            Gender == 0)
+  DTalive.infected.agegroup.men <- dplyr::filter(DTalive.infected,
+                                                 TOB <= newtimepoint - agegroup[1],
+                                                 TOB > newtimepoint - agegroup[2],
+                                                 Gender == 0)
 
-  degree.df <- degree.df.maker(dataframe.df = agemix,
+  degree.df <- degree.df.maker(df = agemix.episodes.df,
                                agegroup = agegroup,
                                hivstatus = hivstatus,
                                survey.time = newtimepoint,
@@ -65,12 +65,12 @@ concurr.pointprev.calculator <- function(datalist = datalist,
   }
 
   # for females
-  DTalive.infected.agegroup.female <- subset(DTalive.infected,
-                                             TOB <= newtimepoint - agegroup[1] &
-                                               TOB > newtimepoint - agegroup[2] &
-                                               Gender == 1)
+  DTalive.infected.agegroup.female <- dplyr::filter(DTalive.infected,
+                                                    TOB <= newtimepoint - agegroup[1],
+                                                    TOB > newtimepoint - agegroup[2],
+                                                    Gender == 1)
 
-  degree.df <- degree.df.maker(dataframe.df = agemix,
+  degree.df <- degree.df.maker(df = agemix.episodes.df,
                                agegroup = agegroup,
                                hivstatus = hivstatus,
                                survey.time = newtimepoint,
