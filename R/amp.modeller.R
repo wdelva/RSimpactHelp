@@ -43,7 +43,7 @@
 #' timepoint = 30, timewindow = 1, method = "lmer")
 #'
 #' @importFrom magrittr %>%
-#' @import dplyr
+#' @importFrom dplyr filter
 #' @importFrom nlme lme
 #' @importFrom nlme varPower
 #' @importFrom lme4 lmer

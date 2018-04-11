@@ -13,7 +13,7 @@ concurr.pointprev.calculator(datalist = datalist, agegroup = c(15, 50),
 \item{agegroup}{Boundaries of the age group (lower bound <= age < upper bound) that should
 be retained, e.g. c(15, 30)}
 
-\item{timepoint}{Point in time at which the HIV prevalence should be calculated.}
+\item{timepoint}{Point in time at which the imaginary behavioural survey takes place.}
 
 \item{hivstatus}{HIV status at the time of the survey. Options are 2, means all; 0
 means only HIV-negative, 1 means only HIV-positive.}

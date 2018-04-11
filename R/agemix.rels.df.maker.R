@@ -28,7 +28,9 @@
 #' timewindow = 1, timepoint = 30, start = FALSE)
 #'
 #' @importFrom magrittr %>%
-#' @import dplyr
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
+#' @importFrom dplyr distinct
 #' @export
 
 

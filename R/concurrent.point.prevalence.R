@@ -5,7 +5,7 @@
 #' @param datalist The datalist that is produced by \code{\link{readthedata}}
 #' @param agegroup Boundaries of the age group (lower bound <= age < upper bound) that should
 #' be retained, e.g. c(15, 30)
-#' @param timepoint Point in time at which the HIV prevalence should be calculated.
+#' @param timepoint Point in time at which the imaginary behavioural survey takes place.
 #' @param hivstatus HIV status at the time of the survey. Options are 2, means all; 0
 #' means only HIV-negative, 1 means only HIV-positive.
 #' @return A dataframe with concurrent point prevalence estimate and surrounding confidence bounds,
@@ -27,13 +27,13 @@ concurr.pointprev.calculator <- function(datalist = datalist,
                                          hivstatus = 2){
   newtimepoint = timepoint - 0.5
   # We only take the data of people who were alive at timepoint
-  DTalive.infected <- alive.infected(datalist = datalist, timepoint = newtimepoint, site = "All")
+  DTalive.infected <- alive.infected(datalist = datalist, timepoint = timepoint, site = "All")
   agemix.episodes.df <- agemix.episodes.df.maker(datalist = datalist)
 
   # for males
   DTalive.infected.agegroup.men <- dplyr::filter(DTalive.infected,
-                                                 TOB <= newtimepoint - agegroup[1],
-                                                 TOB > newtimepoint - agegroup[2],
+                                                 TOB <= timepoint - agegroup[1],
+                                                 TOB > timepoint - agegroup[2],
                                                  Gender == 0)
 
   degree.df <- degree.df.maker(df = agemix.episodes.df,
@@ -66,8 +66,8 @@ concurr.pointprev.calculator <- function(datalist = datalist,
 
   # for females
   DTalive.infected.agegroup.female <- dplyr::filter(DTalive.infected,
-                                                    TOB <= newtimepoint - agegroup[1],
-                                                    TOB > newtimepoint - agegroup[2],
+                                                    TOB <= timepoint - agegroup[1],
+                                                    TOB > timepoint - agegroup[2],
                                                     Gender == 1)
 
   degree.df <- degree.df.maker(df = agemix.episodes.df,
