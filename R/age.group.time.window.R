@@ -5,7 +5,7 @@
 #' @param datalist The datalist that is produced by \code{\link{readthedata}}
 #' @param agegroup Individuals within this agegroup
 #' @param timewindow The window of interest within the simulation time e.g timewindow = c(15, 30)
-#' @param site Select only the particular site from the study, if all ignore site/use all sites.
+#' @param site Select only the particular site from the study, if "all", use all sites.
 #' @return a data.table that only includes people who were alive at the timewindow and are within
 #' the agegroup
 #' @examples
@@ -17,8 +17,10 @@
 #' @import dplyr
 #' @export
 
-age.group.time.window <- function(datalist = datalist, agegroup = c(15, 30),
-                                  timewindow = c(15, 30), site="All"){
+age.group.time.window <- function(datalist = datalist,
+                                  agegroup = c(15, 30),
+                                  timewindow = c(15, 30),
+                                  site = "All"){
 
   DT <- datalist$ptable
 

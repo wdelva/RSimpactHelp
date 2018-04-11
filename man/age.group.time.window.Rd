@@ -16,7 +16,7 @@ age.group.time.window(datalist = datalist, agegroup = c(15, 30),
 
 \item{timewindow}{The window of interest within the simulation time e.g timewindow = c(15, 30)}
 
-\item{site}{Select only the particular site from the study, if all ignore site/use all sites.}
+\item{site}{Select only the particular site from the study, if "all", use all sites.}
 }
 \value{
 a data.table that only includes people who were alive at the timewindow and are within
