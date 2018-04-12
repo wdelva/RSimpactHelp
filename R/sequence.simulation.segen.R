@@ -1,7 +1,8 @@
 #' Simulate sequences data of individual in the transmissiion network using seq-gen
 #'
 #' @param dir.seq Direcotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool
-#' @param datalist The datalist that is produced by \code{\link{readthedata()}}
+#' @param seq.gen.tool Name of seq-gen compiled
+#' @param  datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param seeds.num  Seed number for reproducability
 #' @param endpoint Only transmission events that took place before this point in simulation time
 #' @param limitTransmEvents Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)
@@ -11,6 +12,7 @@
 
 
 sequence.simulation.seqgen <- function(dir.seq = dir,
+                                       seq.gen.tool = "seq-gen",
                                        datalist = datalist,
                                        seeds.num = 123,
                                        endpoint = 40,
@@ -111,7 +113,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
 
       n.tr <- 1 # number of transmission tree
 
-       # # call the seed sequences - pool of viruses and rename the file
+      # # call the seed sequences - pool of viruses and rename the file
       file.copy(paste0(dir.seq,"/",seed.file),paste0(dir.seq,"/seed.seq.bis.nwk"))
 
       # add the number of tree in the file and
@@ -126,7 +128,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
 
       in.seq.gen.file <- paste0(dir.seq,"/seed.seq.bis.sim.nwk")
 
-      system(paste0(paste0(dir.seq,"/"), paste0("seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+      system(paste0(paste0(dir.seq,"/"), paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
 
     }
 
@@ -252,7 +254,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
       out.seq.gen.file <- paste0(dir.seq,"/C.Epidemic_seed.seq.bis.sim.nwk.fasta")
       in.seq.gen.file <- paste0(dir.seq,"/seed.seq.bis.sim.nwk")
 
-      system(paste0(paste0(dir.seq,"/"), paste0("seq-gen -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+      system(paste0(paste0(dir.seq,"/"), paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
 
     }
 
