@@ -19,6 +19,7 @@
 #' @return A list with multiple waves of proposed input parameter values to
 #' match a vector of target features.
 #'
+#' @import mice
 #' @importFrom gsubfn strapplyc
 #' @importFrom data.table setDT
 #' @importFrom data.table setnames
@@ -257,8 +258,10 @@ revised.MaC.incremental.parallel.mice <- function(targets.empirical = dummy.targ
     # 8. Prepare dataframe to give to mice: selected experiments plus intermediate features
     df.give.to.mice <- dplyr::full_join(dplyr::select(sim.results.with.design.df.selected,
                                                       -contains("RMSD")), # adding target to training dataset
-                                        final.intermediate.features.df,
+                                        final.intermediate.features.df[rep(1:nrow(final.intermediate.features.df),
+                                                                           each = n.experiments), ],
                                         by = names(final.intermediate.features.df)) # "by" statement added to avoid printing message of the variables were used for joining
+
 
     # We are transforming parameters that are necessarily strictly positive: sigma, gamma.a, gamma.b.
     # We could also consider a similar transformation for input parameters that we think should be negative (e.g. formation.hazard.agegapry.gap_factor_man_exp) but for now not yet
@@ -298,7 +301,7 @@ revised.MaC.incremental.parallel.mice <- function(targets.empirical = dummy.targ
 
     # NOTE: As it stands, each output statistic is predicted by ALL input and ALL other output statistics. That may not be a great idea, or even possible, if there is collinearity.
 
-    print(c(nrow(df.give.to.mice), "nrows to give to mice"), quote = FALSE)
+    print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
 
     # 10. Let mice propose parameter values that are predicted by the intermediate features
     # This first version that is commented out, is the old, sequential version
@@ -313,25 +316,41 @@ revised.MaC.incremental.parallel.mice <- function(targets.empirical = dummy.targ
     #                         return(list())
     #                       })
 
-    mice.test <- tryCatch(mice.parallel(mice.model = mice.wrapper,
-                                        df.give.to.mice = df.give.to.mice,
-                                        m = 1,
-                                        predictorMatrix = predictorMatrix,
-                                        method = "norm",
-                                        defaultMethod = "norm",
-                                        maxit = maxit,
-                                        printFlag = TRUE,
-                                        seed_count = 0,
-                                        n_cluster = 24,
-                                        nb_simul = n.experiments),
+
+    # do imputation
+    mice.test <- tryCatch(mice::mice(df.give.to.mice,
+                                     m = 1,
+                                     method = "norm",
+                                     defaultMethod = "norm",
+                                     predictorMatrix = predictorMatrix,
+                                     maxit = maxit,
+                                     printFlag = FALSE),
                           error = function(mice.err) {
                             return(list())
                           })
+#
+#     mice.test <- tryCatch(mice.parallel(mice.model = mice.wrapper,
+#                                         df.give.to.mice = df.give.to.mice,
+#                                         m = 1,
+#                                         predictorMatrix = predictorMatrix,
+#                                         method = "norm",
+#                                         defaultMethod = "norm",
+#                                         maxit = maxit,
+#                                         printFlag = TRUE,
+#                                         seed_count = 0,
+#                                         n_cluster = 8,
+#                                         nb_simul = n.experiments),
+#                           error = function(mice.err) {
+#                             return(list())
+#                           })
     print(c(length(mice.test), "this is length of mice.test", quote = FALSE))
     if (length(mice.test) > 0){
 
       # 11. Turn mice proposals into a new matrix of experiments
-      experiments <- mice.test #unlist(mice.test$imp) %>% matrix(., byrow = FALSE, ncol = length(x.names))
+
+      experiments <- unlist(mice.test$imp) %>% matrix(., byrow = FALSE, ncol = length(x.names)) # %>% data.frame()
+      #colnames(mice.guesses3.df) <- imputed.params.names
+
       # Before we check the suitability of the new experimental input parameter values, we must backtransform the log values to natural values
       experiments[, strict.positive.params] <- exp(experiments[, strict.positive.params])
       # And we must also backtransform the logit-transformed values
@@ -515,11 +534,11 @@ revised.MaC.incremental.parallel.mice <- function(targets.empirical = dummy.targ
 
       # 5.aaaa Keeping track of medians
       # The median across all simulations so far: sim.results.with.design.df.median.features <- l1median(dplyr::select(sim.results.with.design.df, contains("y.")))
-      calibration.list$sim.results.with.design.df.median.features[[wave]] <- l1median(dplyr::select(sim.results.with.design.df, contains("y.")))
+      calibration.list$sim.results.with.design.df.median.features[[wave]] <- pcaPP::l1median(dplyr::select(sim.results.with.design.df, contains("y.")))
       # The median of the simulations in the lastest wave
-      calibration.list$new.sim.results.with.design.df.median.features[[wave]] <- l1median(dplyr::select(new.sim.results.with.design.df, contains("y.")))
+      calibration.list$new.sim.results.with.design.df.median.features[[wave]] <- pcaPP::l1median(dplyr::select(new.sim.results.with.design.df, contains("y.")))
       # The median of the simulations to give to mice
-      calibration.list$sim.results.with.design.df.selected.median.features[[wave]] <- l1median(dplyr::select(sim.results.with.design.df.selected, contains("y.")))
+      calibration.list$sim.results.with.design.df.selected.median.features[[wave]] <- pcaPP::l1median(dplyr::select(sim.results.with.design.df.selected, contains("y.")))
 
 
 
@@ -538,7 +557,8 @@ revised.MaC.incremental.parallel.mice <- function(targets.empirical = dummy.targ
       # 8. Prepare dataframe to give to mice: selected experiments plus intermediate features
       df.give.to.mice <- dplyr::full_join(dplyr::select(sim.results.with.design.df.selected,
                                                         -contains("RMSD")), # adding target to training dataset
-                                          final.intermediate.features.df,
+                                          final.intermediate.features.df[rep(1:nrow(final.intermediate.features.df),
+                                                                             each = n.experiments), ],
                                           by = names(final.intermediate.features.df)) # "by" statement added to avoid printing message of the variables were used for joining
 
       # We are transforming parameters that are necessarily strictly positive: sigma, gamma.a, gamma.b.
@@ -564,7 +584,7 @@ revised.MaC.incremental.parallel.mice <- function(targets.empirical = dummy.targ
       # predictorMatrix[8, 2:4] <- 1
       # NOTE: As it stands, each output statistic is predicted by ALL input and ALL other output statistics. That may not be a great idea, or even possible, if there is collinearity.
 
-      print(c(nrow(df.give.to.mice), "nrows to give to mice"), quote = FALSE)
+      print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
 
       # 10. Let mice propose parameter values that are predicted by the intermediate features
       # Commented out is the old, sequential version
@@ -579,17 +599,27 @@ revised.MaC.incremental.parallel.mice <- function(targets.empirical = dummy.targ
       #                         return(list())
       #                       })
 
-      mice.test <- tryCatch(mice.parallel(mice.model = mice.wrapper,
-                                          df.give.to.mice = df.give.to.mice,
-                                          m = 1,
-                                          predictorMatrix = predictorMatrix,
-                                          method = "norm",
-                                          defaultMethod = "norm",
-                                          maxit = maxit,
-                                          printFlag = TRUE,
-                                          seed_count = 0,
-                                          n_cluster = 24,
-                                          nb_simul = n.experiments),
+      # mice.test <- tryCatch(mice.parallel(mice.model = mice.wrapper,
+      #                                     df.give.to.mice = df.give.to.mice,
+      #                                     m = 1,
+      #                                     predictorMatrix = predictorMatrix,
+      #                                     method = "norm",
+      #                                     defaultMethod = "norm",
+      #                                     maxit = maxit,
+      #                                     printFlag = TRUE,
+      #                                     seed_count = 0,
+      #                                     n_cluster = 24,
+      #                                     nb_simul = n.experiments),
+      #                       error = function(mice.err) {
+      #                         return(list())
+      #                       })
+      mice.test <- tryCatch(mice::mice(df.give.to.mice,
+                                       m = 1,
+                                       method = "norm",
+                                       defaultMethod = "norm",
+                                       predictorMatrix = predictorMatrix,
+                                       maxit = maxit,
+                                       printFlag = FALSE),
                             error = function(mice.err) {
                               return(list())
                             })
@@ -597,7 +627,7 @@ revised.MaC.incremental.parallel.mice <- function(targets.empirical = dummy.targ
       if (length(mice.test) > 0){
 
         # 11. Turn mice proposals into a new matrix of experiments
-        experiments <- mice.test #unlist(mice.test$imp) %>% matrix(., byrow = FALSE, ncol = length(x.names))
+        experiments <- unlist(mice.test$imp) %>% matrix(., byrow = FALSE, ncol = length(x.names)) # %>% data.frame()
         # Before we check the suitability of the new experimental input parameter values, we must backtransform the log values to natural values
         experiments[, strict.positive.params] <- exp(experiments[, strict.positive.params])
         # And we must also backtransform the logit-transformed values
