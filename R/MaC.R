@@ -67,8 +67,8 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
   # sim.results.with.design.df.selected I think this does not need to be initiated
   final.intermediate.features <- rep(NA, times = length(targets.empirical))
 
-  # 1. Start loop of waves, based on comparing intermediate features with targets.empirical
-  while (wave <= maxwaves & !identical(final.intermediate.features, targets.empirical)){
+  # 1. Start loop of waves
+  while (wave <= maxwaves){
     print(c("wave", wave), quote = FALSE)
 
     if (wave == 1){
@@ -227,136 +227,136 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
     }
   }
 
-  # 13. Check if intermediate features have converged to empirical targests (if not, then maxwaves is reached)
-  if (identical(final.intermediate.features, targets.empirical)){
-    # 14. Do more "traditional mice optimisation" for the remaining waves
-    while (wave <= maxwaves){
-      print(c("wave", wave), quote = FALSE)
-
-      sim.results.simple <- simpact.parallel(model = model,
-                                             actual.input.matrix = experiments,
-                                             seed_count = 0,
-                                             n_cluster = n_cluster)
-
-      new.sim.results.with.design.df <- as.data.frame(cbind(experiments,
-                                                            sim.results.simple))
-      x.names <- paste0("x.", seq(1:ncol(experiments)))
-      y.names <- paste0("y.", seq(1:ncol(sim.results.simple)))
-      x.offset <- length(x.names)
-      names(new.sim.results.with.design.df) <- c(x.names, y.names)
-
-      new.sim.results.with.design.df <- new.sim.results.with.design.df %>% dplyr::filter(complete.cases(.))
-
-      if (nrow(sim.results.with.design.df)==0){ # TRUE for the first wave only
-        sim.results.with.design.df <- rbind(sim.results.with.design.df,
-                                            new.sim.results.with.design.df)
-      } else {
-        sim.results.with.design.df <- rbind(dplyr::select(sim.results.with.design.df,
-                                                          -contains("RMSD")),
-                                            new.sim.results.with.design.df)
-      }
-
-
-      # Initiate n.close.to.targets
-      n.close.to.targets <- 0 # This will be overwritten.
-      candidate.intermediate.features <- targets.empirical # We start with the empirical target features
-      RMSD.tol <- 0 # This will be increased if n.close.to.targets < min.givetomice for this tolerance level
-
-      while (n.close.to.targets < min.givetomice & RMSD.tol <= RMSD.tol.max){
-        sum.sq.rel.dist <- rep(0, nrow(sim.results.with.design.df))
-        for (i in 1:length(candidate.intermediate.features)) {
-          name.dist <- paste0("y.", i, ".sq.rel.dist")
-          value.dist <- ((sim.results.with.design.df[,i + x.offset] - candidate.intermediate.features[i]) / candidate.intermediate.features[i])^2
-          assign(name.dist, value.dist)
-          sum.sq.rel.dist <- sum.sq.rel.dist + get(name.dist)
-        }
-        RMSD <- sqrt(sum.sq.rel.dist / length(candidate.intermediate.features))
-        n.close.to.targets <- sum(RMSD <= RMSD.tol, na.rm = TRUE)
-        #n.close.to.targets.mat[(1+steps.intermediate.targets), (1+steps.RMSD.tol)] <- n.close.to.targets
-        #large.enough.training.df <- n.close.to.targets >= min.givetomice
-        RMSD.tol <- RMSD.tol + 0.01  # Increasing RMSD.tol
-      }
-      sim.results.with.design.df$RMSD <- RMSD
-      final.intermediate.features <- candidate.intermediate.features
-
-      # 5. Select n.close.to.targets shortest distances
-      dist.order <- order(RMSD) # Ordering the squared distances from small to big.
-      selected.distances <- dist.order[1:n.close.to.targets]
-      sim.results.with.design.df.selected <- sim.results.with.design.df[selected.distances, ]
-
-      # 5.a. Record intermediate features
-      # calibration.list$intermediate.features[[wave]] <- experim.median.features
-      # 5.aa. Record final.intermediate.features to be given to mice in that wave
-      # calibration.list$final.intermediate.features[[wave]] <- final.intermediate.features
-      # 5.aaa. Record experimental parameter values and associated output for that wave (non-complete cases filtered out)
-      calibration.list$new.sim.results.with.design.df[[wave]] <- new.sim.results.with.design.df
-
-      # 5.aaaa Keeping track of medians
-      # The median across all simulations so far: sim.results.with.design.df.median.features <- l1median(dplyr::select(sim.results.with.design.df, contains("y.")))
-      calibration.list$sim.results.with.design.df.median.features[[wave]] <- pcaPP::l1median(dplyr::select(sim.results.with.design.df, contains("y.")))
-      # The median of the simulations in the lastest wave
-      calibration.list$new.sim.results.with.design.df.median.features[[wave]] <- pcaPP::l1median(dplyr::select(new.sim.results.with.design.df, contains("y.")))
-      # The median of the simulations to give to mice
-      calibration.list$sim.results.with.design.df.selected.median.features[[wave]] <- pcaPP::l1median(dplyr::select(sim.results.with.design.df.selected, contains("y.")))
-
-
-
-      # 5.b. Record highest RMSD value for that the selected experiments
-      calibration.list$max.RMSD[[wave]] <- max(sim.results.with.design.df.selected$RMSD)
-      # 5.c. Record n.close.target
-      calibration.list$n.close.to.targets[[wave]] <- n.close.to.targets
-
-      # 6. Record selected experiments to give to mice for this wave
-      calibration.list$selected.experiments[[wave]] <- sim.results.with.design.df.selected
-
-      # 7. Put intermediate features in dataframe format
-      final.intermediate.features.df <- as.data.frame(matrix(final.intermediate.features, ncol = length(final.intermediate.features)))
-      names(final.intermediate.features.df) <- y.names
-
-      # 8. Prepare dataframe to give to mice: selected experiments plus intermediate features
-      df.give.to.mice <- dplyr::full_join(dplyr::select(sim.results.with.design.df.selected,
-                                                        -contains("RMSD")), # adding target to training dataset
-                                          final.intermediate.features.df[rep(1:nrow(final.intermediate.features.df),
-                                                                             each = n.experiments), ],
-                                          by = names(final.intermediate.features.df)) # "by" statement added to avoid printing message of the variables were used for joining
-
-      # We are transforming parameters that are necessarily strictly positive: sigma, gamma.a, gamma.b.
-      # We could also consider a similar transformation for input parameters that we think should be negative (e.g. formation.hazard.agegapry.gap_factor_man_exp) but for now not yet
-      # strict.positive.params <- c(1:4)
-      df.give.to.mice[, strict.positive.params] <- log(df.give.to.mice[, strict.positive.params])
-      df.give.to.mice[, probability.params] <- log(df.give.to.mice[, probability.params] / (1 - df.give.to.mice[, probability.params])) # logit transformation
-      # 9. Override default predictorMatrix with a sparser matrix
-      # Let's think a bit more carefully about which variables should be allowed as input for which input parameters.
-      # IN THE FUTURE THIS COULD BE AUTOMATED WITH VARIABLE SELECTION ALGORITHMS.
-      # predictorMatrix <- (1 - diag(1, ncol(df.give.to.mice))) # This is the default matrix.
-
-      print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
-
-      mice.test <- tryCatch(mice::mice(df.give.to.mice,
-                                       m = 1,
-                                       method = "norm",
-                                       defaultMethod = "norm",
-                                       predictorMatrix = predictorMatrix,
-                                       maxit = maxit,
-                                       printFlag = FALSE),
-                            error = function(mice.err) {
-                              return(list())
-                            })
-
-      if (length(mice.test) > 0){
-
-        # 11. Turn mice proposals into a new matrix of experiments
-        experiments <- unlist(mice.test$imp) %>% matrix(., byrow = FALSE, ncol = length(x.names)) # %>% data.frame()
-        # Before we check the suitability of the new experimental input parameter values, we must backtransform the log values to natural values
-        experiments[, strict.positive.params] <- exp(experiments[, strict.positive.params])
-        # And we must also backtransform the logit-transformed values
-        experiments[, probability.params] <- exp(experiments[, probability.params]) / (1 + exp(experiments[, probability.params]))
-        wave <- wave + 1
-      } else {
-        wave <- maxwaves + 1
-      }
-    }
-  }
+  # # 13. Check if intermediate features have converged to empirical targests (if not, then maxwaves is reached)
+  # if (identical(final.intermediate.features, targets.empirical)){
+  #   # 14. Do more "traditional mice optimisation" for the remaining waves
+  #   while (wave <= maxwaves){
+  #     print(c("wave", wave), quote = FALSE)
+  #
+  #     sim.results.simple <- simpact.parallel(model = model,
+  #                                            actual.input.matrix = experiments,
+  #                                            seed_count = 0,
+  #                                            n_cluster = n_cluster)
+  #
+  #     new.sim.results.with.design.df <- as.data.frame(cbind(experiments,
+  #                                                           sim.results.simple))
+  #     x.names <- paste0("x.", seq(1:ncol(experiments)))
+  #     y.names <- paste0("y.", seq(1:ncol(sim.results.simple)))
+  #     x.offset <- length(x.names)
+  #     names(new.sim.results.with.design.df) <- c(x.names, y.names)
+  #
+  #     new.sim.results.with.design.df <- new.sim.results.with.design.df %>% dplyr::filter(complete.cases(.))
+  #
+  #     if (nrow(sim.results.with.design.df)==0){ # TRUE for the first wave only
+  #       sim.results.with.design.df <- rbind(sim.results.with.design.df,
+  #                                           new.sim.results.with.design.df)
+  #     } else {
+  #       sim.results.with.design.df <- rbind(dplyr::select(sim.results.with.design.df,
+  #                                                         -contains("RMSD")),
+  #                                           new.sim.results.with.design.df)
+  #     }
+  #
+  #
+  #     # Initiate n.close.to.targets
+  #     n.close.to.targets <- 0 # This will be overwritten.
+  #     candidate.intermediate.features <- targets.empirical # We start with the empirical target features
+  #     RMSD.tol <- 0 # This will be increased if n.close.to.targets < min.givetomice for this tolerance level
+  #
+  #     while (n.close.to.targets < min.givetomice & RMSD.tol <= RMSD.tol.max){
+  #       sum.sq.rel.dist <- rep(0, nrow(sim.results.with.design.df))
+  #       for (i in 1:length(candidate.intermediate.features)) {
+  #         name.dist <- paste0("y.", i, ".sq.rel.dist")
+  #         value.dist <- ((sim.results.with.design.df[,i + x.offset] - candidate.intermediate.features[i]) / candidate.intermediate.features[i])^2
+  #         assign(name.dist, value.dist)
+  #         sum.sq.rel.dist <- sum.sq.rel.dist + get(name.dist)
+  #       }
+  #       RMSD <- sqrt(sum.sq.rel.dist / length(candidate.intermediate.features))
+  #       n.close.to.targets <- sum(RMSD <= RMSD.tol, na.rm = TRUE)
+  #       #n.close.to.targets.mat[(1+steps.intermediate.targets), (1+steps.RMSD.tol)] <- n.close.to.targets
+  #       #large.enough.training.df <- n.close.to.targets >= min.givetomice
+  #       RMSD.tol <- RMSD.tol + 0.01  # Increasing RMSD.tol
+  #     }
+  #     sim.results.with.design.df$RMSD <- RMSD
+  #     final.intermediate.features <- candidate.intermediate.features
+  #
+  #     # 5. Select n.close.to.targets shortest distances
+  #     dist.order <- order(RMSD) # Ordering the squared distances from small to big.
+  #     selected.distances <- dist.order[1:n.close.to.targets]
+  #     sim.results.with.design.df.selected <- sim.results.with.design.df[selected.distances, ]
+  #
+  #     # 5.a. Record intermediate features
+  #     # calibration.list$intermediate.features[[wave]] <- experim.median.features
+  #     # 5.aa. Record final.intermediate.features to be given to mice in that wave
+  #     # calibration.list$final.intermediate.features[[wave]] <- final.intermediate.features
+  #     # 5.aaa. Record experimental parameter values and associated output for that wave (non-complete cases filtered out)
+  #     calibration.list$new.sim.results.with.design.df[[wave]] <- new.sim.results.with.design.df
+  #
+  #     # 5.aaaa Keeping track of medians
+  #     # The median across all simulations so far: sim.results.with.design.df.median.features <- l1median(dplyr::select(sim.results.with.design.df, contains("y.")))
+  #     calibration.list$sim.results.with.design.df.median.features[[wave]] <- pcaPP::l1median(dplyr::select(sim.results.with.design.df, contains("y.")))
+  #     # The median of the simulations in the lastest wave
+  #     calibration.list$new.sim.results.with.design.df.median.features[[wave]] <- pcaPP::l1median(dplyr::select(new.sim.results.with.design.df, contains("y.")))
+  #     # The median of the simulations to give to mice
+  #     calibration.list$sim.results.with.design.df.selected.median.features[[wave]] <- pcaPP::l1median(dplyr::select(sim.results.with.design.df.selected, contains("y.")))
+  #
+  #
+  #
+  #     # 5.b. Record highest RMSD value for that the selected experiments
+  #     calibration.list$max.RMSD[[wave]] <- max(sim.results.with.design.df.selected$RMSD)
+  #     # 5.c. Record n.close.target
+  #     calibration.list$n.close.to.targets[[wave]] <- n.close.to.targets
+  #
+  #     # 6. Record selected experiments to give to mice for this wave
+  #     calibration.list$selected.experiments[[wave]] <- sim.results.with.design.df.selected
+  #
+  #     # 7. Put intermediate features in dataframe format
+  #     final.intermediate.features.df <- as.data.frame(matrix(final.intermediate.features, ncol = length(final.intermediate.features)))
+  #     names(final.intermediate.features.df) <- y.names
+  #
+  #     # 8. Prepare dataframe to give to mice: selected experiments plus intermediate features
+  #     df.give.to.mice <- dplyr::full_join(dplyr::select(sim.results.with.design.df.selected,
+  #                                                       -contains("RMSD")), # adding target to training dataset
+  #                                         final.intermediate.features.df[rep(1:nrow(final.intermediate.features.df),
+  #                                                                            each = n.experiments), ],
+  #                                         by = names(final.intermediate.features.df)) # "by" statement added to avoid printing message of the variables were used for joining
+  #
+  #     # We are transforming parameters that are necessarily strictly positive: sigma, gamma.a, gamma.b.
+  #     # We could also consider a similar transformation for input parameters that we think should be negative (e.g. formation.hazard.agegapry.gap_factor_man_exp) but for now not yet
+  #     # strict.positive.params <- c(1:4)
+  #     df.give.to.mice[, strict.positive.params] <- log(df.give.to.mice[, strict.positive.params])
+  #     df.give.to.mice[, probability.params] <- log(df.give.to.mice[, probability.params] / (1 - df.give.to.mice[, probability.params])) # logit transformation
+  #     # 9. Override default predictorMatrix with a sparser matrix
+  #     # Let's think a bit more carefully about which variables should be allowed as input for which input parameters.
+  #     # IN THE FUTURE THIS COULD BE AUTOMATED WITH VARIABLE SELECTION ALGORITHMS.
+  #     # predictorMatrix <- (1 - diag(1, ncol(df.give.to.mice))) # This is the default matrix.
+  #
+  #     print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
+  #
+  #     mice.test <- tryCatch(mice::mice(df.give.to.mice,
+  #                                      m = 1,
+  #                                      method = "norm",
+  #                                      defaultMethod = "norm",
+  #                                      predictorMatrix = predictorMatrix,
+  #                                      maxit = maxit,
+  #                                      printFlag = FALSE),
+  #                           error = function(mice.err) {
+  #                             return(list())
+  #                           })
+  #
+  #    if (length(mice.test) > 0){
+#
+#         # 11. Turn mice proposals into a new matrix of experiments
+#         experiments <- unlist(mice.test$imp) %>% matrix(., byrow = FALSE, ncol = length(x.names)) # %>% data.frame()
+#         # Before we check the suitability of the new experimental input parameter values, we must backtransform the log values to natural values
+#         experiments[, strict.positive.params] <- exp(experiments[, strict.positive.params])
+#         # And we must also backtransform the logit-transformed values
+#         experiments[, probability.params] <- exp(experiments[, probability.params]) / (1 + exp(experiments[, probability.params]))
+#         wave <- wave + 1
+#       } else {
+#         wave <- maxwaves + 1
+#       }
+#     }
+#  }
 
   # 15. Stop clock and return calibration list
   calibration.list$secondspassed <- proc.time() - ptm # Stop the clock
