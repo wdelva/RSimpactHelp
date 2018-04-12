@@ -229,7 +229,8 @@ trans.net <- simpact.trans.net # all transmission networks
 
 dirseqgen <- "/home/david/Desktop/TEST_19_1_2018/seqgen"
 
-sequence.simulation.seqgen(dir = dirseqgen,
+sequence.simulation.seqgen(dir.seq = dirseqgen,
+                           seq.gen.tool = "seq-gen",
                            datalist = datalist,
                            seeds.num = 123,
                            endpoint = 40,
@@ -248,11 +249,14 @@ sequence.simulation.seqgen(dir = dirseqgen,
 dirfasttree <- "/home/david/Desktop/TEST_19_1_2018/Fasttree"
 
 
-tree.calib <- phylogenetic.tree.fasttree(dir.seq = dirseqgen,
-                           dir.tree = dirfasttree,
-                           calendar.dates = "samplingtimes.all.csv",
-                           simseqfile = "C.Epidemic_seed.seq.bis.sim.nwk.fasta",
-                           endsim = 40)
+tree.calib <- phylogenetic.tree.fasttree(dir.tree = dirfasttree,
+                                         dir.seq = dirseqgen,
+                                         fasttree.tool = "FastTree",
+                                         dir.tree = dirfasttree,
+                                         calendar.dates = "dates.csv",
+                                         simseqfile = "C.Epidemic.sequence.fasta",
+                                         count.start = 1977,
+                                         endsim = 40)
 
 
 

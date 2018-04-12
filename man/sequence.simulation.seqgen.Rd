@@ -4,22 +4,24 @@
 \alias{sequence.simulation.seqgen}
 \title{Simulate sequences data of individual in the transmissiion network using seq-gen}
 \usage{
-sequence.simulation.seqgen(dir.seq = dir, datalist = datalist,
-  seeds.num = 123, endpoint = 40, limitTransmEvents = 3,
-  seed.file = "hiv.seq.A.pol.j.fasta")
+sequence.simulation.seqgen(dir.seq = dir, seq.gen.tool = "seq-gen",
+  datalist = datalist, seeds.num = 123, endpoint = 40,
+  limitTransmEvents = 3, seed.file = "hiv.seq.A.pol.j.fasta")
 }
 \arguments{
 \item{dir.seq}{Direcotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool}
+
+\item{seq.gen.tool}{Name of seq-gen compiled}
 
 \item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
 
 \item{seeds.num}{Seed number for reproducability}
 
+\item{endpoint}{Only transmission events that took place before this point in simulation time}
+
 \item{limitTransmEvents}{Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)}
 
 \item{seed.file}{File containing seed HIV sequences in FASTA format, it might be in same repository as seq-gen}
-
-\item{endopint}{Only transmission events that took place before this point in simulation time}
 }
 \value{
 Files of sequences data, sampling dates, and transmission trees

@@ -2,14 +2,15 @@
 % Please edit documentation in R/phylogenetic.tree.fasttree.R
 \name{phylogenetic.tree.fasttree}
 \alias{phylogenetic.tree.fasttree}
-\title{COnstruct and calibrate a phylogenetic tree from sequence data}
+\title{Construct and calibrate a phylogenetic tree from sequence data}
 \usage{
-phylogenetic.tree.fasttree(dir.seq = dirseqgen, dir.tree = dirfasttree,
-  calendar.dates = "dates.csv", simseqfile = "C.Epidemic.sequence.fasta",
+phylogenetic.tree.fasttree(dir.seq = dirseqgen, fasttree.tool = "FastTree",
+  dir.tree = dirfasttree, calendar.dates = "dates.csv",
+  simseqfile = "C.Epidemic.sequence.fasta", count.start = 1977,
   endsim = 40)
 }
 \arguments{
-\item{dir.seq}{Direcotry where we find sequences and sampling times files}
+\item{dir.seq}{Direcotry where we find sequences and sampling times files, it may be in the folder where simulation of sequences by \code{\link{sequence.simulation.seqgen()}} taken place}
 
 \item{dir.tree}{Direcotry where we find the FastTree tool}
 
@@ -17,11 +18,13 @@ phylogenetic.tree.fasttree(dir.seq = dirseqgen, dir.tree = dirfasttree,
 
 \item{simseqfile}{File containing sequences}
 
-\item{endsim}{End of simulation # place holder for sequence from simpact when assigning real calendar time}
+\item{count.start}{Calendar year when the simulation started}
+
+\item{endsim}{Number of years when the simulation was done}
 }
 \value{
 A time stamped phylogenetic  tree with annotation of internal nodes dates
 }
 \description{
-COnstruct and calibrate a phylogenetic tree from sequence data
+Construct and calibrate a phylogenetic tree from sequence data
 }

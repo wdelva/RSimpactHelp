@@ -2,7 +2,7 @@
 % Please edit documentation in R/cum.network.R
 \name{cum.network}
 \alias{cum.network}
-\title{Build a cumulative relationships network - an igraph object}
+\title{Build a cumulative relationships network}
 \usage{
 cum.network(datalist = datalist, endtime = 15)
 }
@@ -16,7 +16,7 @@ A graph object for relationships network data with difference between gender and
 Men are represented by square, women by sphere, HIV positive with red color and HIV negative with bue clolor
 }
 \description{
-Build a cumulative relationships network from the begining of the simulation untill a given time point.
+Build a cumulative relationships network (igraph object) from the begining of the simulation untill a given time point.
 }
 \examples{
 c.net <- cum.network(datalist = datalist, endtime = 40)

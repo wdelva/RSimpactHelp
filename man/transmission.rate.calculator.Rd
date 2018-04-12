@@ -13,8 +13,8 @@ transmission.rate.calculator(datalist = datalist, timewindow = c(20, 40),
 \item{timewindow}{Boundaries of the time window (lower bound < time <= upper bound)
 that should be retained, e.g. c(20, 40)}
 
-\item{int}{Logic parameter which is FALSE by deafault and means tha only one value for the transmission rate
-needed, it is TRUE when the time window is being split in small time interval and get different
+\item{int}{Logic parameter which is FALSE by deafault meaning that only one value for the transmission rate
+will be computed, it is TRUE when the time window is being split in small time interval and get different
 transmission rates within these time intervals}
 
 \item{by}{Time step unit to subdivide the time window

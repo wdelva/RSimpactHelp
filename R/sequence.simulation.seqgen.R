@@ -1,8 +1,8 @@
 #' Simulate sequences data of individual in the transmissiion network using seq-gen
 #'
 #' @param dir.seq Direcotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool
-#' @param seq.gen.tool Name of seq-gen compiled
-#' @param  datalist The datalist that is produced by \code{\link{readthedata()}}
+#' @param seq.gen.tool Name of the file for compiled seq-gen
+#' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param seeds.num  Seed number for reproducability
 #' @param endpoint Only transmission events that took place before this point in simulation time
 #' @param limitTransmEvents Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)
@@ -263,5 +263,3 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
   print("Sequence simulation finished!")
 
 }
-
-

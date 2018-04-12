@@ -2,15 +2,16 @@
 #'
 #' @param dir.tree Direcotry where we find the FastTree tool
 #' @param dir.seq Direcotry where we find sequences and sampling times files, it may be in the folder where simulation of sequences by \code{\link{sequence.simulation.seqgen()}} taken place
-#' @param
-#' @param  calendar.dates File containing named sampling times for each sequence
+#' @param fasttree.tool Name of the compiled file of FastTree
+#' @param calendar.dates File containing named sampling times for each sequence
 #' @param simseqfile File containing sequences
 #' @param count.start Calendar year when the simulation started
 #' @param endsim Number of years when the simulation was done
 #' @return A time stamped phylogenetic  tree with annotation of internal nodes dates
 #' @export
 
-phylogenetic.tree.fasttree <- function(dir.seq = dirseqgen,
+phylogenetic.tree.fasttree <- function(dir.tree = dir,
+                                       dir.seq = dirseqgen,
                                        fasttree.tool = "FastTree",
                                        dir.tree = dirfasttree,
                                        calendar.dates = "dates.csv",
