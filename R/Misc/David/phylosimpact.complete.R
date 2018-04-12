@@ -252,9 +252,8 @@ dirfasttree <- "/home/david/Desktop/TEST_19_1_2018/Fasttree"
 tree.calib <- phylogenetic.tree.fasttree(dir.tree = dirfasttree,
                                          dir.seq = dirseqgen,
                                          fasttree.tool = "FastTree",
-                                         dir.tree = dirfasttree,
-                                         calendar.dates = "dates.csv",
-                                         simseqfile = "C.Epidemic.sequence.fasta",
+                                         calendar.dates = "samplingtimes.all.csv",
+                                         simseqfile = "C.Epidemic_seed.seq.bis.sim.nwk.fasta",
                                          count.start = 1977,
                                          endsim = 40)
 

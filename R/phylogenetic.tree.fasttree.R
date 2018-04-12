@@ -37,7 +37,7 @@ phylogenetic.tree.fasttree <- function(dir.tree = dirfasttree,
 
   print("Start construction of the phylogenetic tree with FastTree")
 
-  system(paste0(dir.tree,"/",paste0(paste0(fasttree.tool),"-gtr -nt < ", paste0(dir.seq,"/",simseqfile), paste0("> ", out.fast.tree.file))))
+  system(paste0(dir.tree,"/",paste0(paste(fasttree.tool, "-gtr")," -nt < ", paste0(dir.seq,"/",simseqfile), paste0("> ", out.fast.tree.file))))
 
 
   print("End of construction of the phylogenetic tree  with FastTree")
