@@ -17,7 +17,7 @@ agemixing.wrapper.withhiv <- function(inputvector = input.vector){
 
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
-                                   population.simtime = 60, #110, #calibration was based on 40, #20, #40,  #25 for validation. 20 for calibration
+                                   population.simtime = 20, #60 #110, #calibration was based on 40, #20, #40,  #25 for validation. 20 for calibration
                                    population.nummen = 200,#1000, # On the VSC it was 2500?,#2500,#2500, #2500,
                                    population.numwomen = 200,#1000, # On the VSC it was 2500?,#2500,#2500, #2500,
                                    hivseed.time = 10,
@@ -114,7 +114,7 @@ cfg["person.art.accept.threshold.dist.fixed.value"] <- inputvector[15] # Let's s
 
 # Let's introduce ART, and evaluate whether the HIV prevalence drops less  rapidly
 art.intro <- list()
-art.intro["time"] <- 25
+art.intro["time"] <- 5 #25
 art.intro["diagnosis.baseline"] <- inputvector[16] #0#100 # We should move this to the wrapper function so that it can be calibrated
 art.intro["monitoring.cd4.threshold"] <- 100 # 1200
 #art.intro["monitoring.interval.piecewise.cd4s"] <- "0,1300"
@@ -123,19 +123,19 @@ art.intro["monitoring.cd4.threshold"] <- 100 # 1200
 # Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2013:500
 
 art.intro2 <- list()
-art.intro2["time"] <- 25 + 5 # inputvector[5] ######### 30
+art.intro2["time"] <- 5 + 5 #25 + 5 # inputvector[5] ######### 30
 art.intro2["monitoring.cd4.threshold"] <- 200
 
 art.intro3 <- list()
-art.intro3["time"] <- 33 # inputvector[4] + inputvector[5] + inputvector[6] ########### 33
+art.intro3["time"] <- 5 + 8 #25 + 8 # inputvector[4] + inputvector[5] + inputvector[6] ########### 33
 art.intro3["monitoring.cd4.threshold"] <- 350
 
 art.intro4 <- list()
-art.intro4["time"] <- 36 # inputvector[4] + inputvector[5] + inputvector[6] + inputvector[7] ########### 36
+art.intro4["time"] <- 5 + 11 #25 + 11 # inputvector[4] + inputvector[5] + inputvector[6] + inputvector[7] ########### 36
 art.intro4["monitoring.cd4.threshold"] <- 500
 
 art.intro5 <- list()
-art.intro5["time"] <- 38
+art.intro5["time"] <- 5 + 13 #25 + 13
 art.intro5["monitoring.cd4.threshold"] <- 600 # This is equivalent to immediate access
 
 # tasp.indicator <- inputvector[9] # 1 if the scenario is TasP, 0 if the scenario is current status
