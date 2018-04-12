@@ -10,10 +10,9 @@
 #' @return A time stamped phylogenetic  tree with annotation of internal nodes dates
 #' @export
 
-phylogenetic.tree.fasttree <- function(dir.tree = dir,
+phylogenetic.tree.fasttree <- function(dir.tree = dirfasttree,
                                        dir.seq = dirseqgen,
                                        fasttree.tool = "FastTree",
-                                       dir.tree = dirfasttree,
                                        calendar.dates = "dates.csv",
                                        simseqfile = "C.Epidemic.sequence.fasta",
                                        count.start = 1977,
