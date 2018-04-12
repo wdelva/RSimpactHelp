@@ -7,7 +7,8 @@
 MaC(targets.empirical = dummy.targets.empirical, RMSD.tol.max = 2,
   min.givetomice = 64, n.experiments = 256, lls, uls,
   model = VEME.wrapper, strict.positive.params, probability.params,
-  predictorMatrix, maxit = 50, maxwaves = 4, n_cluster = n_cluster)
+  method = "norm", predictorMatrix, maxit = 50, maxwaves = 4,
+  n_cluster = n_cluster)
 }
 \arguments{
 \item{targets.empirical}{The vector of target features}
@@ -28,6 +29,8 @@ MaC(targets.empirical = dummy.targets.empirical, RMSD.tol.max = 2,
 
 \item{probability.params}{Vector of indices that indicate which of the input parameters are strictly between 0 and 1}
 
+\item{method}{Method used by MICE. E.g. "norm" or "rf"}
+
 \item{predictorMatrix}{Matrix of indices that indicate which variables are included in the chained equations in MICE}
 
 \item{maxit}{The maxit argument used in MICE (number of times that the chained equations are cycled through)}
@@ -43,4 +46,10 @@ match a vector of target features.
 \description{
 Produces a list with multiple waves of proposed input parameter values to
 match a vector of target features.
+}
+\details{
+The \code{model} wrapper function for the simulaton model must have a vector
+of model input parameter values as its one and only  argument. Furthermore,
+it must return a vector of model features. These model features are then
+compared against the target features.
 }
