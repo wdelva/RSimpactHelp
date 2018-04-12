@@ -2,23 +2,27 @@
 #'
 #' @param dir.tree Direcotry where we find the FastTree tool
 #' @param dir.seq Direcotry where we find sequences and sampling times files, it may be in the folder where simulation of sequences by \code{\link{sequence.simulation.seqgen()}} taken place
-#' @param calendar.dates File containing named sampling times for each sequence
+#' @param
+#' @param  calendar.dates File containing named sampling times for each sequence
 #' @param simseqfile File containing sequences
-#' @param endsim End of simulation # place holder for sequence from simpact when assigning real calendar time
+#' @param count.start Calendar year when the simulation started
+#' @param endsim Number of years when the simulation was done
 #' @return A time stamped phylogenetic  tree with annotation of internal nodes dates
 #' @export
 
 phylogenetic.tree.fasttree <- function(dir.seq = dirseqgen,
+                                       fasttree.tool = "FastTree",
                                        dir.tree = dirfasttree,
                                        calendar.dates = "dates.csv",
                                        simseqfile = "C.Epidemic.sequence.fasta",
+                                       count.start = 1977,
                                        endsim = 40){
 
   # Function to tranform dates in named vector to be handled by treedater
 
   dates.Transform.NamedVector  <- function(dates=dates){
 
-    dates.val <- endsim - dates$V2 + 1977 # dates
+    dates.val <- endsim - dates$V2 + count.start # dates
     names(dates.val) <- as.character(dates$V1) # names are the names of the tips
 
     return(dates.val)
@@ -33,7 +37,7 @@ phylogenetic.tree.fasttree <- function(dir.seq = dirseqgen,
 
   print("Start construction of the phylogenetic tree with FastTree")
 
-  system(paste0(dir.tree,"/",paste0("FastTree -gtr -nt < ", paste0(dir.seq,"/",simseqfile), paste0("> ", out.fast.tree.file))))
+  system(paste0(dir.tree,"/",paste0(paste0(fasttree.tool),"-gtr -nt < ", paste0(dir.seq,"/",simseqfile), paste0("> ", out.fast.tree.file))))
 
 
   print("End of construction of the phylogenetic tree  with FastTree")
