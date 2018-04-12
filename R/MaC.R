@@ -32,6 +32,7 @@
 #' @importFrom readcsvcolumns read.csv.columns
 #' @importFrom randtoolbox sobol
 #' @importFrom pcaPP l1median
+#' @importFrom glmnet cv.glmnet
 #' @export
 
 MaC <- function(targets.empirical = dummy.targets.empirical,
@@ -193,13 +194,37 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
     # IN THE FUTURE THIS COULD BE AUTOMATED WITH VARIABLE SELECTION ALGORITHMS.
     # predictorMatrix <- (1 - diag(1, ncol(df.give.to.mice))) # This is the default matrix.
 
+    #### NEW: Using LASSO to create predictorMatrix (and ignoring the one that was given as a function argument)
+    predictorMatrix.LASSO <- diag(0, ncol = ncol(df.give.to.mice), nrow = ncol(df.give.to.mice))
+    all.names <- names(df.give.to.mice)
+
+    nrows.training.df <- dplyr::select(sim.results.with.design.df.selected,
+                  -contains("RMSD")) %>% nrow()
+
+    for(y.index in 1:ncol(df.give.to.mice)){
+      x4lasso <- as.matrix(df.give.to.mice[1:nrows.training.df, -y.index])
+      y4lasso <- as.numeric(df.give.to.mice[1:nrows.training.df, y.index])
+      alpha <- 1
+      cvfit <- glmnet::cv.glmnet(x = x4lasso,
+                                 y = y4lasso,
+                                 family = "gaussian",
+                                 alpha = alpha,
+                                 nlambda = 20)
+      remaining.indices <- coef(cvfit, s = "lambda.1se")@i
+      nonzero.names <- names(df.give.to.mice[-nrow(df.give.to.mice), -y.index])[remaining.indices] # These are the columns with non-zero coefficients
+      col.indices <- all.names %in% nonzero.names
+      predictorMatrix.LASSO[y.index, col.indices] <- 1
+    }
+
+
+
     print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
     # do imputation
     mice.test <- tryCatch(mice::mice(df.give.to.mice,
                                      m = 1,
                                      method = method,
                                      defaultMethod = method,
-                                     predictorMatrix = predictorMatrix,
+                                     predictorMatrix = predictorMatrix.LASSO, #predictorMatrix,
                                      maxit = maxit,
                                      printFlag = FALSE),
                           error = function(mice.err) {
