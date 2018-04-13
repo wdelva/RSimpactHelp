@@ -10,6 +10,7 @@
 #' @importFrom expoTree epi2tree
 #' @export
 #'
+#'
 trans.network2tree <- function(transnetwork = transnetwork){
 
   transm.phylo <- epi2tree2(transnetwork)
