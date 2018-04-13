@@ -9,21 +9,34 @@
 #' compared against the target features.
 #'
 #' @param targets.empirical The vector of target features
-#' @param RMSD.tol.max Tolerance for the root mean squared distance between target features and model output features
-#' @param min.givetomice Minimal number of observations in the training dataset to which MICE is applied
-#' @param n.experiments Number of parameter combinations in each wave of model runs
-#' @param lls Vector of lower limits of the prior distribution of input parameter values
-#' @param uls Vector of upper limits of the prior distribution of input parameter values
-#' @param model Wrapper function for the simulation model. See details for a description of the required format.
-#' @param strict.positive.params Vector of indices that indicate which of the input parameters are strictly positive
-#' @param probability.params Vector of indices that indicate which of the input parameters are strictly between 0 and 1
+#' @param RMSD.tol.max Tolerance for the root mean squared distance between
+#'   target features and model output features
+#' @param min.givetomice Minimal number of observations in the training dataset
+#'   to which MICE is applied
+#' @param n.experiments Number of parameter combinations in each wave of model
+#'   runs
+#' @param lls Vector of lower limits of the prior distribution of input
+#'   parameter values
+#' @param uls Vector of upper limits of the prior distribution of input
+#'   parameter values
+#' @param model Wrapper function for the simulation model. See details for a
+#'   description of the required format.
+#' @param strict.positive.params Vector of indices that indicate which of the
+#'   input parameters are strictly positive. Set to zero if there are no such
+#'   parameters.
+#' @param probability.params Vector of indices that indicate which of the input
+#'   parameters are strictly between 0 and 1. Set to zero if there are no such
+#'   parameters.
 #' @param method Method used by MICE. E.g. "norm" or "rf"
-#' @param predictorMatrix Matrix of indices that indicate which variables are included in the chained equations in MICE
-#' @param maxit The maxit argument used in MICE (number of times that the chained equations are cycled through)
+#' @param predictorMatrix Can be "complete", "LASSO", or a user-defined matrix
+#'   of indices that indicate which variables are included in the chained
+#'   equations in MICE
+#' @param maxit The maxit argument used in MICE (number of times that the
+#'   chained equations are cycled through)
 #' @param maxwaves The maximum number of waves of model runs
 #' @param n_cluster The number of cores available for parallel model runs
 #' @return A list with multiple waves of proposed input parameter values to
-#' match a vector of target features.
+#'   match a vector of target features.
 #'
 #' @import mice
 #' @importFrom gsubfn strapplyc
@@ -45,7 +58,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
                 strict.positive.params,
                 probability.params,
                 method = "norm",
-                predictorMatrix,
+                predictorMatrix = predictorMatrix,
                 maxit = 50,
                 maxwaves = 4,
                 n_cluster = n_cluster){
@@ -185,9 +198,13 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
 
 
     #print(df.give.to.mice)
-    df.give.to.mice[, strict.positive.params] <- log(df.give.to.mice[, strict.positive.params])
+    if (strict.positive.params != 0){
+      df.give.to.mice[, strict.positive.params] <- log(df.give.to.mice[, strict.positive.params])
+    }
     # probability.params <- 14
-    df.give.to.mice[, probability.params] <- log(df.give.to.mice[, probability.params] / (1 - df.give.to.mice[, probability.params])) # logit transformation
+    if (probability.params != 0){
+      df.give.to.mice[, probability.params] <- log(df.give.to.mice[, probability.params] / (1 - df.give.to.mice[, probability.params])) # logit transformation
+    }
 
     # 9. Override default predictorMatrix with a sparser matrix
     # Let's think a bit more carefully about which variables should be allowed as input for which input parameters.
@@ -195,28 +212,34 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
     # predictorMatrix <- (1 - diag(1, ncol(df.give.to.mice))) # This is the default matrix.
 
     #### NEW: Using LASSO to create predictorMatrix (and ignoring the one that was given as a function argument)
-    predictorMatrix.LASSO <- diag(0, ncol = ncol(df.give.to.mice), nrow = ncol(df.give.to.mice))
-    all.names <- names(df.give.to.mice)
 
-    nrows.training.df <- dplyr::select(sim.results.with.design.df.selected,
-                  -contains("RMSD")) %>% nrow()
+    if (predictorMatrix == "LASSO"){
+      predictorMatrix.LASSO <- diag(0, ncol = ncol(df.give.to.mice), nrow = ncol(df.give.to.mice))
+      all.names <- names(df.give.to.mice)
 
-    for(y.index in 1:ncol(df.give.to.mice)){
-      x4lasso <- as.matrix(df.give.to.mice[1:nrows.training.df, -y.index])
-      y4lasso <- as.numeric(df.give.to.mice[1:nrows.training.df, y.index])
-      alpha <- 1
-      cvfit <- glmnet::cv.glmnet(x = x4lasso,
-                                 y = y4lasso,
-                                 family = "gaussian",
-                                 alpha = alpha,
-                                 nlambda = 20)
-      remaining.indices <- coef(cvfit, s = "lambda.1se")@i
-      nonzero.names <- names(df.give.to.mice[-nrow(df.give.to.mice), -y.index])[remaining.indices] # These are the columns with non-zero coefficients
-      col.indices <- all.names %in% nonzero.names
-      predictorMatrix.LASSO[y.index, col.indices] <- 1
+      nrows.training.df <- dplyr::select(sim.results.with.design.df.selected,
+                                         -contains("RMSD")) %>% nrow()
+
+      for(y.index in 1:ncol(df.give.to.mice)){
+        x4lasso <- as.matrix(df.give.to.mice[1:nrows.training.df, -y.index])
+        y4lasso <- as.numeric(df.give.to.mice[1:nrows.training.df, y.index])
+        alpha <- 1
+        cvfit <- glmnet::cv.glmnet(x = x4lasso,
+                                   y = y4lasso,
+                                   family = "gaussian",
+                                   alpha = alpha,
+                                   nlambda = 20)
+        remaining.indices <- coef(cvfit, s = "lambda.1se")@i
+        nonzero.names <- names(df.give.to.mice[-nrow(df.give.to.mice), -y.index])[remaining.indices] # These are the columns with non-zero coefficients
+        col.indices <- all.names %in% nonzero.names
+        predictorMatrix.LASSO[y.index, col.indices] <- 1
+      }
+      predictorMatrix <- predictorMatrix.LASSO
     }
 
-
+    if (predictorMatrix == "complete"){
+      predictorMatrix <- (1 - diag(1, ncol(df.give.to.mice)))
+    }
 
     print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
     # do imputation
@@ -224,7 +247,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
                                      m = 1,
                                      method = method,
                                      defaultMethod = method,
-                                     predictorMatrix = predictorMatrix.LASSO, #predictorMatrix,
+                                     predictorMatrix = predictorMatrix,
                                      maxit = maxit,
                                      printFlag = FALSE),
                           error = function(mice.err) {
@@ -240,9 +263,13 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
       #colnames(mice.guesses3.df) <- imputed.params.names
 
       # Before we check the suitability of the new experimental input parameter values, we must backtransform the log values to natural values
-      experiments[, strict.positive.params] <- exp(experiments[, strict.positive.params])
+      if (strict.positive.params != 0){
+        experiments[, strict.positive.params] <- exp(experiments[, strict.positive.params])
+      }
       # And we must also backtransform the logit-transformed values
-      experiments[, probability.params] <- exp(experiments[, probability.params]) / (1 + exp(experiments[, probability.params]))
+      if (probability.params != 0){
+        experiments[, probability.params] <- exp(experiments[, probability.params]) / (1 + exp(experiments[, probability.params]))
+      }
       wave <- wave + 1
     } else {
       wave <- maxwaves + 1
