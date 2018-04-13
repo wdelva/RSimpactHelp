@@ -1,4 +1,4 @@
-#' Simulate sequences data of individual in the transmissiion network using seq-gen
+#' Simulate sequences data of individuals in the transmissiion network using seq-gen tool
 #'
 #' @param dir.seq Direcotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool
 #' @param seq.gen.tool Name of the file for compiled seq-gen
@@ -6,7 +6,7 @@
 #' @param seeds.num  Seed number for reproducability
 #' @param endpoint Only transmission events that took place before this point in simulation time
 #' @param limitTransmEvents Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)
-#' @param seed.file File containing seed HIV sequences in FASTA format, it might be in same repository as seq-gen
+#' @param hiv.seq.file File containing seed HIV sequences in FASTA format, it might be in same repository as seq-gen
 #' @return Files of sequences data, sampling dates, and transmission trees
 #' @export
 
@@ -17,7 +17,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
                                        seeds.num = 123,
                                        endpoint = 40,
                                        limitTransmEvents = 3,
-                                       seed.file = "hiv.seq.A.pol.j.fasta"){
+                                       hiv.seq.file = "hiv.seq.C.pol.j.fasta"){
 
 
   # source("R/transmission.network.builder.R")
@@ -114,7 +114,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
       n.tr <- 1 # number of transmission tree
 
       # # call the seed sequences - pool of viruses and rename the file
-      file.copy(paste0(dir.seq,"/",seed.file),paste0(dir.seq,"/seed.seq.bis.nwk"))
+      file.copy(paste0(dir.seq,"/",hiv.seq.file),paste0(dir.seq,"/seed.seq.bis.nwk"))
 
       # add the number of tree in the file and
       write(n.tr,file = paste0(dir.seq,"/seed.seq.bis.nwk"), append = TRUE)  # n.tr
@@ -241,7 +241,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
       n.tr <- 1 # number of transmission tree
 
       # # call the seed sequences - pool of viruses and rename the file
-      file.copy(paste0(dir.seq,"/",seed.file),paste0(dir.seq,"/seed.seq.bis.nwk"))
+      file.copy(paste0(dir.seq,"/",hiv.seq.file),paste0(dir.seq,"/seed.seq.bis.nwk"))
 
       # add the number of tree in the file and
       write(n.tr,file = paste0(dir.seq,"/seed.seq.bis.nwk"), append = TRUE)  # n.tr
