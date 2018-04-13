@@ -1,4 +1,4 @@
-#' Build a transmission tree object from a transmission network
+#' Build a transmission tree object from a transmission network data frame
 #'
 #' @param epi The phylo object produced by \code{\link{transmission.network.builder}}.
 #' @return Transmission tree object (a phylo object)
