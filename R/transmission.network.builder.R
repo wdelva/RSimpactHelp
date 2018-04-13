@@ -5,19 +5,19 @@
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param endpoint Only transmission events that took place before this point in simulation time, are captured in the output.
 #' @return a list with the transmission networks data
-#' itimes: Branching times -> endpoint - Infection times : to be handle by epi2tree
-#' dtimes: Sampling times -> endpoint - Removal times : to be handle by epi2tree
-#' id: Receiver ID - to be handle by epi2tree
-#' parent: Donor ID - to be handle by epi2tree
-#' dtypes: sampling/Removal types: diagnosed individuals (0), died and non diagnosed (-1), and alive and non diagnosed (1)
-#' RecId: Original receiver ID
-#' DonId: Original donor ID
-#' InfecTime: Infection time
-#' Samptime: Sampling/removal time (diagnosis - death - end of simulation)
-#' GenderRec: Gender of receiver
-#' GenderDon: Gender of donor
-#' TOBRec: time of birth of receiver
-#' TOBDon: time of birth of donor
+#' @return itimes Branching times -> endpoint - Infection times : to be handle by epi2tree
+#' @return dtimes Sampling times -> endpoint - Removal times : to be handle by epi2tree
+#' @return id Receiver's ID - to be handle by epi2tree
+#' @return parent Donor's ID - to be handle by epi2tree
+#' @return dtypes sampling/Removal types: diagnosed individuals (0), died and non diagnosed (-1), and alive and non diagnosed (1)
+#' @return RecId Original receiver ID
+#' @return DonId Original donor ID
+#' @return InfecTime Infection time
+#' @return Samptime Sampling/removal time (diagnosis - death - end of simulation)
+#' @return GenderRec Gender of receiver
+#' @return GenderDon Gender of donor
+#' @return TOBRec time of birth of receiver
+#' @return TOBDon time of birth of donor
 #'
 #'
 #' @examples
