@@ -160,8 +160,8 @@ agemixing.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
                                })
       bignumber <- NA
 
-      AAD.male <- ifelse(length(agemix.model) > 0, mean(dplyr::filter(agemix.rels.df, Gender =="male")$AgeGap), bignumber)
-      SDAD.male <- ifelse(length(agemix.model) > 0, sd(dplyr::filter(agemix.rels.df, Gender =="male")$AgeGap), bignumber)
+      AAD.male <- ifelse(length(agemix.model) > 0, mean(dplyr::filter(agemix.rels.like.SHIMS.df, Gender =="male")$AgeGap), bignumber)
+      SDAD.male <- ifelse(length(agemix.model) > 0, sd(dplyr::filter(agemix.rels.like.SHIMS.df, Gender =="male")$AgeGap), bignumber)
       # ONLY FOR models fitted with lme: #powerm <- ifelse(length(men.lme) > 0, as.numeric(attributes(men.lme$apVar)$Pars["varStruct.power"]), bignumber)
       slope.male <- ifelse(length(agemix.model) > 0, summary(agemix.model$male.model)$coefficients[2, 1], bignumber)
       WSD.male <- ifelse(length(agemix.model) > 0, summary(agemix.model$male.model)$sigma, bignumber)
@@ -190,44 +190,32 @@ agemixing.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
                                                          timepoint = datalist.agemix$itable$population.simtime[1],
                                                          hivstatus = 2)[1,2] %>% as.numeric()
 
-      hiv.prev.lt25.women <- prevalence.calculator(datalist = datalist.agemix,
-                                                   agegroup = c(15, 25),
-                                                   timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[2]
-      hiv.prev.lt25.men <- prevalence.calculator(datalist = datalist.agemix,
-                                                 agegroup = c(15, 25),
-                                                 timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[1]
-      hiv.prev.25.34.women <- prevalence.calculator(datalist = datalist.agemix,
-                                                    agegroup = c(25, 35),
-                                                    timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[2]
-      hiv.prev.25.34.men <- prevalence.calculator(datalist = datalist.agemix,
-                                                  agegroup = c(25, 35),
-                                                  timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[1]
-      hiv.prev.35.44.women <- prevalence.calculator(datalist = datalist.agemix,
-                                                    agegroup = c(35, 45),
-                                                    timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[2]
-      hiv.prev.35.44.men <- prevalence.calculator(datalist = datalist.agemix,
-                                                  agegroup = c(35, 45),
-                                                  timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[1]
+      # hiv.prev.lt25.women <- prevalence.calculator(datalist = datalist.agemix,
+      #                                              agegroup = c(15, 25),
+      #                                              timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[2]
+      # hiv.prev.lt25.men <- prevalence.calculator(datalist = datalist.agemix,
+      #                                            agegroup = c(15, 25),
+      #                                            timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[1]
+      # hiv.prev.25.34.women <- prevalence.calculator(datalist = datalist.agemix,
+      #                                               agegroup = c(25, 35),
+      #                                               timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[2]
+      # hiv.prev.25.34.men <- prevalence.calculator(datalist = datalist.agemix,
+      #                                             agegroup = c(25, 35),
+      #                                             timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[1]
+      # hiv.prev.35.44.women <- prevalence.calculator(datalist = datalist.agemix,
+      #                                               agegroup = c(35, 45),
+      #                                               timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[2]
+      # hiv.prev.35.44.men <- prevalence.calculator(datalist = datalist.agemix,
+      #                                             agegroup = c(35, 45),
+      #                                             timepoint = datalist.agemix$itable$population.simtime[1])$pointprevalence[1]
 
       growthrate <- pop.growth.calculator(datalist = datalist.agemix,
                                           timewindow = c(0, datalist.agemix$itable$population.simtime[1]))
 
-      cov.vector <- ART.coverage.vector.creator(datalist = datalist.agemix, agegroup = c(15, 50))
-      art.cov.end <- tail(cov.vector, 1)
-
       outputvector <- c(AAD.male, SDAD.male, slope.male, WSD.male, BSD.male, intercept.male,
-                        ##shape.nb.male, scale.nb.male,
                         meandegree.male,
                         pp.cp.6months.male,
-                        exp(growthrate),
-                        hiv.prev.lt25.women,
-                        hiv.prev.lt25.men,
-                        hiv.prev.25.34.women,
-                        hiv.prev.25.34.men,
-                        hiv.prev.35.44.women,
-                        hiv.prev.35.44.men,
-                        art.cov.end)
-
+                        exp(growthrate))
     }
   }
   return(outputvector)
