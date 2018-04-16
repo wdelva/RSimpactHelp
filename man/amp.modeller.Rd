@@ -5,7 +5,7 @@
 \title{Model age-mixing pattern.}
 \usage{
 amp.modeller(dataframe, agegroup, timepoint, timewindow, start = FALSE,
-  method = "lmer")
+  SHIMS = TRUE, method = "lmer")
 }
 \arguments{
 \item{dataframe}{The dataframe that is produced by
@@ -25,8 +25,12 @@ timepoint. This should be a whole number.}
 after the beginning of the window should be used. If start = FALSE
 relationships could start before the time window. This is the default.}
 
+\item{SHIMS}{Should only the three most recent relationships be kept, like in
+the SHIMS survey?}
+
 \item{method}{Should the \code{link[nlme]{lme}} or \code{link[lme4]{lmer}}
-function be used?}
+function be used? The lme function can be used to model heteroskedastic
+residual error.}
 }
 \value{
 returns a model fitted with \code{link[nlme]{lme}} or
@@ -55,7 +59,7 @@ The function produces a fitted model.
 }
 \examples{
 data(persreldf)
-agemixpatdat <- amp.modeller(dataframe = persreldf, agegroup = c(15, 30),
-timepoint = 30, timewindow = 1, method = "lmer")
+agemixpatdat <- amp.modeller(dataframe = persreldf, agegroup = c(18, 50),
+timepoint = 30, timewindow = 0.5, start = FALSE, SHIMS = TRUE, method = "lmer")
 
 }
