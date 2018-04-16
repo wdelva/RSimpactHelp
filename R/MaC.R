@@ -38,7 +38,7 @@
 #' @return A list with multiple waves of proposed input parameter values to
 #'   match a vector of target features.
 #'
-#' @import mice
+#' @importFrom mice mice
 #' @importFrom gsubfn strapplyc
 #' @importFrom data.table setDT
 #' @importFrom data.table setnames
