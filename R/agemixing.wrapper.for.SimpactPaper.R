@@ -170,7 +170,7 @@ agemixing.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
       slope.male <- ifelse(length(agemix.model) > 0, summary(agemix.model$male.model)$coefficients[2, 1], bignumber)
       WSD.male <- ifelse(length(agemix.model) > 0, summary(agemix.model$male.model)$sigma, bignumber)
       BSD.male <- ifelse(length(agemix.model) > 0, bsd.extractor(agemix.model, gender = "male"), bignumber)
-      intercept.male <- ifelse(length(agemix.model) > 0, summary(agemix.model$male.model)$coefficients[1,1] - 15, bignumber)
+      intercept.male <- ifelse(length(agemix.model) > 0, summary(agemix.model$male.model)$coefficients[1,1], bignumber)
 
       num.rels <- agemix.rels.df.maker(dataframe = agemix.episodes.df,
                                              agegroup = c(18, 50),
