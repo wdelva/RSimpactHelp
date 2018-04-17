@@ -20,8 +20,8 @@ agemixing.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2,
                                    population.simtime = 30,
-                                   population.nummen = 1000,
-                                   population.numwomen = 1000,
+                                   population.nummen = 2500,
+                                   population.numwomen = 2500,
                                    hivseed.time = 10,
                                    hivseed.type = "amount",
                                    hivseed.amount = 25, #30,
