@@ -64,7 +64,11 @@ agemixing.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
   cfg.list["mortality.aids.survtime.k"] <- -0.2
   cfg.list["monitoring.cd4.threshold"] <- 0
   cfg.list["diagnosis.baseline"] <- -99
-  cfg.list["population.msm"] = "no"
+  cfg.list["population.msm"] <- "no"
+  cfg.list["hsv2seed.time"] <- -1 # No HVS2 seeding event
+  cfg.list["hsv2seed.time"] <- -1
+  cfg.list["hsv2seed.type"] <- "amount"
+
 
 
   cfg.list["formation.hazard.agegapry.gap_agescale_man"] = inputvector[2]
