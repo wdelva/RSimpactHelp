@@ -18,7 +18,7 @@ sequence.simulation.seqgen.bis <- function(dir.seq = dir,
                                            datalist = datalist,
                                            seeds.num = 123,
                                            endpoint = 40,
-                                           limitTransmEvents = 7,
+                                           limitTransmEvents = 3,
                                            hiv.seq.file = "hiv.seq.C.pol.j.fasta"){
 
 
@@ -46,7 +46,7 @@ sequence.simulation.seqgen.bis <- function(dir.seq = dir,
 
   if(min.val <= 0){
 
-    print("Some branch lengths are negative - someone transmitted infection after sampling")
+    print("Some branch lengths are negative - someone transmitted infection after sampling - STOP")
 
   }else{
 
