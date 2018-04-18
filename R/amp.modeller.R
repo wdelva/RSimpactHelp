@@ -31,16 +31,19 @@
 #' @param start This is a logical indicating that only relationships starting
 #'   after the beginning of the window should be used. If start = FALSE
 #'   relationships could start before the time window. This is the default.
+#' @param SHIMS Should only the three most recent relationships be kept, like in
+#'   the SHIMS survey?
 #' @param method Should the \code{link[nlme]{lme}} or \code{link[lme4]{lmer}}
-#'   function be used?
+#'   function be used? The lme function can be used to model heteroskedastic
+#'   residual error.
 #'
 #' @return returns a model fitted with \code{link[nlme]{lme}} or
 #'   \code{link[lme4]{lmer}}
 #'
 #' @examples
 #' data(persreldf)
-#' agemixpatdat <- amp.modeller(dataframe = persreldf, agegroup = c(15, 30),
-#' timepoint = 30, timewindow = 1, method = "lmer")
+#' agemixpatdat <- amp.modeller(dataframe = persreldf, agegroup = c(18, 50),
+#' timepoint = 30, timewindow = 0.5, start = FALSE, SHIMS = TRUE, method = "lmer")
 #'
 #' @importFrom magrittr %>%
 #' @importFrom dplyr filter
@@ -60,12 +63,19 @@ amp.modeller <- function(dataframe,
                             timepoint,
                             timewindow,
                             start = FALSE,
+                         SHIMS = TRUE,
                             method = "lmer") {
+
   agemix.rels.df <- agemix.rels.df.maker(dataframe = dataframe,
                                          agegroup = agegroup,
                                          timepoint = timepoint,
                                          timewindow = timewindow,
                                          start = start)
+  if (SHIMS == TRUE){
+    agemix.rels.df <- dplyr::group_by(agemix.rels.df, ID) %>%
+      dplyr::top_n(-3, FormTime) # male age must be at least 15 at the start of the relationship, but that is always the case in the default Simpact simulations
+    agemix.rels.df$agerelform0 <- agemix.rels.df$agerelform - 15
+  }
   male.rels.df <- dplyr::filter(agemix.rels.df, Gender =="male")
   female.rels.df <- dplyr::filter(agemix.rels.df, Gender =="female")
 

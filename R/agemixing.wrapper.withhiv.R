@@ -18,8 +18,8 @@ agemixing.wrapper.withhiv <- function(inputvector = input.vector){
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
                                    population.simtime = 40, #110, #calibration was based on 40, #20, #40,  #25 for validation. 20 for calibration
-                                   population.nummen = 1000,#1000, # On the VSC it was 2500?,#2500,#2500, #2500,
-                                   population.numwomen =1000,#1000, # On the VSC it was 2500?,#2500,#2500, #2500,
+                                   population.nummen = 2500,#1000, # On the VSC it was 2500?,#2500,#2500, #2500,
+                                   population.numwomen = 2500,#1000, # On the VSC it was 2500?,#2500,#2500, #2500,
                                    hivseed.time = 10,
                                    hivseed.type = "amount",
                                    hivseed.amount = 25, #30,

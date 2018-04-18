@@ -7,33 +7,46 @@
 MaC(targets.empirical = dummy.targets.empirical, RMSD.tol.max = 2,
   min.givetomice = 64, n.experiments = 256, lls, uls,
   model = VEME.wrapper, strict.positive.params, probability.params,
-  method = "norm", predictorMatrix, maxit = 50, maxwaves = 4,
-  n_cluster = n_cluster)
+  method = "norm", predictorMatrix = predictorMatrix, maxit = 50,
+  maxwaves = 4, n_cluster = n_cluster)
 }
 \arguments{
 \item{targets.empirical}{The vector of target features}
 
-\item{RMSD.tol.max}{Tolerance for the root mean squared distance between target features and model output features}
+\item{RMSD.tol.max}{Tolerance for the root mean squared distance between
+target features and model output features}
 
-\item{min.givetomice}{Minimal number of observations in the training dataset to which MICE is applied}
+\item{min.givetomice}{Minimal number of observations in the training dataset
+to which MICE is applied}
 
-\item{n.experiments}{Number of parameter combinations in each wave of model runs}
+\item{n.experiments}{Number of parameter combinations in each wave of model
+runs}
 
-\item{lls}{Vector of lower limits of the prior distribution of input parameter values}
+\item{lls}{Vector of lower limits of the prior distribution of input
+parameter values}
 
-\item{uls}{Vector of upper limits of the prior distribution of input parameter values}
+\item{uls}{Vector of upper limits of the prior distribution of input
+parameter values}
 
-\item{model}{Wrapper function for the simulation model. See details for a description of the required format.}
+\item{model}{Wrapper function for the simulation model. See details for a
+description of the required format.}
 
-\item{strict.positive.params}{Vector of indices that indicate which of the input parameters are strictly positive}
+\item{strict.positive.params}{Vector of indices that indicate which of the
+input parameters are strictly positive. Set to zero if there are no such
+parameters.}
 
-\item{probability.params}{Vector of indices that indicate which of the input parameters are strictly between 0 and 1}
+\item{probability.params}{Vector of indices that indicate which of the input
+parameters are strictly between 0 and 1. Set to zero if there are no such
+parameters.}
 
 \item{method}{Method used by MICE. E.g. "norm" or "rf"}
 
-\item{predictorMatrix}{Matrix of indices that indicate which variables are included in the chained equations in MICE}
+\item{predictorMatrix}{Can be "complete", "LASSO", or a user-defined matrix
+of indices that indicate which variables are included in the chained
+equations in MICE}
 
-\item{maxit}{The maxit argument used in MICE (number of times that the chained equations are cycled through)}
+\item{maxit}{The maxit argument used in MICE (number of times that the
+chained equations are cycled through)}
 
 \item{maxwaves}{The maximum number of waves of model runs}
 
@@ -41,7 +54,7 @@ MaC(targets.empirical = dummy.targets.empirical, RMSD.tol.max = 2,
 }
 \value{
 A list with multiple waves of proposed input parameter values to
-match a vector of target features.
+  match a vector of target features.
 }
 \description{
 Produces a list with multiple waves of proposed input parameter values to

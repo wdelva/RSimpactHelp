@@ -58,12 +58,14 @@ agemix.episodes.df.maker <- function(datalist) {
   dfmale <- datalist$ptable %>%
     dplyr::filter(Gender == 0) %>% # Keep only men
     dplyr::left_join(dfrmale, by = "ID") %>% # Merge person to relationship data
+    dplyr::mutate(ID.partner = ID2) %>% # The female ID variable
     dplyr::select(-ID2) # Remove the female ID variable
 
   # Create person-level table for women
   dffemale <- datalist$ptable %>%
     dplyr::filter(Gender == 1) %>% # Keep only women
     dplyr::left_join(dfrfemale, by = "ID") %>% # Merge person to relationship data
+    dplyr::mutate(ID.partner = ID1) %>% # The male ID variable
     dplyr::select(-ID1) # Remove the male ID variable
 
   # Create full dataframe with additional variables
