@@ -1,6 +1,6 @@
 #' Simulate sequences data of individuals in the transmissiion network using seq-gen tool
 #'
-#' @param dir.seq Direcotry where the simulations of sequence will be performed, thre might be compiled seq-gen tool
+#' @param dir.seq Direcotry where the simulations of sequence will be performed, it  might be compiled seq-gen tool
 #' @param seq.gen.tool Name of the file for compiled seq-gen
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param seeds.num  Seed number for reproducability
@@ -24,6 +24,8 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
   # source("R/epi2tree2.R")
 
   simpact.trans.net <- transmission.network.builder(datalist = datalist, endpoint = endpoint)
+
+  trans.net <- simpact.trans.net
 
   smallest.branches <- rep(NA, times = length(simpact.trans.net))
   for (list.element in 1:length(simpact.trans.net)){
@@ -102,7 +104,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
       colitem <- read.csv(paste0(dir.seq,"/samplingtimes_seed_",p,".csv"))
 
 
-      write.csv(colitem, file=paste0(dir.seq,"/samplingtimes.unique.csv"))
+      write.csv(colitem, file=paste0(dir.seq,"/samplingtimes.all.csv"))
 
 
 
