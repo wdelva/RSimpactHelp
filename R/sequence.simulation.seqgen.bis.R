@@ -18,7 +18,7 @@ sequence.simulation.seqgen.bis <- function(dir.seq = dir,
                                            datalist = datalist,
                                            seeds.num = 123,
                                            endpoint = 40,
-                                           limitTransmEvents = 3,
+                                           limitTransmEvents = 7,
                                            hiv.seq.file = "hiv.seq.C.pol.j.fasta"){
 
 
