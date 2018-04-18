@@ -68,6 +68,7 @@ phylogenetic.tree.fasttree.bis <- function(dir.tree = dirfasttree,
 
   print("Start of internal nodes calibration for the phylogenetic tree with treedater")
 
+
   # 4.2. Calibrate the phylogenetic tree
 
   # Use of library(treedater) to calibrate internal nodes
