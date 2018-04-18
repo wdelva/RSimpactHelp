@@ -18,11 +18,16 @@ setwd("/home/david/Desktop/TEST_19_1_2018/")
 
 ## Load required packages
 
+pacman::p_load(network, intergraph, ggtree, lubridate,
+               ggplot2, ggnetwork, geomnet, igraph)
+
 pacman::p_load(RSimpactCyan, RSimpactHelper, devtools, Rcpp, ape, expoTree,
                data.table, tidyr, phylosim, readr, dplyr, adephylo, geiger,
                picante, igraph, ggplot2, magrittr, lmtest, gsubfn, utils, pcaPP,
                phyloTop, phytools, lme4, data.table, treedater, phangorn, nlme,
-               fitdistrplus, apTreeshape, DECIPHER)
+               fitdistrplus, apTreeshape)
+
+
 
 #######################
 # Step 1: Run Simpact #
@@ -38,33 +43,33 @@ destDir <- "/home/david/Desktop/TEST_19_1_2018/temp" # laptop
 age.distr <- agedistr.creator(shape = 5, scale = 65)
 
 #source the input files var name <- cfg.list <- cfg
-cfg.list <- input.params.creator( # population.eyecap.fraction = 0.2, #0.21,#1,
-                                 # population.msm = "no",
-                                 population.simtime = 40, #20, #40,  #25 for validation. 20 for calibration
-                                 population.nummen = 600, #3000, #600, # 3800, #2500,
-                                 population.numwomen = 600, # 3000, #600, #4200, #2500,
-                                 hivseed.time = 10, # 20,
-                                 hivseed.type = "amount",
-                                 hivseed.amount = 20, #30,
-                                 hivseed.age.min = 20,
-                                 hivseed.age.max = 50,
-                                 hivtransmission.param.a = -1, # -1,
-                                 hivtransmission.param.b = -90,
-                                 hivtransmission.param.c = 0.5,
-                                 hivtransmission.param.f1 = log(2), #log(inputvector[2]) , #log(2),
-                                 hivtransmission.param.f2 = log(log(1.4) / log(2)) / 5, #log(log(sqrt(inputvector[2])) / log(inputvector[2])) / 5, #log(log(1.4) / log(2)) / 5,
-                                 formation.hazard.agegapry.gap_factor_man_age = -0.01, #-0.01472653928518528523251061,
-                                 formation.hazard.agegapry.gap_factor_woman_age = -0.01, #-0.0726539285185285232510561,
-                                 formation.hazard.agegapry.meanage = -0.025,
-                                 formation.hazard.agegapry.gap_factor_man_const = 0,
-                                 formation.hazard.agegapry.gap_factor_woman_const = 0,
-                                 formation.hazard.agegapry.gap_factor_man_exp = -1, #-6,#-1.5,
-                                 formation.hazard.agegapry.gap_factor_woman_exp = -1, #-6,#-1.5,
-                                 formation.hazard.agegapry.gap_agescale_man = 0.25, #inputvector[3], # 0.25,
-                                 formation.hazard.agegapry.gap_agescale_woman = 0.25, #inputvector[3], # 0.25,#-0.30000007,#-0.03,
-                                 debut.debutage = 15,
-                                 conception.alpha_base = -2.5#inputvector[14]#-2.5#,
-                                 #person.art.accept.threshold.dist.fixed.value = 0
+cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
+  # population.msm = "no",
+  population.simtime = 40, #20, #40,  #25 for validation. 20 for calibration
+  population.nummen = 100, #3000, #600, # 3800, #2500,
+  population.numwomen = 100, # 3000, #600, #4200, #2500,
+  hivseed.time = 10, # 20,
+  hivseed.type = "amount",
+  hivseed.amount = 20, #30,
+  hivseed.age.min = 20,
+  hivseed.age.max = 50,
+  hivtransmission.param.a = -1, # -1,
+  hivtransmission.param.b = -90,
+  hivtransmission.param.c = 0.5,
+  hivtransmission.param.f1 = log(2), #log(inputvector[2]) , #log(2),
+  hivtransmission.param.f2 = log(log(1.4) / log(2)) / 5, #log(log(sqrt(inputvector[2])) / log(inputvector[2])) / 5, #log(log(1.4) / log(2)) / 5,
+  formation.hazard.agegapry.gap_factor_man_age = -0.01, #-0.01472653928518528523251061,
+  formation.hazard.agegapry.gap_factor_woman_age = -0.01, #-0.0726539285185285232510561,
+  formation.hazard.agegapry.meanage = -0.025,
+  formation.hazard.agegapry.gap_factor_man_const = 0,
+  formation.hazard.agegapry.gap_factor_woman_const = 0,
+  formation.hazard.agegapry.gap_factor_man_exp = -1, #-6,#-1.5,
+  formation.hazard.agegapry.gap_factor_woman_exp = -1, #-6,#-1.5,
+  formation.hazard.agegapry.gap_agescale_man = 0.25, #inputvector[3], # 0.25,
+  formation.hazard.agegapry.gap_agescale_woman = 0.25, #inputvector[3], # 0.25,#-0.30000007,#-0.03,
+  debut.debutage = 15,
+  conception.alpha_base = -2.5#inputvector[14]#-2.5#,
+  #person.art.accept.threshold.dist.fixed.value = 0
 )
 
 
@@ -235,7 +240,7 @@ sequence.simulation.seqgen(dir.seq = dirseqgen,
                            seeds.num = 123,
                            endpoint = 40,
                            limitTransmEvents = 3,
-                           seed.file = "hiv.seq.C.pol.j.fasta")
+                           hiv.seq.file = "hiv.seq.C.pol.j.fasta")
 
 
 #####################################################
@@ -258,4 +263,333 @@ tree.calib <- phylogenetic.tree.fasttree(dir.tree = dirfasttree,
                                          endsim = 40)
 
 
+N <- node.age(tree.calib)
+
+int.node.age <- N$Ti # internal nodes ages
+
+latest.samp <- N$timeToMRCA+N$timeOfMRCA # latest sampling date
+
+
+
+#### Visualise combined transmission chains
+
+# transmission network
+# internal nodes distribution
+# lineage through time
+
+
+# 1. Transmission network
+###########################
+
+
+trans.net <- simpact.trans.net
+
+limitTransmEvents <- 3 # limitTransmEvents = 3
+
+IDs.transm <- vector()
+TransmEventsCountVector <- vector()
+
+for(i in 1:length(trans.net)){
+  trans.net.i.check <- as.data.frame(trans.net[[i]])
+  if(nrow(trans.net.i.check)>=limitTransmEvents){
+
+    TransmEventsCountVector <- c(TransmEventsCountVector, nrow(trans.net.i.check))
+
+    IDs.transm <- c(IDs.transm, i)
+  }
+}
+
+
+# (i) Transmission events
+transmissions.vec.i <- list()
+time.calendar.vec.i <- list()
+
+for (i in 1:length(IDs.transm)){
+
+  p <- IDs.transm[i]
+
+  trans.net.i <- simpact.trans.net[[p]]
+
+  Infec.time.i <- trans.net.i$InfecTime + 1977
+
+  ##
+  min.val = 1985
+  max.val = 2017
+
+  step.int=1
+  d <- (max.val-min.val)/step.int
+  ##
+  dat.f.trans.i <- as.data.frame(trans.net.i)
+  dat.f.trans.i$itimes <- abs(dat.f.trans.i$itimes-40)+1977
+
+  numb.tra <- vector()
+  i.vec <- vector()
+  for (j in 1:d){
+    inf <- 1985+j
+    sup <- 1987+j
+    dat.f.trans.count <- dat.f.trans.i[which(dat.f.trans.i$itimes <= sup & dat.f.trans.i$itimes  >= inf),]
+    numb.i <- nrow(dat.f.trans.count)
+    numb.tra <- c(numb.tra, numb.i)
+    i.vec <- c(i.vec, sup)
+  }
+
+  transmissions.vec.i[[i]] <- numb.tra
+  time.calendar.vec.i[[i]] <- i.vec
+
+}
+
+## Summing transmission events in all transmission networks ##
+
+for (i in 1:length(IDs.transm)){
+  if(i==1){
+    trans.sum <- transmissions.vec.i[[i]]
+  }
+  else{
+
+    read.trans.sum <- transmissions.vec.i[[i]]
+    trans.sum <- trans.sum + read.trans.sum
+  }
+}
+
+# (ii) Transmission network: union of all
+
+network.list <- list()
+
+for (i in 1:length(IDs.transm)){
+
+  p <- IDs.transm[i]
+
+  trans.net.i <- as.data.frame(simpact.trans.net[[p]])
+
+  trans.net.i <- trans.net.i[-1,]
+
+  trans.net.i$id <- paste("A.",p,".",trans.net.i$id, sep = "")
+  trans.net.i$parent <- paste("A.",p,".",trans.net.i$parent, sep = "")
+
+  graph.build <- trans.net.i
+
+  graph.build[,4] <- as.character(graph.build$parent) # donors
+  graph.build[,3] <- as.character(graph.build$id) # recipients
+  gag = as.matrix(graph.build)
+  ga.graph = graph.edgelist(gag[,4:3])
+
+  V(ga.graph)$color <- "red"
+
+  # transNet.yrs.Old <- delete.vertices(ga.graph, "-1")
+
+  network.list[[i]] <- ga.graph
+
+}
+
+## Union of  all transmission networks ##
+
+for (i in 1:length(IDs.transm)){
+  if(i==1){
+    trans.network.union <- network.list[[i]]
+  }
+  else{
+
+    read.trans.network.union <- network.list[[i]]
+    trans.network.union <- trans.network.union + read.trans.network.union
+  }
+}
+
+
+# 2. Internal nodes
+###################
+
+
+dt.node.age.dt <- int.node.age
+
+min.val = 1985
+max.val = 2017
+
+step.int=1
+d <- (max.val-min.val)/step.int
+
+int.node.vec <- vector()
+years <- vector()
+for (i in 1:d) {
+  inf <- 1985+i*step.int
+  sup <- 1987+i*step.int
+  int.node.age.i <- int.node.age[int.node.age <= sup & dt.node.age.dt >= inf]
+  int.node.vec <- c(int.node.vec,length(int.node.age.i))
+  years <- c(years, inf)
+}
+
+
+# 3. Lineage through time
+##########################
+
+# Estimating confidence intervals for rates and dates using a parametric bootstrap
+
+dater.tree <- tree.calib
+
+pb <- parboot.treedater(dater.tree) # Lineage Through Time
+
+
+
+# plot.parboot.ltt( pb ) # This function computes the lineages through time given bootstrap replicate trees.
+# The pseudo-maximum likelihood estimate is plotted alongside CIs based on bootstrap trees.
+#
+# # Function to compute lineages through time with confidence intervals
+#
+# plot.parboot.ltt.dat <- function (pbtd, t0 = NA, res = 100, ...)
+# {
+#   t1 <- max(pbtd$td$sts, na.rm = T)
+#   if (is.na(t0))
+#     t0 <- min(sapply(pbtd$trees, function(tr) tr$timeOf))
+#   times <- seq(t0, t1, l = res)
+#   ltt <- cbind(times = times, t(sapply(times, function(t) {
+#     c(pml = sum(pbtd$td$sts > t) - sum(pbtd$td$Ti > t), setNames(quantile(sapply(pbtd$trees,
+#                                                                                  function(tre) sum(tre$sts > t) - sum(tre$Ti > t)),
+#                                                                           probs = c(0.025, 0.5, 0.975)), c("lb", "median",
+#                                                                                                            "ub")))
+#   })))
+#   pl.df <- as.data.frame(ltt)
+#   return(pl.df)
+#   # p <- ggplot(pl.df) + geom_ribbon(aes(x = times, ymin = lb,
+#   #                                      ymax = ub), fill = "blue", col = "blue", alpha = 0.1)
+#   # p <- p + geom_path(aes(x = times, y = pml))
+#   # (p <- p + ylab("Lineages through time") + xlab("Time"))
+# }
+#
+# LTT <- plot.parboot.ltt.dat(pb)
+
+
+
+
+### Plot figures
+#################
+
+
+phylosimpactCombinedSeeds <- get(load("phylosimpactCombinedSeeds.RData"))
+
+trans.sum <- trans.sum # <- phylosimpactCombinedSeeds$numb.trasnm
+int.node.vec <- int.node.vec # <- phylosimpactCombinedSeeds$int.node.vec
+trans.network.union # <- phylosimpactCombinedSeeds$transNetwork
+
+
+# 1. Transmission network from simpact                           # 1 #
+
+
+network <- trans.network.union
+
+edges <- as.data.frame(get.edgelist(network))
+names(edges) <- c("infector", "infectee")
+vertices <- as.data.frame(vertex_attr(network))
+network.df <- fortify(as.edgedf(edges), vertices)
+
+ggplot(data = network.df,
+       layout.alg = "fruchtermanreingold",
+       aes(from_id = from_id,
+           to_id = to_id)) +
+  geom_net(directed = TRUE,
+           size = 2,
+           arrowsize = 0.1) +
+  theme(axis.ticks=element_blank(),
+        axis.title=element_blank(),
+        axis.text=element_blank())
+
+# 2. Phylogenetic tree
+
+tree <- tree.calib # phylosimpactCombinedSeeds$dated.tree
+
+sim.start.year <- 1987
+
+N <- node.age(tree)
+
+int.node.age <- N$Ti # internal nodes ages
+
+latest.samp <- N$timeToMRCA+N$timeOfMRCA # latest sampling date
+
+first.div <- min(int.node.age) # min(phylosimpactCombinedSeeds$dated.tree$sts)
+
+mrsd <- max(int.node.age) # max(phylosimpactCombinedSeeds$dated.tree$sts)
+
+dates <- format(date_decimal(c(mrsd, first.transmission)), "%Y-%m-%d")
+
+write.tree(tree, file = "tree.phylo.nwk")
+
+tree <- read.tree("tree.phylo.nwk")
+
+tree$root.edge <-  - first.div
+
+
+ggtree(tree, mrsd = dates[1]) +
+  theme_tree2() +
+  theme_grey() +
+  theme(axis.line.x = element_line(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  scale_x_continuous(limits = c(1985, 2020),
+                     breaks = seq(from = 1985,
+                                  to = 2020,
+                                  by = 5)) + #)scales::pretty_breaks(n = 10))
+  xlab("Time")
+
+
+
+# 3. Transmission events and internal nodes
+
+
+trans.events <- trans.sum
+intern.nodes <- int.node.vec
+calendaryear <- years
+
+trans.and.nodes.df <- data.frame(calendaryear = calendaryear,
+                                 intern.nodes = intern.nodes,
+                                 trans.events = trans.events)
+trans.and.nodes.long.df <- gather(trans.and.nodes.df,
+                                  key = "Events",
+                                  value = "Number",
+                                  intern.nodes:trans.events,
+                                  factor_key = TRUE)
+
+
+ggplot(data = trans.and.nodes.long.df,
+       aes(x = calendaryear,
+           y = Number,
+           colour = factor(Events))) +
+  geom_point() +
+  scale_color_brewer(palette="Set1",
+                     name = "",
+                     labels = c("Internal nodes",
+                                "Transmission events")) +
+  geom_line() +
+  theme(axis.line.x = element_line(),
+        legend.position=c(0.72, 0.52),
+        legend.key = element_blank(),
+        legend.background = element_blank()) +
+  scale_x_continuous(limits = c(1985, 2020),
+                     breaks = seq(from = 1985,
+                                  to = 2020,
+                                  by = 5)) +
+  xlab("Time")
+
+
+
+# 4. Plot of lineages through time with confidence intervals
+
+plot.parboot.ltt( pb )
+
+# # Or
+#
+# pl.df <- LTT
+#
+# p <- ggplot(pl.df) + geom_ribbon(aes(x = times, ymin = lb,
+#                                      ymax = ub), fill = "blue", col = "blue", alpha = 0.1)
+# p <- p + geom_path(aes(x = times, y = pml))
+# (p <- p + ylab("Lineages through time") + xlab("Calendar time"))
+
+
+# Object for plotting by ggplot
+phylosimpactCombinedSeeds <- list()
+phylosimpactCombinedSeeds$transNetwork <- trans.network.union
+phylosimpactCombinedSeeds$dated.tree <- dater.tree
+phylosimpactCombinedSeeds$vec.years <- i.vec
+phylosimpactCombinedSeeds$int.node.vec <- int.node.vec
+phylosimpactCombinedSeeds$numb.trasnm <- numb.tra
+phylosimpactCombinedSeeds$LTT <- pb
+save(phylosimpactCombinedSeeds, file = "phylosimpactCombinedSeeds.RData")
 
