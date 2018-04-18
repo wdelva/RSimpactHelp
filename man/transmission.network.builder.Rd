@@ -15,19 +15,32 @@ transmission.network.builder(datalist = datalist, endpoint = 40)
 }
 \value{
 a list with the transmission networks data
-itimes: Branching times -> endpoint - Infection times : to be handle by epi2tree
-dtimes: Sampling times -> endpoint - Removal times : to be handle by epi2tree
-id: Receiver ID - to be handle by epi2tree
-parent: Donor ID - to be handle by epi2tree
-dtypes: sampling/Removal types: diagnosed individuals (0), died and non diagnosed (-1), and alive and non diagnosed (1)
-RecId: Original receiver ID
-DonId: Original donor ID
-InfecTime: Infection time
-Samptime: Sampling/removal time (diagnosis - death - end of simulation)
-GenderRec: Gender of receiver
-GenderDon: Gender of donor
-TOBRec: time of birth of receiver
-TOBDon: time of birth of donor
+
+itimes Branching times -> endpoint - Infection times : to be handle by epi2tree
+
+dtimes Sampling times -> endpoint - Removal times : to be handle by epi2tree
+
+id Receiver's ID - to be handle by epi2tree
+
+parent Donor's ID - to be handle by epi2tree
+
+dtypes sampling/Removal types: diagnosed individuals (0), died and non diagnosed (-1), and alive and non diagnosed (1)
+
+RecId Original receiver ID
+
+DonId Original donor ID
+
+InfecTime Infection time
+
+Samptime Sampling/removal time (diagnosis - death - end of simulation)
+
+GenderRec Gender of receiver
+
+GenderDon Gender of donor
+
+TOBRec time of birth of receiver
+
+TOBDon time of birth of donor
 }
 \description{
 Build a list of HIV transmission networks data.
