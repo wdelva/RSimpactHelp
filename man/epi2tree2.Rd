@@ -2,7 +2,7 @@
 % Please edit documentation in R/epi2tree2.R
 \name{epi2tree2}
 \alias{epi2tree2}
-\title{Build a transmission tree object from a transmission network}
+\title{Build a transmission tree object from a transmission network data frame}
 \usage{
 epi2tree2(epi)
 }
@@ -13,7 +13,7 @@ epi2tree2(epi)
 Transmission tree object (a phylo object)
 }
 \description{
-Build a transmission tree object from a transmission network
+Build a transmission tree object from a transmission network data frame
 }
 \examples{
 
