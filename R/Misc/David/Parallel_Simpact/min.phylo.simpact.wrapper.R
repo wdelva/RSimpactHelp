@@ -19,7 +19,7 @@ phylo.simpact.wrapper <- function(inputvector){
 
   #source the input files var name <- cfg.list <- cfg
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
-                                   population.msm = "no",
+                                   # population.msm = "no",
                                    population.simtime = 40, #20, #40,  #25 for validation. 20 for calibration
                                    population.nummen = 100, #3000, #600, # 3800, #2500,
                                    population.numwomen = 100, # 3000, #600, #4200, #2500,
@@ -182,7 +182,7 @@ phylo.simpact.wrapper <- function(inputvector){
                                       timewindow = c(0, datalist$itable$population.simtime[1]))
 
 
-  simpact.trans.net <- transmNetworkBuilder.diff3(datalist = datalist, endpoint = 40)
+  simpact.trans.net <- transmission.network.builder(datalist = datalist, endpoint = 40) # transmNetworkBuilder.diff3
 
   trans.net <- simpact.trans.net # all transmission networks
 
