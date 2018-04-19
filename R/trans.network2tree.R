@@ -7,7 +7,6 @@
 #' transnetwork <- transm.ls[[16]]
 #' tree0 <- trans.network2tree(transnetwork = transnetwork) # transmission tree of seeds 16
 #'
-#' @importFrom expoTree epi2tree
 #' @export
 #'
 #'
