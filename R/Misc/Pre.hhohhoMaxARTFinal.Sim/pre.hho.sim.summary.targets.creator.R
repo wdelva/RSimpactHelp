@@ -22,12 +22,12 @@ more.months <- twelve.months + six.months
 
 pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
-
-  #when do we want the retention time
+  #when do we want study retention time
   maxart.ret.timepoint <- difftime(maxart.endtime, sim.start.full, units = "days")/days.in.yr
-  maxart.ret.timepoint <- round(as.numeric(maxart.ret.timepoint),0)
-  maxart.starttime.ret <- round(as.numeric(difftime(maxart.starttime, sim.start.full, units = "days")/days.in.yr),0)
-  ret.end <- round(as.numeric(difftime(maxart.endtime,maxart.starttime, units = "days"))/days.in.yr,0) * 12
+  maxart.ret.timepoint <- maxart.ret.timepoint + tail(sim.datalist$itable$maxart.stepinterval,1)
+  maxart.starttime.ret <- as.numeric(difftime(maxart.starttime, sim.start.full, units = "days")/days.in.yr)
+  ret.end <- maxart.starttime.ret + (as.numeric(difftime(maxart.endtime,maxart.starttime, units = "days"))/days.in.yr +
+                     tail(sim.datalist$itable$maxart.stepinterval,1))
 
   #creator a range of summary statistics
   sim.datalist$ptable$age <- sim.datalist$itable$maxart.starttime[1] - sim.datalist$ptable$TOB
@@ -39,21 +39,20 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
                                       age.end.study >=18 & InfectTime!=Inf &
                                       InfectTime < maxart.ret.timepoint)
 
-  #Total clients
-  all.maxart <- nrow(maxart.study.pop)
-
   #alldf
   chunk.datalist.test.all <- sim.datalist
   chunk.datalist.test.all$ptable <- maxart.study.pop
 
   ### MaxART ART coverage ####################
-  hhohho.all.art.coverage.var <- maxart.study.pop %>%
-     dplyr::filter(TreatTime!=Inf) %>%
-     summarise(all.all = n()/all.maxart)
+  hhohho.all.art.coverage.var <- ART.coverage.calculator(datalist = chunk.datalist.test.all,
+                                                         agegroup = c(18,150),
+                                                         timepoint = maxart.ret.timepoint,
+                                                         site = "All")
 
-  all.art.init <- dplyr::select(hhohho.all.art.coverage.var, contains(".all"))
-  hhohho.art.initiated.tar.values <- as.numeric(all.art.init*100)
-
+  #Check Hhohho ART coverage in this simulation
+  hhohho.art.initiated.tar.values <- ifelse(nrow(subset(hhohho.all.art.coverage.var, is.na(Gender)))==1,
+                                            subset(hhohho.all.art.coverage.var, is.na(Gender))$ART.coverage*100,
+                                            NA)
 
   #### Max Retention ####################################
   max.ret.tar <- length(row.names(max.art.retention.all))
@@ -63,13 +62,15 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
 
   for(ret in 1:max.ret.tar){
 
-  ret.all.all = ART.retention(datalist = chunk.datalist.test.all,
-                               agegroup = ret.age.group, #all ages
-                               ARTtimewindow = c(maxart.starttime.ret, maxart.ret.timepoint),
-                               retentiontimeMonths = max.ret.tar.list[ret], #6 months default
-                               site="All")$percentage[1]
+    ret.all.all <- ART.retention(datalist = chunk.datalist.test.all,
+                                agegroup = ret.age.group, #all ages
+                                ARTtimewindow = c(maxart.starttime.ret, maxart.ret.timepoint),
+                                retentiontimeMonths = max.ret.tar.list[ret], #6 months default
+                                site="All")
 
-  max.ret.tar.all[ret] <- ret.all.all
+    #This is for all gender
+    max.ret.tar.all[ret] <- ifelse(nrow(subset(ret.all.all, is.na(Gender))) ==1,
+                                   subset(ret.all.all, is.na(Gender))$percentage, NA)
 
   }
 
@@ -90,15 +91,23 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   for(vl in 1:max.vl.sup.tar.dim){
 
     if(vl==3){
-      maxart.ret.timepoint <- shims.vl.timepoint
-      vl.datalist <- sim.datalist
-      }else{vl.datalist <- chunk.datalist.test.all}
+      tp.var <- shims.vl.timepoint
+      df.var <- sim.datalist
+      min.age.vl.sup <- 15
+      max.age.vl.sup <- 150
+    }else{
+      tp.var <- maxart.ret.timepoint
+      df.var <- chunk.datalist.test.all
+      min.age.vl.sup <- 18
+      max.age.vl.sup <- 150
+    }
 
-    vl.sup.all <- vl.suppressed(datalist = vl.datalist,
-                                timepoint = maxart.ret.timepoint, vlcutoff = 1000,
+    vl.sup.all <- vl.suppressed(datalist = df.var,
+                                agegroup = c(min.age.vl.sup, max.age.vl.sup),
+                                timepoint = tp.var, vlcutoff = 1000,
                                lessmonths = max.vl.sup.list[vl], site="All")
 
-    vl.sup.all <- subset(vl.sup.all, is.na(Gender))$Percentage[[1]]
+    vl.sup.all <- subset(vl.sup.all, is.na(Gender))$Percentage
 
     max.vl.sup.all[vl] <- ifelse(vl != 3, 100 - vl.sup.all, vl.sup.all)
 
@@ -122,7 +131,6 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
   all.mortality <- dplyr::select(max.mort.study.pop.prim, contains(".all"))
 
   hhohho.mortality.tar.values <- as.numeric(all.mortality * 100)
-
 
   # ##### Growth rate ########################################
   gr.year.list <- as.numeric(format.names(names(hhohho.growth.rate), replace = "X"))
@@ -166,14 +174,19 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
                                                 timepoint = time.end.2007)
 
     #Gender 0 <- male : 1 <- female
-    swazi.sim.prev.2007.m[i] <- swazi.age.sim.prev$pointprevalence[1] * 100
-    swazi.sim.prev.2007.f[i] <- swazi.age.sim.prev$pointprevalence[2] * 100
-    swazi.sim.prev.2007.fm[i] <- swazi.age.sim.prev$pointprevalence[3] * 100
+    swazi.sim.prev.2007.m[i] <- ifelse(nrow(subset(swazi.age.sim.prev, Gender == 0)) == 1,
+                                       subset(swazi.age.sim.prev, Gender == 0)$pointprevalence * 100,
+                                       NA)
+    swazi.sim.prev.2007.f[i] <- ifelse(nrow(subset(swazi.age.sim.prev, Gender == 1)) == 1,
+                                       subset(swazi.age.sim.prev, Gender == 1)$pointprevalence * 100,
+                                       NA)
+    swazi.sim.prev.2007.fm[i] <- ifelse(nrow(subset(swazi.age.sim.prev, is.na(Gender))) == 1,
+                                        subset(swazi.age.sim.prev, is.na(Gender))$pointprevalence * 100,
+                                        NA)
 
   }
   hhohho.prev.2007.tar.values <- c(swazi.sim.prev.2007.f, swazi.sim.prev.2007.m,
                                   swazi.sim.prev.2007.fm)
-
 
   ########  SHIMS2 prevalence ########
   #use the vl time point already calculated: shims.vl.timepoint
@@ -193,7 +206,9 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
                                                 timepoint = shims.vl.timepoint)
 
     #Gender 0 <- male : 1 <- female
-    hho.sim.prev.2017.fm[i] <- hho.shim2.age.sim.prev$pointprevalence[3] * 100
+    hho.sim.prev.2017.fm[i] <- ifelse(nrow(subset(hho.shim2.age.sim.prev, is.na(Gender)))==1,
+                                      subset(hho.shim2.age.sim.prev, is.na(Gender))$pointprevalence * 100,
+                                      NA)
 
   }
   hho.prev.2017.tar.values <- c(hho.sim.prev.2017.fm)
@@ -219,13 +234,13 @@ pre.hhohho.sim.summary.creator <- function(sim.datalist = chunk.datalist.test){
     summarise(mean.AD = as.numeric(mean(AgeGap, na.rm = TRUE)),
               median.AD = as.numeric(median(AgeGap, na.rm = TRUE))
               ) %>%
-    as.data.frame
+    as.data.frame()
 
   pattern.hhohho.all <- pattern.hhohho %>%
     summarise(mean.AD = as.numeric(mean(AgeGap, na.rm = TRUE)),
               median.AD = as.numeric(median(AgeGap, na.rm = TRUE))
               )%>%
-    as.data.frame
+    as.data.frame()
 
   hhohho.AD.tar.values <- c(pattern.hhohho.gender$mean.AD[2], pattern.hhohho.gender$median.AD[2],
                             pattern.hhohho.gender$mean.AD[1], pattern.hhohho.gender$median.AD[1],
