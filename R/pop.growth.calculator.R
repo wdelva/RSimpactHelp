@@ -12,7 +12,7 @@
 #' growth.rate
 #'
 #' @importFrom magrittr %>%
-#' @import dplyr
+#' @importFrom dplyr select
 #' @export
 
 pop.growth.calculator <- function(datalist = datalist,

@@ -24,7 +24,10 @@
 #' incidence.df
 #'
 #' @importFrom exactci poisson.exact
-#' @import dplyr
+#' @importFrom dplyr left_join
+#' @importFrom dplyr filter
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
 #' @export
 
 incidence.calculator <- function(datalist = datalist,

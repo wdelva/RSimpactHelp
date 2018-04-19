@@ -15,7 +15,8 @@
 #' prevalence.df
 #'
 #' @importFrom stats binom.test
-#' @import dplyr
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
 #' @export
 
 prevalence.calculator <- function(datalist = datalist,
