@@ -25,8 +25,8 @@
 #' @note
 #' transm.ls[[1]] is the transmission network (epi object) of the first seed
 #' @importFrom igraph subcomponent
+#' @importFrom igraph graph.edgelist
 #' @importFrom dplyr left_join
-#' @import data.table
 #' @export
 
 # Build a transmission network data per seed to be handled by epi2tree function of expotree package
@@ -108,7 +108,7 @@ transmission.network.builder <- function(datalist = datalist, endpoint = 40){
   ga[,1] <- as.character(recDonTimeOrd[,1]) # donors
   ga[,2] <- as.character(recDonTimeOrd[,2]) # recipients
   gag = as.matrix(ga)
-  ga.graph = graph.edgelist(gag[,1:2])
+  ga.graph = igraph::graph.edgelist(gag[,1:2])
 
 
   # Let know extract from the above big network
