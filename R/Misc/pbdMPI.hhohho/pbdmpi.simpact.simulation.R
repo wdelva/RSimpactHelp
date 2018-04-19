@@ -1,8 +1,6 @@
 #!/usr/bin/env/ Rscript
-#get the necessary libraries
-
 pbdMPI.simulation.wrapper <- function(set.seed.id = 1,   #what seed to use
-                                       design.points = 16, #
+                                       design.points = 16, # of rows explore
                                        par.repeat = 1, #each row is repeated once.
                                        ncluster.use = 4, #Not useful in this
                                        min.sim = 1, max.sim = 4,
@@ -24,7 +22,6 @@ pbdMPI.simulation.wrapper <- function(set.seed.id = 1,   #what seed to use
   preprior.chunk <- names(dplyr::select(inPUT.df.complete, contains(".")))
   preprior.names.chunk <- preprior.chunk[2:length(preprior.chunk)]
 
-
   if(cal.simulation == FALSE ){
 
     #This will get the initial sampled parameters
@@ -43,18 +40,31 @@ pbdMPI.simulation.wrapper <- function(set.seed.id = 1,   #what seed to use
     #select a subset of the parameter set
     inANDout.df.chunk <- as.data.frame(subset(inANDout.df.chunk, sim.id %in% sel.id.list))
 
+    #preserve the original inputfile
+    inANDout.df.chunk.uni <- inANDout.df.chunk
+
   }else{
 
-    #inANDout.df.chunk <- datalist
+    inPUT.df.complete <- datalist
     #select only simpact parameters
-    inANDout.df.chunk <- subset(datalist, select = c("sim.id", preprior.names.chunk))
+    inANDout.df.chunk <- subset(inPUT.df.complete, select = c("sim.id", preprior.names.chunk))
 
     #incase there are dublicate sim.id return only the unique ones.
     inANDout.df.chunk <- inANDout.df.chunk[!duplicated(inANDout.df.chunk[,c("sim.id")]),]
 
-  }
+    #check if method exit, then then include it.
+    if(!("method" %in% colnames(inPUT.df.complete))) { inPUT.df.complete$method <- "Init" }
 
-  inANDout.df.chunk.uni <- inANDout.df.chunk  #preserve the original inputfile
+    #get the method and the id number.
+    method.id.name <- subset(inPUT.df.complete, select = c("sim.id","method"))
+
+    #preserve the original inputfile
+    inANDout.df.chunk.uni <- left_join(inANDout.df.chunk, method.id.name, by = "sim.id")
+
+    min.sim <- 1
+    max.sim <- nrow(inANDout.df.chunk)
+
+  }
 
   #If you want to repeat the same parameter set many times default is just one.
   if(par.repeat != 1){
@@ -72,14 +82,15 @@ pbdMPI.simulation.wrapper <- function(set.seed.id = 1,   #what seed to use
 
   }
 
-  #check if your df is being created correctly
-  file.name.test.df <- paste0(dirname,"/", min.sim, "-",
+  ##check if your df is being created correctly
+  file.name.test.df <- paste0(dirname, paste0(sample(c(LETTERS,letters), 5), collapse = ""),"-", min.sim, "-",
                               max.sim,"-df.repeat-pdbMPI.csv")
 
   write.csv(inANDout.df.chunk, file = file.name.test.df, row.names = FALSE)
 
   #indicate the target statitics that you want to hit
   source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/pre.hho.summary.statistics.creator.R")
+
   #use if you want to compute the final simulation
   #source("R/Misc/Pre.hhohhoMaxARTFinal.Sim/final.pre.hho.summary.statistics.creator.R")
 
@@ -151,7 +162,7 @@ pbdMPI.simulation.wrapper <- function(set.seed.id = 1,   #what seed to use
       }
 
       #intervention introduced see the intervention.introduced
-      iv.chunk <- intervention.introduced(simulation.type = "pre.hhohho", simulation.start = sim.start.full)
+      iv.chunk <- intervention.introduced(simulation.type = "maxart", simulation.start = sim.start.full)
 
       #The first parameter is set to be the seed value
       seed.chunk.id <- input.chunk.params$seed.value[1]
@@ -312,7 +323,7 @@ pbdMPI.simulation.wrapper <- function(set.seed.id = 1,   #what seed to use
 
     #Save the results to file.
     rand.string <- paste0(sample(c(LETTERS,letters), 10), collapse = "")
-    filename.run <- paste0(dirname,"/", save.name, min.sim,"-", max.sim,
+    filename.run <- paste0(dirname, save.name, min.sim,"-", max.sim,
                            "-SummaryOutPut-",rand.string,"-pdbMPI.csv")
 
     write.csv(inputANDoutput.chunk.df, file = filename.run, row.names = FALSE)
@@ -324,9 +335,7 @@ pbdMPI.simulation.wrapper <- function(set.seed.id = 1,   #what seed to use
     #Returns the df that contains the simulated statistics with
     #respective simpact parameters
     return(inputANDoutput.chunk.df)
-
   }
-  #close all the cores
-  finalize()
+
 }
 
