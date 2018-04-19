@@ -3,10 +3,11 @@
 \name{cd4.vl.atARTinit}
 \alias{cd4.vl.atARTinit}
 \title{A function that returns the total number of people between two points in simulation
-time for a particular age group and gender whose VL and CD4count are as indicated}
+time for a particular age group and gender whose vl was between the given threshold
+and CD4 count was between the given threshold}
 \usage{
-cd4.vl.atARTinit(datalist = datalist, agegroup = c(15, 30),
-  timewindow = c(15, 30), viralload = c(3, 4), cd4count = c(350, 500),
+cd4.vl.atARTinit(datalist = datalist, agegroup = c(15, 40),
+  timewindow = c(15, 40), viralload = c(3, 4), cd4count = c(350, 500),
   site = "All")
 }
 \arguments{
@@ -27,7 +28,8 @@ the total number of of people whose VL and CD4 count at ART initiation are given
 }
 \description{
 A function that returns the total number of people between two points in simulation
-time for a particular age group and gender whose VL and CD4count are as indicated
+time for a particular age group and gender whose vl was between the given threshold
+and CD4 count was between the given threshold
 }
 \examples{
 data(datalist)

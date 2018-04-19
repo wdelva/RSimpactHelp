@@ -14,9 +14,8 @@ client.facility(datalist = datalist, site = "All")
 the datalist with facility attached to each client
 }
 \description{
-TO REVISE (Need to get the first time that ART was started then reset when
-drop out and look at the VL six month after, Ignore everthing else
-after this)
+A function that determines the facility the client attended
+Assumption is that the client facility will never change once asssigned
 }
 \examples{
 data(datalist)

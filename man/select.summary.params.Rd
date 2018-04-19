@@ -4,7 +4,7 @@
 \alias{select.summary.params}
 \title{Select the summary statistics that you want from the simpact.run.}
 \usage{
-select.summary.params(..., summary.replace = FALSE)
+\method{select}{summary.params}(..., summary.replace = FALSE)
 }
 \arguments{
 \item{...}{standard summary statistics}
