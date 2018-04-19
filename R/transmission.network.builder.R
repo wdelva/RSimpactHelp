@@ -24,7 +24,7 @@
 #' transm.ls <- transmission.network.builder(datalist = datalist,endpoint = 40)
 #' @note
 #' transm.ls[[1]] is the transmission network (epi object) of the first seed
-#' @import igraph
+#' @importFrom igraph subcomponent
 #' @importFrom dplyr left_join
 #' @import data.table
 #' @export
@@ -116,7 +116,7 @@ transmission.network.builder <- function(datalist = datalist, endpoint = 40){
 
   subcomps <- vector("list", length(seeds.id))
   for (i in 1: length(seeds.id)){
-    subcomps[[i]] <- subcomponent(ga.graph, paste(seeds.id[i]), "out") # out > all vertices reachable from seeds.id[i] are returned
+    subcomps[[i]] <- igraph::subcomponent(ga.graph, paste(seeds.id[i]), "out") # out > all vertices reachable from seeds.id[i] are returned
   }
 
   # table of donors, recipients,  and time of infection of infected people due to each seed
