@@ -105,13 +105,12 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
                                            actual.input.matrix = experiments,
                                            seed_count = 0,
                                            n_cluster = n_cluster)
-    # save(sim.results.simple, file = "/Users/delvaw/Documents/MiceABC/sim.results.simple.RData")
-    # load(file = "sim.results.simple.RData")
 
     new.sim.results.with.design.df <- as.data.frame(cbind(experiments,
-                                                          sim.results.simple))
+                                                          sim.results.simple,
+                                                          rep(wave, times = nrow(experiments))))
 
-    names(new.sim.results.with.design.df) <- c(x.names, y.names)
+    names(new.sim.results.with.design.df) <- c(x.names, y.names, "seed", "wave")
 
     new.sim.results.with.design.df <- new.sim.results.with.design.df %>% dplyr::filter(complete.cases(.))
 
@@ -128,9 +127,6 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
     # sim.results.with.design.df contains all simulations from previous waves (sim.results.with.design.df)
     # and the simulations from the most recent wave (new.sim.results.with.design.df)
     ########
-
-    # save(sim.results.with.design.df, file = "/Users/delvaw/Documents/MiceABC/sim.results.with.design.df.RData")
-    # load(file = "/Users/delvaw/Documents/MiceABC/sim.results.with.design.df.RData")
 
     # sim.results.with.design.df.median.features <- l1median(dplyr::select(sim.results.with.design.df, contains("y.")))
     ######## CONTEXT
@@ -191,7 +187,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
 
     # 8. Prepare dataframe to give to mice: selected experiments plus intermediate features
     df.give.to.mice <- dplyr::full_join(dplyr::select(sim.results.with.design.df.selected,
-                                                      -contains("RMSD")), # adding target to training dataset
+                                                      -one_of(c("RMSD", "seed", "wave"))), # adding target to training dataset
                                         final.intermediate.features.df[rep(1:nrow(final.intermediate.features.df),
                                                                            each = n.experiments), ],
                                         by = names(final.intermediate.features.df)) # "by" statement added to avoid printing message of the variables were used for joining
@@ -222,7 +218,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
       all.names <- names(df.give.to.mice)
 
       nrows.training.df <- dplyr::select(sim.results.with.design.df.selected,
-                                         -contains("RMSD")) %>% nrow()
+                                         -one_of(c("RMSD", "seed", "wave"))) %>% nrow()
 
       for(y.index in 1:ncol(df.give.to.mice)){
         x4lasso <- as.matrix(df.give.to.mice[1:nrows.training.df, -y.index])
