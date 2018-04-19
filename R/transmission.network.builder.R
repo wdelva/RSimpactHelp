@@ -1,6 +1,4 @@
-#' Build a list of HIV transmission networks data.
-#' Each transmission network emerges from one seed individual in the population.
-#' Thus we do not consider super-infection in our case.
+#' Build a list of HIV transmission networks data
 #'
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param endpoint Only transmission events that took place before this point in simulation time, are captured in the output.
