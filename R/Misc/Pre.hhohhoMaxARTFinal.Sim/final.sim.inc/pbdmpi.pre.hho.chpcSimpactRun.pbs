@@ -1,0 +1,21 @@
+#!/bin/bash -l
+#
+#PBS -N PreHhohhoSim.fin
+#PBS -P CBBI0949
+#PBS -q normal
+#PBS -l select=10:ncpus=24:mpiprocs=24:nodetype=haswell_reg
+#PBS -l walltime=04:00:00
+#PBS -m be
+#BPS -M trust@aims.ac.za
+
+source /home/tchibawara/SimpactCyanBuild/simpactpack/bin/activatesimpact.sh
+
+ulimit -s unlimited
+
+module add /apps/chpc/scripts/modules/bio/app/simpact-cyan/0.21.0
+
+cd /mnt/lustre/users/tchibawara/MaxART/code/final/
+
+NP=`cat ${PBS_NODEFILE} | wc -l`
+
+mpirun -np ${NP} -machinefile ${PBS_NODEFILE} Rscript pbdmpi.simpact.wrapper.R
