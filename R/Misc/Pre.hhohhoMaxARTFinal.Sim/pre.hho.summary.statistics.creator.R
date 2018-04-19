@@ -4,11 +4,28 @@
 #just the year when simulation started.
 simulation.type <- "maxart"  #"simpact-cyn"
 sim.start.full <- as.Date("1970-03-31")
+
+simulation.name <- "maxart-int" #"maxart-noint"
+
+if(simulation.name == "maxart-int"){
+  maxart.starttime <- as.Date("2014-09-01")
+  maxart.endtime <- as.Date("2017-08-31")
+  final.type <- "YStudy" #There is a study
+}else{
+  maxart.starttime <- as.Date("2027-09-01")
+  maxart.endtime <- as.Date("2032-11-03")
+  final.type <- "NStudy" #There is no study
+}
+#year simulation start
 sim.start <- as.numeric(substr(sim.start.full,1,4))
-maxart.starttime <- as.Date("2014-09-01")
-maxart.endtime <- as.Date("2016-11-03")
-sim.end.full <- as.Date("2017-08-31")
+
+#Simulation-end and HIV seed year
+sim.end.full <- as.Date("2018-07-30")
 seed.hiv.date <- as.Date("1986-03-31")
+
+#preserve study yrtime
+study.starttime <- maxart.starttime
+study.endtime <- maxart.endtime
 
 #initial population
 init.population.total <- 2000
@@ -106,12 +123,10 @@ tar.name <- function(df, tar.type = "name"){
   apply(expand.grid(rownames(df),".", names(df), ".",tar.type), 1, paste0,collapse="" )
 }
 
-
 ### get the real target values
 tar.value <- function(df){
   return(as.numeric(unlist(df, use.names = FALSE)))
 }
-
 
 #Creating target names
 target.variables <- c(tar.name(hhohho.growth.rate, "gr"),
