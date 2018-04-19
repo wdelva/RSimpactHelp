@@ -24,10 +24,10 @@ MaC.explorer <- function(model = model,
   paramtemp <- NULL
   simultemp <- NULL
 
-  last.wave <- length(test.MaC$selected.experiments)
-  experiments <- dplyr::select(test.MaC$selected.experiments[[last.wave]],
-                   contains("x."))
-  seeds <- dplyr::select(test.MaC$selected.experiments[[last.wave]],
+  last.wave <- length(MaC.output$selected.experiments)
+  experiments <- dplyr::select(MaC.output$selected.experiments[[last.wave]],
+                   contains("x.")) %>% as.matrix(., dimnames = NULL)
+  seeds <- dplyr::select(MaC.output$selected.experiments[[last.wave]],
                                           contains("seed")) %>%
     unlist() %>% as.numeric()
   nb_simul <- nrow(experiments)
