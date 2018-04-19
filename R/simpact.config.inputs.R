@@ -23,6 +23,7 @@
 #'
 #' @importFrom lhs randomLHS
 #' @importFrom lhs augmentLHS
+#' @importFrom lhs improvedLHS
 #' @importFrom stats qunif
 #' @export
 
@@ -36,9 +37,28 @@ simpact.config.inputs <- function(design.points = 10, resample.count = 1, ...){
 
   # Creating the LHS over the 0-1 uniform parameter space for the parameters to be estimated
   variables <- length(input.parameters)
-  set.seed(1)
+  set.seed(1976)
 
-  rlhs <- randomLHS(design.points, variables)
+  if(design.points > 4){
+    add.design.points <- design.points %/% 4
+    aug.points <- design.points %% 4
+
+    rlhs <- improvedLHS(add.design.points, variables)
+
+    for(i in 1:3){
+
+      rlhs <- augmentLHS(rlhs, add.design.points)
+
+    }
+    if(aug.points > 0){
+
+      rlhs <- augmentLHS(rlhs, aug.points)
+    }
+
+  }else{
+    rlhs <- randomLHS(design.points, variables)
+  }
+
   if (resample.count > 1){
     for(i in 1:resample.count){
 
