@@ -12,7 +12,7 @@
 #' @export
 
 
-sequence.simulation.seqgen.bis <- function(dir.seq = dir,
+sequence.simulation.seqgen.par <- function(dir.seq = dir,
                                            sub.dir.rename = sub.dir.rename,
                                            seq.gen.tool = "seq-gen",
                                            datalist = datalist,

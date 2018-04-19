@@ -10,7 +10,7 @@
 #' @return A time-stamped phylogenetic  tree with annotation of internal nodes dates
 #' @export
 
-phylogenetic.tree.fasttree.bis <- function(dir.tree = dirfasttree,
+phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
                                            sub.dir.rename = sub.dir.rename,
                                            fasttree.tool = "FastTree",
                                            calendar.dates = "samplingtimes.all.csv",
