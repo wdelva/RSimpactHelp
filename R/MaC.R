@@ -213,6 +213,10 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
 
     #### NEW: Using LASSO to create predictorMatrix (and ignoring the one that was given as a function argument)
 
+    if (is.numeric(predictorMatrix)){
+      predictorMatrix.give.to.mice <- predictorMatrix
+    }
+
     if (predictorMatrix == "LASSO"){
       predictorMatrix.LASSO <- diag(0, ncol = ncol(df.give.to.mice), nrow = ncol(df.give.to.mice))
       all.names <- names(df.give.to.mice)
@@ -239,8 +243,6 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
 
     if (predictorMatrix == "complete"){
       predictorMatrix.give.to.mice <- (1 - diag(1, ncol(df.give.to.mice)))
-    } else {
-      predictorMatrix.give.to.mice <- predictorMatrix
     }
 
     print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
