@@ -58,7 +58,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
                 strict.positive.params,
                 probability.params,
                 method = "norm",
-                predictorMatrix = predictorMatrix,
+                predictorMatrix = "complete",
                 maxit = 50,
                 maxwaves = 4,
                 n_cluster = n_cluster){
@@ -198,11 +198,11 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
 
 
     #print(df.give.to.mice)
-    if (strict.positive.params != 0){
+    if (!identical(strict.positive.params, 0)){
       df.give.to.mice[, strict.positive.params] <- log(df.give.to.mice[, strict.positive.params])
     }
     # probability.params <- 14
-    if (probability.params != 0){
+    if (!identical(probability.params, 0)){
       df.give.to.mice[, probability.params] <- log(df.give.to.mice[, probability.params] / (1 - df.give.to.mice[, probability.params])) # logit transformation
     }
 
@@ -213,7 +213,11 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
 
     #### NEW: Using LASSO to create predictorMatrix (and ignoring the one that was given as a function argument)
 
-    if (predictorMatrix == "LASSO"){
+    if (is.numeric(predictorMatrix)){
+      predictorMatrix.give.to.mice <- predictorMatrix
+    }
+
+    if (identical(predictorMatrix, "LASSO")){
       predictorMatrix.LASSO <- diag(0, ncol = ncol(df.give.to.mice), nrow = ncol(df.give.to.mice))
       all.names <- names(df.give.to.mice)
 
@@ -234,11 +238,11 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
         col.indices <- all.names %in% nonzero.names
         predictorMatrix.LASSO[y.index, col.indices] <- 1
       }
-      predictorMatrix <- predictorMatrix.LASSO
+      predictorMatrix.give.to.mice <- predictorMatrix.LASSO
     }
 
-    if (predictorMatrix == "complete"){
-      predictorMatrix <- (1 - diag(1, ncol(df.give.to.mice)))
+    if (identical(predictorMatrix, "complete")){
+      predictorMatrix.give.to.mice <- (1 - diag(1, ncol(df.give.to.mice)))
     }
 
     print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
@@ -247,7 +251,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
                                      m = 1,
                                      method = method,
                                      defaultMethod = method,
-                                     predictorMatrix = predictorMatrix,
+                                     predictorMatrix = predictorMatrix.give.to.mice,
                                      maxit = maxit,
                                      printFlag = FALSE),
                           error = function(mice.err) {
@@ -263,11 +267,11 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
       #colnames(mice.guesses3.df) <- imputed.params.names
 
       # Before we check the suitability of the new experimental input parameter values, we must backtransform the log values to natural values
-      if (strict.positive.params != 0){
+      if (!identical(strict.positive.params, 0)){
         experiments[, strict.positive.params] <- exp(experiments[, strict.positive.params])
       }
       # And we must also backtransform the logit-transformed values
-      if (probability.params != 0){
+      if (!identical(probability.params, 0)){
         experiments[, probability.params] <- exp(experiments[, probability.params]) / (1 + exp(experiments[, probability.params]))
       }
       wave <- wave + 1
