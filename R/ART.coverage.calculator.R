@@ -18,7 +18,10 @@
 #'
 #' @importFrom magrittr %>%
 #' @importFrom stats binom.test
-#' @import dplyr
+#' @importFrom dplyr filter
+#' @importFrom dplyr left_join
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
 #' @export
 
 ART.coverage.calculator <- function(datalist = datalist,

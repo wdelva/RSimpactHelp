@@ -13,7 +13,10 @@
 #'  timewindow=c(10, 40), cd4count=350, site="All")
 #'
 #' @importFrom magrittr %>%
-#' @import dplyr
+#' @importFrom dplyr filter
+#' @importFrom dplyr left_join
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
 #' @export
 
 cd4.atARTinit <- function(datalist = datalist,

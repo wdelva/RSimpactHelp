@@ -13,7 +13,10 @@
 #' person.years.art
 #'
 #' @importFrom magrittr %>%
-#' @import dplyr
+#' @importFrom dplyr mutate
+#' @importFrom dplyr left_join
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
 #' @export
 
 art.person.years <- function(datalist = datalist,
