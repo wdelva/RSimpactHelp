@@ -38,5 +38,5 @@ simpact.parallel <- function(model = simpact.wrapper,
                                        model)
   tab_simul_summarystat <- do.call(rbind, list_simul_summarystat)
   stopCluster(cl)
-  return(tab_simul_summarystat)
+  return(cbind(tab_simul_summarystat, seed_count + 1:nb_simul))
 }
