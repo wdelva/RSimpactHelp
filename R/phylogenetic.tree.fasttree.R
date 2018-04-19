@@ -79,6 +79,9 @@ phylogenetic.tree.fasttree <- function(dir.tree = dirfasttree,
 
   print("End of internal nodes calibration for the phylogenetic tree")
 
+
+  print("Calibrated phylogenetic tree is saved in the working directory")
+
   return(dater.tree)
 
 }
