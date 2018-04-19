@@ -24,15 +24,34 @@ simpact.config.inputs <- function(design.points = 10,
 
   # Creating the LHS over the 0-1 uniform parameter space for the parameters to be estimated
   variables <- length(input.parameters)
-  set.seed(1)
+  set.seed(1976)
 
-  rlhs <- randomLHS(design.points, variables)
+  if(design.points > 4){
+    add.design.points <- design.points %/% 4
+    aug.points <- design.points %% 4
+
+    rlhs <- lhs::improvedLHS(add.design.points, variables)
+
+    for(i in 1:3){
+
+      rlhs <- lhs::augmentLHS(rlhs, add.design.points)
+
+    }
+    if(aug.points > 0){
+
+      rlhs <- lhs::augmentLHS(rlhs, aug.points)
+    }
+
+  }else{
+    rlhs <- lhs::improvedLHS(design.points, variables)
+  }
+
   if (resample.count > 1){
     for(i in 1:resample.count){
 
       # Re-sample from the same grid as initially selected
       set.seed(1)
-      rlhs <- augmentLHS(rlhs, design.points)
+      rlhs <- lhs::augmentLHS(rlhs, design.points)
     }
     rlhs <- tail(rlhs, design.points)
   }
@@ -51,7 +70,7 @@ simpact.config.inputs <- function(design.points = 10,
     min.var <- input.parameters[j][[1]][1]
     max.var <- input.parameters[j][[1]][2]
     col.index <- which(names(lhs.df)==j)
-    set.seed(1)
+    set.seed(1976)
     lhs.df[col.index] <- qunif(rlhs[, x.index], min = as.numeric(min.var), max =as.numeric(max.var))
   }
 
@@ -66,12 +85,12 @@ simpact.config.inputs <- function(design.points = 10,
 
 }
 
-intervention.introduced <- function(simulation.type = "simpact-cyan",
+intervention.introduced <- function(simulation.type = "maxart",
                                     simulation.start = "1970-03-31"){
 
   start.time.sim <- as.Date(simulation.start)
 
-  if(simulation.type != "simpact-cyan"){
+  if(simulation.type == "maxart"){
     ### Eligibility increased from <200 to <350 in 2010 and then to <500 in 2015
     # Simulation starts in 1970. After 33 years (in 2003), ART is introduced.
 
@@ -81,8 +100,9 @@ intervention.introduced <- function(simulation.type = "simpact-cyan",
     art.intro["time"] <- round(as.numeric(difftime(art.time1,start.time.sim, units = "days")/365.242),0)
     art.intro["diagnosis.baseline"] <- 0 # Reset to 0, from its original @ sim start
     art.intro["monitoring.cd4.threshold.prestudy"] <- 200
+    art.intro["monitoring.cd4.threshold.instudy.controlstage"] <- 350
     art.intro["monitoring.cd4.threshold.poststudy"] <- 20000
-    art.intro["monitoring.interval.piecewise.cd4s"] <- "100,250"
+    art.intro["monitoring.interval.piecewise.cd4s"] <- c("100,250")
     art.intro["diagnosis.genderfactor"] <- 2
 
     # Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2014:500
@@ -90,45 +110,95 @@ intervention.introduced <- function(simulation.type = "simpact-cyan",
     art.intro2 <- list()
     art.intro2["time"] <- round(as.numeric(difftime(art.time2,start.time.sim, units = "days")/365.242),0)
     art.intro2["monitoring.cd4.threshold.prestudy"] <- 200
-    art.intro2["monitoring.interval.piecewise.cd4s"] <- "200,350"
+    art.intro2["monitoring.cd4.threshold.instudy.controlstage"] <- 350
+    art.intro2["monitoring.interval.piecewise.cd4s"] <- c("200,350")
     art.intro2["diagnosis.genderfactor"] <- 1.5
 
     art.time3 <- as.Date("2010-03-31")
     art.intro3 <- list()
     art.intro3["time"] <- round(as.numeric(difftime(art.time3,start.time.sim, units = "days")/365.242),0)
     art.intro3["monitoring.cd4.threshold.prestudy"] <- 350
-    art.intro3["monitoring.interval.piecewise.cd4s"] <- "350,500"
+    art.intro3["monitoring.cd4.threshold.instudy.controlstage"] <- 350
+    art.intro3["monitoring.interval.piecewise.cd4s"] <- c("350,500")
     art.intro3["diagnosis.genderfactor"] <- 1
 
     art.time4 <- as.Date("2014-03-31")
     art.intro4 <- list()
     art.intro4["time"] <- round(as.numeric(difftime(art.time4,start.time.sim, units = "days")/365.242),0)
     art.intro4["monitoring.cd4.threshold.prestudy"] <- 500
-    art.intro4["monitoring.interval.piecewise.cd4s"] <- "500,650"
+    art.intro4["monitoring.cd4.threshold.instudy.controlstage"] <- 500
+    art.intro4["monitoring.interval.piecewise.cd4s"] <- c("500,650")
     art.intro4["diagnosis.genderfactor"] <- 0.5
 
     art.time7 <- as.Date("2016-10-01")
     art.intro7 <- list()
     art.intro7["time"] <- round(as.numeric(difftime(art.time7,start.time.sim, units = "days")/365.242),0)
     art.intro7["monitoring.cd4.threshold.prestudy"] <- 20000
-    art.intro7["monitoring.interval.piecewise.cd4s"] <- "500,2000"
+    art.intro7["monitoring.interval.piecewise.cd4s"] <- c("500,2000")
     art.intro7["diagnosis.genderfactor"] <- 0.5
 
     #reset stepinterval to last facility and end of study
-    art.time5 <- as.Date("2016-09-02")
-    stepinterval <- list()
-    stepinterval["time"] <- round(as.numeric(difftime(art.time5,start.time.sim, units = "days")/365.242),0)
-    stepinterval["maxart.stepinterval"] <- 1/12
+    #art.time5 <- as.Date("2016-09-02")
+    #stepinterval <- list()
+    #stepinterval["time"] <- round(as.numeric(difftime(art.time5,start.time.sim, units = "days")/365.242),0)
+    #stepinterval["maxart.stepinterval"] <- 1/12
 
     #reset stepinterval to the end of study
-    art.time6 <- as.Date("2016-10-02")
-    stepinterval1 <- list()
-    stepinterval1["time"] <- round(as.numeric(difftime(art.time6,start.time.sim, units = "days")/365.242),0)
-    stepinterval1["maxart.stepinterval"] <- 7/12
+    #art.time6 <- as.Date("2017-07-02")
+    #stepinterval1 <- list()
+    #stepinterval1["time"] <- round(as.numeric(difftime(art.time6,start.time.sim, units = "days")/365.242),0)
+    #stepinterval1["maxart.stepinterval"] <- 7/12
 
-    iv <- list(art.intro, art.intro2, art.intro3, art.intro4, art.intro7, stepinterval, stepinterval1 )
+    #iv <- list(art.intro, art.intro2, art.intro3, art.intro4, art.intro7, stepinterval, stepinterval1 )
+    iv <- list(art.intro, art.intro2, art.intro3, art.intro4, art.intro7)
+
+
+  }else if(simulation.type == "simpact-cyan"){
+
+    #Swaziland standard of care NO Maxart
+
+    art.time1 <- as.Date("2003-03-31")
+    art.intro <- list()
+    #art.intro$facilities.outfile.facilityxypos <- "" #reset the writing of the facilities.xy position to none.
+    art.intro["time"] <- round(as.numeric(difftime(art.time1,start.time.sim, units = "days")/365.242),0)
+    art.intro["diagnosis.baseline"] <- 0 # Reset to 0, from its original @ sim start
+    art.intro["monitoring.cd4.threshold"] <- 200
+    art.intro["monitoring.interval.piecewise.cd4s"] <- c("100,250")
+    art.intro["diagnosis.genderfactor"] <- 2
+
+    # Gradual increase in CD4 threshold. in 2007:200. in 2010:350. in 2014:500
+    art.time2 <- as.Date("2007-03-31")
+    art.intro2 <- list()
+    art.intro2["time"] <- round(as.numeric(difftime(art.time2,start.time.sim, units = "days")/365.242),0)
+    art.intro2["monitoring.cd4.threshold"] <- 200
+    art.intro2["monitoring.interval.piecewise.cd4s"] <- c("200,350")
+    art.intro2["diagnosis.genderfactor"] <- 1.5
+
+    art.time3 <- as.Date("2010-03-31")
+    art.intro3 <- list()
+    art.intro3["time"] <- round(as.numeric(difftime(art.time3,start.time.sim, units = "days")/365.242),0)
+    art.intro3["monitoring.cd4.threshold"] <- 350
+    art.intro3["monitoring.interval.piecewise.cd4s"] <- c("350,500")
+    art.intro3["diagnosis.genderfactor"] <- 1
+
+    art.time4 <- as.Date("2014-03-31")
+    art.intro4 <- list()
+    art.intro4["time"] <- round(as.numeric(difftime(art.time4,start.time.sim, units = "days")/365.242),0)
+    art.intro4["monitoring.cd4.threshold"] <- 500
+    art.intro4["monitoring.interval.piecewise.cd4s"] <- c("500,650")
+    art.intro4["diagnosis.genderfactor"] <- 0.5
+
+    art.time5 <- as.Date("2016-10-01")
+    art.intro5 <- list()
+    art.intro5["time"] <- round(as.numeric(difftime(art.time5,start.time.sim, units = "days")/365.242),0)
+    art.intro5["monitoring.cd4.threshold"] <- 20000
+    art.intro5["monitoring.interval.piecewise.cd4s"] <- c("500,2000")
+    art.intro5["diagnosis.genderfactor"] <- 0.5
+
+    iv <- list(art.intro, art.intro2, art.intro3, art.intro4, art.intro5 )
+
   }else{
-    iv <-list()
+    iv <- list()
   }
 
   return(iv)
@@ -194,7 +264,6 @@ readthedata <- function(modeloutput){
   return(outputtables)
 }
 
-
 ART.retention <- function(datalist = datalist,
                           agegroup = c(15,150),
                           ARTtimewindow = c(20,34),
@@ -203,13 +272,12 @@ ART.retention <- function(datalist = datalist,
 
   #get the treatment table
   DT.treatment <- datalist$ttable
-
   #Get people who have started treatment within timepoint
   if (site == "All") {
     DT.treatment <- subset(DT.treatment,
                            (TStart >= ARTtimewindow[1] &
                               TStart < ARTtimewindow[2])
-    )
+                           )
   } else{
     DT.treatment <- subset(DT.treatment,
                            (TStart >= ARTtimewindow[1] &
@@ -217,13 +285,14 @@ ART.retention <- function(datalist = datalist,
                              pfacility == site )
   }
 
-  #Get the right age within the time window
-  age.group.ART <- age.group.time.window(datalist = datalist,
-                                         agegroup = agegroup,
-                                         timewindow = ARTtimewindow, site = site)
-
-
   if(nrow(DT.treatment)>0){
+
+    #Get the right age within the time window
+    age.group.ART <- age.group.time.window(datalist = datalist,
+                                           agegroup = agegroup,
+                                           timewindow = ARTtimewindow, site = site)
+
+
     #get everyone last known treatment status
     DT.treatment <- DT.treatment %>%
       group_by(ID) %>%
@@ -235,27 +304,21 @@ ART.retention <- function(datalist = datalist,
     #restrict the list to the right agegroup
     DT.treatment <- subset(DT.treatment, ID %in% age.group.ART$ID)
 
-
-
     DT.treatment$retention <- DT.treatment$TEnd > DT.treatment$retention.time
 
     DT.treatment.retention <- DT.treatment %>%
       group_by(Gender) %>%
       summarise(TotalCases = n(),
-                ART.retention = sum(retention),
+                ART.retention = sum(retention, na.rm = TRUE),
                 percentage = ART.retention / TotalCases * 100 ) %>%
       as.data.frame
 
-  }else{ DT.treatment.retention <- as.data.frame(matrix(NA, 0, 4))}
-
-
-  if(nrow(DT.treatment.retention)==0){
-    DT.treatment.retention <- as.data.frame(matrix(NA, 3, 4))
-  }else{
     DT.treatment.retention <- rbind(DT.treatment.retention,
                                     c(NA, nrow(DT.treatment), sum(DT.treatment$retention),
                                       sum(DT.treatment$retention)/nrow(DT.treatment)*100) )
-  }
+
+
+  }else{ DT.treatment.retention <- as.data.frame(matrix(NA, 0, 4))}
 
   names(DT.treatment.retention) <- c("Gender","TotalCases","ART.retention", "percentage")
 
@@ -295,17 +358,28 @@ age.group.time.window <- function(datalist = datalist,
 }
 
 vl.suppressed <- function(datalist = datalist,
+                          agegroup = c(15, 150),
                           timepoint = 35, vlcutoff = 1000,
                           lessmonths = 6, site="All"){
 
-  #Get the individual who started treatment before the time timepoint
-  if (site == "All") {
-    DT.infected <- subset(datalist$ptable,
-                          TreatTime < timepoint)
-  } else{
+  #Limit the list to the one that match the age group.
+  DT.infected <- datalist$ptable %>%
+    mutate(age = timepoint - TOB) %>%
+    subset(age >= agegroup[1] & age < agegroup[2]) %>%
+    as.data.frame()
 
-    DT.infected <- subset(datalist$ptable,
-                          TreatTime < timepoint,
+  #get the first treatment time on each individual (We will only consider the first time treatment)
+  DT.treat.first <- datalist$ttable %>%
+    group_by(ID) %>%
+    dplyr::filter(row_number()==1) %>%
+    subset(TStart < timepoint) %>%
+    as.data.frame()
+
+  #Get the individual who started with the site
+  if (site == "All") {
+    DT.infected <- subset(DT.infected, ID %in% DT.treat.first$ID)
+  } else{
+    DT.infected <- subset(DT.infected, ID %in% DT.treat.first$ID,
                           pfacility == site)
   }
 
@@ -315,38 +389,37 @@ vl.suppressed <- function(datalist = datalist,
   #cut off in months
   .months <- timepoint - lessmonths/12
 
-
   #look at the treatment table
-  #get the treatment started before the timepoint
   #was on treatment within the time window to check VL
-
-  last.treatment <- datalist$ttable %>%
-    subset(ID %in% DT.infected$ID) %>%
-    group_by(ID) %>%
-    dplyr::filter(row_number()==n()) %>%
-    as.data.frame()
+  #this favor the longest time on treatment
+  #last.treatment <- datalist.test$ttable %>%
+  #  subset(ID %in% DT.infected$ID) %>%
+  #  mutate(on.treat.duration = TEnd - TStart) %>%
+  #  group_by(ID) %>%
+  #  dplyr::filter(on.treat.duration == max(on.treat.duration)) %>%
+  #  as.data.frame()
 
   #Get the VL on value due to starting treatment
   vl.table <-  datalist$vltable %>%
     group_by(ID) %>%
-    dplyr::filter(Desc =="Started ART",
-                  row_number()==n()) %>%
+    dplyr::filter(Desc =="Started ART") %>%
     as.data.frame()
 
-  last.treatment.vl <- dplyr::left_join(x = last.treatment,
+  names(vl.table)[names(vl.table) == 'Time'] <- 'TStart'
+
+  last.treatment.vl <- dplyr::left_join(x = DT.treat.first,
                                         y = vl.table,
-                                        by = c("ID") )
+                                        by = c("ID", "TStart") )
 
   #Assuming that we know when Tend.
   #As long as Treatment was started before timepoint and AFTER "lessmonths"
-  #clients still on still treatment, we keep the record
+  #clients still on treatment, we keep the record
 
   last.treatment.vl <- last.treatment.vl %>%
     mutate(on.treatment.lessmonths = (.months < TEnd),
            vl.suppressed = (Log10VL < vl.cutoff),
            vl.treat.suppressed = on.treatment.lessmonths * vl.suppressed
     )
-
 
   if(nrow(last.treatment.vl)==0){
 
@@ -371,12 +444,11 @@ vl.suppressed <- function(datalist = datalist,
 
   names(vlSuppressed.TP) <- c("Gender", "TotalCases", "VLSuppressed", "Percentage")
 
-
   return(vlSuppressed.TP)
 }
 
 pop.growth.calculator <- function(datalist = datalist,
-                                  timewindow = c(0, 20)){
+                                  timewindow = c(1, 20)){
 
   end.popsize <- datalist$ltable %>%
     subset(Time==timewindow[2]) %>%
@@ -441,33 +513,35 @@ incidence.calculator <- function(datalist = datalist,
   if(nrow(raw.plus.filtered.df) > 0){
 
     # Now we apply some dplyr function to get the sum of cases and sum of exposure.time per gender.
-    incidence.df <- dplyr::summarise(dplyr::group_by(raw.plus.filtered.df, Gender),
-                                     sum.exposure.time = sum(exposure.times),
-                                     sum.incident.cases = sum(incident.case),
-                                     incidence = sum(incident.case) / sum(exposure.times),
-                                     incidence.95.ll = as.numeric(
-                                       exactci::poisson.exact(x=sum(incident.case),
-                                                              T=sum(exposure.times))$conf.int)[1],
-                                     incidence.95.ul = as.numeric(
-                                       exactci::poisson.exact(x=sum(incident.case),
-                                                              T=sum(exposure.times))$conf.int)[2]
-    )
+    incidence.df <- raw.plus.filtered.df %>%
+      dplyr::group_by(Gender) %>%
+      dplyr::summarise(sum.exposure.time = sum(exposure.times),
+                       sum.incident.cases = sum(incident.case),
+                       incidence = sum.incident.cases / sum.exposure.time,
+                       incidence.95.ll = as.numeric(
+                         exactci::poisson.exact(x=sum.incident.cases,
+                                                T=sum.exposure.time)$conf.int)[1],
+                       incidence.95.ul = as.numeric(
+                         exactci::poisson.exact(x=sum.incident.cases,
+                                                T=sum.exposure.time)$conf.int)[2]
+    ) %>%
+    as.data.frame()
 
     # Now we add the overall incidence to this dataframe
-    incidence.all.df <- dplyr::summarise(raw.plus.filtered.df,
-                                         sum.exposure.time = sum(exposure.times),
-                                         sum.incident.cases = sum(incident.case),
-                                         incidence = sum(incident.case) / sum(exposure.times),
-                                         incidence.95.ll = as.numeric(
-                                           exactci::poisson.exact(x = sum(incident.case),
-                                                                  T=sum(exposure.times))$conf.int)[1],
-                                         incidence.95.ul = as.numeric(
-                                           exactci::poisson.exact(x = sum(incident.case),
-                                                                  T=sum(exposure.times))$conf.int)[2]
+    incidence.all.df <- raw.plus.filtered.df %>%
+      dplyr::summarise(sum.exposure.time = sum(exposure.times),
+                       sum.incident.cases = sum(incident.case),
+                       incidence = sum.incident.cases / sum.exposure.time,
+                       incidence.95.ll = as.numeric(
+                         exactci::poisson.exact(x = sum.incident.cases,
+                                                T=sum.exposure.time)$conf.int)[1],
+                       incidence.95.ul = as.numeric(
+                         exactci::poisson.exact(x = sum.incident.cases,
+                                                T=sum.exposure.time)$conf.int)[2]
     )
 
 
-    incidence.all.df <- cbind(Gender = NA,incidence.all.df)
+    incidence.all.df <- cbind(Gender = NA, incidence.all.df)
 
     incidence.df <- rbind(incidence.df, incidence.all.df)
   }else{
@@ -612,46 +686,46 @@ prevalence.calculator <- function(datalist = datalist,
   # First we only take the data of people who were alive at the timepoint
   DTalive.infected <- alive.infected(datalist = datalist, timepoint = timepoint)
 
-
   DTalive.infected <- DTalive.infected %>%
     mutate(age = timepoint - TOB)
 
-  DTalive.infected.agegroup <- subset(DTalive.infected, age >= agegroup[1]  &
-                                        age < agegroup[2])
+  raw.df <- DTalive.infected %>%
+    subset(age >= agegroup[1]  & age < agegroup[2]) %>%
+    as.data.frame()
 
-  raw.df <- data.frame(DTalive.infected.agegroup)
-  if(nrow(raw.df)>0){
+  if(nrow(raw.df) > 0){
     # Now we apply dplyr function to get sum of cases and sum of exposure.time per gender.
-    prevalence.df <- dplyr::summarise(dplyr::group_by(raw.df, Gender),
-                                      popsize = length(Gender),
-                                      sum.cases = sum(Infected),
-                                      pointprevalence = sum(Infected) / length(Gender),
-                                      pointprevalence.95.ll = as.numeric(
-                                        binom.test(x=sum(Infected),n=length(Gender))$conf.int)[1],
-                                      pointprevalence.95.ul = as.numeric(
-                                        binom.test(x=sum(Infected),n=length(Gender))$conf.int)[2]
+    prevalence.df <-  raw.df %>%
+      group_by(Gender) %>%
+      summarise(popsize = n(),
+                sum.cases = sum(Infected),
+                pointprevalence = sum.cases / popsize,
+                pointprevalence.95.ll = as.numeric(
+                  binom.test(x=sum.cases, n=popsize)$conf.int)[1],
+                pointprevalence.95.ul = as.numeric(
+                  binom.test(x=sum.cases,n=popsize)$conf.int)[2]
     )
-    prevalence.all.df <- dplyr::summarise(raw.df,
-                                          popsize = length(Gender),
-                                          sum.cases = sum(Infected),
-                                          pointprevalence = sum(Infected) / length(Gender),
-                                          pointprevalence.95.ll = as.numeric(
-                                            binom.test(x=sum(Infected),n=length(Gender))$conf.int)[1],
-                                          pointprevalence.95.ul = as.numeric(
-                                            binom.test(x=sum(Infected),n=length(Gender))$conf.int)[2]
+    prevalence.all.df <- raw.df %>%
+      summarise(popsize = n(),
+                sum.cases = sum(Infected),
+                pointprevalence = sum.cases / popsize,
+                pointprevalence.95.ll = as.numeric(
+                  binom.test(x=sum.cases, n=popsize)$conf.int)[1],
+                pointprevalence.95.ul = as.numeric(
+                  binom.test(x=sum.cases,n=popsize)$conf.int)[2]
     )
-
 
     prevalence.all.df <- cbind(Gender = NA, prevalence.all.df)
 
     prevalence.df <- rbind(prevalence.df, prevalence.all.df)
   } else {
-
     prevalence.df <- as.data.frame(matrix(NA, 3, 6))
-    names(prevalence.df) <- c("Gender", "popsize", "sum.cases",
-                              "pointprevalence", "pointprevalence.95.ll",
-                              "pointprevalence.95.ul")
+
   }
+
+  names(prevalence.df) <- c("Gender", "popsize", "sum.cases",
+                            "pointprevalence", "pointprevalence.95.ll",
+                            "pointprevalence.95.ul")
 
   return(prevalence.df)
 }
@@ -662,18 +736,99 @@ alive.infected <- function(datalist = datalist,
   # arguments are the personlog data.table and a point in time
   DT <- datalist$ptable
 
-  if (site == "All") {
-    DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint)
-  } else{
+  if(nrow(DT) > 0){
+    if (site == "All") {
+      DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint)
+    } else{
 
-    DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint & pfacility == site)
+      DTalive <- subset(DT, TOB <= timepoint & TOD > timepoint & pfacility == site)
+    }
+
+    # Now we allocate infection status to all alive people in our table
+    DTalive <-  DTalive %>%
+      dplyr::mutate(Infected = (timepoint >= InfectTime)) %>%
+      as.data.frame()
+  }else{
+    DTalive <- datalist$ptable %>%
+      as.data.frame()
+  }
+  return(DTalive)
+}
+
+ART.coverage.calculator <- function(datalist = datalist,
+                                    agegroup = c(15, 30),
+                                    timepoint = 30, site="All"){
+
+  # First we only take the data of people who were alive at the timepoint
+
+  DTalive.infected <- alive.infected(datalist = datalist,
+                                     timepoint = timepoint, site = site)
+
+  #We look at the people who are infected
+  DTalive.infected <- DTalive.infected %>%
+    dplyr::filter(Infected == TRUE) %>%
+    as.data.frame()
+
+  #Limit the list to the one that match the age group.
+  raw.df <- datalist$ptable %>%
+    mutate(age = timepoint - TOB) %>%
+    subset(age >= agegroup[1] & age < agegroup[2]) %>%
+    subset(ID %in% DTalive.infected$ID) %>%
+    as.data.frame()
+
+  art.df <- datalist$ttable %>%
+    group_by(ID) %>%
+    #dplyr::filter(TStart <= timepoint & TEnd > timepoint) %>%
+    #as long as you started treatment before timepoint
+    dplyr::filter(TStart <= timepoint) %>%
+    dplyr::filter(row_number()==1) %>%
+    as.data.frame()
+
+  # Now we apply the left_join dplyr function to add the ART status to raw.df.
+  raw.df <- dplyr::left_join(x = raw.df, y = art.df, by = c("ID", "Gender"))
+
+  if(nrow(raw.df) > 0) {
+    raw.df$onART <- !is.na(raw.df$TStart)
+
+    ART.coverage.df <- raw.df %>%
+      group_by(Gender) %>%
+      summarise(sum.cases = n(),
+               sum.onART = sum(onART, na.rm = TRUE),
+               ART.coverage = sum.onART / sum.cases,
+               ART.coverage.95.ll = as.numeric(
+                 binom.test(x=sum.onART, n=sum.cases)$conf.int)[1],
+               ART.coverage.95.ul = as.numeric(
+                 binom.test(x=sum.onART, n=sum.cases)$conf.int)[2]
+      ) %>%
+      as.data.frame()
+
+    ART.coverage.all <- raw.df %>%
+      summarise(sum.cases = n(),
+                sum.onART = sum(onART, na.rm = TRUE),
+                ART.coverage = sum.onART / sum.cases,
+                ART.coverage.95.ll = as.numeric(
+                  binom.test(x=sum.onART, n=sum.cases)$conf.int)[1],
+                ART.coverage.95.ul = as.numeric(
+                  binom.test(x=sum.onART, n=sum.cases)$conf.int)[2]
+      )
+
+    ART.coverage.all.df <- cbind(Gender = NA, ART.coverage.all)
+
+    ART.coverage.df <- rbind(ART.coverage.df, ART.coverage.all.df)
+
+    #ART.coverage.df <- ART.coverage.all.df #rbind(ART.coverage.df, ART.coverage.all.df)
+  } else {
+    ART.coverage.df <- data.frame(Gender = c(NA, NA, NA),
+                                  popsize = c(NA, NA, NA),
+                                  sum.cases = c(NA, NA, NA),
+                                  sum.onART = c(NA, NA, NA),
+                                  ART.coverage = c(NA, NA, NA),
+                                  ART.coverage.95.ll = c(NA, NA, NA),
+                                  ART.coverage.95.ul = c(NA, NA, NA))
+
   }
 
-  # Now we allocate infection status to all alive people in our table
-  DTalive <-  DTalive %>%
-    dplyr::mutate(Infected = (timepoint >= InfectTime))
-
-  return(DTalive)
+  return(ART.coverage.df)
 }
 
 agemix.df.maker <- function(datalist){
@@ -818,7 +973,7 @@ pattern.modeller <- function(dataframe, agegroup,
 
 input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  mortality.normal.weibull.scale = 65,
-                                 mortality.normal.weibull.genderdiff = 0,
+                                 mortality.normal.weibull.genderdiff = 5,
                                  periodiclogging.interval = 1,
                                  syncrefyear.interval = 1,
                                  formation.hazard.type = "agegapry",
@@ -830,16 +985,16 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  person.eagerness.woman.dist.type = "gamma",
                                  person.eagerness.man.dist.gamma.a = 0.231989836885,#0.15#0.85#0.1
                                  person.eagerness.man.dist.gamma.b = 45,#70#100#3.5#5#10#20 #170
-                                 person.eagerness.woman.dist.gamma.a = 0.231989836885,#0.15#0.1
+                                 person.eagerness.woman.dist.gamma.a = 1.49800270590903,#0.15#0.1
                                  person.eagerness.woman.dist.gamma.b = 45,#70#100#3.5#5#10#20#170
                                  person.agegap.man.dist.type = "normal",
                                  person.agegap.woman.dist.type = "normal",
-                                 person.agegap.man.dist.normal.mu = 0, #-5
+                                 person.agegap.man.dist.normal.mu = 4.84302562640607, #-5
                                  person.agegap.woman.dist.normal.mu = 0, #2.5
-                                 person.agegap.man.dist.normal.sigma = 1,
+                                 person.agegap.man.dist.normal.sigma = 3.33997313140938,
                                  person.agegap.woman.dist.normal.sigma = 1,
                                  formation.hazard.agegapry.numrel_man = -0.5,
-                                 formation.hazard.agegapry.numrel_woman = -0.5,
+                                 formation.hazard.agegapry.numrel_woman = -1.69901499932697,
                                  formation.hazard.agegapry.gap_factor_man_exp = -0.35,#-0.15#-0.5
                                  formation.hazard.agegapry.gap_factor_woman_exp = -0.35,#-0.15
                                  formation.hazard.agegapry.gap_factor_man_age = 0.05,
@@ -853,7 +1008,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  formation.hazard.agegapry.eagerness_sum = 0.1,
                                  person.vsp.tofinalaids.x = 12,
                                  person.vsp.toaids.x = 7,
-                                 formation.hazard.agegapry.eagerness_diff = -0.048,#-0.110975
+                                 formation.hazard.agegapry.eagerness_diff = -0.019990725233685,#-0.110975
                                  dissolution.alpha_0 = -0.52,#-0.1 # baseline
                                  dissolution.alpha_4 = -0.05,
                                  debut.debutage = 15,
@@ -869,15 +1024,15 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  hivtransmission.param.a = -1.0352239,
                                  hivtransmission.param.b = -89.339994,
                                  hivtransmission.param.c = 0.4948478,
-                                 hivtransmission.param.f1 = log(5), #~1.6 =>hazard is x5 in 15yo
+                                 hivtransmission.param.f1 = 1.9981126929339, #~1.6 =>hazard is x5 in 15yo
                                  hivtransmission.param.f2 = log(log(2.5) / log(5)) / 5,
                                  mortality.aids.survtime.C = 62,
                                  mortality.aids.survtime.k = -0.2,
-                                 conception.alpha_base = -2.35, #-3
+                                 conception.alpha_base = -2.44785979535887, #-3
                                  diagnosis.baseline = -100,
                                  monitoring.cd4.threshold = 0.1,#Treatment will not start before schedule
                                  monitoring.fraction.log_viralload = 0.3,
-                                 population.msm = "yes",
+                                 population.msm = "no",
                                  person.eagerness.man.msm.dist.type = "fixed",
                                  person.eagerness.man.msm.dist.fixed.value = 0,
                                  formationmsm.hazard.type = "simple",
@@ -890,8 +1045,9 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  birth.pregnancyduration.dist.fixed.value = 268/365, # just over 38 weeks
                                  birth.boygirlratio = 1.0/2.01, #0.5024876, #101:100
                                  simulation.type = "simpact-cyan",
-                                 monitoring.cd4.threshold.prestudy = 350,
-                                 monitoring.cd4.threshold.instudy.controlstage = 350
+                                 monitoring.cd4.threshold.prestudy = 1,   #it has to be set to zero initially (does not exist)
+                                 monitoring.cd4.threshold.instudy.controlstage = 1,  #set to default to barely minimal (does not exist)
+                                 monitoring.cd4.threshold.poststudy = 20000 # setting the initial
                                  #monitoring.cd4.threshold.instudy.transitionstage = Inf,
                                  #monitoring.cd4.threshold.instudy.interventionstage = Inf
 ){
@@ -974,16 +1130,11 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
     input.params$monitoring.cd4.threshold <- monitoring.cd4.threshold
   }else{
     input.params$facilities.outfile.facilityxypos <- "${SIMPACT_OUTPUT_PREFIX}facilitypositions.csv"
-    input.params$monitoring.cd4.threshold.prestudy <- 350
-    input.params$monitoring.cd4.threshold.instudy.controlstage <- 350
-    input.params$monitoring.cd4.threshold.poststudy <- 20000 #post study everyone was now on test and study
-    #input.params$monitoring.cd4.threshold.instudy.transitionstage <- Inf
-    #input.params$monitoring.cd4.threshold.instudy.interventionstage <- Inf
+    input.params$monitoring.cd4.threshold.prestudy <- monitoring.cd4.threshold.prestudy
+    input.params$monitoring.cd4.threshold.instudy.controlstage <- monitoring.cd4.threshold.instudy.controlstage
+    input.params$monitoring.cd4.threshold.poststudy <- monitoring.cd4.threshold.poststudy #post study everyone was now on test and study
   }
 
   return(input.params)
 }
-
-
-
 
