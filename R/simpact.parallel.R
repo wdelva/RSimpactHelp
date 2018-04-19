@@ -6,7 +6,8 @@
 #' @param actual.input.matrix Matrix with parameter combinations to be run
 #' @param seed_count Origin of random number seed
 #' @param n_cluster Number of cores available for parallel running of Simpact
-#' @return a matrix of mice guesses
+#' @return a matrix of model features and the seed of the random number
+#'   generator
 #' @importFrom parallel makeCluster
 #' @importFrom parallel stopCluster
 #' @importFrom parallel parLapplyLB
