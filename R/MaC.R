@@ -58,7 +58,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
                 strict.positive.params,
                 probability.params,
                 method = "norm",
-                predictorMatrix = predictorMatrix,
+                predictorMatrix = "complete",
                 maxit = 50,
                 maxwaves = 4,
                 n_cluster = n_cluster){
@@ -234,11 +234,13 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
         col.indices <- all.names %in% nonzero.names
         predictorMatrix.LASSO[y.index, col.indices] <- 1
       }
-      predictorMatrix <- predictorMatrix.LASSO
+      predictorMatrix.give.to.mice <- predictorMatrix.LASSO
     }
 
     if (predictorMatrix == "complete"){
-      predictorMatrix <- (1 - diag(1, ncol(df.give.to.mice)))
+      predictorMatrix.give.to.mice <- (1 - diag(1, ncol(df.give.to.mice)))
+    } else {
+      predictorMatrix.give.to.mice <- predictorMatrix
     }
 
     print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
@@ -247,7 +249,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
                                      m = 1,
                                      method = method,
                                      defaultMethod = method,
-                                     predictorMatrix = predictorMatrix,
+                                     predictorMatrix = predictorMatrix.give.to.mice,
                                      maxit = maxit,
                                      printFlag = FALSE),
                           error = function(mice.err) {
