@@ -16,9 +16,9 @@
 #' timepoint = 10, hivstatus = 2)
 #' concurrent.pointprev.df
 #'
+#@importFrom tibble as_tibble
 #' @importFrom stats binom.test
 #' @import dplyr
-#' @importFrom tibble as_tibble
 #' @export
 
 concurr.pointprev.calculator <- function(datalist = datalist,
