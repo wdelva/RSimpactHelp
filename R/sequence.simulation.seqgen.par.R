@@ -1,6 +1,6 @@
-#' Simulate sequences data of individuals in the transmissiion network using seq-gen tool
+#' Simulate sequence data of individuals in the transmissiion network using seq-gen tool
 #'
-#' @param dir.seq Direcotry where is the compiled seq-gen tool
+#' @param dir.seq Direcotry where is the compiled seq-gen tool, sequences data may also be stored there
 #' @param sub.dir.rename sub directory where the simulation outputs will be stored
 #' @param seq.gen.tool Name of the file for compiled seq-gen
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
