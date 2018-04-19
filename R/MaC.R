@@ -198,11 +198,11 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
 
 
     #print(df.give.to.mice)
-    if (strict.positive.params != 0){
+    if (!identical(strict.positive.params, 0)){
       df.give.to.mice[, strict.positive.params] <- log(df.give.to.mice[, strict.positive.params])
     }
     # probability.params <- 14
-    if (probability.params != 0){
+    if (!identical(probability.params, 0)){
       df.give.to.mice[, probability.params] <- log(df.give.to.mice[, probability.params] / (1 - df.give.to.mice[, probability.params])) # logit transformation
     }
 
@@ -217,7 +217,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
       predictorMatrix.give.to.mice <- predictorMatrix
     }
 
-    if (predictorMatrix == "LASSO"){
+    if (identical(predictorMatrix, "LASSO")){
       predictorMatrix.LASSO <- diag(0, ncol = ncol(df.give.to.mice), nrow = ncol(df.give.to.mice))
       all.names <- names(df.give.to.mice)
 
@@ -241,7 +241,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
       predictorMatrix.give.to.mice <- predictorMatrix.LASSO
     }
 
-    if (predictorMatrix == "complete"){
+    if (identical(predictorMatrix, "complete")){
       predictorMatrix.give.to.mice <- (1 - diag(1, ncol(df.give.to.mice)))
     }
 
@@ -267,11 +267,11 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
       #colnames(mice.guesses3.df) <- imputed.params.names
 
       # Before we check the suitability of the new experimental input parameter values, we must backtransform the log values to natural values
-      if (strict.positive.params != 0){
+      if (!identical(strict.positive.params, 0)){
         experiments[, strict.positive.params] <- exp(experiments[, strict.positive.params])
       }
       # And we must also backtransform the logit-transformed values
-      if (probability.params != 0){
+      if (!identical(probability.params, 0)){
         experiments[, probability.params] <- exp(experiments[, probability.params]) / (1 + exp(experiments[, probability.params]))
       }
       wave <- wave + 1
