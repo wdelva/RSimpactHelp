@@ -2,7 +2,7 @@
 % Please edit documentation in R/sequence.simulation.seqgen.par.R
 \name{sequence.simulation.seqgen.par}
 \alias{sequence.simulation.seqgen.par}
-\title{Simulate sequences data of individuals in the transmissiion network using seq-gen tool}
+\title{Simulate sequence data of individuals in the transmissiion network using seq-gen tool}
 \usage{
 sequence.simulation.seqgen.par(dir.seq = dir,
   sub.dir.rename = sub.dir.rename, seq.gen.tool = "seq-gen",
@@ -10,7 +10,7 @@ sequence.simulation.seqgen.par(dir.seq = dir,
   limitTransmEvents = 3, hiv.seq.file = "hiv.seq.C.pol.j.fasta")
 }
 \arguments{
-\item{dir.seq}{Direcotry where is the compiled seq-gen tool}
+\item{dir.seq}{Direcotry where is the compiled seq-gen tool, sequences data may also be stored there}
 
 \item{sub.dir.rename}{sub directory where the simulation outputs will be stored}
 
@@ -30,5 +30,5 @@ sequence.simulation.seqgen.par(dir.seq = dir,
 Files of sequences data, sampling dates, and transmission trees
 }
 \description{
-Simulate sequences data of individuals in the transmissiion network using seq-gen tool
+Simulate sequence data of individuals in the transmissiion network using seq-gen tool
 }

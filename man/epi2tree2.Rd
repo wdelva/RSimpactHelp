@@ -18,7 +18,7 @@ Build a transmission tree object from a transmission network data frame
 \examples{
 
 transm.ls <- transmission.network.builder(datalist = datalist, endpoint = 40)
-epi <- transm.ls[[16]]
-tree0 <- epi2tree2(transnetwork = epi) # transmission tree of seeds 16
+epi <- transm.ls[[1]]
+tree0 <- epi2tree2(transnetwork = epi) # transmission tree of seeds 1
 
 }

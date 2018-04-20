@@ -2,9 +2,7 @@
 % Please edit documentation in R/transmission.network.builder.R
 \name{transmission.network.builder}
 \alias{transmission.network.builder}
-\title{Build a list of HIV transmission networks data.
-Each transmission network emerges from one seed individual in the population.
-Thus we do not consider super-infection in our case.}
+\title{Build a list of HIV transmission networks data}
 \usage{
 transmission.network.builder(datalist = datalist, endpoint = 40)
 }
@@ -43,9 +41,7 @@ TOBRec time of birth of receiver
 TOBDon time of birth of donor
 }
 \description{
-Build a list of HIV transmission networks data.
-Each transmission network emerges from one seed individual in the population.
-Thus we do not consider super-infection in our case.
+Build a list of HIV transmission networks data
 }
 \note{
 transm.ls[[1]] is the transmission network (epi object) of the first seed

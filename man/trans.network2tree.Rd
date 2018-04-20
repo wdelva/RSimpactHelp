@@ -2,7 +2,7 @@
 % Please edit documentation in R/trans.network2tree.R
 \name{trans.network2tree}
 \alias{trans.network2tree}
-\title{Build a transmission tree}
+\title{Build a transmission tree from a transmission network}
 \usage{
 trans.network2tree(transnetwork = transnetwork)
 }
@@ -13,11 +13,11 @@ trans.network2tree(transnetwork = transnetwork)
 Transmission tree object (a phylo object)
 }
 \description{
-Build a transmission tree
+Build a transmission tree from a transmission network
 }
 \examples{
 transm.ls <- transmission.network.builder(datalist = datalist, endpoint = 40)
-transnetwork <- transm.ls[[16]]
+transnetwork <- transm.ls[[1]]
 tree0 <- trans.network2tree(transnetwork = transnetwork) # transmission tree of seeds 16
 
 }

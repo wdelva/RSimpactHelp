@@ -2,14 +2,14 @@
 % Please edit documentation in R/sequence.simulation.seqgen.R
 \name{sequence.simulation.seqgen}
 \alias{sequence.simulation.seqgen}
-\title{Simulate sequences data of individuals in the transmissiion network using seq-gen tool}
+\title{Simulate sequence data of individuals in the transmissiion network using seq-gen tool}
 \usage{
 sequence.simulation.seqgen(dir.seq = dir, seq.gen.tool = "seq-gen",
   datalist = datalist, seeds.num = 123, endpoint = 40,
   limitTransmEvents = 3, hiv.seq.file = "hiv.seq.C.pol.j.fasta")
 }
 \arguments{
-\item{dir.seq}{Direcotry where the simulations of sequence will be performed, it  might be compiled seq-gen tool}
+\item{dir.seq}{Directory where seq-gen tool is stored, sequences data may also be stored there}
 
 \item{seq.gen.tool}{Name of the file for compiled seq-gen}
 
@@ -27,5 +27,5 @@ sequence.simulation.seqgen(dir.seq = dir, seq.gen.tool = "seq-gen",
 Files of sequences data, sampling dates, and transmission trees
 }
 \description{
-Simulate sequences data of individuals in the transmissiion network using seq-gen tool
+Simulate sequence data of individuals in the transmissiion network using seq-gen tool
 }
