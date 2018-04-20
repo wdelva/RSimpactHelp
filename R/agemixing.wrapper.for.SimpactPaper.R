@@ -153,12 +153,12 @@ agemixing.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
 
 
       agemix.model <- tryCatch(amp.modeller(dataframe = agemix.episodes.df,
-                                       agegroup = c(18, 50),
-                                       timepoint = datalist.agemix$itable$population.simtime[1],
-                                       timewindow = 0.5,
-                                   start = FALSE,
-                                   SHIMS = TRUE,
-                                   method = "lmer"),
+                                            agegroup = c(18, 50),
+                                            timepoint = datalist.agemix$itable$population.simtime[1],
+                                            timewindow = 0.5,
+                                            start = FALSE,
+                                            SHIMS = TRUE,
+                                            method = "lmer"),
                                error = function(agemixing.err) {
                                  return(list()) # Returns an empty list if the lme(r) models can't be fitted
                                })
