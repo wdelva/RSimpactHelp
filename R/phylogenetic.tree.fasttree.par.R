@@ -8,6 +8,8 @@
 #' @param count.start Calendar year when the simulation started
 #' @param endsim Number of years when the simulation was done
 #' @return A time-stamped phylogenetic  tree with annotation of internal nodes dates
+#' @import ape
+#' @import treedater
 #' @export
 
 phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
@@ -73,7 +75,7 @@ phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
 
   # Use of library(treedater) to calibrate internal nodes
 
-  dater.tree <- dater(tree.const, Ord.tree.dates, s = 3000) # s is the length of sequence
+  dater.tree <- treedater::dater(tree.const, Ord.tree.dates, s = 3000) # s is the length of sequence
 
   write.tree(dater.tree, file = paste0(sub.dir.rename, "/calibrated.tree.tree"))
 

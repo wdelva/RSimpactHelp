@@ -7,8 +7,8 @@
 #' @param inputvector Vector of model input parameter values
 #' @return A vector of model features
 #' @import RSimpactCyan
-#' @importFrom ape read.tree
 #' @importFrom phytools nodeHeights
+#' @importFrom picante node.age
 #' @export
 #'
 wrapper.phylo.simpact.parallel <- function(inputvector){
@@ -16,12 +16,19 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
 
   # Working directory where we find seq-gen, FastTree, and HIV seed file hiv.seq.C.pol.j.fasta
 
-  work.dir <- "/home/david/Desktop/TEST_20_4_2018"
+  # work.dir <- "/home/david/Desktop/TEST_20_4_2018" # on laptop
 
-  # work.dir <- "/user/data/gent/vsc400/vsc40070/phylo/" # on cl# on laptopuster
+  work.dir <- "/user/data/gent/vsc400/vsc40070/phylo/" # on cluster
 
 
 
+  # If we do not include these packages we still get errors
+
+  pacman::p_load(RSimpactCyan, RSimpactHelper, devtools, Rcpp, ape, expoTree,
+                 data.table, tidyr, phylosim, readr, dplyr, adephylo, geiger,
+                 picante, igraph, ggplot2, magrittr, lmtest, gsubfn, utils, pcaPP,
+                 phyloTop, phytools, lme4, data.table, treedater, phangorn, nlme,
+                 fitdistrplus, apTreeshape)
 
   ###########################################
   # Step 1: Setup and running simpact      #
@@ -255,10 +262,10 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
                                                  endsim = 40)
 
 
-    write.tree(tree.calib, file = paste0(sub.dir.rename,"/calibrated.tree.nwk"))
+    ape::write.tree(tree.calib, file = paste0(sub.dir.rename,"/calibrated.tree.nwk"))
 
 
-    N <- node.age(tree.calib)
+    N <- picante::node.age(tree.calib)
 
     int.node.age <- N$Ti # internal nodes ages
 
@@ -323,6 +330,8 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
 
   }
 
+
+#  unlink(paste0(sub.dir.rename, "/"), recursive = TRUE)
 
 }
 

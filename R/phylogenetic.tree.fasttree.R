@@ -8,6 +8,8 @@
 #' @param count.start Calendar year when the simulation started
 #' @param endsim Number of years when the simulation was done
 #' @return A time-stamped phylogenetic  tree with annotation of internal nodes dates
+#' @import ape
+#' @import treedater
 #' @export
 
 phylogenetic.tree.fasttree <- function(dir.tree = dirfasttree,

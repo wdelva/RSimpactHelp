@@ -4,6 +4,8 @@
 #' @param actual.input.matrix Inputs parameters for simpact setup
 #' @param seed_count Initiation of seed for reproducibility
 #' @param n_cluster Number of cores
+#' @import ape
+#' @import treedater
 #' @importFrom parallel makeCluster
 #' @importFrom parallel parLapplyLB
 #' @importFrom parallel stopCluster
