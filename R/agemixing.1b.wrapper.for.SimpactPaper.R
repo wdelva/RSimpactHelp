@@ -13,8 +13,8 @@
 #' @export
 
 agemixing.1b.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
-  destDir <- "/Users/delvaw/Documents/temp"                     # on laptop
-  #destDir <- "/user/data/gent/vsc400/vsc40070/agemixing/temp" # for VSC
+  #destDir <- "/Users/delvaw/Documents/temp"                     # on laptop
+  destDir <- "/user/data/gent/vsc400/vsc40070/agemixing/temp" # for VSC
   age.distr <- agedistr.creator(shape = 5, scale = 65)
 
 
