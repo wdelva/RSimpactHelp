@@ -24,11 +24,37 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
 
   # If we do not include these packages we still get errors
 
-  pacman::p_load(RSimpactCyan, RSimpactHelper, devtools, Rcpp, ape, expoTree,
-                 data.table, tidyr, phylosim, readr, dplyr, adephylo, geiger,
-                 picante, igraph, ggplot2, magrittr, lmtest, gsubfn, utils, pcaPP,
-                 phyloTop, phytools, lme4, data.table, treedater, phangorn, nlme,
-                 fitdistrplus, apTreeshape)
+  # pacman::p_load(RSimpactCyan, RSimpactHelper, devtools, Rcpp, ape, expoTree,
+  #                data.table, tidyr, phylosim, readr, dplyr, adephylo, geiger,
+  #                picante, igraph, ggplot2, magrittr, lmtest, gsubfn, utils, pcaPP,
+  #                phyloTop, phytools, lme4, data.table, treedater, phangorn, nlme,
+  #                fitdistrplus, apTreeshape)
+
+  library(RSimpactCyan)
+  library(RSimpactHelper)
+  library(Rcpp)
+  library(ape)
+  library(expoTree)
+  library(data.table)
+  library(tidyr)
+  library(readr)
+  library(dplyr)
+  library(adephylo)
+  library(geiger)
+  library(picante)
+  library(igraph)
+  library(magrittr)
+  library(lmtest)
+  library(gsubfn)
+  library(utils)
+  library(pcaPP)
+  library(phyloTop)
+  library(phytools)
+  library(lme4)
+  library(treedater)
+  library(nlme)
+  library(fitdistrplus)
+  library(apTreeshape)
 
   ###########################################
   # Step 1: Setup and running simpact      #
@@ -331,7 +357,7 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
   }
 
 
-#  unlink(paste0(sub.dir.rename, "/"), recursive = TRUE)
+  #  unlink(paste0(sub.dir.rename, "/"), recursive = TRUE)
 
 }
 
