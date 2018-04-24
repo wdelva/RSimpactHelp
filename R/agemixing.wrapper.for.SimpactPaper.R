@@ -149,7 +149,7 @@ agemixing.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
                                                         timewindow = 0.5, # Ongoing the 3 most recent relationships in the past 6 months
                                                         start = FALSE) %>%
         dplyr::group_by(ID) %>%
-        dplyr::top_n(3, FormTime)
+        dplyr::top_n(3, DisTime)
 
 
       agemix.model <- tryCatch(amp.modeller(dataframe = agemix.episodes.df,
