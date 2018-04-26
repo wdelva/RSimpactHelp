@@ -18,7 +18,7 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
 
   # work.dir <- "/home/david/Desktop/TEST_20_4_2018" # on laptop
 
-  work.dir <- "/user/data/gent/vsc400/vsc40070/phylo/" # on cluster
+  work.dir <- "/user/data/gent/vsc400/vsc40070/phylo" # on cluster
 
 
 
