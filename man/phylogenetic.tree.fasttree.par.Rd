@@ -8,7 +8,7 @@ phylogenetic.tree.fasttree.par(dir.tree = dirfasttree,
   sub.dir.rename = sub.dir.rename, fasttree.tool = "FastTree",
   calendar.dates = "samplingtimes.all.csv",
   simseqfile = "C.Epidemic_seed.seq.bis.sim.nwk.fasta", count.start = 1977,
-  endsim = 40)
+  endsim = 40, clust = TRUE)
 }
 \arguments{
 \item{dir.tree}{Direcotry where we find the FastTree tool}
@@ -24,6 +24,8 @@ phylogenetic.tree.fasttree.par(dir.tree = dirfasttree,
 \item{count.start}{Calendar year when the simulation started}
 
 \item{endsim}{Number of years when the simulation was done}
+
+\item{clust}{Logic parameter TRUE when running simulation on cluster and FALSE on personal computer}
 }
 \value{
 A time-stamped phylogenetic  tree with annotation of internal nodes dates

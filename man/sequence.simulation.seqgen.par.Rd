@@ -7,7 +7,8 @@
 sequence.simulation.seqgen.par(dir.seq = dir,
   sub.dir.rename = sub.dir.rename, seq.gen.tool = "seq-gen",
   datalist = datalist, seeds.num = 123, endpoint = 40,
-  limitTransmEvents = 3, hiv.seq.file = "hiv.seq.C.pol.j.fasta")
+  limitTransmEvents = 3, hiv.seq.file = "hiv.seq.C.pol.j.fasta",
+  clust = TRUE)
 }
 \arguments{
 \item{dir.seq}{Direcotry where is the compiled seq-gen tool, sequences data may also be stored there}
@@ -25,6 +26,8 @@ sequence.simulation.seqgen.par(dir.seq = dir,
 \item{limitTransmEvents}{Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)}
 
 \item{hiv.seq.file}{File containing seed HIV sequences in FASTA format, it might be in same repository as seq-gen}
+
+\item{clust}{Logic parameter TRUE when running simulation on cluster and FALSE on personal computer}
 }
 \value{
 Files of sequences data, sampling dates, and transmission trees
