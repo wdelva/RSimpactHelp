@@ -16,7 +16,7 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
 
   # Working directory where we find seq-gen, FastTree, and HIV seed file hiv.seq.C.pol.j.fasta
 
-  # work.dir <- "/home/david/Desktop/TEST_20_4_2018" # on laptop
+  #work.dir <- "/home/david/Desktop/TEST_20_4_2018" # on laptop
 
   work.dir <- "/user/data/gent/vsc400/vsc40070/phylo" # on cluster
 
@@ -261,7 +261,8 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
                                  seeds.num = seeds.num,
                                  endpoint = 40,
                                  limitTransmEvents = 7, # no less than 7
-                                 hiv.seq.file = "hiv.seq.C.pol.j.fasta") # hiv.seq.file lodged in work.dir
+                                 hiv.seq.file = "hiv.seq.C.pol.j.fasta",
+                                 clust = TRUE) # hiv.seq.file lodged in work.dir
 
 
 
@@ -285,7 +286,8 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
                                                  calendar.dates = "samplingtimes.all.csv",
                                                  simseqfile = "C.Epidemic_seed.seq.bis.sim.nwk.fasta",
                                                  count.start = 1977,
-                                                 endsim = 40)
+                                                 endsim = 40,
+                                                 clust = TRUE)
 
 
     ape::write.tree(tree.calib, file = paste0(sub.dir.rename,"/calibrated.tree.nwk"))
