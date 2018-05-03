@@ -1,0 +1,129 @@
+---
+title: "Modelling HIV molecular evolution across dynamic transmission networks"
+author: |
+  | David Niyukuri, Wim Delva (MD, PhD)
+  |
+  | The DST/NRF South African Centre of Excellence in Epidemiological Modelling and Analysis
+  | Stellenbosch University, South Africa
+date: "03 May 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### *Abstract*
+
+<em> Understanding the structure and the dynamics of transmission networks is a key step towards the design and implementation of effective prevention measures. Simpact provides a platform to simulate more detailed dynamic sexual and transmission networks, which are calibrated by sexual behaviour data and clinical data such as CD4 count and viral load.
+
+Meanwhile, the field of phylodynamics is emerging with much potential to enhance our understanding of HIV transmission dynamics by using sequence data. Phylodynamics methods allow estimation of epidemiological features such as time trends of HIV prevalence and HIV incidence, reproductive number, among others. 
+
+The following tutorial gives hands-on a simulation framework that bridges these two schools of thought in order to be able to use multiple data sources. We present a proof of concept case study in which we evaluated the validity of our modelling framework with respect to estimating the distribution of transmission events from the distribution of internal nodes of a phylogenetic tree.
+
+The unified framework will enable improvement in epidemiological estimates by calibration with multiple data sources (bio-behavioural and sequence data). In addition, this framework will help to assess accuracy of new phylogenetic inference methods in the study of HIV transmission dynamics. </em>
+
+
+## HIV transmission and molecular evolution
+
+Once HIV enters the body, it starts replicating at high rate. That replication is also caracterised by error during the transcriptase phase of the virus life cycle. Thus, across the transmission chain, the accumulated mutations hold footprint of the past transmission dynamics. Hence, phylogenetic trees build from HIV sequence sampled from infected individuals have potentila to shed light on the transmission dynamics. For example, the age difference between tips and internal nodes of a time-stamped phylogenetic tree, it is the minimal estimates of time period between transmission and sampling. Thus, if we have a time-stamped phylogenetic tree with short branches, we may think of recent infections among these individuals. If it happens that they share same cluster, it may suggest an outbreak within the community where samples were drawn. 
+
+In the settings of sexual transmission of HIV, except harassement cases, that event is a result of sexual partnership between individuals. Establishment and break of relationships are determinants of the dynamic of sexual network and subsequent transmission network. The acquisition of HIV in the general sexual network depemds on HIS status of a partner. Hence, the  transmission network is a subset of the general sexual network. More details on modeling dynamic  sexual/transmission networks are given in [Simpact documentation](http://simpactcyan.readthedocs.io/en/latest/).
+
+## Objective
+
+The objective of the tutorial is to present a proof of concept of the relationship between transmission network and phylogenetic  tree features by computing and visualising the temporal trend of new transmission events in the transmission network and the the distribution of internal nodes of a phylogenetic tree in same time interval.
+
+
+## Simulation on a personal computer
+
+To simulate dynamic sexual and transmission networks conjointly with viral evolutionary dynamic, the whole machinary needs a combination of [Simpact](http://simpactcyan.readthedocs.io/en/latest/) and [SeqGen](http://tree.bio.ed.ac.uk/software/seqgen/) tools. We will do it in R but we will need external compiled tools ( [SeqGen](http://tree.bio.ed.ac.uk/software/seqgen/) and [FastTree](http://www.microbesonline.org/fasttree/) ) which are not accessible as R packages. In the following exercise, to achive our objctive, we will have:
+
+* Simulate sexual/transmission networks by running [Simpact](http://www.simpact.org) (output: transmission network)
+* Simulate viral dynamics by running [SeqGen](http://tree.bio.ed.ac.uk/software/seqgen/) (output: viral sequences)
+* Construct a phylogenetic tree with [FastTree](http://www.microbesonline.org/fasttree/) (output: phylogenetic tree)
+* Calibrate internal nodes with [treedater](https://github.com/emvolz/treedater) (output: time-stamped phylogenetic tree)
+
+After setting the working directory, precise where SeqGen is located with seed HIV sequence, and the location of FastTree as well. 
+
+<code>
+setwd("/home/david/Desktop/TEST_19_1_2018/")
+dirseqgen <- "/home/david/Desktop/TEST_19_1_2018/seqgen"
+dirfasttree <- "/home/david/Desktop/TEST_19_1_2018/Fasttree"
+</code>
+
+* Run Simpact:
+
+This comes to simulate sexual and transmission networks. The fisrt step before running Simpact is to setup parameters according to which kind of epidemic you wish to simulate. For example you may include the ART intrevention guidelines:
+introduce ART, and evaluate whether the HIV prevalence drops less  rapidly - gradual increase in CD4 threshold for ART eligiblity (2007:200, in 2010:350, in 2013:500).
+
+<code>
+art.intro <- list()
+art.intro["time"] <- 20
+art.intro["diagnosis.baseline"] <- -2 
+art.intro["monitoring.cd4.threshold"] <- 100 
+
+art.intro1 <- list()
+art.intro1["time"] <- 22
+art.intro1["diagnosis.baseline"] <- -2 # 0#100
+art.intro1["monitoring.cd4.threshold"] <- 150 # 1200
+
+art.intro2 <- list()
+art.intro2["time"] <- 25 
+art.intro2["monitoring.cd4.threshold"] <- 200
+
+art.intro3 <- list()
+art.intro3["time"] <- 30
+art.intro3["monitoring.cd4.threshold"] <- 350
+
+art.intro4 <- list()
+art.intro4["time"] <- 33 
+art.intro4["monitoring.cd4.threshold"] <- 500
+
+art.intro5 <- list()
+art.intro5["time"] <- 36
+art.intro5["monitoring.cd4.threshold"] <- 700 
+
+interventionlist <- list(art.intro, art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
+</code>
+
+
+More details on Simpact simulation are available [here](http://simpactcyan.readthedocs.io/en/latest/).
+
+<code>
+results <- simpact.run(configParams = cfg.list,
+                       destDir = destDir,
+                       agedist = age.distr,
+                       seed = seedid, 
+                       intervention = intervention)
+</code>                       
+
+
+datalist <- readthedata(results)
+
+</code>
+
+
+
+
+## Simulation on a cluster
+
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
