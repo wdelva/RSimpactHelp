@@ -28,7 +28,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
   trans.net <- simpact.trans.net
 
   smallest.branches <- rep(NA, times = length(simpact.trans.net))
-  for (list.element in 1:length(simpact.trans.net)){
+  for (list.element in 1:length(simpact.trans.net)){ # check transmission trees with negative branch lengths
     net.list <- simpact.trans.net[[list.element]]
     if(length(net.list$id) > 2){
       tree.tr <- epi2tree2(net.list)
@@ -46,8 +46,8 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
 
     TransmEventsCountVector <- vector()
 
-    for(i in 1:length(trans.net)){
-      trans.net.i.check <- as.data.frame(trans.net[[i]])
+    for(i in 1:length(trans.net)){ # count number of transmissions in each transmission network
+      trans.net.i.check <- as.data.frame(trans.net[[i]])# with at least limitTransmEvents transmissions
       if(nrow(trans.net.i.check)>=limitTransmEvents){
         TransmEventsCountVector <- c(TransmEventsCountVector, nrow(trans.net.i.check))
       }
@@ -93,7 +93,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
         }
       }
 
-      IDs.transm <- num.i # vector of seeds with at least 2 transmissions
+      IDs.transm <- num.i # vector of seeds with at least X transmissions
 
       p <- IDs.transm[1]
 
