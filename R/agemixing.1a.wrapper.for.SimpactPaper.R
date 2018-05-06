@@ -151,6 +151,7 @@ agemixing.1a.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
         dplyr::group_by(ID) %>%
         dplyr::top_n(3, DisTime)
 
+      bignumber <- NA
 
       # agemix.model <- tryCatch(amp.modeller(dataframe = agemix.episodes.df,
       #                                       agegroup = c(18, 50),
@@ -162,7 +163,7 @@ agemixing.1a.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
       #                          error = function(agemixing.err) {
       #                            return(list()) # Returns an empty list if the lme(r) models can't be fitted
       #                          })
-      # bignumber <- NA
+      #
       #
       # AAD.male <- ifelse(length(agemix.model) > 0, mean(dplyr::filter(agemix.rels.like.SHIMS.df, Gender =="male")$AgeGap), bignumber)
       # SDAD.male <- ifelse(length(agemix.model) > 0, sd(dplyr::filter(agemix.rels.like.SHIMS.df, Gender =="male")$AgeGap), bignumber)
