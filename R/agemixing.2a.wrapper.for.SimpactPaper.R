@@ -13,15 +13,15 @@
 #' @export
 
 agemixing.2a.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
-  destDir <- "/Users/delvaw/Documents/temp"                     # on laptop
-  #destDir <- "/user/data/gent/vsc400/vsc40070/agemixing/temp" # for VSC
+  #destDir <- "/Users/delvaw/Documents/temp"                     # on laptop
+  destDir <- "/user/data/gent/vsc400/vsc40070/agemixing/temp" # for VSC
   age.distr <- agedistr.creator(shape = 5, scale = 65)
 
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2,
                                    population.simtime = 10,
-                                   population.nummen = 500,
-                                   population.numwomen = 500,
+                                   population.nummen = 2500,
+                                   population.numwomen = 2500,
                                    hivseed.time = 10,
                                    hivseed.type = "amount",
                                    hivseed.amount = 25, #30,
