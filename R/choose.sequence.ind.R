@@ -29,6 +29,6 @@ choose.sequence.ind <- function(pool.seq.file = "pool.seq.fasta",
 
   ape::write.dna(seq, file = paste0(name.file), format = "fasta")
 
-  print(paste("Sequence of ", paste(sample.name.seq), "was considered"))
+  print(paste("Sequence of ", paste(sample.name.seq), "was selected"))
 
 }

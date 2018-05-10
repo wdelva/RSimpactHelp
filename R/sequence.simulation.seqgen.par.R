@@ -2,6 +2,7 @@
 #'
 #' @param dir.seq Direcotry where is the compiled seq-gen tool, sequences data may also be stored there
 #' @param sub.dir.rename sub directory where the simulation outputs will be stored
+#' @param simpact.trans.net Transmission network produced by Simpact
 #' @param seq.gen.tool Name of the file for compiled seq-gen
 #' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param seeds.num  Seed number for reproducability
@@ -15,6 +16,7 @@
 
 sequence.simulation.seqgen.par <- function(dir.seq = dir,
                                            sub.dir.rename = sub.dir.rename,
+                                           simpact.trans.net = simpact.trans.net,
                                            seq.gen.tool = "seq-gen",
                                            datalist = datalist,
                                            seeds.num = 123,
@@ -31,7 +33,7 @@ sequence.simulation.seqgen.par <- function(dir.seq = dir,
   # source("R/transmission.network.builder.R")
   # source("R/epi2tree2.R")
 
-  simpact.trans.net <- transmission.network.builder(datalist = datalist, endpoint = endpoint)
+  simpact.trans.net <- simpact.trans.net # transmission.network.builder(datalist = datalist, endpoint = endpoint)
 
   trans.net <- simpact.trans.net
 

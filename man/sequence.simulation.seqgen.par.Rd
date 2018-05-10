@@ -5,15 +5,17 @@
 \title{Simulate sequence data of individuals in the transmissiion network using seq-gen tool}
 \usage{
 sequence.simulation.seqgen.par(dir.seq = dir,
-  sub.dir.rename = sub.dir.rename, seq.gen.tool = "seq-gen",
-  datalist = datalist, seeds.num = 123, endpoint = 40,
-  limitTransmEvents = 3, hiv.seq.file = "hiv.seq.C.pol.j.fasta",
-  clust = TRUE)
+  sub.dir.rename = sub.dir.rename, simpact.trans.net = simpact.trans.net,
+  seq.gen.tool = "seq-gen", datalist = datalist, seeds.num = 123,
+  endpoint = 40, limitTransmEvents = 3,
+  hiv.seq.file = "hiv.seq.C.pol.j.fasta", clust = TRUE)
 }
 \arguments{
 \item{dir.seq}{Direcotry where is the compiled seq-gen tool, sequences data may also be stored there}
 
 \item{sub.dir.rename}{sub directory where the simulation outputs will be stored}
+
+\item{simpact.trans.net}{Transmission network produced by Simpact}
 
 \item{seq.gen.tool}{Name of the file for compiled seq-gen}
 
