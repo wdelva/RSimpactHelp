@@ -17,6 +17,7 @@ choose.sequence.ind <- function(pool.seq.file = "pool.seq.fasta",
                                 select.vec = select.vec,
                                 name.file = "selected.ind.fasta"){
 
+
   sample.name.seq <- select.vec
 
   Rsamtools::indexFa(paste0(pool.seq.file)) # create an index of file 'file.fasta'
