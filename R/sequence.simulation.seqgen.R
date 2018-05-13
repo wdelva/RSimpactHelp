@@ -23,7 +23,7 @@ sequence.simulation.seqgen <- function(dir.seq = dir,
   # source("R/transmission.network.builder.R")
   # source("R/epi2tree2.R")
 
-  simpact.trans.net <- transmission.network.builder(datalist = datalist, endpoint = endpoint)
+  simpact.trans.net <- simpact.trans.net # transmission.network.builder(datalist = datalist, endpoint = endpoint)
 
   trans.net <- simpact.trans.net
 
