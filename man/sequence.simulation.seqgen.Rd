@@ -5,7 +5,7 @@
 \title{Simulate sequence data of individuals in the transmissiion network using seq-gen tool}
 \usage{
 sequence.simulation.seqgen(dir.seq = dir, seq.gen.tool = "seq-gen",
-  datalist = datalist, seeds.num = 123, endpoint = 40,
+  simpact.trans.net = simpact.trans.net, seeds.num = 123, endpoint = 40,
   limitTransmEvents = 3, hiv.seq.file = "hiv.seq.C.pol.j.fasta")
 }
 \arguments{
@@ -13,7 +13,7 @@ sequence.simulation.seqgen(dir.seq = dir, seq.gen.tool = "seq-gen",
 
 \item{seq.gen.tool}{Name of the file for compiled seq-gen}
 
-\item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
+\item{simpact.trans.net}{The datalist that is produced by \code{\link{transmission.network.builder()}}}
 
 \item{seeds.num}{Seed number for reproducability}
 

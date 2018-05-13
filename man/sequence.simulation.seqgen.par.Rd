@@ -6,20 +6,18 @@
 \usage{
 sequence.simulation.seqgen.par(dir.seq = dir,
   sub.dir.rename = sub.dir.rename, simpact.trans.net = simpact.trans.net,
-  seq.gen.tool = "seq-gen", datalist = datalist, seeds.num = 123,
-  endpoint = 40, limitTransmEvents = 3,
-  hiv.seq.file = "hiv.seq.C.pol.j.fasta", clust = TRUE)
+  seq.gen.tool = "seq-gen", seeds.num = 123, endpoint = 40,
+  limitTransmEvents = 3, hiv.seq.file = "hiv.seq.C.pol.j.fasta",
+  clust = TRUE)
 }
 \arguments{
 \item{dir.seq}{Direcotry where is the compiled seq-gen tool, sequences data may also be stored there}
 
 \item{sub.dir.rename}{sub directory where the simulation outputs will be stored}
 
-\item{simpact.trans.net}{Transmission network produced by Simpact}
+\item{simpact.trans.net}{The datalist that is produced by \code{\link{transmission.network.builder()}}}
 
 \item{seq.gen.tool}{Name of the file for compiled seq-gen}
-
-\item{datalist}{The datalist that is produced by \code{\link{readthedata()}}}
 
 \item{seeds.num}{Seed number for reproducability}
 

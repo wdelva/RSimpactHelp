@@ -256,8 +256,8 @@ wrapper.phylo.simpact.parallel <- function(inputvector){
 
   sequence.simulation.seqgen.par(dir.seq = dirseqgen,
                                  sub.dir.rename = sub.dir.rename,
+                                 simpact.trans.net = simpact.trans.net,
                                  seq.gen.tool = "seq-gen",
-                                 datalist = datalist,
                                  seeds.num = seeds.num,
                                  endpoint = 40,
                                  limitTransmEvents = 7, # no less than 7

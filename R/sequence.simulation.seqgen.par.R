@@ -2,9 +2,8 @@
 #'
 #' @param dir.seq Direcotry where is the compiled seq-gen tool, sequences data may also be stored there
 #' @param sub.dir.rename sub directory where the simulation outputs will be stored
-#' @param simpact.trans.net Transmission network produced by Simpact
+#' @param simpact.trans.net The datalist that is produced by \code{\link{transmission.network.builder()}}
 #' @param seq.gen.tool Name of the file for compiled seq-gen
-#' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param seeds.num  Seed number for reproducability
 #' @param endpoint Only transmission events that took place before this point in simulation time
 #' @param limitTransmEvents Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)
@@ -18,7 +17,6 @@ sequence.simulation.seqgen.par <- function(dir.seq = dir,
                                            sub.dir.rename = sub.dir.rename,
                                            simpact.trans.net = simpact.trans.net,
                                            seq.gen.tool = "seq-gen",
-                                           datalist = datalist,
                                            seeds.num = 123,
                                            endpoint = 40,
                                            limitTransmEvents = 3,
