@@ -1,4 +1,3 @@
-
 #' Subset sequences in fasta file based on sequence ID or Name
 #'
 #' @param pool.seq.file File of sequence data (in fasta format) within which we want to subset
