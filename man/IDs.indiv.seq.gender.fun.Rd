@@ -5,7 +5,7 @@
 \title{Subset sequences based on gender ratio and age of individuals}
 \usage{
 IDs.indiv.seq.gender.fun(simpact.trans.net = simpact.trans.net,
-  limitTransmEvents = 3, perc.men = 50, age.limit = 65)
+  limitTransmEvents = 7, perc.men = 50, seq.cov = 35, age.limit = 65)
 }
 \arguments{
 \item{simpact.trans.net}{Transmission networks computed by \code{\link{transmission.network.builder()}}}
@@ -13,6 +13,8 @@ IDs.indiv.seq.gender.fun(simpact.trans.net = simpact.trans.net,
 \item{limitTransmEvents}{Choose transmission network with at least this  amount of individuals}
 
 \item{perc.men}{Precentage of men to consider when selecting the sequences}
+
+\item{seq.cov}{Sequece coverage}
 
 \item{age.limit}{Age limit for all individuals}
 }
