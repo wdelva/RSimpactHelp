@@ -4,6 +4,7 @@
 #' @param simpact.trans.net Transmission networks computed by \code{\link{transmission.network.builder()}}
 #' @param limitTransmEvents Choose transmission network with at least this  amount of individuals
 #' @param perc.men Precentage of men to consider when selecting the sequences
+#' @param seq.cov Sequece coverage
 #' @param age.men Age group for men
 #' @param age.women Age group for women
 #' @return A list with a vector of ID's of selected sequences, number of men, and women for the selcted sequences and the ratio between men and women among the selcted sequences because in some settings we may have less or more female or male individuals
@@ -15,11 +16,13 @@
 IDs.indiv.seq.gender.age.group.fun <- function(simpact.trans.net = simpact.trans.net,
                                                limitTransmEvents = 3,
                                                perc.men = 30,
+                                               seq.cov = 35,
                                                age.men=c(15,60),
                                                age.women=c(15,40)){
 
   seeds.id <- length(simpact.trans.net)
 
+  # Add age at sampling
   new.transm.tab <- vector("list", length(seeds.id))
 
   for(i in 1:seeds.id){
@@ -34,7 +37,7 @@ IDs.indiv.seq.gender.age.group.fun <- function(simpact.trans.net = simpact.trans
 
   }
 
-  # Selceted networks
+  # ID numbers of Selected networks with at least limitTransmEvents + 1 indiviuals
 
   IDs.transm <- vector()
 
@@ -51,7 +54,7 @@ IDs.indiv.seq.gender.age.group.fun <- function(simpact.trans.net = simpact.trans
     }
   }
 
-  ## Binding transmission transmission networks ##
+  ## Binding together all selected transmission transmission networks ##
 
   for (q in 1:length(IDs.transm)){
 
@@ -72,6 +75,7 @@ IDs.indiv.seq.gender.age.group.fun <- function(simpact.trans.net = simpact.trans
     }
   }
 
+
   trans.sum.men <- dplyr::filter(trans.sum.rename.id, trans.sum.rename.id$GenderRec=="0")
 
   trans.sum.women <- dplyr::filter(trans.sum.rename.id, trans.sum.rename.id$GenderRec=="1")
@@ -80,43 +84,46 @@ IDs.indiv.seq.gender.age.group.fun <- function(simpact.trans.net = simpact.trans
 
   trans.sum.age.limit.women <- dplyr::filter(trans.sum.women, trans.sum.women$age.i>=age.women[1], trans.sum.women$age.i<=age.women[2])
 
+  perc.100 <- nrow(trans.sum.age.limit.men) + nrow(trans.sum.age.limit.women) # total number of individuals with age limit
 
-
-
-  perc.100 <- nrow(trans.sum.age.limit.men) + nrow(trans.sum.age.limit.women) #
+  perc.seq.coverage <- round(perc.100*seq.cov/100) # total number of wanted individuals at seq.cov sequence coverage
 
   nrow.men <- nrow(trans.sum.age.limit.men) # number of available men
 
   nrow.women <- nrow(trans.sum.age.limit.women) # number of available women
 
-  men <- round((perc.100*perc.men)/100) # number of wanted men
+  men.seq.coverage <- round((perc.seq.coverage*perc.men)/100) # number of wanted men
 
-  women <- perc.100 - men # number of wanted women
+  women.seq.coverage <- perc.seq.coverage - men.seq.coverage # numbe rof wanted women
 
-  diff.men <- nrow.men - men # difference between number of available and wanted men
+  diff.men <- nrow.men - men.seq.coverage # difference between number of available and wanted men
 
-  diff.women <- nrow.women - women # difference between number of available and wanted women
+  diff.women <- nrow.women - women.seq.coverage # difference between number of available and wanted women
 
-  ratio <- men/women
+  ratio.emp <- perc.men/(100-perc.men)
 
-  if(diff.men >0 & diff.women >0){
+  if(diff.men >0 & diff.women >0){ # perfect case
 
-    samp.men <- sample(trans.sum.men$id, men)
-    samp.women <- sample(trans.sum.women$id, women)
+    samp.men <- sample(trans.sum.age.limit.men$id, men.seq.coverage)
+    samp.women <- sample(trans.sum.age.limit.women$id, women.seq.coverage)
+    ratio.seq <- men.seq.coverage/women.seq.coverage
 
-  } else if(diff.men <0 & diff.women >0){
+  } else if(diff.men <0 & diff.women >0){ # we have less men than what we need
 
-    samp.men <- sample(trans.sum.men$id, nrow.men)
-    samp.women <- sample(trans.sum.women$id, women)
+    samp.men <- sample(trans.sum.age.limit.men$id, nrow.men) # take all we have
+    samp.women <- sample(trans.sum.age.limit.women$id, women.seq.coverage)
+    ratio.seq <- nrow.men/women.seq.coverage
 
-  } else if(diff.men >0 & diff.women <0){
+  } else if(diff.men >0 & diff.women <0){ # we have less women than what we need
 
-    samp.men <- sample(trans.sum.men$id, men)
-    samp.women <- sample(trans.sum.women$id, nrow.women)
+    samp.men <- sample(trans.sum.age.limit.men$id, men.seq.coverage)
+    samp.women <- sample(trans.sum.age.limit.women$id, nrow.women) # take all we have
+    ratio.seq <- men.seq.coverage/nrow.women
 
-  } else {   #if(diff.men <0 & diff.women <0){
-    samp.men <- sample(trans.sum.men$id, nrow.men)
-    samp.women <- sample(trans.sum.women$id, nrow.women)
+  } else {   #if(diff.men <0 & diff.women <0){ # we have less men and women than what we need
+    samp.men <- sample(trans.sum.age.limit.men$id, nrow.men) # take all we have
+    samp.women <- sample(trans.sum.age.limit.women$id, nrow.women) # take all we have
+    ratio.seq <- nrow.men/nrow.women
 
   }
 
@@ -125,12 +132,12 @@ IDs.indiv.seq.gender.age.group.fun <- function(simpact.trans.net = simpact.trans
   outputvec.stat <- list()
 
   outputvec.stat$outputvector <- outputvector
-  outputvec.stat$men <- men
-  outputvec.stat$women <- women
-  outputvec.stat$ratio <- ratio
+  outputvec.stat$men <- men.seq.coverage
+  outputvec.stat$women <- women.seq.coverage
+  outputvec.stat$ratio.seq <- ratio.seq
+  outputvec.stat$ratio.emp <- ratio.emp
 
   return(outputvec.stat)
 
 }
-
 
