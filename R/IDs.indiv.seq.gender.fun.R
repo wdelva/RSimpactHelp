@@ -82,7 +82,7 @@ IDs.indiv.seq.gender.fun <- function(simpact.trans.net = simpact.trans.net,
 
   nrow.women <- nrow(trans.sum.women) # number of available women
 
-  men <- round((perc.100*per.men)/100) # number of wanted men
+  men <- round((perc.100*perc.men)/100) # number of wanted men
 
   women <- perc.100 - men # numbe rof wanted women
 
