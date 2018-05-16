@@ -135,7 +135,6 @@ IDs.indiv.seq.gender.fun <- function(simpact.trans.net = simpact.trans.net,
     outputvec.stat$ratio.seq <- ratio.seq
     outputvec.stat$ratio.emp <- ratio.emp
 
-    return(outputvec.stat)
 
   }else{
 
@@ -147,7 +146,8 @@ IDs.indiv.seq.gender.fun <- function(simpact.trans.net = simpact.trans.net,
     outputvec.stat$ratio.seq <- ratio.seq <- NA
     outputvec.stat$ratio.emp <- ratio.emp <- NA
 
-    return(outputvec.stat)
   }
+
+  return(outputvec.stat)
 
 }
