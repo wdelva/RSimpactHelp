@@ -60,9 +60,8 @@ IDs.indiv.seq.gender.age.group.fun <- function(simpact.trans.net = simpact.trans
 
     for (q in 1:length(IDs.transm)){
 
-      p <- IDs.transm[q]
-
       if(q==1){
+        p <- IDs.transm[q]
         trans.sum <- new.transm.tab[[p]]
         rename.id <- paste0(p,".",trans.sum$id,".C")
         trans.sum$id <- rename.id
@@ -70,6 +69,7 @@ IDs.indiv.seq.gender.age.group.fun <- function(simpact.trans.net = simpact.trans
       }
       else{
 
+        p <- IDs.transm[q]
         read.trans.sum <- new.transm.tab[[p]]
         rename.id.read <- paste0(p,".",read.trans.sum$id,".C")
         read.trans.sum$id <- rename.id.read

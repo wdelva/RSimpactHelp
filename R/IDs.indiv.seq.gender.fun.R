@@ -58,15 +58,16 @@ IDs.indiv.seq.gender.fun <- function(simpact.trans.net = simpact.trans.net,
 
     for (q in 1:length(IDs.transm)){
 
-      p <- IDs.transm[q]
-
       if(q==1){
+        p <- IDs.transm[q]
         trans.sum <- new.transm.tab[[p]]
         rename.id <- paste0(p,".",trans.sum$id,".C")
         trans.sum$id <- rename.id
         trans.sum.rename.id <- trans.sum
       }
       else{
+
+        p <- IDs.transm[q]
 
         read.trans.sum <- new.transm.tab[[p]]
         rename.id.read <- paste0(p,".",read.trans.sum$id,".C")
