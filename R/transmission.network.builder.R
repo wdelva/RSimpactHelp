@@ -11,7 +11,7 @@
 #' @return RecId Original receiver ID
 #' @return DonId Original donor ID
 #' @return InfecTime Infection time
-#' @return Samptime Sampling/removal time (diagnosis - death - end of simulation)
+#' @return Samptime Sampling/removal time (ART initiation - death - end of simulation)
 #' @return GenderRec Gender of receiver
 #' @return GenderDon Gender of donor
 #' @return TOBRec time of birth of receiver
