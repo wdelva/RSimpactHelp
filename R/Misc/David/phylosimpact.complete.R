@@ -11,7 +11,7 @@
 # (iii) construct and calibrate the phylogenetic tree from these sequences
 
 
-setwd("/home/david/Desktop/TEST_19_1_2018/")
+setwd("/home/david/Desktop/TEST_17_4_2018")
 
 # ## For sub-optimal sequence coverage
 
@@ -36,7 +36,7 @@ pacman::p_load(RSimpactCyan, RSimpactHelper, devtools, Rcpp, ape, expoTree,
 ## Run Simpact for specific parameter combination
 
 
-destDir <- "/home/david/Desktop/TEST_19_1_2018/temp" # laptop
+destDir <- "/home/david/Desktop/TEST_17_4_2018/temp" # laptop
 
 
 
@@ -44,32 +44,32 @@ age.distr <- agedistr.creator(shape = 5, scale = 65)
 
 #source the input files var name <- cfg.list <- cfg
 cfg.list <- input.params.creator(population.eyecap.fraction = 0.2, #0.21,#1,
-  # population.msm = "no",
-  population.simtime = 40, #20, #40,  #25 for validation. 20 for calibration
-  population.nummen = 100, #3000, #600, # 3800, #2500,
-  population.numwomen = 100, # 3000, #600, #4200, #2500,
-  hivseed.time = 10, # 20,
-  hivseed.type = "amount",
-  hivseed.amount = 20, #30,
-  hivseed.age.min = 20,
-  hivseed.age.max = 50,
-  hivtransmission.param.a = -1, # -1,
-  hivtransmission.param.b = -90,
-  hivtransmission.param.c = 0.5,
-  hivtransmission.param.f1 = log(2), #log(inputvector[2]) , #log(2),
-  hivtransmission.param.f2 = log(log(1.4) / log(2)) / 5, #log(log(sqrt(inputvector[2])) / log(inputvector[2])) / 5, #log(log(1.4) / log(2)) / 5,
-  formation.hazard.agegapry.gap_factor_man_age = -0.01, #-0.01472653928518528523251061,
-  formation.hazard.agegapry.gap_factor_woman_age = -0.01, #-0.0726539285185285232510561,
-  formation.hazard.agegapry.meanage = -0.025,
-  formation.hazard.agegapry.gap_factor_man_const = 0,
-  formation.hazard.agegapry.gap_factor_woman_const = 0,
-  formation.hazard.agegapry.gap_factor_man_exp = -1, #-6,#-1.5,
-  formation.hazard.agegapry.gap_factor_woman_exp = -1, #-6,#-1.5,
-  formation.hazard.agegapry.gap_agescale_man = 0.25, #inputvector[3], # 0.25,
-  formation.hazard.agegapry.gap_agescale_woman = 0.25, #inputvector[3], # 0.25,#-0.30000007,#-0.03,
-  debut.debutage = 15,
-  conception.alpha_base = -2.5#inputvector[14]#-2.5#,
-  #person.art.accept.threshold.dist.fixed.value = 0
+                                 # population.msm = "no",
+                                 population.simtime = 40, #20, #40,  #25 for validation. 20 for calibration
+                                 population.nummen = 400, #3000, #600, # 3800, #2500,
+                                 population.numwomen = 400, # 3000, #600, #4200, #2500,
+                                 hivseed.time = 10, # 20,
+                                 hivseed.type = "amount",
+                                 hivseed.amount = 20, #30,
+                                 hivseed.age.min = 20,
+                                 hivseed.age.max = 50,
+                                 hivtransmission.param.a = -1, # -1,
+                                 hivtransmission.param.b = -90,
+                                 hivtransmission.param.c = 0.5,
+                                 hivtransmission.param.f1 = log(2), #log(inputvector[2]) , #log(2),
+                                 hivtransmission.param.f2 = log(log(1.4) / log(2)) / 5, #log(log(sqrt(inputvector[2])) / log(inputvector[2])) / 5, #log(log(1.4) / log(2)) / 5,
+                                 formation.hazard.agegapry.gap_factor_man_age = -0.01, #-0.01472653928518528523251061,
+                                 formation.hazard.agegapry.gap_factor_woman_age = -0.01, #-0.0726539285185285232510561,
+                                 formation.hazard.agegapry.meanage = -0.025,
+                                 formation.hazard.agegapry.gap_factor_man_const = 0,
+                                 formation.hazard.agegapry.gap_factor_woman_const = 0,
+                                 formation.hazard.agegapry.gap_factor_man_exp = -1, #-6,#-1.5,
+                                 formation.hazard.agegapry.gap_factor_woman_exp = -1, #-6,#-1.5,
+                                 formation.hazard.agegapry.gap_agescale_man = 0.25, #inputvector[3], # 0.25,
+                                 formation.hazard.agegapry.gap_agescale_woman = 0.25, #inputvector[3], # 0.25,#-0.30000007,#-0.03,
+                                 debut.debutage = 15,
+                                 conception.alpha_base = -2.5#inputvector[14]#-2.5#,
+                                 #person.art.accept.threshold.dist.fixed.value = 0
 )
 
 
@@ -592,4 +592,95 @@ phylosimpactCombinedSeeds$int.node.vec <- int.node.vec
 phylosimpactCombinedSeeds$numb.trasnm <- numb.tra
 phylosimpactCombinedSeeds$LTT <- pb
 save(phylosimpactCombinedSeeds, file = "phylosimpactCombinedSeeds.RData")
+
+#### Sampling at random
+
+
+#### Sampling NOT at random
+
+
+# Age mixing in transmission
+#############################
+
+agemixing.trans.df <- function(trans.network = trans.network,
+                               limitTransmEvents = 7){
+
+  # id of people who got infection by seed event: seeds.id
+  seeds.id <- length(trans.network)
+
+  infectionTable <- vector("list")
+
+  for (i in 1: seeds.id) {
+
+
+    trans.network.i <- as.data.frame(simpact.trans.net[[i]])
+
+    if(nrow(trans.network.i)>=limitTransmEvents){
+
+      trans.network.i <- trans.network.i[-1,]
+
+      trans.network.i$AgeInfecDon <- abs(trans.network.i$TOBDon) + trans.network.i$InfecTime
+      trans.network.i$AgeInfecRec <- abs(trans.network.i$TOBRec) + trans.network.i$InfecTime
+
+      id.lab <- paste0(i,".",trans.network.i$id,".C")
+
+      trans.network.i$id.lab <- id.lab
+
+      new.transm.tab[[i]] <- trans.network.i
+
+    }
+
+  }
+
+  infecttable <- rbindlist(new.transm.tab)
+
+  return(infecttable)
+
+}
+
+trans.network.df <- agemixing.trans.df(trans.network = simpact.trans.net,
+                                       limitTransmEvents = 7)
+
+
+
+
+
+####
+sequence.gender.age.group <- function(trans.df = trans.network.df,
+                                      age.group1=c(15,30),
+                                      age.group2=c(30,50),
+                                      age.group3=c(50,100)){
+
+
+    men.trans.network.df <- dplyr::filter(trans.df, trans.df$GenderRec=="0")
+
+    women.trans.network.df <- dplyr::filter(trans.df, trans.df$GenderRec=="1")
+
+    men.age.group1 <- dplyr::filter(men.trans.network.df, men.trans.network.df$AgeInfecRec>=age.group1[1] & men.trans.network.df$AgeInfecRec<=age.group1[2])
+    men.age.group2 <- dplyr::filter(men.trans.network.df, men.trans.network.df$AgeInfecRec>=age.group2[1] & men.trans.network.df$AgeInfecRec<=age.group2[2])
+    men.age.group3 <- dplyr::filter(men.trans.network.df, men.trans.network.df$AgeInfecRec>=age.group3[1] & men.trans.network.df$AgeInfecRec<=age.group3[2])
+
+    women.age.group1 <- dplyr::filter(women.trans.network.df, women.trans.network.df$AgeInfecRec>=age.group1[1] & women.trans.network.df$AgeInfecRec<=age.group1[2])
+    women.age.group2 <- dplyr::filter(women.trans.network.df, women.trans.network.df$AgeInfecRec>=age.group2[1] & women.trans.network.df$AgeInfecRec<=age.group2[2])
+    women.age.group3 <- dplyr::filter(women.trans.network.df, women.trans.network.df$AgeInfecRec>=age.group3[1] & women.trans.network.df$AgeInfecRec<=age.group3[2])
+
+
+
+
+    outputvector <- c(samp.men, samp.women)
+
+    outputvec.stat <- list()
+
+    outputvec.stat$men.age.group1 <- men.age.group1$id.lab
+    outputvec.stat$men.age.group2 <- men.age.group2$id.lab
+    outputvec.stat$men.age.group3 <- men.age.group3$id.lab
+
+    outputvec.stat$women.age.group1 <- women.age.group1$id.lab
+    outputvec.stat$women.age.group2 <- women.age.group2$id.lab
+    outputvec.stat$women.age.group3 <- women.age.group3$id.lab
+
+  return(outputvec.stat)
+
+
+}
 
