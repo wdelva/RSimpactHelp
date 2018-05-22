@@ -21,7 +21,7 @@ IDs.indiv.seq.gender.fun <- function(simpact.trans.net = simpact.trans.net,
   seeds.id <- length(simpact.trans.net)
 
   # Add age at sampling
-  new.transm.tab <- vector("list", length(seeds.id))
+  new.transm.tab <- vector("list", seeds.id)
 
   for(i in 1:seeds.id){
 

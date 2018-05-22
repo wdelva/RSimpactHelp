@@ -17,13 +17,13 @@ IDs.indiv.seq.gender.age.group.fun <- function(simpact.trans.net = simpact.trans
                                                limitTransmEvents = 3,
                                                perc.men = 30,
                                                seq.cov = 35,
-                                               age.men=c(15,60),
-                                               age.women=c(15,40)){
+                                               age.men=c(15,50),
+                                               age.women=c(15,30)){
 
   seeds.id <- length(simpact.trans.net)
 
   # Add age at sampling
-  new.transm.tab <- vector("list", length(seeds.id))
+  new.transm.tab <- vector("list", seeds.id)
 
   for(i in 1:seeds.id){
 
