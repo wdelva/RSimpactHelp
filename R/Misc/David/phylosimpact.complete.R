@@ -656,13 +656,13 @@ sequence.gender.age.group <- function(trans.df = trans.network.df,
 
     women.trans.network.df <- dplyr::filter(trans.df, trans.df$GenderRec=="1")
 
-    men.age.group1 <- dplyr::filter(men.trans.network.df, men.trans.network.df$AgeInfecRec>=age.group1[1] & men.trans.network.df$AgeInfecRec<=age.group1[2])
-    men.age.group2 <- dplyr::filter(men.trans.network.df, men.trans.network.df$AgeInfecRec>=age.group2[1] & men.trans.network.df$AgeInfecRec<=age.group2[2])
-    men.age.group3 <- dplyr::filter(men.trans.network.df, men.trans.network.df$AgeInfecRec>=age.group3[1] & men.trans.network.df$AgeInfecRec<=age.group3[2])
+    men.age.group1 <- dplyr::filter(men.trans.network.df, men.trans.network.df$AgeInfecRec>age.group1[1] & men.trans.network.df$AgeInfecRec<=age.group1[2])
+    men.age.group2 <- dplyr::filter(men.trans.network.df, men.trans.network.df$AgeInfecRec>age.group2[1] & men.trans.network.df$AgeInfecRec<=age.group2[2])
+    men.age.group3 <- dplyr::filter(men.trans.network.df, men.trans.network.df$AgeInfecRec>age.group3[1] & men.trans.network.df$AgeInfecRec<=age.group3[2])
 
-    women.age.group1 <- dplyr::filter(women.trans.network.df, women.trans.network.df$AgeInfecRec>=age.group1[1] & women.trans.network.df$AgeInfecRec<=age.group1[2])
-    women.age.group2 <- dplyr::filter(women.trans.network.df, women.trans.network.df$AgeInfecRec>=age.group2[1] & women.trans.network.df$AgeInfecRec<=age.group2[2])
-    women.age.group3 <- dplyr::filter(women.trans.network.df, women.trans.network.df$AgeInfecRec>=age.group3[1] & women.trans.network.df$AgeInfecRec<=age.group3[2])
+    women.age.group1 <- dplyr::filter(women.trans.network.df, women.trans.network.df$AgeInfecRec>age.group1[1] & women.trans.network.df$AgeInfecRec<=age.group1[2])
+    women.age.group2 <- dplyr::filter(women.trans.network.df, women.trans.network.df$AgeInfecRec>age.group2[1] & women.trans.network.df$AgeInfecRec<=age.group2[2])
+    women.age.group3 <- dplyr::filter(women.trans.network.df, women.trans.network.df$AgeInfecRec>age.group3[1] & women.trans.network.df$AgeInfecRec<=age.group3[2])
 
 
 
