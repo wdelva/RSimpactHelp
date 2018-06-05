@@ -35,7 +35,7 @@ phylogenetic.tree.fasttree <- function(dir.tree = dirfasttree,
   # Many tools to build the trees: within R like ape, phangorn, and outside compiled tools like iq-tree and FastTree
 
 
-  out.fast.tree.file <- paste0(dir.tree,"/", simseqfile ,".tree")
+  out.fast.tree.file <- paste0(dir.tree,"/", simseqfile ,".nwk")
 
   print("Start construction of the phylogenetic tree with FastTree")
 
@@ -77,7 +77,7 @@ phylogenetic.tree.fasttree <- function(dir.tree = dirfasttree,
 
   dater.tree <- dater(tree.const, Ord.tree.dates, s = 3000) # s is the length of sequence
 
-  write.tree(dater.tree, file = "calibrated.tree.tree")
+  write.tree(dater.tree, file = "calibrated.tree")
 
   print("End of internal nodes calibration for the phylogenetic tree")
 
