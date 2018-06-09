@@ -6,7 +6,7 @@
 \usage{
 IDs.indiv.seq.gender.age.group.fun(simpact.trans.net = simpact.trans.net,
   limitTransmEvents = 3, perc.men = 30, seq.cov = 35, age.men = c(15,
-  60), age.women = c(15, 40))
+  50), age.women = c(15, 30))
 }
 \arguments{
 \item{simpact.trans.net}{Transmission networks computed by \code{\link{transmission.network.builder()}}}

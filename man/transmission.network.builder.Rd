@@ -30,7 +30,7 @@ DonId Original donor ID
 
 InfecTime Infection time
 
-Samptime Sampling/removal time (diagnosis - death - end of simulation)
+Samptime Sampling/removal time (ART initiation - death - end of simulation)
 
 GenderRec Gender of receiver
 
