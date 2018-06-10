@@ -2,6 +2,7 @@
 
 S3method(select,summary.params)
 export(ART.coverage.calculator)
+export(IDs.Seq.Age.Groups)
 export(IDs.Seq.Random)
 export(IDs.indiv.seq.gender.age.group.fun)
 export(IDs.indiv.seq.gender.fun)
