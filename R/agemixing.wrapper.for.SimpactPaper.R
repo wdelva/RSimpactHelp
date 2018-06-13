@@ -149,16 +149,16 @@ agemixing.wrapper.for.SimpactPaper <- function(inputvector = input.vector){
                                                         timewindow = 0.5, # Ongoing the 3 most recent relationships in the past 6 months
                                                         start = FALSE) %>%
         dplyr::group_by(ID) %>%
-        dplyr::top_n(3, FormTime)
+        dplyr::top_n(3, DisTime)
 
 
       agemix.model <- tryCatch(amp.modeller(dataframe = agemix.episodes.df,
-                                       agegroup = c(18, 50),
-                                       timepoint = datalist.agemix$itable$population.simtime[1],
-                                       timewindow = 0.5,
-                                   start = FALSE,
-                                   SHIMS = TRUE,
-                                   method = "lmer"),
+                                            agegroup = c(18, 50),
+                                            timepoint = datalist.agemix$itable$population.simtime[1],
+                                            timewindow = 0.5,
+                                            start = FALSE,
+                                            SHIMS = TRUE,
+                                            method = "lmer"),
                                error = function(agemixing.err) {
                                  return(list()) # Returns an empty list if the lme(r) models can't be fitted
                                })

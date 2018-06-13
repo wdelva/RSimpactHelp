@@ -1,10 +1,9 @@
-#' Distribute simpact runs over multiple cores
+#' Distribute simpact runs from MaC output over multiple cores
 #'
 #' A short description here...
 #'
 #' @param model Wrapper function for running simpact (simpact.wrapper)
-#' @param actual.input.matrix Matrix with parameter combinations to be run
-#' @param seed_count Origin of random number seed
+#' @param MaC.output Output from \link{MaC} function.
 #' @param n_cluster Number of cores available for parallel running of Simpact
 #' @return a matrix of model features and the seed of the random number
 #'   generator
@@ -12,13 +11,12 @@
 #' @importFrom parallel stopCluster
 #' @importFrom parallel parLapplyLB
 #' @importFrom magrittr %>%
+#' @importFrom dplyr select
 #' @export
 
-simpact.parallel <- function(model = simpact.wrapper,
-                             actual.input.matrix = matrix(rep(c(1:15), 16), nrow = 16),
-                             #nb_simul = 16,
-                             seed_count = 0,
-                             n_cluster = 8){
+MaC.explorer <- function(model = model,
+                         MaC.output = test.MaC,
+                         n_cluster = n_cluster){
   cl <- makeCluster(getOption("cl.cores", n_cluster))
   tab_simul_summarystat = NULL
   list_param <- list(NULL)
@@ -26,11 +24,17 @@ simpact.parallel <- function(model = simpact.wrapper,
   paramtemp <- NULL
   simultemp <- NULL
 
-  nb_simul <- nrow(actual.input.matrix)
+  last.wave <- length(MaC.output$selected.experiments)
+  experiments <- dplyr::select(MaC.output$selected.experiments[[last.wave]],
+                   contains("x.")) %>% as.matrix(., dimnames = NULL)
+  seeds <- dplyr::select(MaC.output$selected.experiments[[last.wave]],
+                                          contains("seed")) %>%
+    unlist() %>% as.numeric()
+  nb_simul <- nrow(experiments)
 
   for (i in 1:nb_simul) {
-    l <- ncol(actual.input.matrix)
-    param <- c((seed_count + i), actual.input.matrix[i, ])
+    l <- ncol(experiments)
+    param <- c(seeds[i], experiments[i, ])
     list_param[[i]] <- param
     tab_param <- rbind(tab_param, param[2:(l + 1)])
     paramtemp <- rbind(paramtemp, param[2:(l + 1)])
@@ -39,5 +43,6 @@ simpact.parallel <- function(model = simpact.wrapper,
                                        model)
   tab_simul_summarystat <- do.call(rbind, list_simul_summarystat)
   stopCluster(cl)
-  return(cbind(tab_simul_summarystat, seed_count + 1:nb_simul))
+  return(cbind(tab_simul_summarystat, seeds))
 }
+

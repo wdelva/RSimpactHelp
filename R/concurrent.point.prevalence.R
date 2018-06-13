@@ -47,7 +47,7 @@ concurr.pointprev.calculator <- function(datalist = datalist,
   number.males.with.cps <- sum(degree.df$Degree > 1)
   popsize.males <- nrow(DTalive.infected.agegroup.men)
 
-  if(!is.na(number.males.with.cps)){
+  if(!is.na(number.males.with.cps) & popsize.males > 0 & popsize.males >= number.males.with.cps){
    concurr.pointprev.males <- number.males.with.cps / popsize.males
     pointprevalence.95.ll <- binom.test(x = number.males.with.cps, n = popsize.males)$conf.int[1]
     pointprevalence.95.ul <- binom.test(x = number.males.with.cps, n = popsize.males)$conf.int[2]
@@ -81,7 +81,7 @@ concurr.pointprev.calculator <- function(datalist = datalist,
   number.females.with.cps <- sum(degree.df$Degree > 1)
   popsize.females <- nrow(DTalive.infected.agegroup.female)
 
-  if(!is.na(number.females.with.cps)){
+  if(!is.na(number.females.with.cps) & popsize.females > 0 & popsize.females >= number.females.with.cps){
     concurr.pointprev.females <- number.females.with.cps / popsize.females
     pointprevalence.95.ll <- binom.test(x = number.females.with.cps, n = popsize.females)$conf.int[1]
     pointprevalence.95.ul <- binom.test(x = number.females.with.cps, n = popsize.females)$conf.int[2]
@@ -103,7 +103,7 @@ concurr.pointprev.calculator <- function(datalist = datalist,
   number.people.with.cps <- sum(number.males.with.cps, number.females.with.cps)
   popsize <- sum(popsize.males, popsize.females)
 
-  if(!is.na(number.people.with.cps)){
+  if(!is.na(number.people.with.cps) & popsize > 0 & popsize >= number.people.with.cps){
     concurr.pointprev <- number.people.with.cps / popsize
     pointprevalence.95.ll <- binom.test(x = number.people.with.cps, n = popsize)$conf.int[1]
     pointprevalence.95.ul <- binom.test(x = number.people.with.cps, n = popsize)$conf.int[2]

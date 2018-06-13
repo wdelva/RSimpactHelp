@@ -73,7 +73,7 @@ amp.modeller <- function(dataframe,
                                          start = start)
   if (SHIMS == TRUE){
     agemix.rels.df <- dplyr::group_by(agemix.rels.df, ID) %>%
-      dplyr::top_n(-3, FormTime) # male age must be at least 15 at the start of the relationship, but that is always the case in the default Simpact simulations
+      dplyr::top_n(-3, DisTime) # male age must be at least 15 at the start of the relationship, but that is always the case in the default Simpact simulations
     agemix.rels.df$agerelform0 <- agemix.rels.df$agerelform - 15
   }
   male.rels.df <- dplyr::filter(agemix.rels.df, Gender =="male")

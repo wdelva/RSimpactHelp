@@ -18,7 +18,8 @@ simpact.parallel(model = simpact.wrapper,
 \item{n_cluster}{Number of cores available for parallel running of Simpact}
 }
 \value{
-a matrix of mice guesses
+a matrix of model features and the seed of the random number
+  generator
 }
 \description{
 A short description here...
