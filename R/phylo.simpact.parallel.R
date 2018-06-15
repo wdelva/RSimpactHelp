@@ -52,3 +52,4 @@ phylo.simpact.parallel <- function(model = phylo.simpact.wrapper,
   return(tab_simul_summarystat)
 }
 
+# phylo.simpact.parallel to merge
