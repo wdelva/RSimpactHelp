@@ -17,3 +17,5 @@ trans.network2tree <- function(transnetwork = transnetwork){
   return(transm.phylo)
 
 }
+
+# trans.network2tree to merge
