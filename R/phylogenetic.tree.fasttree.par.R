@@ -85,3 +85,6 @@ phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
   return(dater.tree)
 
 }
+
+# phylogenetic.tree.fasttree.par to merge
+
