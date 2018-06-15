@@ -32,3 +32,5 @@ choose.sequence.ind <- function(pool.seq.file = "pool.seq.fasta",
   print(paste("Sequence of ", paste(sample.name.seq), "was selected"))
 
 }
+
+# choose.sequence.ind to merge
