@@ -152,3 +152,5 @@ IDs.indiv.seq.gender.fun <- function(simpact.trans.net = simpact.trans.net,
   return(outputvec.stat)
 
 }
+
+# IDs.indiv.seq.gender.fun to merge
