@@ -271,3 +271,6 @@ sequence.simulation.seqgen.par <- function(dir.seq = dir,
   print("Sequence simulation finished!")
 
 }
+
+# sequence.simulation.seqgen.par to merge
+
