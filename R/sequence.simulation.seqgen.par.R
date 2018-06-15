@@ -2,8 +2,8 @@
 #'
 #' @param dir.seq Direcotry where is the compiled seq-gen tool, sequences data may also be stored there
 #' @param sub.dir.rename sub directory where the simulation outputs will be stored
+#' @param simpact.trans.net Transmission network produced by \code{\link{transmission.network.builder()}}
 #' @param seq.gen.tool Name of the file for compiled seq-gen
-#' @param datalist The datalist that is produced by \code{\link{readthedata()}}
 #' @param seeds.num  Seed number for reproducability
 #' @param endpoint Only transmission events that took place before this point in simulation time
 #' @param limitTransmEvents Minimum number of individuals in that transmission network (one transmission network per HIV seeding individual)
@@ -12,14 +12,16 @@
 #' @export
 
 
-sequence.simulation.seqgen.par <- function(dir.seq = dir,
+sequence.simulation.seqgen.par <- function(dir.seq = dirseqgen,
                                            sub.dir.rename = sub.dir.rename,
+                                           simpact.trans.net = simpact.trans.net,
                                            seq.gen.tool = "seq-gen",
-                                           datalist = datalist,
-                                           seeds.num = 123,
+                                           seeds.num = seeds.num,
                                            endpoint = 40,
-                                           limitTransmEvents = 3,
-                                           hiv.seq.file = "hiv.seq.C.pol.j.fasta"){
+                                           limitTransmEvents = 7, # no less than 7
+                                           hiv.seq.file = "hiv.seq.C.pol.j.fasta",
+                                           clust = FALSE) # hiv.seq.file lodged in work.dir
+{
 
 
 
@@ -29,7 +31,7 @@ sequence.simulation.seqgen.par <- function(dir.seq = dir,
   # source("R/transmission.network.builder.R")
   # source("R/epi2tree2.R")
 
-  simpact.trans.net <- transmission.network.builder(datalist = datalist, endpoint = endpoint)
+  simpact.trans.net <- simpact.trans.net # transmission.network.builder(datalist = datalist, endpoint = endpoint)
 
   trans.net <- simpact.trans.net
 
