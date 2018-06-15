@@ -1,5 +1,5 @@
 library(devtools)
-install_github("wdelva/RSimpactHelp")
+# install_github("wdelva/RSimpactHelp")
 library(RSimpactHelper)
 # THIS IS ESSENTIAL: So that the imputation functions are in the global environment, and can be found.
 mice.impute.norm <- mice::mice.impute.norm
@@ -16,7 +16,7 @@ lls = c(0, 0)
 uls = c(1.5, 2)
 
 # To get more info about the arguments of the MaC function:
-help(MaC)
+# help(MaC)
 
 MaC.toy <- MaC(targets.empirical = sum_stat_obs,
                RMSD.tol.max = 2,
@@ -36,7 +36,7 @@ MaC.toy <- MaC(targets.empirical = sum_stat_obs,
 
 # Let's compare this to accept-reject ABC
 library(EasyABC)
-help("ABC_rejection")
+# help("ABC_rejection")
 toy_prior <- list(c("unif", lls[1], uls[1]),
                   c("unif", lls[2], uls[2]))
 Rej.toy <- ABC_rejection(model = toy_model,
@@ -49,7 +49,7 @@ Rej.toy <- ABC_rejection(model = toy_model,
                          tol = 200/12000)
 
 # Let's compare this to sequential ABC
-help("ABC_sequential")
+# help("ABC_sequential")
 Seq.toy <- ABC_sequential(model = toy_model,
                           method = "Lenormand",
                           prior = toy_prior,
