@@ -153,4 +153,4 @@ IDs.indiv.seq.gender.fun <- function(simpact.trans.net = simpact.trans.net,
 
 }
 
-# IDs.indiv.seq.gender.fun to merge
+# IDs.indiv.seq.gender.fun to merge NOT to be used
