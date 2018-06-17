@@ -7,7 +7,10 @@
 #' @param simseqfile File containing sequences
 #' @param count.start Calendar year when the simulation started
 #' @param endsim Number of years when the simulation was done
+#' @param clust Logic parameter TRUE when running simulation on cluster and FALSE on personal computer
 #' @return A time-stamped phylogenetic  tree with annotation of internal nodes dates
+#' @import ape
+#' @import treedater
 #' @export
 
 phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
@@ -16,7 +19,8 @@ phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
                                            calendar.dates = "samplingtimes.all.csv",
                                            simseqfile = "C.Epidemic_seed.seq.bis.sim.nwk.fasta",
                                            count.start = 1977,
-                                           endsim = 40){
+                                           endsim = 40,
+                                           clust = TRUE){
 
   # Function to tranform dates in named vector to be handled by treedater
 
@@ -37,7 +41,15 @@ phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
 
   print("Start construction of the phylogenetic tree with FastTree")
 
-  system(paste0(dir.tree,"/",paste0(paste(fasttree.tool, "-gtr")," -nt < ", paste0(sub.dir.rename,"/",simseqfile), paste0("> ", out.fast.tree.file))))
+  if(clust==TRUE){
+
+    system(paste0(paste0(paste(fasttree.tool, "-gtr")," -nt < ", paste0(sub.dir.rename,"/",simseqfile), paste0("> ", out.fast.tree.file))))
+
+  }else{
+
+    system(paste0(dir.tree,"/",paste0(paste(fasttree.tool, "-gtr")," -nt < ", paste0(sub.dir.rename,"/",simseqfile), paste0("> ", out.fast.tree.file))))
+
+  }
 
 
   print("End of construction of the phylogenetic tree  with FastTree")
@@ -73,7 +85,7 @@ phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
 
   # Use of library(treedater) to calibrate internal nodes
 
-  dater.tree <- dater(tree.const, Ord.tree.dates, s = 3000) # s is the length of sequence
+  dater.tree <- treedater::dater(tree.const, Ord.tree.dates, s = 3000) # s is the length of sequence
 
   write.tree(dater.tree, file = paste0(sub.dir.rename, "/calibrated.tree"))
 
