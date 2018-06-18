@@ -12,16 +12,15 @@
 #' @export
 
 
-sequence.simulation.seqgen.par <- function(dir.seq = dirseqgen,
+sequence.simulation.seqgen.par <- function(dir.seq = dir,
                                            sub.dir.rename = sub.dir.rename,
-                                           simpact.trans.net = simpact.trans.net,
                                            seq.gen.tool = "seq-gen",
-                                           seeds.num = seeds.num,
+                                           simpact.trans.net = simpact.trans.net,
+                                           seeds.num = 123,
                                            endpoint = 40,
-                                           limitTransmEvents = 7, # no less than 7
+                                           limitTransmEvents = 3,
                                            hiv.seq.file = "hiv.seq.C.pol.j.fasta",
-                                           clust = FALSE) # hiv.seq.file lodged in work.dir
-{
+                                           clust = TRUE){
 
 
 
@@ -138,7 +137,16 @@ sequence.simulation.seqgen.par <- function(dir.seq = dirseqgen,
 
       in.seq.gen.file <- paste0(sub.dir.rename,"/seed.seq.bis.sim.nwk")
 
-      system(paste0(paste0(dir.seq,"/"), paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+      if(clust==TRUE){
+
+        system(paste0(paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+
+      }else{
+
+        system(paste0(paste0(dir.seq,"/"), paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+
+      }
+
 
     }
 
@@ -264,8 +272,18 @@ sequence.simulation.seqgen.par <- function(dir.seq = dirseqgen,
       out.seq.gen.file <- paste0(sub.dir.rename,"/C.Epidemic_seed.seq.bis.sim.nwk.fasta") # will be input for tree construction
       in.seq.gen.file <- paste0(sub.dir.rename,"/seed.seq.bis.sim.nwk")
 
-      system(paste0(paste0(dir.seq,"/"), paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seeds.num," > ", out.seq.gen.file)))
+      # system(paste0(paste0(dir.seq,"/"), paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+      #
 
+      if(clust==TRUE){
+
+        system(paste0(paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+
+      }else{
+
+        system(paste0(paste0(dir.seq,"/"), paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+
+      }
     }
 
   }
@@ -273,6 +291,4 @@ sequence.simulation.seqgen.par <- function(dir.seq = dirseqgen,
   print("Sequence simulation finished!")
 
 }
-
-# sequence.simulation.seqgen.par to merge
 
