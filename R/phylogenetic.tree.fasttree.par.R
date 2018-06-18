@@ -38,7 +38,7 @@ phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
   # Many tools to build the trees: within R like ape, phangorn, and outside compiled tools like iq-tree and FastTree
 
 
-  out.fast.tree.file <- paste0(sub.dir.rename,"/", simseqfile ,".tree")
+  out.fast.tree.file <- paste0(sub.dir.rename,"/", simseqfile ,".nwk")
 
   print("Start construction of the phylogenetic tree with FastTree")
 
