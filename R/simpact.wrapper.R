@@ -33,7 +33,7 @@ simpact.wrapper <- function(inputvector = input.vector){
   cfg.list["person.agegap.man.dist.normal.sigma"] <- inputvector[4]
   cfg.list["person.agegap.woman.dist.normal.sigma"] <- inputvector[4]
   identifier <- paste0(seedid)
-  destDir <- paste0("$VSC_SCRATCH_VO_USER/agemixing/temp/", # for VSC
+  destDir <- paste0("/user/scratch/gent/vsc400/vsc40070/agemixing/temp/", # for VSC
                     identifier)
 
   results <- tryCatch(simpact.run(configParams = cfg.list,
