@@ -1,3 +1,14 @@
+#' Wrapper function for running simpact simulations
+#'
+#' A short description here...
+#'
+#' @param inputvector Vector of random seed and parameter values
+#' @return A vector of model features (summary statistics of simulation output)
+#' @import RSimpactCyan
+#' @import dplyr
+#' @importFrom magrittr %>%
+#' @export
+
 simpact.wrapper <- function(inputvector = input.vector){
   age.distr <- agedistr.creator(shape = 5, scale = 65)
 
