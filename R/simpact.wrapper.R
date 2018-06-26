@@ -15,8 +15,8 @@ simpact.wrapper <- function(inputvector = input.vector){
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2,
                                    population.simtime = 20,
-                                   population.nummen = 250,
-                                   population.numwomen = 250,
+                                   population.nummen = 2500,
+                                   population.numwomen = 2500,
                                    hivseed.time = 10,
                                    hivseed.type = "amount",
                                    hivseed.amount = 25, #30,
