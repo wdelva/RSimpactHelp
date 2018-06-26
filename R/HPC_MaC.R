@@ -51,7 +51,7 @@ HPC_MaC <- function(targets.empirical = dummy.targets.empirical, #  c(2, 5, 0.8,
   sim.results.with.design.df <- mutate_all(previous.experiments, function(x) as.numeric(as.character(x))) %>%
     dplyr::filter(complete.cases(.))
   x.offset <- which.max(names(sim.results.with.design.df) %in% "y.1") - 1
-  x.names <- paste0("x.", seq(1:(x.offset - 1)))
+  x.names <- paste0("x", seq(1:(x.offset - 1)))
   y.names <- paste0("y.", seq(1:(length(names(sim.results.with.design.df)) - x.offset)))
   # 3. Find intermediate features and RMSD.tol for which n.close.to.targets >= min.givetomice
   # targets.diff <- targets.empirical - sim.results.with.design.df.median.features # experim.median.features # First we determine how far the empirical targets are away from the median features of the executed experiments

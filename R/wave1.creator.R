@@ -19,7 +19,7 @@ wave1.creator <- function(file.name = "/user/data/gent/vsc400/vsc40070/agemixing
   range.width.mat <- matrix(rep(range.width, n.experiments), nrow = n.experiments, byrow = TRUE)
   sobol.seq.0.1 <- sobol(n = n.experiments, dim = length(lls), init = TRUE, scrambling = 1, seed = 1, normal = FALSE)
   experiments <- cbind(1:n.experiments, ll.mat + sobol.seq.0.1 * range.width.mat)
-  experiments.col.names <- c("seed", paste0("x", seq(1:length(lls)),"stop"))
+  experiments.col.names <- c("seed", paste0("x", seq(1:length(lls))))
   write.table(experiments,
               sep = ",",
               dec = ".",
