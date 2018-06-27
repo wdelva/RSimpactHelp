@@ -31,6 +31,7 @@
 #'
 #' @importFrom mice mice
 #' @importFrom glmnet cv.glmnet
+#' @importFrom dplyr mutate_all
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
 #' @importFrom dplyr full_join
