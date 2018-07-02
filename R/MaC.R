@@ -154,7 +154,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
       n.close.to.targets <- sum(RMSD <= RMSD.tol, na.rm = TRUE)
       #n.close.to.targets.mat[(1+steps.intermediate.targets), (1+steps.RMSD.tol)] <- n.close.to.targets
       #large.enough.training.df <- n.close.to.targets >= min.givetomice
-      RMSD.tol <- RMSD.tol + 0.01  # Increasing RMSD.tol
+      RMSD.tol <- RMSD.tol + 0.0001  # Increasing RMSD.tol
     }
     sim.results.with.design.df$RMSD <- RMSD
     final.intermediate.features <- candidate.intermediate.features
