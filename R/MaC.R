@@ -252,7 +252,8 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
                                      defaultMethod = method,
                                      predictorMatrix = predictorMatrix.give.to.mice,
                                      maxit = maxit,
-                                     printFlag = FALSE),
+                                     printFlag = FALSE,
+                                     seed = 0),
                           error = function(mice.err) {
                             return(list())
                           })
