@@ -104,11 +104,10 @@ HPC_MaC <- function(targets.empirical = dummy.targets.empirical, #  c(2, 5, 0.8,
   names(targets.empirical.df) <- y.names
 
   # 8. Prepare dataframe to give to mice: selected experiments plus intermediate features
-  df.give.to.mice <- dplyr::full_join(dplyr::select(sim.results.with.design.df.selected,
+  df.give.to.mice <- gtools::smartbind(dplyr::select(sim.results.with.design.df.selected,
                                                     -one_of(c("RMSD", "seed"))), # adding target to training dataset
                                       targets.empirical.df[rep(1:nrow(targets.empirical.df),
-                                                               each = n.experiments), ],
-                                      by = names(targets.empirical.df)) # "by" statement added to avoid printing message of the variables were used for joining
+                                                               each = n.experiments), ])
 
 
   #print(df.give.to.mice)
@@ -167,7 +166,8 @@ HPC_MaC <- function(targets.empirical = dummy.targets.empirical, #  c(2, 5, 0.8,
                                    defaultMethod = method,
                                    predictorMatrix = predictorMatrix.give.to.mice,
                                    maxit = maxit,
-                                   printFlag = FALSE),
+                                   printFlag = FALSE,
+                                   seed = 0),
                         error = function(mice.err) {
                           return(list())
                         })
