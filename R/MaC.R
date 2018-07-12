@@ -66,7 +66,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
   ptm <- proc.time()
   calibration.list <- list() # initiating the list where all the output of MiceABC will be stored
   wave <- 1 # initiating the loop of waves of simulations (one iteration is one wave)
-  rel.dist.cutoff <- Inf # initially it is infinitely large, but in later iterations it shrinks
+  max.RMSD <- Inf # initially it is infinitely large, but in later iterations it shrinks
   #sim.results.with.design.df <- NULL # Will be growing with each wave (appending)
   #sim.results.with.design.df.selected <- NULL
   #final.intermediate.features <- NULL
@@ -89,7 +89,7 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
   final.intermediate.features <- rep(NA, times = length(targets.empirical))
 
   # 1. Start loop of waves
-  while (wave <= maxwaves){
+  while (wave <= maxwaves & max.RMSD > 0){
     print(c("wave", wave), quote = FALSE)
 
     if (wave == 1){
@@ -174,7 +174,8 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
     calibration.list$sim.results.with.design.df.selected.median.features[[wave]] <- pcaPP::l1median(dplyr::select(sim.results.with.design.df.selected, contains("y.")))
 
     # 5.b. Record highest RMSD value for that the selected experiments
-    calibration.list$max.RMSD[[wave]] <- max(sim.results.with.design.df.selected$RMSD)
+    max.RMSD <- max(sim.results.with.design.df.selected$RMSD)
+    calibration.list$max.RMSD[[wave]] <- max.RMSD
     # 5.c. Record n.close.target
     calibration.list$n.close.to.targets[[wave]] <- n.close.to.targets
 
