@@ -186,11 +186,14 @@ MaC <- function(targets.empirical = dummy.targets.empirical,
     names(final.intermediate.features.df) <- y.names
 
     # 8. Prepare dataframe to give to mice: selected experiments plus intermediate features
-    df.give.to.mice <- dplyr::full_join(dplyr::select(sim.results.with.design.df.selected,
+
+    ## DEBUGGING:
+    # We need to replace full_join with smartbind because there are no NAs if there are matching x. values for the added y. values
+
+    df.give.to.mice <- gtools::smartbind(dplyr::select(sim.results.with.design.df.selected,
                                                       -one_of(c("RMSD", "seed", "wave"))), # adding target to training dataset
                                         final.intermediate.features.df[rep(1:nrow(final.intermediate.features.df),
-                                                                           each = n.experiments), ],
-                                        by = names(final.intermediate.features.df)) # "by" statement added to avoid printing message of the variables were used for joining
+                                                                           each = n.experiments), ])
 
 
     #print(df.give.to.mice)
