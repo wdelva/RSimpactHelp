@@ -98,21 +98,6 @@ EAAA.wrapper <- function(inputvector = input.vector){
 
   cfg.list["person.vsp.toacute.x"] <- 5 # See Bellan PLoS Medicine
 
-  c(122,
-    1.1,
-    0.25,
-    0,
-    2.5,
-    0.23,
-    0.23,
-    45,
-    45,
-    -0.7,
-    2.8,
-    -0.5, -0.5, #numrel penalty #-0.2
-    -2.7, #conception.alpha_base #-2.95
-    -0.52)
-
   seedid <- inputvector[1]
   cfg.list["hivtransmission.param.f1"] = log(inputvector[2])
   cfg.list["hivtransmission.param.f2"] = log(log(sqrt(inputvector[2])) / log(inputvector[2])) / 5
