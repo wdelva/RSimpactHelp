@@ -76,15 +76,29 @@ VL.suppression.calculator <- function(datalist = datalist,
                                           binom.test(x=sum(vl.suppr),n=sum(Infected))$conf.int)[2]
     )
 
-    #ART.coverage.df <- ART.coverage.all.df #rbind(ART.coverage.df, ART.coverage.all.df)
+    VL.suppression.all.df <- raw.df %>%
+      dplyr::summarise(Gender = NA, # Create column for gender
+                       popsize = n(),
+                       sum.cases = sum(Infected),
+                       sum.vl.suppr = sum(vl.suppr),
+                       vl.suppr.frac = sum(vl.suppr) / sum(Infected),
+                       vl.suppr.frac.95.ll = as.numeric(
+                         binom.test(x=sum(vl.suppr),n=sum(Infected))$conf.int)[1],
+                       vl.suppr.frac.95.ul = as.numeric(
+                         binom.test(x=sum(vl.suppr),n=sum(Infected))$conf.int)[2])
+
+    # Combine stratified, and overall prev
+    VL.suppression.df <- bind_rows(VL.suppression.df, VL.suppression.all.df) %>%
+      ungroup()
+
   } else {
-    VL.suppression.df <- data.frame(Gender = NA,
-                                  popsize = NA,
-                                  sum.cases = NA,
-                                  sum.vl.suppr = NA,
-                                  vl.suppr.frac = NA,
-                                  vl.suppr.frac.95.ll = NA,
-                                  vl.suppr.frac.95.ul = NA
+    VL.suppression.df <- data.frame(Gender = rep(NA, 3),
+                                  popsize = rep(NA, 3),
+                                  sum.cases = rep(NA, 3),
+                                  sum.vl.suppr = rep(NA, 3),
+                                  vl.suppr.frac = rep(NA, 3),
+                                  vl.suppr.frac.95.ll = rep(NA, 3),
+                                  vl.suppr.frac.95.ul = rep(NA, 3)
     )
   }
   return(VL.suppression.df)
