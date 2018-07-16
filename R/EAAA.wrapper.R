@@ -147,7 +147,7 @@ EAAA.wrapper <- function(inputvector = input.vector){
       # Population growth rate
       ####
       growthrate <- pop.growth.calculator(datalist = datalist.EAAA,
-                                          timewindow = c(20, datalist.EAAA$itable$population.simtime[1])) # Between January 2000 and October 2016
+                                          timewindow = c(20, 36)) # Between 2000 and 2016
       ####
       # HIV prevalence. To be compared to SHIMS I estimates (point estimate at March 2011 ~ t = 31.25)
       ####
