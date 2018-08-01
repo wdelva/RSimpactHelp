@@ -363,7 +363,7 @@ EAAA.wrapper <- function(inputvector = input.vector){
         dplyr::slice(3) %>%
         as.numeric()
 
-      outputvector <- c(growthrate,
+      outputvector <- c(exp(growthrate),
                         prev.f.18.19,
                         prev.m.18.19,
                         prev.f.20.24,
