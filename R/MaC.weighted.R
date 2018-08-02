@@ -149,9 +149,6 @@ MaC.weighted <- function(targets.empirical = dummy.targets.empirical,
         value.dist <- ((sim.results.with.design.df[,i + x.offset] - candidate.intermediate.features[i]) / candidate.intermediate.features[i])^2
         assign(name.dist, value.dist)
         sum.sq.rel.dist <- sum.sq.rel.dist + get(name.dist)
-        if (i == length(candidate.intermediate.features)){
-          print(sum.sq.rel.dist)
-        }
       }
       RMSD <- sqrt(sum.sq.rel.dist / length(candidate.intermediate.features))
       n.close.to.targets <- sum(RMSD <= RMSD.tol, na.rm = TRUE)
