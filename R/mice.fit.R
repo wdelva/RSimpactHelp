@@ -122,10 +122,15 @@ mice.fit <- function(data, m = 5, method = "norm",
   # the sum of all r.norm.values
   imp.rnorm.values.matrix <- matrix(dnorm(unlist(imp.rnorm.values)),
                                     nrow = max(apply(is.na(data), 2, sum)))
-  imp.rnorm.values.prods <- apply(imp.rnorm.values.matrix, 1, FUN = prod)
-  imp.rnorm.values.inv.prods <- 1 / imp.rnorm.values.prods
-  imp.rnorm.values.inv.prods.sum <- sum(imp.rnorm.values.inv.prods)
-  imp.rnorm.values.weights <- imp.rnorm.values.inv.prods / imp.rnorm.values.inv.prods.sum
+  # Instead of taking the product of the densities, we take the sum of the logdensities
+  imp.rnorm.values.sumlog <- apply(log(imp.rnorm.values.matrix), 1, FUN = sum)
+  imp.rnorm.values.logweights <- imp.rnorm.values.sumlog - min(imp.rnorm.values.sumlog)
+  imp.rnorm.values.weights <- exp(imp.rnorm.values.logweights)
+
+#   imp.rnorm.values.prods <- apply(imp.rnorm.values.matrix, 1, FUN = prod)
+#   imp.rnorm.values.inv.prods <- 1 / imp.rnorm.values.prods
+#   imp.rnorm.values.inv.prods.sum <- sum(imp.rnorm.values.inv.prods)
+#   imp.rnorm.values.weights <- imp.rnorm.values.inv.prods / imp.rnorm.values.inv.prods.sum
 
   names(imp) <- varnames
   names(imp.fit) <- varnames
