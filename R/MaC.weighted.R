@@ -27,6 +27,9 @@
 #' @param probability.params Vector of indices that indicate which of the input
 #'   parameters are strictly between 0 and 1. Set to zero if there are no such
 #'   parameters.
+#' @param inside_prior TRUE by default. If FALSE, parameter sampling is not
+#'   restricted to the initial ranges of the prior distribution during the
+#'   subsequent algorithm steps.
 #' @param method Method used by MICE. E.g. "norm" or "rf"
 #' @param predictorMatrix Can be "complete", "LASSO", or a user-defined matrix
 #'   of indices that indicate which variables are included in the chained
@@ -57,6 +60,7 @@ MaC.weighted <- function(targets.empirical = dummy.targets.empirical,
                 model = VEME.wrapper, # simpact.wrapper,
                 strict.positive.params,
                 probability.params,
+                inside_prior = TRUE,
                 method = "norm",
                 predictorMatrix = "complete",
                 maxit = 50,
@@ -139,25 +143,23 @@ MaC.weighted <- function(targets.empirical = dummy.targets.empirical,
 
     # Initiate n.close.to.targets
     n.close.to.targets <- 0 # This will be overwritten.
-    candidate.intermediate.features <- targets.empirical # We start with the empirical target features
+    # candidate.intermediate.features <- targets.empirical # We start with the empirical target features
     RMSD.tol <- 0 # This will be increased if n.close.to.targets < min.givetomice for this tolerance level
 
     while (n.close.to.targets < min.givetomice & RMSD.tol <= RMSD.tol.max){
-      sum.sq.rel.dist <- rep(0, nrow(sim.results.with.design.df))
-      for (i in 1:length(candidate.intermediate.features)) { # This for loop can be taken out of the while loop, to increase speed.
-        name.dist <- paste0("y.", i, ".sq.rel.dist")
-        value.dist <- ((sim.results.with.design.df[,i + x.offset] - candidate.intermediate.features[i]) / candidate.intermediate.features[i])^2
-        assign(name.dist, value.dist)
-        sum.sq.rel.dist <- sum.sq.rel.dist + get(name.dist)
-      }
-      RMSD <- sqrt(sum.sq.rel.dist / length(candidate.intermediate.features))
+
+      diff.matrix <- sweep(x = sim.results.with.design.df[ , ((1 + x.offset):(x.offset + length(targets.empirical)))], MARGIN = 2, targets.empirical)
+      rel.diff.matrix <- sweep(diff.matrix, MARGIN = 2, targets.empirical, FUN = "/")
+      squared.rel.diff.matrix <- rel.diff.matrix^2
+      sum.squared.rel.diff <- rowSums(squared.rel.diff.matrix)
+      RMSD <- sqrt(sum.squared.rel.diff / length(targets.empirical))
       n.close.to.targets <- sum(RMSD <= RMSD.tol, na.rm = TRUE)
       #n.close.to.targets.mat[(1+steps.intermediate.targets), (1+steps.RMSD.tol)] <- n.close.to.targets
       #large.enough.training.df <- n.close.to.targets >= min.givetomice
-      RMSD.tol <- RMSD.tol + 0.0001  # Increasing RMSD.tol
+      RMSD.tol <- RMSD.tol + 0.01  # Increasing RMSD.tol
     }
     sim.results.with.design.df$RMSD <- RMSD
-    final.intermediate.features <- candidate.intermediate.features
+    final.intermediate.features <- targets.empirical
 
     # 5. Select n.close.to.targets shortest distances
     dist.order <- order(RMSD) # Ordering the squared distances from small to big.
@@ -278,10 +280,20 @@ MaC.weighted <- function(targets.empirical = dummy.targets.empirical,
       # Lastly, we must create a new matrix, of the same dimensions as the naive "experiments" matrix,
       # But sampled with replacement using the inverse probability weights.
       experiments.df <- data.frame(experiments)
+
+      # We could add an argument to the function to force the new experiments to respect the boundaries of the prior distributions.
+      within.prior.limits <- rep(TRUE, n.experiments)
+      if (inside_prior == TRUE){ # experiments.df is a dataframe with n.experiments rows and length(lls) columns
+        params.above.lls <- sweep(x = experiments.df, MARGIN = 2, lls) %>% sign() %>% rowSums()
+        params.below.uls <- sweep(x = -experiments.df, MARGIN = 2, -uls) %>% sign() %>% rowSums()
+        within.prior.limits <- params.above.lls %in% length(lls) & params.below.uls %in% length(uls)
+        experiments.df <- experiments.df[within.prior.limits, ]
+      }
+
       experiments <- dplyr::sample_n(experiments.df,
-                                             size = nrow(experiments.df),
+                                             size = n.experiments,
                                              replace = TRUE,
-                                             weight = mice.test$imp.rnorm.values.weights) %>%
+                                             weight = mice.test$imp.rnorm.values.weights[within.prior.limits]) %>%
         unlist %>%
         matrix(., byrow = FALSE, ncol = length(x.names))
 
