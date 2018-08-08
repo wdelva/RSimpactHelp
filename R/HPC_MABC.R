@@ -182,7 +182,7 @@ HPC_MABC <- function(targets.empirical = dummy.targets.empirical,
 
   # print(c(nrow(df.give.to.mice) - n.experiments, "nrows to give to mice"), quote = FALSE)
   # do imputation
-  mice.test <- tryCatch(mice::mice(df.give.to.mice,
+  mice.test <- tryCatch(mice.fit(df.give.to.mice,
                                    m = 1,
                                    method = method,
                                    defaultMethod = method,
@@ -225,7 +225,7 @@ HPC_MABC <- function(targets.empirical = dummy.targets.empirical,
     experiments <- dplyr::sample_n(experiments.df,
                                    size = n.experiments,
                                    replace = TRUE,
-                                   weight = rep(1, nrow(experiments.df))) %>%  #mice.test$imp.rnorm.values.weights[within.prior.limits]) %>%
+                                   weight = mice.test$imp.rnorm.values.weights[within.prior.limits]) %>%
       unlist %>%
       matrix(., byrow = FALSE, ncol = length(x.names))
 
