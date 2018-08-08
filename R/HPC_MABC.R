@@ -1,4 +1,4 @@
-#' HPC-version of MABC (unweighted MICE ABC)
+#' HPC-version of MABC (weighted MICE ABC)
 #'
 #' Produces a csv file of proposed experiments (input parameter values) to match
 #' a vector of target features.
@@ -84,20 +84,20 @@
 #' @importFrom gtools smartbind
 #' @export
 
-HPC_MABC_unweighted <- function(targets.empirical = dummy.targets.empirical,
-                                previous.experiments,
-                                file.name,
-                                RMSD.tol.max = 2,
-                                min.givetomice = 12,
-                                n.experiments = 48,
-                                lls,
-                                uls,
-                                strict.positive.params = 0,
-                                probability.params = 0,
-                                inside_prior = TRUE,
-                                method = "norm",
-                                predictorMatrix = "complete",
-                                maxit = 20){
+HPC_MABC <- function(targets.empirical = dummy.targets.empirical,
+                     previous.experiments,
+                     file.name,
+                     RMSD.tol.max = 2,
+                     min.givetomice = 12,
+                     n.experiments = 48,
+                     lls,
+                     uls,
+                     strict.positive.params = 0,
+                     probability.params = 0,
+                     inside_prior = TRUE,
+                     method = "norm",
+                     predictorMatrix = "complete",
+                     maxit = 20){
   sim.results.with.design.df <- mutate_all(previous.experiments, function(x) as.numeric(as.character(x))) %>%
     dplyr::filter(complete.cases(.))
   x.offset <- which.max(names(sim.results.with.design.df) %in% "y.1") - 1
