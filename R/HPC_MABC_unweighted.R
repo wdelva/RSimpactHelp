@@ -112,14 +112,11 @@ HPC_MABC_unweighted <- function(targets.empirical = dummy.targets.empirical,
   RMSD.tol <- 0 # This will be increased if n.close.to.targets < min.givetomice for this tolerance level
 
   while (n.close.to.targets < min.givetomice & RMSD.tol <= RMSD.tol.max){
-    sum.sq.rel.dist <- rep(0, nrow(sim.results.with.design.df))
-    for (i in 1:length(targets.empirical)) { # This for loop can be taken out of the while loop, to increase speed.
-      name.dist <- paste0("y.", i, ".sq.rel.dist")
-      value.dist <- ((sim.results.with.design.df[,i + x.offset] - targets.empirical[i]) / targets.empirical[i])^2
-      assign(name.dist, value.dist)
-      sum.sq.rel.dist <- sum.sq.rel.dist + get(name.dist)
-    }
-    RMSD <- sqrt(sum.sq.rel.dist / length(targets.empirical))
+    diff.matrix <- sweep(x = sim.results.with.design.df[ , ((1 + x.offset):(x.offset + length(targets.empirical)))], MARGIN = 2, targets.empirical)
+    rel.diff.matrix <- sweep(diff.matrix, MARGIN = 2, targets.empirical, FUN = "/")
+    squared.rel.diff.matrix <- rel.diff.matrix^2
+    sum.squared.rel.diff <- rowSums(squared.rel.diff.matrix)
+    RMSD <- sqrt(sum.squared.rel.diff / length(targets.empirical))
     n.close.to.targets <- sum(RMSD <= RMSD.tol, na.rm = TRUE)
     RMSD.tol <- RMSD.tol + 0.01  # Increasing RMSD.tol
   }
