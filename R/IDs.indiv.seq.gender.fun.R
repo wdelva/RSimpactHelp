@@ -1,5 +1,5 @@
 
-#' Subset sequences based on gender ratio and age of individuals
+#' Subset sequences based on gender ratio
 #'
 #' @param simpact.trans.net Transmission networks computed by \code{\link{transmission.network.builder()}}
 #' @param limitTransmEvents Choose transmission network with at least this  amount of individuals
