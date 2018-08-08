@@ -84,20 +84,20 @@
 #' @importFrom gtools smartbind
 #' @export
 
-HPC_MABC <- function(targets.empirical = dummy.targets.empirical,
-                    previous.experiments,
-                    file.name,
-                    RMSD.tol.max = 2,
-                    min.givetomice = 12,
-                    n.experiments = 48,
-                    lls,
-                    uls,
-                    strict.positive.params = 0,
-                    probability.params = 0,
-                    inside_prior = TRUE,
-                    method = "norm",
-                    predictorMatrix = "complete",
-                    maxit = 20){
+HPC_MABC_unweighted <- function(targets.empirical = dummy.targets.empirical,
+                                previous.experiments,
+                                file.name,
+                                RMSD.tol.max = 2,
+                                min.givetomice = 12,
+                                n.experiments = 48,
+                                lls,
+                                uls,
+                                strict.positive.params = 0,
+                                probability.params = 0,
+                                inside_prior = TRUE,
+                                method = "norm",
+                                predictorMatrix = "complete",
+                                maxit = 20){
   sim.results.with.design.df <- mutate_all(previous.experiments, function(x) as.numeric(as.character(x))) %>%
     dplyr::filter(complete.cases(.))
   x.offset <- which.max(names(sim.results.with.design.df) %in% "y.1") - 1
@@ -164,6 +164,8 @@ HPC_MABC <- function(targets.empirical = dummy.targets.empirical,
       x4lasso <- as.matrix(df.give.to.mice[1:nrows.training.df, -y.index])
       y4lasso <- as.numeric(df.give.to.mice[1:nrows.training.df, y.index])
       alpha <- 1
+      # The results of cv.glmnet are random. Perhaps we can solve this by setting a seed?
+      set.seed(0) # for reproducibility
       cvfit <- glmnet::cv.glmnet(x = x4lasso,
                                  y = y4lasso,
                                  family = "gaussian",
@@ -222,6 +224,7 @@ HPC_MABC <- function(targets.empirical = dummy.targets.empirical,
       experiments.df <- experiments.df[within.prior.limits, ]
     }
 
+    set.seed(0) # for reproducibility
     experiments <- dplyr::sample_n(experiments.df,
                                    size = n.experiments,
                                    replace = TRUE,
