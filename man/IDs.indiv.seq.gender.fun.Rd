@@ -2,7 +2,7 @@
 % Please edit documentation in R/IDs.indiv.seq.gender.fun.R
 \name{IDs.indiv.seq.gender.fun}
 \alias{IDs.indiv.seq.gender.fun}
-\title{Subset sequences based on gender ratio and age of individuals}
+\title{Subset sequences based on gender ratio}
 \usage{
 IDs.indiv.seq.gender.fun(simpact.trans.net = simpact.trans.net,
   limitTransmEvents = 7, perc.men = 50, seq.cov = 35, age.limit = 65)
@@ -22,5 +22,5 @@ IDs.indiv.seq.gender.fun(simpact.trans.net = simpact.trans.net,
 A list with a vector of ID's of selected sequences, number of men, and women for the selcted sequences and the ratio between men and women among the selcted sequences because in some settings we may have less or more female or male individuals
 }
 \description{
-Subset sequences based on gender ratio and age of individuals
+Subset sequences based on gender ratio
 }
