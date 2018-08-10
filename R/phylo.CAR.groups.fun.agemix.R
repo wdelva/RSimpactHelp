@@ -25,9 +25,8 @@
 
 #'
 #' @importFrom magrittr %>%
-#' @import dplyr filter
+#' @importFrom dplyr filter
 #' @export
-#'
 
 
 # infection with phylo - sampling time

@@ -6,8 +6,8 @@
 \usage{
 
   revised.MaC.incremental.parallel.mice(targets.empirical = dummy.targets.empirical,
-  RMSD.tol.max = 2, min.givetomice = 64, n.experiments = 256, lls, uls,
-  model = VEME.wrapper, strict.positive.params, probability.params,
+  RMSD.tol.max = 2, min.givetomice = 64, n.experiments = 256, lls,
+  uls, model = VEME.wrapper, strict.positive.params, probability.params,
   predictorMatrix, maxit = 50, maxwaves = 4, n_cluster = n_cluster)
 }
 \arguments{

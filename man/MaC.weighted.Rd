@@ -4,11 +4,11 @@
 \alias{MaC.weighted}
 \title{MICE-assisted calibration with weights}
 \usage{
-MaC.weighted(targets.empirical = dummy.targets.empirical, RMSD.tol.max = 2,
-  min.givetomice = 64, n.experiments = 256, lls, uls,
-  model = VEME.wrapper, strict.positive.params, probability.params,
-  method = "norm", predictorMatrix = "complete", maxit = 50,
-  maxwaves = 4, n_cluster = n_cluster)
+MaC.weighted(targets.empirical = dummy.targets.empirical,
+  RMSD.tol.max = 2, min.givetomice = 64, n.experiments = 256, lls,
+  uls, model = VEME.wrapper, strict.positive.params, probability.params,
+  inside_prior = TRUE, method = "norm", predictorMatrix = "complete",
+  maxit = 50, maxwaves = 4, n_cluster = n_cluster)
 }
 \arguments{
 \item{targets.empirical}{The vector of target features}
@@ -38,6 +38,10 @@ parameters.}
 \item{probability.params}{Vector of indices that indicate which of the input
 parameters are strictly between 0 and 1. Set to zero if there are no such
 parameters.}
+
+\item{inside_prior}{TRUE by default. If FALSE, parameter sampling is not
+restricted to the initial ranges of the prior distribution during the
+subsequent algorithm steps.}
 
 \item{method}{Method used by MICE. E.g. "norm" or "rf"}
 

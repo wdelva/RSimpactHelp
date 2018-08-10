@@ -25,6 +25,10 @@
 #'                                age.group.25.40 = c(25,40),
 #'                                age.group.40.50 = c(40,50))
 
+#'
+#' @importFrom magrittr %>%
+#' @importFrom dplyr filter
+#' @export
 
 # infection with phylo - sampling time
 

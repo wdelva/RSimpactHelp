@@ -6,9 +6,9 @@
 \usage{
 sequence.simulation.seqgen.par(dir.seq = dir,
   sub.dir.rename = sub.dir.rename, seq.gen.tool = "seq-gen",
-  simpact.trans.net = simpact.trans.net, seeds.num = 123, endpoint = 40,
-  limitTransmEvents = 3, hiv.seq.file = "hiv.seq.C.pol.j.fasta",
-  clust = TRUE)
+  simpact.trans.net = simpact.trans.net, seeds.num = 123,
+  endpoint = 40, limitTransmEvents = 3,
+  hiv.seq.file = "hiv.seq.C.pol.j.fasta", clust = TRUE)
 }
 \arguments{
 \item{dir.seq}{Direcotry where is the compiled seq-gen tool, sequences data may also be stored there}

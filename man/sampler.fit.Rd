@@ -4,7 +4,8 @@
 \alias{sampler.fit}
 \title{adjusted mice sampler}
 \usage{
-sampler.fit(p, data, where, m, imp, r, visitSequence, fromto, printFlag, ...)
+sampler.fit(p, data, where, m, imp, r, visitSequence, fromto, printFlag,
+  ...)
 }
 \arguments{
 \item{p}{padded object}

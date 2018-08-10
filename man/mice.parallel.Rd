@@ -4,10 +4,11 @@
 \alias{mice.parallel}
 \title{Run mice in parallel}
 \usage{
-mice.parallel(mice.model = mice.wrapper, df.give.to.mice = df.give.to.mice,
-  m = 1, predictorMatrix = predictorMatrix, method = "norm",
-  defaultMethod = "norm", maxit = 5, printFlag = FALSE, seed_count = 0,
-  n_cluster = 8, nb_simul = n.experiments)
+mice.parallel(mice.model = mice.wrapper,
+  df.give.to.mice = df.give.to.mice, m = 1,
+  predictorMatrix = predictorMatrix, method = "norm",
+  defaultMethod = "norm", maxit = 5, printFlag = FALSE,
+  seed_count = 0, n_cluster = 8, nb_simul = n.experiments)
 }
 \arguments{
 \item{mice.model}{Wrapper function for mice (mice.wrapper)}

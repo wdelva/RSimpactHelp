@@ -19,7 +19,7 @@
 
 #'
 #' @importFrom magrittr %>%
-#' @import dplyr filter
+#' @importFrom dplyr filter
 #' @export
 #'
 

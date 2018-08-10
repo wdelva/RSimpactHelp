@@ -7,10 +7,10 @@
 mice.fit(data, m = 5, method = "norm", predictorMatrix = (1 - diag(1,
   ncol(data))), where = is.na(data), visitSequence = NULL,
   form = vector("character", length = ncol(data)),
-  post = vector("character", length = ncol(data)), defaultMethod = "norm",
-  maxit = 5, diagnostics = TRUE, printFlag = TRUE, seed = NA,
-  imputationMethod = NULL, defaultImputationMethod = NULL,
-  data.init = NULL, ...)
+  post = vector("character", length = ncol(data)),
+  defaultMethod = "norm", maxit = 5, diagnostics = TRUE,
+  printFlag = TRUE, seed = NA, imputationMethod = NULL,
+  defaultImputationMethod = NULL, data.init = NULL, ...)
 }
 \arguments{
 \item{data}{training dataframe}
