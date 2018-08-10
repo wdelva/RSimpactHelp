@@ -25,7 +25,11 @@
 
 #'
 #' @importFrom magrittr %>%
+<<<<<<< HEAD
 #' @importFrom dplyr filter
+=======
+#' @import dplyr filter
+>>>>>>> 19586bd... description age mix fun for transm clust MCAR
 #' @export
 #'
 
