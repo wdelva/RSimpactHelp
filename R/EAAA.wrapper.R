@@ -122,7 +122,7 @@ EAAA.wrapper <- function(inputvector = input.vector){
 
   seedid <- inputvector[1]
   identifier <- paste0(seedid)
-  rootDir <- "/Users/delvaw/Documents/temp"
+  rootDir <- "/user/scratch/gent/vsc400/vsc40070/agemixing/temp" # "/Users/delvaw/Documents/temp"
 
   destDir <- paste0(rootDir, "/", identifier) # on laptop
 
@@ -398,7 +398,8 @@ EAAA.wrapper <- function(inputvector = input.vector){
     }
   }
   identifier <- paste0(seedid)
-  rootDir <- "/Users/delvaw/Documents/temp"
+
+  # rootDir <- "/user/scratch/gent/vsc400/vsc40070/agemixing/temp" # "/Users/delvaw/Documents/temp"
   unlink(paste0(rootDir, "/", identifier), recursive = TRUE)
   return(outputvector)
 }
