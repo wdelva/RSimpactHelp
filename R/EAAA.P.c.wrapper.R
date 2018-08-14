@@ -54,7 +54,7 @@ EAAA.P.c.wrapper <- function(inputvector = input.vector){
   cfg.list["person.agegap.man.dist.type"] <- "normal"
   cfg.list["person.agegap.woman.dist.type"] <- "normal"
 
-  cfg.list["monitoring.cd4.threshold"] <- 1 #0
+  cfg.list["monitoring.cd4.threshold"] <- 1 # 0
   cfg.list["person.art.accept.threshold.dist.fixed.value"] <- 0.75
   cfg.list["diagnosis.baseline"] <- -99999 # -2
 
