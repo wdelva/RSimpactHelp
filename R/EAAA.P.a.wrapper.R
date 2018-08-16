@@ -372,12 +372,12 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
       for (inc.vector.index in 1:length(inc.vector)){
         inc.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
                                                              agegroup = c(15, 50),
-                                                             timewindow = c((inc.vector.index - 1),
-                                                                            inc.vector.index))$incidence[3]
+                                                             timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
+                                                                            incidence.eval.timepoints[inc.vector.index]))$incidence[3]
         inc.cases.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
                                                                    agegroup = c(15, 50),
-                                                                   timewindow = c((inc.vector.index - 1),
-                                                                                  inc.vector.index))$sum.incident.cases[3]
+                                                                   timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
+                                                                                  incidence.eval.timepoints[inc.vector.index]))$sum.incident.cases[3]
       }
 
 
