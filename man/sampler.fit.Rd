@@ -4,24 +4,33 @@
 \alias{sampler.fit}
 \title{adjusted mice sampler}
 \usage{
-sampler.fit(p, data, where, m, imp, r, visitSequence, fromto, printFlag, ...)
+sampler.fit(data, m, where, imp, blocks, method, visitSequence, predictorMatrix,
+  formulas, blots, post, fromto, printFlag, ...)
 }
 \arguments{
-\item{p}{padded object}
-
 \item{data}{dataframe with missing data in it}
-
-\item{where}{points to missing data}
 
 \item{m}{number of cycles I think}
 
+\item{where}{points to missing data}
+
 \item{imp}{number of imputations}
 
-\item{r}{Forgot}
+\item{blocks}{blocks}
+
+\item{method}{method}
 
 \item{visitSequence}{Default is 1 to ncol(data)}
 
-\item{fromto}{Forgot}
+\item{predictorMatrix}{predictorMatrix}
+
+\item{formulas}{formulas}
+
+\item{blots}{blots}
+
+\item{post}{post}
+
+\item{fromto}{fromto}
 
 \item{printFlag}{Want a flag}
 }
