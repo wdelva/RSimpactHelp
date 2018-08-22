@@ -136,7 +136,7 @@ HPC_MABC <- function(targets.empirical = dummy.targets.empirical,
   df.give.to.mice <- gtools::smartbind(dplyr::select(sim.results.with.design.df.selected,
                                                      -one_of(c("RMSD", "seed"))), # adding target to training dataset
                                        targets.empirical.df[rep(1:nrow(targets.empirical.df),
-                                                                each = n.experiments), ])
+                                                                each = 1000*n.experiments), ])
 
   if (!identical(strict.positive.params, 0)){
     df.give.to.mice[, strict.positive.params] <- log(df.give.to.mice[, strict.positive.params])
@@ -243,5 +243,8 @@ HPC_MABC <- function(targets.empirical = dummy.targets.empirical,
                 col.names = TRUE,
                 file = file.name)
   }
-  return(experiments)
+  HPC_MABC_output <- list(experiments = experiments,
+                          posterior = sim.results.with.design.df.selected,
+                          max.RMSD = max(sim.results.with.design.df.selected$RMSD))
+  return(HPC_MABC_output)
 }
