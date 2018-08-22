@@ -156,7 +156,7 @@ MaC.weighted <- function(targets.empirical = dummy.targets.empirical,
       n.close.to.targets <- sum(RMSD <= RMSD.tol, na.rm = TRUE)
       #n.close.to.targets.mat[(1+steps.intermediate.targets), (1+steps.RMSD.tol)] <- n.close.to.targets
       #large.enough.training.df <- n.close.to.targets >= min.givetomice
-      RMSD.tol <- RMSD.tol + 0.01  # Increasing RMSD.tol
+      RMSD.tol <- RMSD.tol + 0.001  # Increasing RMSD.tol
     }
     sim.results.with.design.df$RMSD <- RMSD
     final.intermediate.features <- targets.empirical
@@ -196,7 +196,7 @@ MaC.weighted <- function(targets.empirical = dummy.targets.empirical,
     df.give.to.mice <- gtools::smartbind(dplyr::select(sim.results.with.design.df.selected,
                                                       -one_of(c("RMSD", "seed", "wave"))), # adding target to training dataset
                                         final.intermediate.features.df[rep(1:nrow(final.intermediate.features.df),
-                                                                           each = n.experiments), ])
+                                                                           each = 1000*n.experiments), ])
 
 
     #print(df.give.to.mice)
@@ -289,7 +289,7 @@ MaC.weighted <- function(targets.empirical = dummy.targets.empirical,
         within.prior.limits <- params.above.lls %in% length(lls) & params.below.uls %in% length(uls)
         experiments.df <- experiments.df[within.prior.limits, ]
       }
-
+      set.seed(0) # for reproducibility
       experiments <- dplyr::sample_n(experiments.df,
                                              size = n.experiments,
                                              replace = TRUE,
