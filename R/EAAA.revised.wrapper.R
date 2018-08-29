@@ -115,7 +115,6 @@ EAAA.revised.wrapper <- function(inputvector = input.vector){
 
   art.intro5 <- list()
   art.intro5["time"] <- 36.75     # October ~2016
-  art.intro5["diagnosis.baseline"] <- inputvector[16] + inputvector[17] + inputvector[18] + inputvector[19] + inputvector[20]  + inputvector[21] # prior [0, 2]
   art.intro5["monitoring.cd4.threshold"] <- 6000
 
 
