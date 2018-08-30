@@ -62,7 +62,6 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
 
 
 
-
   cfg.list["population.maxevents"] <- as.numeric(cfg.list["population.simtime"][1]) * as.numeric(cfg.list["population.nummen"][1]) * 6
 
   cfg.list["person.vsp.toacute.x"] <- 5 # See Bellan PLoS Medicine
