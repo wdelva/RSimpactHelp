@@ -13,5 +13,5 @@ EAAA.revised.F.c.wrapper(inputvector = input.vector)
 A vector of model features (summary statistics of simulation output)
 }
 \description{
-F.c. is the Future counterfactual scenario: until 2031.75 under "old" ART programme. This file is for the revised analysis: exponential time till ART non-retention, no msm, extra params for increased rate of HIV diagnosis after 2012, and quarterly logging
+F.c. is the Future counterfactual scenario: until 2032 under conservative ART programme. This file is for the revised analysis: exponential time till ART non-retention, no msm, extra params for increased rate of HIV diagnosis after 2012, and quarterly logging
 }
