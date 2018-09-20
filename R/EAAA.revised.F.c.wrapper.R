@@ -1,6 +1,6 @@
 #' Wrapper function for running simpact simulations for the MaxART EAAA simulation study
 #'
-#' F.c. is the Future counterfactual scenario: until 2031.75 under "old" ART programme. This file is for the revised analysis: exponential time till ART non-retention, no msm, extra params for increased rate of HIV diagnosis after 2012, and quarterly logging
+#' F.c. is the Future counterfactual scenario: until 2032 under conservative ART programme. This file is for the revised analysis: exponential time till ART non-retention, no msm, extra params for increased rate of HIV diagnosis after 2012, and quarterly logging
 #'
 #' @param inputvector Vector of random seed and parameter values
 #' @return A vector of model features (summary statistics of simulation output)
@@ -43,6 +43,21 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                                    dropout.interval.dist.type = "exponential",
                                    dropout.interval.dist.exponential.lambda = 0.1)
 
+  #standard deviation of 200 CD4 cells
+  #mu = ln(mean / sqrt(1 + variance/mean^2))
+  #sigma^2 = ln(1 + variance/mean^2)
+  #Here, we say mean = 825 and variance = 200^2
+  mu.cd4 <- 800
+  var.cd4 <- 200^2
+  mu.cd4.end <- 20
+  var.cd4.end <- 5
+  cfg.list["person.cd4.start.dist.type"] <- "lognormal"
+  cfg.list["person.cd4.start.dist.lognormal.zeta"] <- log(mu.cd4/sqrt(1+var.cd4/mu.cd4^2))
+  cfg.list["person.cd4.start.dist.lognormal.sigma"] <- sqrt(log(1+var.cd4/mu.cd4^2))
+  cfg.list["person.cd4.end.dist.type"] <- "lognormal"
+  cfg.list["person.cd4.end.dist.lognormal.zeta"] <- log(mu.cd4.end/sqrt(1+var.cd4.end/mu.cd4.end^2))
+  cfg.list["person.cd4.end.dist.lognormal.sigma"] <- sqrt(log(1+var.cd4.end/mu.cd4.end^2))
+
   cfg.list["formation.hazard.agegapry.baseline"] <- 2
   cfg.list["mortality.aids.survtime.C"] <- 65
   cfg.list["mortality.aids.survtime.k"] <- -0.2
@@ -56,9 +71,10 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   cfg.list["person.agegap.woman.dist.type"] <- "normal"
 
   cfg.list["monitoring.cd4.threshold"] <- 1 # 0
-  cfg.list["person.art.accept.threshold.dist.fixed.value"] <- 0.75
+  cfg.list["person.art.accept.threshold.dist.fixed.value"] <- 0.75 # 1 # 0.9 # 0.75 # 0.5
   cfg.list["diagnosis.baseline"] <- -99999 # -2
   cfg.list["periodiclogging.interval"] <- 0.25
+
 
 
 
@@ -92,6 +108,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro["time"] <- 20     # ~2000
   art.intro["diagnosis.baseline"] <- inputvector[16] # prior [-4 , 0] # -2
   art.intro["monitoring.cd4.threshold"] <- 100
+  art.intro["formation.hazard.agegapry.baseline"] <- inputvector[11] - 0.5
 
   art.intro1 <- list()
   art.intro1["time"] <- 22     # ~2002
@@ -99,9 +116,10 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro1["monitoring.cd4.threshold"] <- 150
 
   art.intro2 <- list()
-  art.intro2["time"] <- 25     # ~2005
+  art.intro2["time"] <- 23     # ~2003
   art.intro2["diagnosis.baseline"] <- inputvector[16] + inputvector[17] + inputvector[18] # prior [0, 2] # -1.5
   art.intro2["monitoring.cd4.threshold"] <- 200
+  art.intro2["formation.hazard.agegapry.baseline"] <- inputvector[11] - 1
 
   art.intro3 <- list()
   art.intro3["time"] <- 30     # ~2010
@@ -109,7 +127,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro3["monitoring.cd4.threshold"] <- 350
 
   art.intro4 <- list()
-  art.intro4["time"] <- 33     # ~2013
+  art.intro4["time"] <- 33.5     # ~2013
   art.intro4["diagnosis.baseline"] <- inputvector[16] + inputvector[17] + inputvector[18] + inputvector[19] + inputvector[20] # prior [0, 2]
   art.intro4["monitoring.cd4.threshold"] <- 500
 
@@ -118,12 +136,12 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro5["monitoring.cd4.threshold"] <- 6000
 
 
-  ART.factual <- list(art.intro,art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
-  ART.counterfactual <- list(art.intro,art.intro1, art.intro2, art.intro3, art.intro4)
+  ART.factual <- list(art.intro, art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
+  ART.counterfactual <- list(art.intro, art.intro1, art.intro2, art.intro3, art.intro4)
 
 
   identifier <- paste0(seedid)
-  rootDir <- "/user/scratch/gent/vsc400/vsc40070/EAAA/Fc/temp"
+  rootDir <- "/tmp" #"/user/scratch/gent/vsc400/vsc40070/EAAA/Fa/temp"
 
   destDir <- paste0(rootDir, "/", identifier)
 
@@ -136,10 +154,10 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 557) # 37 + 336 + 129 + 1 + 1 + 53 = 557
+    outputvector <- rep(NA, 594) #557) # 73 + 336 + 129 + 3 + 53 = 593
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 557)
+      outputvector <- rep(NA, 594)
     } else {
       datalist.EAAA <- readthedata(results)
 
@@ -340,8 +358,8 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
       ####
       # ART coverage among adults 15+ years old from UNAIDS (2010 - 2016 estimates)
       ####
-      ART.cov.eval.timepoints <- seq(from = 30.5,
-                                     to = 36.5)
+      ART.cov.eval.timepoints <- seq(from = 10, #30.5,
+                                     to = 52) #36.5)
       ART.cov.vector <- rep(NA, length(ART.cov.eval.timepoints))
       for (art.cov.index in 1:length(ART.cov.vector)){
         ART.cov.vector[art.cov.index] <- sum(ART.coverage.calculator(datalist = datalist.EAAA,
@@ -396,6 +414,13 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
 
       ###
       # SHIMS I: # 1 extra stat
+      SHIMS1.prev.18.50 <- prevalence.calculator(datalist = datalist.EAAA,
+                                                 agegroup = c(18, 50),
+                                                 timepoint = 31.25) %>%
+        dplyr::select(pointprevalence) %>%
+        dplyr::slice(3) %>%
+        as.numeric()
+      # SHIMS I: # 1 extra stat
       SHIMS1.inc.18.50 <- incidence.calculator(datalist = datalist.EAAA,
                                                agegroup = c(18, 50),
                                                timewindow = c(31.25,
@@ -445,6 +470,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                         inc.vector,
                         inc.cases.vector,
                         ART.cases.vector,
+                        SHIMS1.prev.18.50,
                         SHIMS1.inc.18.50,
                         SHIMS2.inc.15.50,
                         annual.prev)
