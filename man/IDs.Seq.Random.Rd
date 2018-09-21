@@ -4,8 +4,9 @@
 \alias{IDs.Seq.Random}
 \title{Subset sequences based on gender ratio and age of individuals}
 \usage{
-IDs.Seq.Random(simpact.trans.net = simpact.trans.net, limitTransmEvents = 7,
-  timewindow = c(10, 40), seq.cov = 70, age.limit = 65)
+IDs.Seq.Random(simpact.trans.net = simpact.trans.net,
+  limitTransmEvents = 7, timewindow = c(10, 40), seq.cov = 70,
+  age.limit = 65)
 }
 \arguments{
 \item{simpact.trans.net}{Transmission networks computed by \code{\link{transmission.network.builder()}}}

@@ -6,8 +6,8 @@
 time for a particular age group and gender whose VL and CD4count are as indicated}
 \usage{
 cd4.vl.atARTinit(datalist = datalist, agegroup = c(15, 30),
-  timewindow = c(15, 30), viralload = c(3, 4), cd4count = c(350, 500),
-  site = "All")
+  timewindow = c(15, 30), viralload = c(3, 4), cd4count = c(350,
+  500), site = "All")
 }
 \arguments{
 \item{datalist}{The datalist that is produced by \code{\link{readthedata}}}

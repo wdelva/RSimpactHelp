@@ -4,7 +4,8 @@
 \alias{pattern.modeller}
 \title{Model age-mixing pattern.}
 \usage{
-pattern.modeller(dataframe, agegroup, timepoint, timewindow, start = FALSE)
+pattern.modeller(dataframe, agegroup, timepoint, timewindow,
+  start = FALSE)
 }
 \arguments{
 \item{dataframe}{The dataframe that is produced by \code{\link{agemix.df.maker}}}
