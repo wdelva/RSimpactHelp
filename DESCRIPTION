@@ -8,7 +8,7 @@ Maintainer: Wim Delva <wimdelva@gmail.com>
 Description: This package contains R functions that facilitate 
     post-simulation analysis in R of simulation output for models
     developed with Simpact Cyan.
-License: What license is it under?
+License: GPL-2
 LazyData: TRUE
 Imports:
     data.table,
