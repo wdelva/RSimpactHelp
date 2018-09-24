@@ -13,6 +13,7 @@ LazyData: TRUE
 Remotes:
     github::j0r1/RSimpactCyan/pkg,
     github::j0r1/readcsvcolumns/pkg
+biocViews:
 Imports:
     ape,
     data.table,
@@ -36,6 +37,7 @@ Imports:
     randtoolbox,
     readcsvcolumns,
     roxygen2 (>= 5.0.0),
+    Rsamtools,
     RSimpactCyan,
     tibble,
     tidyr,
