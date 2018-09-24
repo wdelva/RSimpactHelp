@@ -10,6 +10,9 @@ Description: This package contains R functions that facilitate
     developed with Simpact Cyan.
 License: GPL-3
 LazyData: TRUE
+Remotes:
+    github::j0r1/RSimpactCyan/pkg,
+    github::j0r1/readcsvcolumns/pkg
 Imports:
     ape,
     data.table,
@@ -31,12 +34,11 @@ Imports:
     nlme (>= 3.1-128),
     pcaPP,
     randtoolbox,
+    readcsvcolumns,
     roxygen2 (>= 5.0.0),
+    RSimpactCyan,
     tibble,
     tidyr,
     treedater,
     VarianceGamma
-Remotes:
-    github::j0r1/RSimpactCyan/pkg,
-    github::j0r1/readcsvcolumns/pkg
 RoxygenNote: 6.1.0
