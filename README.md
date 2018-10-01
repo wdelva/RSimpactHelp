@@ -24,8 +24,6 @@ This repository contains R functions that facilitate post-simulation analysis in
     
   library(devtools)
 
-  install_github("j0r1/readcsvcolumns/pkg")
-
   install_github("wdelva/RSimpactHelp”, dependencies = TRUE)
   
   library(RSimpactHelper)
@@ -43,3 +41,14 @@ Please contact Prof Wim Delva with questions regarding the files provided and th
 
 Wim Delva
 Email: <DELVAW@sun.ac.za>
+
+## INFORMATION FOR RSIMPACTHELP DEVELOPERS
+
+### Adding package dependencies
+
+If you want to use a function from a package, it not only needs to be listed in the NAMESPACE file, but you must also list the package as a dependency in the DESCRIPTION file. 
+
+If the package is on CRAN, it should be listed under "Imports" in the DESCRIPTION file. 
+
+If the package is hosted on another repository or website, it gets listed under "Imports", as well as "Remotes" in the DESCRIPTION file. How you list it under "Remotes" is dependent upon where you have to install it from. Here are the directions for listing it under Remotes: https://cran.r-project.org/web/packages/devtools/vignettes/dependencies.html . 
+If the packages is from Bioconductor you need to, first list "biocViews" before "Imports", and then include the name of package in "Imports". 
