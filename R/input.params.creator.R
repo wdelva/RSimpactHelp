@@ -209,8 +209,8 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  simulation.type = "simpact-cyan",
                                  monitoring.cd4.threshold.prestudy = 350,
                                  monitoring.cd4.threshold.instudy.controlstage = 350,
-                                 dropout.interval.dist.type = "exponential",
-                                 dropout.interval.dist.exponential.lambda = 0.1 # ~ 18% dropout after 2 year
+                                 dropout.interval.dist.type = "exponential" #,
+                                 #dropout.interval.dist.exponential.lambda = 0.1 # ~ 18% dropout after 2 year
                                  #monitoring.cd4.threshold.instudy.transitionstage = Inf,
                                  #monitoring.cd4.threshold.instudy.interventionstage = Inf
                                  ){
@@ -289,7 +289,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$birth.pregnancyduration.dist.type <- birth.pregnancyduration.dist.type
   input.params$birth.pregnancyduration.dist.fixed.value <- birth.pregnancyduration.dist.fixed.value
   input.params$dropout.interval.dist.type <- dropout.interval.dist.type
-  input.params$dropout.interval.dist.exponential.lambda <- dropout.interval.dist.exponential.lambda
+  #input.params$dropout.interval.dist.exponential.lambda <- dropout.interval.dist.exponential.lambda
 
   if(simulation.type == "simpact-cyan"){
     input.params$monitoring.cd4.threshold <- monitoring.cd4.threshold
