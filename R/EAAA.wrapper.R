@@ -15,8 +15,8 @@ EAAA.wrapper <- function(inputvector = input.vector){
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2,
                                    population.simtime = 36.75, #40, #Until 1 October 2016
-                                   population.nummen = 500,
-                                   population.numwomen = 500,
+                                   population.nummen = 2000,
+                                   population.numwomen = 2000,
                                    hivseed.time = 10,
                                    hivseed.type = "amount",
                                    hivseed.amount = 20, #30,
@@ -78,7 +78,7 @@ EAAA.wrapper <- function(inputvector = input.vector){
 
   art.intro3 <- list()
   art.intro3["time"] <- 30     # ~2010
-  art.intro2["diagnosis.baseline"] <- -1
+  art.intro3["diagnosis.baseline"] <- -1
   art.intro3["monitoring.cd4.threshold"] <- 350
 
   art.intro4 <- list()
@@ -94,7 +94,7 @@ EAAA.wrapper <- function(inputvector = input.vector){
   ART.counterfactual <- list(art.intro,art.intro1, art.intro2, art.intro3)
 
 
-  cfg.list["population.maxevents"] <- as.numeric(cfg.list["population.simtime"][1]) * as.numeric(cfg.list["population.nummen"][1]) * 3
+  cfg.list["population.maxevents"] <- as.numeric(cfg.list["population.simtime"][1]) * as.numeric(cfg.list["population.nummen"][1]) * 6
 
   cfg.list["person.vsp.toacute.x"] <- 5 # See Bellan PLoS Medicine
 
@@ -122,8 +122,9 @@ EAAA.wrapper <- function(inputvector = input.vector){
 
   seedid <- inputvector[1]
   identifier <- paste0(seedid)
-  destDir <- paste0("/Users/delvaw/Documents/temp/",
-                    identifier) # on laptop
+  rootDir <- "/Users/delvaw/Documents/temp"
+
+  destDir <- paste0(rootDir, "/", identifier) # on laptop
 
   #destDir <- paste0("/user/scratch/gent/vsc400/vsc40070/agemixing/temp/", # for VSC
   #                  identifier)
@@ -396,6 +397,8 @@ EAAA.wrapper <- function(inputvector = input.vector){
                         VL.suppression.fraction)
     }
   }
-  unlink(paste0(destDir, "/*"), recursive = FALSE)
+  identifier <- paste0(seedid)
+  rootDir <- "/Users/delvaw/Documents/temp"
+  unlink(paste0(rootDir, "/", identifier), recursive = TRUE)
   return(outputvector)
 }
