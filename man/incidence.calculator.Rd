@@ -10,25 +10,25 @@ incidence.calculator(datalist = datalist, agegroup = c(15, 30),
 \arguments{
 \item{datalist}{The list object that is produced by \code{\link{readthedata}}}
 
-\item{agegroup}{Boundaries of the age group (lower bound <= age < upper 
-bound) that should be retained. Should be expressed as a vector of two 
+\item{agegroup}{Boundaries of the age group (lower bound <= age < upper
+bound) that should be retained. Should be expressed as a vector of two
 integers. e.g. c(15, 30)}
 
-\item{timewindow}{of the time window (lower bound < time <= upper bound) that
+\item{timewindow}{Boundaries of the time window (lower bound < time <= upper bound) that
 should be retained. Should be expressed as a vector of two integers. e.g.
 c(20, 30)}
 
-\item{only.active}{Should only women who are in sexual relationships 
+\item{only.active}{Should only women who are in sexual relationships
 contribute exposure time? If "Strict", all time spent being single will be
 excluded from exposure time. If "Harling", time will be excluded from
 exposure time in blocks of one year, if the person spent that entire block
 not in any relationship. If "No", exposure time is being contributed, even
-while not in any relationships. WARNING: The "Harling" and "Strict" 
+while not in any relationships. WARNING: The "Harling" and "Strict"
 estimates currently only work for women. So the resulting data frame will
 still contain incidence estimates for men as if you selected "No".}
 }
 \value{
-A dataframe with cases, exposure times, incidence estimates and 
+A dataframe with cases, exposure times, incidence estimates and
   surrounding confidence bounds, for the specified time window and age group,
   overall, and stratified by gender.
 }
@@ -38,9 +38,9 @@ HIV incidence at a specified time window and for a specific
 age group.
 }
 \examples{
-cfg <- list() 
-modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp") 
-dl <- readthedata(modeloutput) 
+cfg <- list()
+modeloutput <- RSimpactCyan::simpact.run(configParams = cfg, destDir = "temp")
+dl <- readthedata(modeloutput)
 incidence.df <- incidence.calculator(datalist = datalist, agegroup = c(15, 30), timewindow = c(20, 30))
 incidence.df
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/IDs.Seq.Age.Groups.R
 \name{IDs.Seq.Age.Groups}
 \alias{IDs.Seq.Age.Groups}
-\title{Subset sequences based on gender ratio and age of individuals}
+\title{Random subset of sequences based on gender ratio and age groups of individuals}
 \usage{
 IDs.Seq.Age.Groups(simpact.trans.net = simpact.trans.net,
   limitTransmEvents = 7, timewindow = c(10, 40), seq.cov = 70,
@@ -30,5 +30,5 @@ IDs.Seq.Age.Groups(simpact.trans.net = simpact.trans.net,
 A vector of selected IDs
 }
 \description{
-Subset sequences based on gender ratio and age of individuals
+Random subset of sequences based on gender ratio and age groups of individuals
 }
