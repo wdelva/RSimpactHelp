@@ -4,9 +4,15 @@
 \alias{MaC.weighted}
 \title{MICE-assisted calibration with weights}
 \usage{
+<<<<<<< HEAD
 MaC.weighted(targets.empirical = dummy.targets.empirical,
   RMSD.tol.max = 2, min.givetomice = 64, n.experiments = 256, lls,
   uls, model = VEME.wrapper, strict.positive.params, probability.params,
+=======
+MaC.weighted(targets.empirical = dummy.targets.empirical, RMSD.tol.max = 2,
+  min.givetomice = 64, n.experiments = 256, lls, uls,
+  model = VEME.wrapper, strict.positive.params, probability.params,
+>>>>>>> 4a89113ac792bbc0a0b0b715af04ff814ca7e951
   inside_prior = TRUE, method = "norm", predictorMatrix = "complete",
   maxit = 50, maxwaves = 4, n_cluster = n_cluster)
 }
