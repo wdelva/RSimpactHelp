@@ -2,33 +2,49 @@ Package: RSimpactHelper
 Type: Package
 Title: Pre- and Post-simulation helper functions for RSimpact Cyan
 Version: 0.2
-Date: 2016-11-05
+Date: 2018-21-09
 Author: Wim Delva, Josline Otieno, Roxanne Beauclair, Trust Chibawara
 Maintainer: Wim Delva <wimdelva@gmail.com>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Description: This package contains R functions that facilitate 
+    post-simulation analysis in R of simulation output for models
+    developed with Simpact Cyan.
+License: GPL-3
 LazyData: TRUE
+Remotes:
+    github::j0r1/RSimpactCyan/pkg,
+    github::j0r1/readcsvcolumns/pkg
+biocViews:
 Imports:
+    ape,
     data.table,
-    tidyr,
     dplyr (>= 0.4.3),
-    magrittr (>= 1.5),
-    nlme (>= 3.1-128),
-    ggplot2 (>= 2.0.0),
-    exactci (>= 1.3-1),
-    fBasics,
-    VarianceGamma,
-    fitdistrplus,
     EnvStats,
-    gtools,
-    lhs,
-    mice,
-    readcsvcolumns,
+    exactci (>= 1.3-1),
     expoTree,
+    fBasics,
+    fitdistrplus,
+    ggplot2 (>= 2.0.0),
     glmnet,
     gsubfn,
+    gtools,
+    igraph,
+    lhs,
     lme4,
+    magrittr (>= 1.5),
+    mice,
+    nlme (>= 3.1-128),
     pcaPP,
     randtoolbox,
+<<<<<<< HEAD
     roxygen2 (>= 5.0.0)
+=======
+    readcsvcolumns,
+    roxygen2 (>= 5.0.0),
+    Rsamtools,
+    RSimpactCyan,
+    tibble,
+    tidyr,
+    treedater,
+    VarianceGamma
+>>>>>>> c62a094a4e3007daf7aadaced9c97696d0da29bb
 RoxygenNote: 6.1.0
