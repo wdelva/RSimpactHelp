@@ -53,11 +53,7 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   mortality.aids.survtime.C = 62, mortality.aids.survtime.k = -0.2,
   conception.alpha_base = -2.35, diagnosis.baseline = -100,
   monitoring.cd4.threshold = 0.1,
-<<<<<<< HEAD
-  monitoring.fraction.log_viralload = 0.3, population.msm = "yes",
-=======
   monitoring.fraction.log_viralload = 0.3, population.msm = "no",
->>>>>>> c62a094a4e3007daf7aadaced9c97696d0da29bb
   person.eagerness.man.msm.dist.type = "fixed",
   person.eagerness.man.msm.dist.fixed.value = 0,
   formationmsm.hazard.type = "simple",
