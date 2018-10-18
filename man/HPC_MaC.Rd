@@ -6,9 +6,9 @@
 \usage{
 HPC_MaC(targets.empirical = dummy.targets.empirical,
   previous.experiments = input.output.df, file.name, RMSD.tol.max = 2,
-  min.givetomice = 12, n.experiments = 48, strict.positive.params = c(1,
-  3), probability.params = 0, method = "norm",
-  predictorMatrix = "complete", maxit = 50)
+  min.givetomice = 12, n.experiments = 48,
+  strict.positive.params = c(1, 3), probability.params = 0,
+  method = "norm", predictorMatrix = "complete", maxit = 50)
 }
 \arguments{
 \item{targets.empirical}{The vector of target features}

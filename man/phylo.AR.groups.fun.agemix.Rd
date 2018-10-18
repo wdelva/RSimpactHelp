@@ -54,4 +54,5 @@ w <- phylo.AR.groups.fun.agemix(simpact.trans.net = simpact.trans.net,
                                age.group.15.25 = c(15,25),
                                age.group.25.40 = c(25,40),
                                age.group.40.50 = c(40,50))
+
 }

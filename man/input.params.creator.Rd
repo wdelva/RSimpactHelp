@@ -6,8 +6,9 @@
 \usage{
 input.params.creator(mortality.normal.weibull.shape = 5,
   mortality.normal.weibull.scale = 65,
-  mortality.normal.weibull.genderdiff = 0, periodiclogging.interval = 1,
-  syncrefyear.interval = 1, formation.hazard.type = "agegapry",
+  mortality.normal.weibull.genderdiff = 0,
+  periodiclogging.interval = 1, syncrefyear.interval = 1,
+  formation.hazard.type = "agegapry",
   person.art.accept.threshold.dist.type = "fixed",
   person.art.accept.threshold.dist.fixed.value = 0.5,
   person.eagerness.man.type = "independent",
@@ -40,18 +41,20 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   person.vsp.tofinalaids.x = 12, person.vsp.toaids.x = 7,
   formation.hazard.agegapry.eagerness_diff = -0.048,
   dissolution.alpha_0 = -0.52, dissolution.alpha_4 = -0.05,
-  debut.debutage = 15, population.simtime = 40, population.nummen = 500,
-  population.numwomen = 500, population.eyecap.fraction = 0.2,
-  hivseed.type = "amount", hivseed.amount = 20, hivseed.age.min = 20,
-  hivseed.age.max = 30, hivseed.time = 10,
-  hivtransmission.param.a = -1.0352239,
-  hivtransmission.param.b = -89.339994, hivtransmission.param.c = 0.4948478,
+  debut.debutage = 15, population.simtime = 40,
+  population.nummen = 500, population.numwomen = 500,
+  population.eyecap.fraction = 0.2, hivseed.type = "amount",
+  hivseed.amount = 20, hivseed.age.min = 20, hivseed.age.max = 30,
+  hivseed.time = 10, hivtransmission.param.a = -1.0352239,
+  hivtransmission.param.b = -89.339994,
+  hivtransmission.param.c = 0.4948478,
   hivtransmission.param.f1 = log(5),
   hivtransmission.param.f2 = log(log(2.5)/log(5))/5,
   mortality.aids.survtime.C = 62, mortality.aids.survtime.k = -0.2,
   conception.alpha_base = -2.35, diagnosis.baseline = -100,
-  monitoring.cd4.threshold = 0.1, monitoring.fraction.log_viralload = 0.3,
-  population.msm = "yes", person.eagerness.man.msm.dist.type = "fixed",
+  monitoring.cd4.threshold = 0.1,
+  monitoring.fraction.log_viralload = 0.3, population.msm = "no",
+  person.eagerness.man.msm.dist.type = "fixed",
   person.eagerness.man.msm.dist.fixed.value = 0,
   formationmsm.hazard.type = "simple",
   formationmsm.hazard.simple.alpha_0 = 2,
@@ -63,7 +66,9 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   birth.pregnancyduration.dist.fixed.value = 268/365,
   birth.boygirlratio = 1/2.01, simulation.type = "simpact-cyan",
   monitoring.cd4.threshold.prestudy = 350,
-  monitoring.cd4.threshold.instudy.controlstage = 350)
+  monitoring.cd4.threshold.instudy.controlstage = 350,
+  dropout.interval.dist.type = "exponential",
+  dropout.interval.dist.exponential.lambda = 0.1)
 }
 \arguments{
 \item{mortality.normal.weibull.shape}{Specifies the shape of a Weibull distribution to make
@@ -235,6 +240,8 @@ if below this value}
 
 \item{monitoring.fraction.log_viralload}{the setpoint viral load will be dropped by this fraction}
 
+\item{population.msm}{"yes" or "no". Default is "no".}
+
 \item{birth.pregnancyduration.dist.type}{duration of pregnancy}
 
 \item{birth.pregnancyduration.dist.fixed.value}{the option is fixed and set to 9 months}
@@ -246,7 +253,9 @@ being perfomed (simpact-cyan) e.g you can use maxart as well}
 
 \item{monitoring.cd4.threshold.prestudy}{cd4 values prestudy}
 
-\item{monitoring.cd4.threshold.instudy.controlstage}{cd4 values during the control phase
+\item{monitoring.cd4.threshold.instudy.controlstage}{cd4 values during the control phase}
+
+\item{dropout.interval.dist.type}{Distribution of time till ART programme non-retention
 # @param monitoring.cd4.threshold.instudy.transitionstage cd4 threshold when site is transitioning
 # @param monitoring.cd4.threshold.instudy.interventionstage cd threshold not needed during the intervention stage}
 }

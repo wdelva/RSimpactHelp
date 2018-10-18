@@ -31,7 +31,6 @@
 #' @import dplyr filter
 >>>>>>> 19586bd... description age mix fun for transm clust MCAR
 #' @export
-#'
 
 
 # infection with phylo - sampling time

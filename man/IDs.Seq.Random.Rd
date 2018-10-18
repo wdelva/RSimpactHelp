@@ -2,10 +2,11 @@
 % Please edit documentation in R/IDs.Seq.Random.R
 \name{IDs.Seq.Random}
 \alias{IDs.Seq.Random}
-\title{Subset sequences based on gender ratio and age of individuals}
+\title{Completely random subset of sequences of individuals}
 \usage{
-IDs.Seq.Random(simpact.trans.net = simpact.trans.net, limitTransmEvents = 7,
-  timewindow = c(10, 40), seq.cov = 70, age.limit = 65)
+IDs.Seq.Random(simpact.trans.net = simpact.trans.net,
+  limitTransmEvents = 7, timewindow = c(10, 40), seq.cov = 70,
+  age.limit = 65)
 }
 \arguments{
 \item{simpact.trans.net}{Transmission networks computed by \code{\link{transmission.network.builder()}}}
@@ -22,5 +23,5 @@ IDs.Seq.Random(simpact.trans.net = simpact.trans.net, limitTransmEvents = 7,
 A vector of selected IDs
 }
 \description{
-Subset sequences based on gender ratio and age of individuals
+Completely random subset of sequences of individuals
 }

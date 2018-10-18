@@ -1,6 +1,6 @@
 #' Wrapper function for running simpact simulations for the MaxART EAAA simulation study
 #'
-#' P.a. is the Past alternative scenario: until 2016.75 under observed ART programme
+#' This wrapper function includes updates compared to EAAA.wrapper. The initial EAAA.wrapper was used for the report as submitted on 20 August 2018. This revised wrapper has additional parameters to allow for a better fit to the ART coverage data, and does not allow for MSM relationships. It also has an exponential distribution of times till ART non-retention, compared to a fixed distribution with min=1000 and max=2000, which essentially meant that there was no drop-out.
 #'
 #' @param inputvector Vector of random seed and parameter values
 #' @return A vector of model features (summary statistics of simulation output)
@@ -9,14 +9,15 @@
 #' @importFrom magrittr %>%
 #' @export
 
-EAAA.P.a.wrapper <- function(inputvector = input.vector){
+EAAA.revised.wrapper <- function(inputvector = input.vector){
   age.distr <- agedistr.creator(shape = 5, scale = 65)
 
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2,
-                                   population.simtime = 37, # Until 1 January 2017
+                                   population.simtime = 36.75, #40, #Until 1 October 2016
                                    population.nummen = 2000,
                                    population.numwomen = 2000,
+                                   population.msm = "no", # It was "yes" in EAAA.wrapper
                                    hivseed.time = 10,
                                    hivseed.type = "amount",
                                    hivseed.amount = 20, #30,
@@ -38,14 +39,14 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
                                    formation.hazard.agegapry.gap_agescale_woman = 0.25,
                                    dissolution.alpha_4 = -0.05,
                                    debut.debutage = 15,
-                                   conception.alpha_base = -2.7)
+                                   conception.alpha_base = -2.7,
+                                   dropout.interval.dist.type = "exponential",
+                                   dropout.interval.dist.exponential.lambda = 0.1)
 
   cfg.list["formation.hazard.agegapry.baseline"] <- 2
   cfg.list["mortality.aids.survtime.C"] <- 65
   cfg.list["mortality.aids.survtime.k"] <- -0.2
   cfg.list["monitoring.fraction.log_viralload"] <- 0.3 # 0.3
-  cfg.list["dropout.interval.dist.uniform.min"] <- 1000
-  cfg.list["dropout.interval.dist.uniform.max"] <- 2000
 
   cfg.list["person.survtime.logoffset.dist.type"] <- "normal"
   cfg.list["person.survtime.logoffset.dist.normal.mu"] <- 0
@@ -59,39 +60,6 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
   cfg.list["diagnosis.baseline"] <- -99999 # -2
 
 
-
-  # Introducing ART
-  art.intro <- list()
-  art.intro["time"] <- 20     # ~2000
-  art.intro["diagnosis.baseline"] <- -2
-  art.intro["monitoring.cd4.threshold"] <- 100
-
-  art.intro1 <- list()
-  art.intro1["time"] <- 22     # ~2002
-  art.intro1["diagnosis.baseline"] <- -1.8
-  art.intro1["monitoring.cd4.threshold"] <- 150
-
-  art.intro2 <- list()
-  art.intro2["time"] <- 25     # ~2005
-  art.intro2["diagnosis.baseline"] <- -1.5
-  art.intro2["monitoring.cd4.threshold"] <- 200
-
-  art.intro3 <- list()
-  art.intro3["time"] <- 30     # ~2010
-  art.intro3["diagnosis.baseline"] <- -1
-  art.intro3["monitoring.cd4.threshold"] <- 350
-
-  art.intro4 <- list()
-  art.intro4["time"] <- 33     # ~2013
-  art.intro4["monitoring.cd4.threshold"] <- 500
-
-  art.intro5 <- list()
-  art.intro5["time"] <- 36.75     # October ~2016
-  art.intro5["monitoring.cd4.threshold"] <- 500 # 6000 # So that we can estimate PY ART in the first 9 months of 2016
-
-
-  ART.factual <- list(art.intro,art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
-  ART.counterfactual <- list(art.intro,art.intro1, art.intro2, art.intro3)
 
 
   cfg.list["population.maxevents"] <- as.numeric(cfg.list["population.simtime"][1]) * as.numeric(cfg.list["population.nummen"][1]) * 6
@@ -119,24 +87,61 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
   cfg.list["conception.alpha_base"] <- inputvector[14]
   cfg.list["dissolution.alpha_0"] <- inputvector[15]
 
+  # Introducing ART
+  art.intro <- list()
+  art.intro["time"] <- 20     # ~2000
+  art.intro["diagnosis.baseline"] <- inputvector[16] # prior [-4 , 0] # -2
+  art.intro["monitoring.cd4.threshold"] <- 100
+
+  art.intro1 <- list()
+  art.intro1["time"] <- 22     # ~2002
+  art.intro1["diagnosis.baseline"] <- inputvector[16] + inputvector[17] # prior [0, 2] # -1.8
+  art.intro1["monitoring.cd4.threshold"] <- 150
+
+  art.intro2 <- list()
+  art.intro2["time"] <- 25     # ~2005
+  art.intro2["diagnosis.baseline"] <- inputvector[16] + inputvector[17] + inputvector[18] # prior [0, 2] # -1.5
+  art.intro2["monitoring.cd4.threshold"] <- 200
+
+  art.intro3 <- list()
+  art.intro3["time"] <- 30     # ~2010
+  art.intro3["diagnosis.baseline"] <- inputvector[16] + inputvector[17] + inputvector[18] + inputvector[19] # prior [0, 2] #-1
+  art.intro3["monitoring.cd4.threshold"] <- 350
+
+  art.intro4 <- list()
+  art.intro4["time"] <- 33     # ~2013
+  art.intro4["diagnosis.baseline"] <- inputvector[16] + inputvector[17] + inputvector[18] + inputvector[19] + inputvector[20] # prior [0, 2]
+  art.intro4["monitoring.cd4.threshold"] <- 500
+
+  art.intro5 <- list()
+  art.intro5["time"] <- 36.75     # October ~2016
+  art.intro5["monitoring.cd4.threshold"] <- 6000
+
+
+  ART.factual <- list(art.intro,art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
+  ART.counterfactual <- list(art.intro,art.intro1, art.intro2, art.intro3)
+
+
   identifier <- paste0(seedid)
-  rootDir <- "/user/scratch/gent/vsc400/vsc40070/EAAA/Pa/temp"
+  rootDir <- "/user/scratch/gent/vsc400/vsc40070/agemixing/temp" # "/Users/delvaw/Documents/temp"
 
-  destDir <- paste0(rootDir, "/", identifier)
+  destDir <- paste0(rootDir, "/", identifier) # on laptop
 
+  #destDir <- paste0("/user/scratch/gent/vsc400/vsc40070/agemixing/temp/", # for VSC
+  #                  identifier)
 
   results <- tryCatch(simpact.run(configParams = cfg.list,
                                   destDir = destDir,
                                   agedist = age.distr,
-                                  intervention = ART.factual, # ART programme in the P.a. scenario
+                                  intervention = ART.factual,
                                   seed = seedid,
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 147) # 37 + 52 + 18 + 40 = 147
+    outputvector <- rep(NA, 37)
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 147)
+      outputvector <- rep(NA, 37)
     } else {
       datalist.EAAA <- readthedata(results)
 
@@ -360,54 +365,6 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
         dplyr::slice(3) %>%
         as.numeric()
 
-
-      #######################
-      # model outputs specifically for MaxART modelling study:
-
-      ###
-      # Annual HIV incidence and number of new HIV infections
-      incidence.eval.timepoints <- seq(from = 11.75, to = 36.75)  # 26 1-year intervals, so that is 50 values (inc.vector + cases.vector)
-      inc.vector <- rep(NA, length(incidence.eval.timepoints))
-      inc.cases.vector <- inc.vector
-      for (inc.vector.index in 1:length(inc.vector)){
-        inc.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
-                                                             agegroup = c(15, 50),
-                                                             timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
-                                                                            incidence.eval.timepoints[inc.vector.index]))$incidence[3]
-        inc.cases.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
-                                                                   agegroup = c(15, 50),
-                                                                   timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
-                                                                                  incidence.eval.timepoints[inc.vector.index]))$sum.incident.cases[3]
-      }
-
-
-      ###
-      # Annual number of people on ART (proxy for number of PY of ART distributed)
-      ART.cases.eval.timepoints <- seq(from = 20, to = 37) # 18 time points
-      ART.cases.vector <- rep(NA, length(ART.cases.eval.timepoints))
-      for (art.cases.index in 1:length(ART.cases.vector)){
-        ART.cases.vector[art.cases.index] <- sum(ART.coverage.calculator(datalist = datalist.EAAA,  # summing over both genders
-                                                                         agegroup = c(15, 150),
-                                                                         timepoint = ART.cases.eval.timepoints[art.cases.index])$sum.onART)
-      }
-
-      ###
-      # SHIMS I: # 1 extra stat
-      SHIMS1.inc.18.50 <- incidence.calculator(datalist = datalist.EAAA,
-                                               agegroup = c(18, 50),
-                                               timewindow = c(31.25,
-                                                              31.8))$incidence[3]
-      # SHIMS II: # 1 extra stat
-      SHIMS2.inc.15.50 <- incidence.calculator(datalist = datalist.EAAA,
-                                               agegroup = c(15, 50),
-                                               timewindow = c(36,
-                                                              37))$incidence[3]
-
-      # Annual HIV prevalence # 38 extra stats
-      last.timepoint <- as.numeric(cfg.list["population.simtime"][1])
-      annual.prev <- prevalence.vector.creator(datalist = datalist.EAAA, agegroup = c(15, 50))$prevalence[1:(last.timepoint+1)]
-
-
       outputvector <- c(exp(growthrate),
                         prev.f.18.19,
                         prev.m.18.19,
@@ -438,13 +395,12 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
                         exp(inc.f.45.49),
                         exp(inc.m.45.49),
                         ART.cov.vector,
-                        VL.suppression.fraction,
-                        inc.vector,
-                        inc.cases.vector,
-                        ART.cases.vector)
+                        VL.suppression.fraction)
     }
   }
+  identifier <- paste0(seedid)
 
+  # rootDir <- "/user/scratch/gent/vsc400/vsc40070/agemixing/temp" # "/Users/delvaw/Documents/temp"
   unlink(paste0(rootDir, "/", identifier), recursive = TRUE)
   return(outputvector)
 }

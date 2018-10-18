@@ -5,10 +5,11 @@
 \title{HPC-version of MABC (unweighted MICE ABC)}
 \usage{
 HPC_MABC_unweighted(targets.empirical = dummy.targets.empirical,
-  previous.experiments, file.name, RMSD.tol.max = 2, min.givetomice = 12,
-  n.experiments = 48, lls, uls, strict.positive.params = 0,
-  probability.params = 0, inside_prior = TRUE, method = "norm",
-  predictorMatrix = "complete", maxit = 20)
+  previous.experiments, file.name, RMSD.tol.max = 2,
+  min.givetomice = 12, n.experiments = 48, lls, uls,
+  strict.positive.params = 0, probability.params = 0,
+  inside_prior = TRUE, method = "norm", predictorMatrix = "complete",
+  maxit = 20)
 }
 \arguments{
 \item{targets.empirical}{The vector of target features}

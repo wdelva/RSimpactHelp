@@ -5,8 +5,8 @@
 \title{A function that returns the total number of people between two points in simulation
 time for a particular age group whose VL is within a threshold}
 \usage{
-vl.atARTinit(datalist = datalist, agegroup = c(15, 30), timewindow = c(15,
-  30), viralload = c(3, 4), site = "All")
+vl.atARTinit(datalist = datalist, agegroup = c(15, 30),
+  timewindow = c(15, 30), viralload = c(3, 4), site = "All")
 }
 \arguments{
 \item{datalist}{The datalist that is produced by \code{\link{readthedata}}}

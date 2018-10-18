@@ -4,7 +4,8 @@
 \alias{MaC.explorer}
 \title{Distribute simpact runs from MaC output over multiple cores}
 \usage{
-MaC.explorer(model = model, MaC.output = test.MaC, n_cluster = n_cluster)
+MaC.explorer(model = model, MaC.output = test.MaC,
+  n_cluster = n_cluster)
 }
 \arguments{
 \item{model}{Wrapper function for running simpact (simpact.wrapper)}

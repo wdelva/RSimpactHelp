@@ -4,9 +4,10 @@
 \alias{HPC_MABC}
 \title{HPC-version of MABC (weighted MICE ABC)}
 \usage{
-HPC_MABC(targets.empirical = dummy.targets.empirical, previous.experiments,
-  file.name, RMSD.tol.max = 2, min.givetomice = 12, n.experiments = 48,
-  lls, uls, strict.positive.params = 0, probability.params = 0,
+HPC_MABC(targets.empirical = dummy.targets.empirical,
+  previous.experiments, file.name, RMSD.tol.max = 2,
+  min.givetomice = 12, n.experiments = 48, lls, uls,
+  strict.positive.params = 0, probability.params = 0,
   inside_prior = TRUE, method = "norm", predictorMatrix = "complete",
   maxit = 20)
 }

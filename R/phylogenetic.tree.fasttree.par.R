@@ -1,4 +1,4 @@
-#' Construct and calibrate a phylogenetic tree from sequence data
+#' Construct phylogenetic tree with FastTree and calibrate same tree with treedater from sequence alignment
 #'
 #' @param dir.tree Direcotry where we find the FastTree tool
 #' @param sub.dir.rename sub directory where we find sequences and sampling times files and where the simulation outputs will be stored
@@ -88,7 +88,7 @@ phylogenetic.tree.fasttree.par <- function(dir.tree = dirfasttree,
 
   dater.tree <- treedater::dater(tree.const, Ord.tree.dates, s = 3000) # s is the length of sequence
 
-  write.tree(dater.tree, file = paste0(sub.dir.rename, "/calibrated.tree.tree"))
+  write.tree(dater.tree, file = paste0(sub.dir.rename, paste0("/calibrated.tree.",simseqfile,".tree")))
 
   print("End of internal nodes calibration for the phylogenetic tree")
 
