@@ -54,9 +54,9 @@ EAAA.wrapper <- function(inputvector = input.vector){
   cfg.list["person.agegap.man.dist.type"] <- "normal"
   cfg.list["person.agegap.woman.dist.type"] <- "normal"
 
-  cfg.list["monitoring.cd4.threshold"] <- 0
+  cfg.list["monitoring.cd4.threshold"] <- 1 # 0
   cfg.list["person.art.accept.threshold.dist.fixed.value"] <- 0.75
-  cfg.list["diagnosis.baseline"] <- -2
+  cfg.list["diagnosis.baseline"] <- -99999 # -2
 
 
 
@@ -122,7 +122,7 @@ EAAA.wrapper <- function(inputvector = input.vector){
 
   seedid <- inputvector[1]
   identifier <- paste0(seedid)
-  rootDir <- "/Users/delvaw/Documents/temp"
+  rootDir <- "/user/scratch/gent/vsc400/vsc40070/agemixing/temp" # "/Users/delvaw/Documents/temp"
 
   destDir <- paste0(rootDir, "/", identifier) # on laptop
 
@@ -398,7 +398,8 @@ EAAA.wrapper <- function(inputvector = input.vector){
     }
   }
   identifier <- paste0(seedid)
-  rootDir <- "/Users/delvaw/Documents/temp"
+
+  # rootDir <- "/user/scratch/gent/vsc400/vsc40070/agemixing/temp" # "/Users/delvaw/Documents/temp"
   unlink(paste0(rootDir, "/", identifier), recursive = TRUE)
   return(outputvector)
 }
