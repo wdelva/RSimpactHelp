@@ -43,5 +43,8 @@ Imports:
     tidyr,
     treedater,
     VarianceGamma
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 RoxygenNote: 6.1.0
