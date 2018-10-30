@@ -155,10 +155,10 @@ EAAA.calibration.wrapper <- function(inputvector = input.vector){
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 594) #557) # 73 + 336 + 129 + 3 + 53 = 594
+    outputvector <- rep(NA, 38)
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 594) #557)
+      outputvector <- rep(NA, 38)
     } else {
       datalist.EAAA <- readthedata(results)
 
