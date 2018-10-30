@@ -39,8 +39,7 @@ EAAA.calibration.wrapper <- function(inputvector = input.vector){
                                    dissolution.alpha_4 = -0.05,
                                    debut.debutage = 15,
                                    conception.alpha_base = -2.7,
-                                   dropout.interval.dist.type = "exponential",
-                                   dropout.interval.dist.exponential.lambda = 0.1)
+                                   dropout.interval.dist.type = "exponential")
 
   #standard deviation of 200 CD4 cells
   #mu = ln(mean / sqrt(1 + variance/mean^2))
@@ -73,6 +72,7 @@ EAAA.calibration.wrapper <- function(inputvector = input.vector){
   cfg.list["person.art.accept.threshold.dist.fixed.value"] <- 0.75 # 1 # 0.9 # 0.75 # 0.5
   cfg.list["diagnosis.baseline"] <- -99999 # -2
   cfg.list["periodiclogging.interval"] <- 0.25
+  cfg.list["dropout.interval.dist.exponential.lambda"] <- 0.1
 
 
 
