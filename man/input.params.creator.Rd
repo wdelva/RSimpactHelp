@@ -67,8 +67,7 @@ input.params.creator(mortality.normal.weibull.shape = 5,
   birth.boygirlratio = 1/2.01, simulation.type = "simpact-cyan",
   monitoring.cd4.threshold.prestudy = 350,
   monitoring.cd4.threshold.instudy.controlstage = 350,
-  dropout.interval.dist.type = "exponential",
-  dropout.interval.dist.exponential.lambda = 0.1)
+  dropout.interval.dist.type = "exponential")
 }
 \arguments{
 \item{mortality.normal.weibull.shape}{Specifies the shape of a Weibull distribution to make
