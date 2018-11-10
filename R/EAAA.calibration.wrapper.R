@@ -142,7 +142,7 @@ EAAA.calibration.wrapper <- function(inputvector = input.vector){
 
 
   identifier <- paste0(seedid)
-  rootDir <- "/user/scratch/gent/vsc400/vsc40070/EAAA/Fa/temp"
+  rootDir <- "/tmp" # "/user/scratch/gent/vsc400/vsc40070/EAAA/Fa/temp"
 
   destDir <- paste0(rootDir, "/", identifier)
 
