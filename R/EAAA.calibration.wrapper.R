@@ -1,6 +1,5 @@
-#' Wrapper function for running simpact simulations for the MaxART EAAA simulation study
+#' Wrapper function for running simpact simulations for the calibration step in the MaxART EAAA simulation study
 #'
-#' F.c. is the Future counterfactual scenario: until 2032 under conservative ART programme. This file is for the revised analysis: exponential time till ART non-retention, no msm, extra params for increased rate of HIV diagnosis after 2012, and quarterly logging
 #'
 #' @param inputvector Vector of random seed and parameter values
 #' @return A vector of model features (summary statistics of simulation output)
@@ -9,15 +8,15 @@
 #' @importFrom magrittr %>%
 #' @export
 
-EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
+EAAA.calibration.wrapper <- function(inputvector = input.vector){
   age.distr <- agedistr.creator(shape = 5, scale = 65)
 
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2,
-                                   population.simtime = 52, # Until 1 January 2032
+                                   population.simtime = 38, # Until 1 January 2018
                                    population.nummen = 2000,
                                    population.numwomen = 2000,
-                                   population.msm = "no", # It was "yes" in EAAA.wrapper
+                                   population.msm = "no",
                                    hivseed.time = 10,
                                    hivseed.type = "amount",
                                    hivseed.amount = 20, #30,
@@ -110,6 +109,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro["monitoring.cd4.threshold"] <- 100
   art.intro["formation.hazard.agegapry.baseline"] <- inputvector[11] - 0.5
 
+
   art.intro1 <- list()
   art.intro1["time"] <- 22     # ~2002
   art.intro1["diagnosis.baseline"] <- inputvector[16] + inputvector[17] # prior [0, 2] # -1.8
@@ -120,6 +120,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro2["diagnosis.baseline"] <- inputvector[16] + inputvector[17] + inputvector[18] # prior [0, 2] # -1.5
   art.intro2["monitoring.cd4.threshold"] <- 200
   art.intro2["formation.hazard.agegapry.baseline"] <- inputvector[11] - 1
+
 
   art.intro3 <- list()
   art.intro3["time"] <- 30     # ~2010
@@ -136,12 +137,12 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro5["monitoring.cd4.threshold"] <- 6000
 
 
-  ART.factual <- list(art.intro, art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
-  ART.counterfactual <- list(art.intro, art.intro1, art.intro2, art.intro3, art.intro4)
+  ART.factual <- list(art.intro,art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
+  ART.counterfactual <- list(art.intro,art.intro1, art.intro2, art.intro3)
 
 
   identifier <- paste0(seedid)
-  rootDir <- "/tmp" #"/user/scratch/gent/vsc400/vsc40070/EAAA/Fa/temp"
+  rootDir <- "/tmp" # "/user/scratch/gent/vsc400/vsc40070/EAAA/Fa/temp"
 
   destDir <- paste0(rootDir, "/", identifier)
 
@@ -149,15 +150,15 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   results <- tryCatch(simpact.run(configParams = cfg.list,
                                   destDir = destDir,
                                   agedist = age.distr,
-                                  intervention = ART.counterfactual, # ART programme in the F.c. scenario
+                                  intervention = ART.factual,
                                   seed = seedid,
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 594) #557) # 73 + 336 + 129 + 3 + 53 = 593
+    outputvector <- rep(NA, 38)
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 594)
+      outputvector <- rep(NA, 38)
     } else {
       datalist.EAAA <- readthedata(results)
 
@@ -356,10 +357,10 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
         dplyr::slice(1) %>%
         as.numeric()
       ####
-      # ART coverage among adults 15+ years old from UNAIDS (2010 - 2016 estimates)
+      # ART coverage among adults 15+ years old from UNAIDS (2010 - 2017 estimates)
       ####
-      ART.cov.eval.timepoints <- seq(from = 10, #30.5,
-                                     to = 52) #36.5)
+      ART.cov.eval.timepoints <- seq(from = 30.5,
+                                     to = 37.5)
       ART.cov.vector <- rep(NA, length(ART.cov.eval.timepoints))
       for (art.cov.index in 1:length(ART.cov.vector)){
         ART.cov.vector[art.cov.index] <- sum(ART.coverage.calculator(datalist = datalist.EAAA,
@@ -370,11 +371,11 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                                       timepoint = ART.cov.eval.timepoints[art.cov.index])$sum.cases)
       }
       ####
-      # VL suppression fraction (all ages in 2016 ~ >= 15 yo) 0.68
+      # VL suppression fraction (all ages in 2017 ~ >= 15 yo) 0.74
       ####
       VL.suppression.fraction <- VL.suppression.calculator(datalist = datalist.EAAA,
                                                            agegroup = c(15, 300),
-                                                           timepoint = 36.5,
+                                                           timepoint = 37.5,
                                                            vl.cutoff = 1000,
                                                            site="All") %>%
         dplyr::select(vl.suppr.frac) %>%
@@ -382,59 +383,89 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
         as.numeric()
 
 
-      #######################
-      # model outputs specifically for MaxART modelling study:
+      # #######################
+      # # model outputs specifically for MaxART modelling study:
+      #
+      # ###
+      # # Quarterly HIV incidence and number of new HIV infections
+      # incidence.eval.timepoints <- seq(from = 10.25, to = 52, by = 0.25)  # 168 0.25-year intervals, so that is 336 values (inc.vector + cases.vector)
+      # inc.vector <- rep(NA, length(incidence.eval.timepoints))
+      # inc.cases.vector <- inc.vector
+      # for (inc.vector.index in 1:length(inc.vector)){
+      #   inc.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
+      #                                                        agegroup = c(15, 50),
+      #                                                        timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
+      #                                                                       incidence.eval.timepoints[inc.vector.index]))$incidence[3]
+      #   inc.cases.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
+      #                                                              agegroup = c(15, 50),
+      #                                                              timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
+      #                                                                             incidence.eval.timepoints[inc.vector.index]))$sum.incident.cases[3]
+      # }
+      #
+      #
+      # ###
+      # # Quarterly number of people on ART (proxy for number of PY of ART distributed)
+      # ART.cases.eval.timepoints <- seq(from = 20, to = 52, by = 0.25) # 129 time points
+      # ART.cases.vector <- rep(NA, length(ART.cases.eval.timepoints))
+      # for (art.cases.index in 1:length(ART.cases.vector)){
+      #   ART.cases.vector[art.cases.index] <- sum(ART.coverage.calculator(datalist = datalist.EAAA,  # summing over both genders
+      #                                                                    agegroup = c(15, 150),
+      #                                                                    timepoint = ART.cases.eval.timepoints[art.cases.index])$sum.onART)
+      # }
+      #
+      # ###
+      # # SHIMS I: # 1 extra stat
+      # SHIMS1.prev.18.50 <- prevalence.calculator(datalist = datalist.EAAA,
+      #                                            agegroup = c(18, 50),
+      #                                            timepoint = 31.25) %>%
+      #   dplyr::select(pointprevalence) %>%
+      #   dplyr::slice(3) %>%
+      #   as.numeric()
+      #
+      # # SHIMS I: # 1 extra stat
+      # SHIMS1.inc.18.50 <- incidence.calculator(datalist = datalist.EAAA,
+      #                                          agegroup = c(18, 50),
+      #                                          timewindow = c(31.25,
+      #                                                         31.8))$incidence[3]
+      # # SHIMS II: # 1 extra stat
+      # SHIMS2.inc.15.50 <- incidence.calculator(datalist = datalist.EAAA,
+      #                                          agegroup = c(15, 50),
+      #                                          timewindow = c(36.6,
+      #                                                         37.2))$incidence[3]
+#
+#       # Annual HIV prevalence # 53 extra stats
+#       last.timepoint <- as.numeric(cfg.list["population.simtime"][1])
+#       annual.prev <- prevalence.vector.creator(datalist = datalist.EAAA, agegroup = c(15, 50))$prevalence[1:(last.timepoint+1)]
 
-      ###
-      # Quarterly HIV incidence and number of new HIV infections
-      incidence.eval.timepoints <- seq(from = 10.25, to = 52, by = 0.25)  # 168 0.25-year intervals, so that is 336 values (inc.vector + cases.vector)
-      inc.vector <- rep(NA, length(incidence.eval.timepoints))
-      inc.cases.vector <- inc.vector
-      for (inc.vector.index in 1:length(inc.vector)){
-        inc.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
-                                                             agegroup = c(15, 50),
-                                                             timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
-                                                                            incidence.eval.timepoints[inc.vector.index]))$incidence[3]
-        inc.cases.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
-                                                                   agegroup = c(15, 50),
-                                                                   timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
-                                                                                  incidence.eval.timepoints[inc.vector.index]))$sum.incident.cases[3]
-      }
-
-
-      ###
-      # Quarterly number of people on ART (proxy for number of PY of ART distributed)
-      ART.cases.eval.timepoints <- seq(from = 20, to = 52, by = 0.25) # 129 time points
-      ART.cases.vector <- rep(NA, length(ART.cases.eval.timepoints))
-      for (art.cases.index in 1:length(ART.cases.vector)){
-        ART.cases.vector[art.cases.index] <- sum(ART.coverage.calculator(datalist = datalist.EAAA,  # summing over both genders
-                                                                         agegroup = c(15, 150),
-                                                                         timepoint = ART.cases.eval.timepoints[art.cases.index])$sum.onART)
-      }
-
-      ###
-      # SHIMS I: # 1 extra stat
-      SHIMS1.prev.18.50 <- prevalence.calculator(datalist = datalist.EAAA,
-                                                 agegroup = c(18, 50),
-                                                 timepoint = 31.25) %>%
-        dplyr::select(pointprevalence) %>%
-        dplyr::slice(3) %>%
-        as.numeric()
-      # SHIMS I: # 1 extra stat
-      SHIMS1.inc.18.50 <- incidence.calculator(datalist = datalist.EAAA,
-                                               agegroup = c(18, 50),
-                                               timewindow = c(31.25,
-                                                              31.8))$incidence[3]
-      # SHIMS II: # 1 extra stat
-      SHIMS2.inc.15.50 <- incidence.calculator(datalist = datalist.EAAA,
-                                               agegroup = c(15, 50),
-                                               timewindow = c(36.6,
-                                                              37.2))$incidence[3]
-
-      # Annual HIV prevalence # 53 extra stats
-      last.timepoint <- as.numeric(cfg.list["population.simtime"][1])
-      annual.prev <- prevalence.vector.creator(datalist = datalist.EAAA, agegroup = c(15, 50))$prevalence[1:(last.timepoint+1)]
-
+# 2018 UNAIDS model-based estimates of HIV prevalence for 1990 - 2017:
+      # 1.7
+      # 3.3
+      # 5.7
+      # 8.8
+      # 12.4
+      # 16.1
+      # 19.4
+      # 22.0
+      # 23.9
+      # 25.1
+      # 25.8
+      # 26.1
+      # 26.1
+      # 25.9
+      # 25.7
+      # 25.5
+      # 25.6
+      # 25.9
+      # 26.3
+      # 26.8
+      # 27.4
+      # 27.8
+      # 28.2
+      # 28.4
+      # 28.4
+      # 28.3
+      # 27.9
+      # 27.4
 
       outputvector <- c(exp(growthrate),
                         prev.f.18.19,
@@ -466,14 +497,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                         exp(inc.f.45.49),
                         exp(inc.m.45.49),
                         ART.cov.vector,
-                        VL.suppression.fraction,
-                        inc.vector,
-                        inc.cases.vector,
-                        ART.cases.vector,
-                        SHIMS1.prev.18.50,
-                        SHIMS1.inc.18.50,
-                        SHIMS2.inc.15.50,
-                        annual.prev)
+                        VL.suppression.fraction)
     }
   }
 

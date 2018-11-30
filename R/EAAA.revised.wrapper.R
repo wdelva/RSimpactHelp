@@ -40,8 +40,7 @@ EAAA.revised.wrapper <- function(inputvector = input.vector){
                                    dissolution.alpha_4 = -0.05,
                                    debut.debutage = 15,
                                    conception.alpha_base = -2.7,
-                                   dropout.interval.dist.type = "exponential",
-                                   dropout.interval.dist.exponential.lambda = 0.1)
+                                   dropout.interval.dist.type = "exponential")
 
   cfg.list["formation.hazard.agegapry.baseline"] <- 2
   cfg.list["mortality.aids.survtime.C"] <- 65
@@ -58,6 +57,8 @@ EAAA.revised.wrapper <- function(inputvector = input.vector){
   cfg.list["monitoring.cd4.threshold"] <- 1 # 0
   cfg.list["person.art.accept.threshold.dist.fixed.value"] <- 0.75
   cfg.list["diagnosis.baseline"] <- -99999 # -2
+  cfg.list["dropout.interval.dist.exponential.lambda"] <- 0.1
+
 
 
 
