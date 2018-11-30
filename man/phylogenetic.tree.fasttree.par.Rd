@@ -7,8 +7,8 @@
 phylogenetic.tree.fasttree.par(dir.tree = dirfasttree,
   sub.dir.rename = sub.dir.rename, fasttree.tool = "FastTree",
   calendar.dates = "samplingtimes.all.csv",
-  simseqfile = "C.Epidemic_seed.seq.bis.sim.nwk.fasta",
-  count.start = 1977, endsim = 40, clust = TRUE)
+  simseqfile = "C.Epidemic_seed.seq.bis.sim.nwk.fasta", count.start = 1977,
+  endsim = 40, clust = TRUE)
 }
 \arguments{
 \item{dir.tree}{Direcotry where we find the FastTree tool}

@@ -5,8 +5,7 @@
 \title{Subset sequences based on gender ratio}
 \usage{
 IDs.indiv.seq.gender.fun(simpact.trans.net = simpact.trans.net,
-  limitTransmEvents = 7, perc.men = 50, seq.cov = 35,
-  age.limit = 65)
+  limitTransmEvents = 7, perc.men = 50, seq.cov = 35, age.limit = 65)
 }
 \arguments{
 \item{simpact.trans.net}{Transmission networks computed by \code{\link{transmission.network.builder()}}}

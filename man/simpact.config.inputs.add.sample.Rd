@@ -4,8 +4,8 @@
 \alias{simpact.config.inputs.add.sample}
 \title{Resampling of Simpact config input parameters to be estimated.}
 \usage{
-simpact.config.inputs.add.sample(datalist = datalist,
-  resample.points = 10, set.seed.new = 1, ...)
+simpact.config.inputs.add.sample(datalist = datalist, resample.points = 10,
+  set.seed.new = 1, ...)
 }
 \arguments{
 \item{datalist}{the dataframe produced by simpact.wrapper.easyABC.run}
