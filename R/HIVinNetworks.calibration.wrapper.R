@@ -124,6 +124,8 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
     } else {
       datalist.networks <- readthedata(results)
       agemix.df <- agemix.df.maker(datalist.networks)
+
+      agegroup <- c(18, 50)
       ####
       # Population growth rate
       ####
@@ -133,7 +135,7 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
       # Point prevalence of concurrent relationships
       ####
       ppconc <- concurr.pointprev.calculator(datalist = datalist.networks,
-                                             agegroup = c(18, 50),
+                                             agegroup = agegroup,
                                              timepoint = 10,
                                              hivstatus = 2)
 
@@ -141,7 +143,7 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
       # Partner turnover rate
       ####
       degrees.df <- degree.df.maker(df = agemix.df,
-                                    agegroup = c(18, 50),
+                                    agegroup = agegroup,
                                     hivstatus = 2,
                                     survey.time = 10,
                                     window.width = 1,
