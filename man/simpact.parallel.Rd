@@ -5,8 +5,8 @@
 \title{Distribute simpact runs over multiple cores}
 \usage{
 simpact.parallel(model = simpact.wrapper,
-  actual.input.matrix = matrix(rep(c(1:15), 16), nrow = 16),
-  seed_count = 0, n_cluster = 8)
+  actual.input.matrix = matrix(rep(c(1:15), 16), nrow = 16), seed_count = 0,
+  n_cluster = 8)
 }
 \arguments{
 \item{model}{Wrapper function for running simpact (simpact.wrapper)}
