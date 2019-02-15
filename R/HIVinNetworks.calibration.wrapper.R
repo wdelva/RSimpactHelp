@@ -152,7 +152,7 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
       # If we want to know % of men who had 0 partners in the past 12 months,
       # We need to compare nrow(degree.df) with the number of 18-50 year old men
       # that were alive at the time of the survey
-      allsurveymen <- dplyr::filter(datalist.agemix$ptable,
+      allsurveymen <- dplyr::filter(datalist.networks$ptable,
                                     Gender == 1, # Male
                                     TOD > 10, # Still alive at the time of the survey
                                     TOB <= 10 - agegroup[1], # Not younger than 18 at the time of the survey
