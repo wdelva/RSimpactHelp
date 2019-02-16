@@ -167,7 +167,10 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
                                 })
       meandegree.male <- mean(degree.vector)
       # Fitting the negative binomial distribution to this vector
-      fit.negbin <- tryCatch(fitdist(degree.vector, "nbinom"), error = agemixing.lme.errFunction)
+      fit.negbin <- tryCatch(fitdist(degree.vector, "nbinom"),
+                             error = function(fitdist.err) {
+        return(NA)
+      })
       shape.nb.male <- ifelse(length(fit.negbin) > 0, as.numeric(fit.negbin$estimate[2]), bignumber)
       scale.nb.male <- ifelse(length(fit.negbin) > 0, as.numeric(fit.negbin$estimate[1]), bignumber) #(theta = p/(1-p))
 
