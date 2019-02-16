@@ -134,10 +134,11 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
       ####
       # Point prevalence of concurrent relationships
       ####
-      ppconc <- concurr.pointprev.calculator(datalist = datalist.networks,
+      ppconc.tibble <- concurr.pointprev.calculator(datalist = datalist.networks,
                                              agegroup = agegroup,
                                              timepoint = 10,
                                              hivstatus = 2)
+      ppconc <- ppconc.tibble$concurr.pointprev[3]
 
       ####
       # Partner turnover rate
