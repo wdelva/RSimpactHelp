@@ -168,17 +168,14 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
                                 })
       meandegree.male <- mean(degree.vector)
       # Fitting the negative binomial distribution to this vector
-      fit.negbin <- tryCatch(fitdist(degree.vector, "nbinom"),
-                             error = function(fitdist.err) {
-        return(NA)
-      })
-      shape.nb.male <- ifelse(length(fit.negbin) > 0, as.numeric(fit.negbin$estimate[2]), bignumber)
-      scale.nb.male <- ifelse(length(fit.negbin) > 0, as.numeric(fit.negbin$estimate[1]), bignumber) #(theta = p/(1-p))
+      output.simulated <- summary(allpartnerships.simulated <- glm.nb(degree.vector ~ 1))
+      mean.nb.male <- exp(output.simulated$coef[1]) #(mu in dnbinom)
+      size.nb.male <- output.simulated$theta  #(size in dnbinom: number of successful trials)
 
       outputvector <- c(exp(growthrate),
                         exp(ppconc),
-                        shape.nb.male,
-                        scale.nb.male,
+                        mean.nb.male,
+                        size.nb.male,
                         meandegree.male)
     }
   }
