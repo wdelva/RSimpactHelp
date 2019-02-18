@@ -30,6 +30,7 @@ Imports:
     igraph,
     lhs,
     lme4,
+    MASS,
     magrittr (>= 1.5),
     mice,
     nlme (>= 3.1-128),

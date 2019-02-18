@@ -6,6 +6,7 @@
 #' @return A vector of model features (summary statistics of simulation output)
 #' @import RSimpactCyan
 #' @import dplyr
+#' @importFrom MASS glm.nb
 #' @importFrom magrittr %>%
 #' @export
 
