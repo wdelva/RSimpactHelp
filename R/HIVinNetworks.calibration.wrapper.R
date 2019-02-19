@@ -89,19 +89,19 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
   cfg.list["formation.hazard.agegapry.gap_agescale_woman"] = 0.25
   cfg.list["person.agegap.man.dist.normal.mu"] <- -1
   cfg.list["person.agegap.woman.dist.normal.mu"] <- -1
-  cfg.list["person.agegap.man.dist.normal.sigma"] <- inputvector[2]
-  cfg.list["person.agegap.woman.dist.normal.sigma"] <- inputvector[2]
-  cfg.list["person.eagerness.man.dist.gamma.a"] <- inputvector[3]
-  cfg.list["person.eagerness.woman.dist.gamma.a"] <- inputvector[4]
-  cfg.list["person.eagerness.man.dist.gamma.b"] <- inputvector[5]
-  cfg.list["person.eagerness.woman.dist.gamma.b"] <- inputvector[6]
-  cfg.list["formation.hazard.agegapry.gap_factor_man_exp"] <- inputvector[7]
-  cfg.list["formation.hazard.agegapry.gap_factor_woman_exp"] <- inputvector[7]
-  cfg.list["formation.hazard.agegapry.baseline"] <- inputvector[8]
-  cfg.list["formation.hazard.agegapry.numrel_man"] <- inputvector[9]
-  cfg.list["formation.hazard.agegapry.numrel_woman"] <- inputvector[10]
-  cfg.list["conception.alpha_base"] <- inputvector[11]
-  cfg.list["dissolution.alpha_0"] <- inputvector[12]
+  cfg.list["person.agegap.man.dist.normal.sigma"] <- 4
+  cfg.list["person.agegap.woman.dist.normal.sigma"] <- 4
+  cfg.list["person.eagerness.man.dist.gamma.a"] <- inputvector[2]
+  cfg.list["person.eagerness.woman.dist.gamma.a"] <- inputvector[3]
+  cfg.list["person.eagerness.man.dist.gamma.b"] <- inputvector[4]
+  cfg.list["person.eagerness.woman.dist.gamma.b"] <- inputvector[5]
+  cfg.list["formation.hazard.agegapry.gap_factor_man_exp"] <- inputvector[6]
+  cfg.list["formation.hazard.agegapry.gap_factor_woman_exp"] <- inputvector[6]
+  cfg.list["formation.hazard.agegapry.baseline"] <- inputvector[7]
+  cfg.list["formation.hazard.agegapry.numrel_man"] <- inputvector[8]
+  cfg.list["formation.hazard.agegapry.numrel_woman"] <- inputvector[9]
+  cfg.list["conception.alpha_base"] <- inputvector[10]
+  cfg.list["dissolution.alpha_0"] <- inputvector[11]
 
 
 
@@ -176,8 +176,7 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
       outputvector <- c(exp(growthrate),
                         exp(ppconc),
                         mean.nb.male,
-                        size.nb.male,
-                        meandegree.male)
+                        size.nb.male)
     }
   }
 
