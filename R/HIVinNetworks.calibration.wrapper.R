@@ -118,10 +118,10 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 5)
+    outputvector <- rep(NA, 4)
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 5)
+      outputvector <- rep(NA, 4)
     } else {
       datalist.networks <- readthedata(results)
       agemix.df <- agemix.df.maker(datalist.networks)
