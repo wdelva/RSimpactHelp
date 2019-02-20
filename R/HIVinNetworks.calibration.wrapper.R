@@ -169,9 +169,17 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
                                 })
       meandegree.male <- mean(degree.vector)
       # Fitting the negative binomial distribution to this vector
-      output.simulated <- summary(allpartnerships.simulated <- glm.nb(degree.vector ~ 1))
-      mean.nb.male <- exp(output.simulated$coef[1]) #(mu in dnbinom)
-      size.nb.male <- output.simulated$theta  #(size in dnbinom: number of successful trials)
+      mean.nb.male <- NA # Will be overwritten if a negbin distribution can be fitted to the data
+      size.nb.male <- NA # Will be overwritten if a negbin distribution can be fitted to the data
+      allpartnerships.simulated <- tryCatch(glm.nb(degree.vector ~ 1),
+                                                                        error = function(glm.err) {
+                                                                          return(NA)
+                                                                        })
+      if ("negbin" %in% class(allpartnerships.simulated)){
+        output.simulated <- summary(allpartnerships.simulated)
+        mean.nb.male <- exp(output.simulated$coef[1]) #(mu in dnbinom)
+        size.nb.male <- output.simulated$theta  #(size in dnbinom: number of successful trials)
+      }
 
       outputvector <- c(exp(growthrate),
                         exp(ppconc),
