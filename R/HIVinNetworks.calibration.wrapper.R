@@ -95,13 +95,13 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
   cfg.list["person.eagerness.woman.dist.gamma.a"] <- inputvector[3]
   cfg.list["person.eagerness.man.dist.gamma.b"] <- inputvector[4]
   cfg.list["person.eagerness.woman.dist.gamma.b"] <- inputvector[5]
-  cfg.list["formation.hazard.agegapry.gap_factor_man_exp"] <- inputvector[6]
-  cfg.list["formation.hazard.agegapry.gap_factor_woman_exp"] <- inputvector[6]
-  cfg.list["formation.hazard.agegapry.baseline"] <- inputvector[7]
-  cfg.list["formation.hazard.agegapry.numrel_man"] <- inputvector[8]
-  cfg.list["formation.hazard.agegapry.numrel_woman"] <- inputvector[9]
-  cfg.list["conception.alpha_base"] <- inputvector[10]
-  cfg.list["dissolution.alpha_0"] <- inputvector[11]
+  cfg.list["formation.hazard.agegapry.gap_factor_man_exp"] <- -0.4
+  cfg.list["formation.hazard.agegapry.gap_factor_woman_exp"] <- -0.4
+  cfg.list["formation.hazard.agegapry.baseline"] <- inputvector[6]
+  cfg.list["formation.hazard.agegapry.numrel_man"] <- inputvector[7]
+  cfg.list["formation.hazard.agegapry.numrel_woman"] <- inputvector[8]
+  cfg.list["conception.alpha_base"] <- inputvector[9]
+  cfg.list["dissolution.alpha_0"] <- inputvector[10]
 
 
 
