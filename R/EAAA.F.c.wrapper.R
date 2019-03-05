@@ -133,10 +133,10 @@ EAAA.F.c.wrapper <- function(inputvector = input.vector){
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 207) # 37 + 82 + 33 + 55 = 207
+    outputvector <- rep(NA, 215) # 37 + 90 + 33 + 1 + 1 + 53 = 215 # 37 + 82 + 33 + 55 = 207
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 207)
+      outputvector <- rep(NA, 215)
     } else {
       datalist.EAAA <- readthedata(results)
 
@@ -366,7 +366,7 @@ EAAA.F.c.wrapper <- function(inputvector = input.vector){
 
       ###
       # Annual HIV incidence and number of new HIV infections
-      incidence.eval.timepoints <- seq(from = 11.75, to = 51.75)  # 41 1-year intervals, so that is 82 values (inc.vector + cases.vector)
+      incidence.eval.timepoints <- seq(from = 8, to = 52) # 45 1-year intervals, so that's 90 values (inc.vector + cases.vector) #11.75, to = 51.75)  # 41 1-year intervals, so that is 82 values (inc.vector + cases.vector)
       inc.vector <- rep(NA, length(incidence.eval.timepoints))
       inc.cases.vector <- inc.vector
       for (inc.vector.index in 1:length(inc.vector)){
