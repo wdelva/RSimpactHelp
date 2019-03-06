@@ -155,10 +155,12 @@ EAAA.SciRep.revision.calibration.wrapper <- function(inputvector = input.vector)
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 38)
+    # 1 pop growth + 14 age-gender-specific prev + 14 age-gender-specific inc +
+    # 8 ART coverage + 1 VL suppression + 28 annual HIV prevalence UNAIDS estimates
+    outputvector <- rep(NA, 66)
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 38)
+      outputvector <- rep(NA, 66)
     } else {
       datalist.EAAA <- readthedata(results)
 
@@ -433,9 +435,18 @@ EAAA.SciRep.revision.calibration.wrapper <- function(inputvector = input.vector)
       #                                          timewindow = c(36.6,
       #                                                         37.2))$incidence[3]
 #
-#       # Annual HIV prevalence # 53 extra stats
-#       last.timepoint <- as.numeric(cfg.list["population.simtime"][1])
-#       annual.prev <- prevalence.vector.creator(datalist = datalist.EAAA, agegroup = c(15, 50))$prevalence[1:(last.timepoint+1)]
+      # Annual HIV prevalence mid 1990 till mid 2017 (28 time points)
+      prev.agegroup <- c(15, 50)
+      timevect <- 10.5:37.5
+      prev.vector <- rep(NA, times = length(timevect)) # data.frame(timevect = timevect, prev = NA)
+      rowindex <- 1
+      for (timepoint in timevect) {
+        prev.tibble <- prevalence.calculator(datalist = datalist.EAAA,
+                                             agegroup = prev.agegroup,
+                                             timepoint = timepoint)
+        prev.vector[rowindex] <- as.numeric(prev.tibble$pointprevalence[3])
+        rowindex <- rowindex + 1
+      }
 
 # 2018 UNAIDS model-based estimates of HIV prevalence for 1990 - 2017:
       # 1.7
@@ -497,7 +508,8 @@ EAAA.SciRep.revision.calibration.wrapper <- function(inputvector = input.vector)
                         exp(inc.f.45.49),
                         exp(inc.m.45.49),
                         ART.cov.vector,
-                        VL.suppression.fraction)
+                        VL.suppression.fraction,
+                        prev.vector)
     }
   }
 
