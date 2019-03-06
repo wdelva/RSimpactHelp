@@ -18,7 +18,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                                    population.nummen = 2000,
                                    population.numwomen = 2000,
                                    population.msm = "no", # It was "yes" in EAAA.wrapper
-                                   hivseed.time = 10,
+                                   hivseed.time = 7,
                                    hivseed.type = "amount",
                                    hivseed.amount = 20, #30,
                                    hivseed.age.min = 20,
@@ -78,6 +78,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
 
 
 
+
   cfg.list["population.maxevents"] <- as.numeric(cfg.list["population.simtime"][1]) * as.numeric(cfg.list["population.nummen"][1]) * 6
 
   cfg.list["person.vsp.toacute.x"] <- 5 # See Bellan PLoS Medicine
@@ -110,6 +111,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro["monitoring.cd4.threshold"] <- 100
   art.intro["formation.hazard.agegapry.baseline"] <- inputvector[11] - 0.5
 
+
   art.intro1 <- list()
   art.intro1["time"] <- 22     # ~2002
   art.intro1["diagnosis.baseline"] <- inputvector[16] + inputvector[17] # prior [0, 2] # -1.8
@@ -120,6 +122,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro2["diagnosis.baseline"] <- inputvector[16] + inputvector[17] + inputvector[18] # prior [0, 2] # -1.5
   art.intro2["monitoring.cd4.threshold"] <- 200
   art.intro2["formation.hazard.agegapry.baseline"] <- inputvector[11] - 1
+
 
   art.intro3 <- list()
   art.intro3["time"] <- 30     # ~2010
@@ -136,9 +139,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro5["monitoring.cd4.threshold"] <- 6000
 
 
-  ART.factual <- list(art.intro, art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
   ART.counterfactual <- list(art.intro, art.intro1, art.intro2, art.intro3, art.intro4)
-
 
   identifier <- paste0(seedid)
   rootDir <- "/tmp" #"/user/scratch/gent/vsc400/vsc40070/EAAA/Fa/temp"
@@ -154,10 +155,24 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 594) #557) # 73 + 336 + 129 + 3 + 53 = 593
+    # 1 pop growth +
+    # 14 age-gender-specific prev +
+    # 14 age-gender-specific inc +
+    # 65 ART coverage +       # 20:52, by 0.5
+    # 1 vl suppression +
+    # 180 incidence estimates +
+    # 180 incident cases +
+    # 129 art cases +
+    # 1 SHIMS1 prev +
+    # 1 SHIMS1 inc +
+    # 1 SHIMS2 inc +
+    # 92 annual HIV prev     # 6.5:52, by = 0.5
+    # TOTAL: 679 output statistics
+
+    outputvector <- rep(NA, 679)
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 594)
+      outputvector <- rep(NA, 679)
     } else {
       datalist.EAAA <- readthedata(results)
 
@@ -358,8 +373,9 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
       ####
       # ART coverage among adults 15+ years old from UNAIDS (2010 - 2016 estimates)
       ####
-      ART.cov.eval.timepoints <- seq(from = 10, #30.5,
-                                     to = 52) #36.5)
+      ART.cov.eval.timepoints <- seq(from = 20,
+                                     to = 52,
+                                     by = 0.5)
       ART.cov.vector <- rep(NA, length(ART.cov.eval.timepoints))
       for (art.cov.index in 1:length(ART.cov.vector)){
         ART.cov.vector[art.cov.index] <- sum(ART.coverage.calculator(datalist = datalist.EAAA,
@@ -370,11 +386,11 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                                       timepoint = ART.cov.eval.timepoints[art.cov.index])$sum.cases)
       }
       ####
-      # VL suppression fraction (all ages in 2016 ~ >= 15 yo) 0.68
+      # VL suppression fraction (all ages in 2017 ~ >= 15 yo) 0.74
       ####
       VL.suppression.fraction <- VL.suppression.calculator(datalist = datalist.EAAA,
                                                            agegroup = c(15, 300),
-                                                           timepoint = 36.5,
+                                                           timepoint = 37.5,
                                                            vl.cutoff = 1000,
                                                            site="All") %>%
         dplyr::select(vl.suppr.frac) %>%
@@ -387,7 +403,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
 
       ###
       # Quarterly HIV incidence and number of new HIV infections
-      incidence.eval.timepoints <- seq(from = 10.25, to = 52, by = 0.25)  # 168 0.25-year intervals, so that is 336 values (inc.vector + cases.vector)
+      incidence.eval.timepoints <- seq(from = 7.25, to = 52, by = 0.25)  # 180 0.25-year intervals, so that is 360 values (inc.vector + cases.vector)
       inc.vector <- rep(NA, length(incidence.eval.timepoints))
       inc.cases.vector <- inc.vector
       for (inc.vector.index in 1:length(inc.vector)){
@@ -420,6 +436,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
         dplyr::select(pointprevalence) %>%
         dplyr::slice(3) %>%
         as.numeric()
+
       # SHIMS I: # 1 extra stat
       SHIMS1.inc.18.50 <- incidence.calculator(datalist = datalist.EAAA,
                                                agegroup = c(18, 50),
@@ -431,10 +448,20 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                                                timewindow = c(36.6,
                                                               37.2))$incidence[3]
 
-      # Annual HIV prevalence # 53 extra stats
-      last.timepoint <- as.numeric(cfg.list["population.simtime"][1])
-      annual.prev <- prevalence.vector.creator(datalist = datalist.EAAA, agegroup = c(15, 50))$prevalence[1:(last.timepoint+1)]
-
+      # Bi-annual HIV prevalence mid 1986 till 2032 (92 time points)
+      prev.agegroup <- c(15, 50)
+      timevect <- seq(from = 6.5,
+                      to = 52,
+                      by = 0.5)
+      prev.vector <- rep(NA, times = length(timevect))
+      rowindex <- 1
+      for (timepoint in timevect) {
+        prev.tibble <- prevalence.calculator(datalist = datalist.EAAA,
+                                             agegroup = prev.agegroup,
+                                             timepoint = timepoint)
+        prev.vector[rowindex] <- as.numeric(prev.tibble$pointprevalence[3])
+        rowindex <- rowindex + 1
+      }
 
       outputvector <- c(exp(growthrate),
                         prev.f.18.19,
@@ -473,7 +500,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                         SHIMS1.prev.18.50,
                         SHIMS1.inc.18.50,
                         SHIMS2.inc.15.50,
-                        annual.prev)
+                        prev.vector)
     }
   }
 

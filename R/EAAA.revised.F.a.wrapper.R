@@ -1,6 +1,6 @@
 #' Wrapper function for running simpact simulations for the MaxART EAAA simulation study
 #'
-#' F.a. is the Future alternative scenario: until 2031.75 under observed ART programme. This file is for the revised analysis: exponential time till ART non-retention, no msm, extra params for increased rate of HIV diagnosis after 2012, and quarterly logging
+#' F.a. is the Future alternative scenario: until 2032 under observed ART programme. This file is for the revised analysis: exponential time till ART non-retention, no msm, extra params for increased rate of HIV diagnosis after 2012, and quarterly logging
 #'
 #' @param inputvector Vector of random seed and parameter values
 #' @return A vector of model features (summary statistics of simulation output)
@@ -166,11 +166,13 @@ EAAA.revised.F.a.wrapper <- function(inputvector = input.vector){
     # 1 SHIMS1 prev +
     # 1 SHIMS1 inc +
     # 1 SHIMS2 inc +
-    
-    outputvector <- rep(NA, 594) #557) # 73 + 336 + 129 + 3 + 53 = 594
+    # 92 bi-annual HIV prev     # 6.5:52, by 0.5
+    # TOTAL: 679 output statistics
+
+    outputvector <- rep(NA, 679)
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 594) #557)
+      outputvector <- rep(NA, 679)
     } else {
       datalist.EAAA <- readthedata(results)
 
@@ -446,9 +448,11 @@ EAAA.revised.F.a.wrapper <- function(inputvector = input.vector){
                                                timewindow = c(36.6,
                                                               37.2))$incidence[3]
 
-      # Annual HIV prevalence mid 1990 till mid 2017 (28 time points)
+      # Bi-annual HIV prevalence mid 1986 till 2032 (92 time points)
       prev.agegroup <- c(15, 50)
-      timevect <- 10.5:37.5
+      timevect <- seq(from = 6.5,
+                      to = 52,
+                      by = 0.5)
       prev.vector <- rep(NA, times = length(timevect))
       rowindex <- 1
       for (timepoint in timevect) {
