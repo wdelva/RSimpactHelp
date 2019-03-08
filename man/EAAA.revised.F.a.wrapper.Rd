@@ -13,5 +13,5 @@ EAAA.revised.F.a.wrapper(inputvector = input.vector)
 A vector of model features (summary statistics of simulation output)
 }
 \description{
-F.a. is the Future alternative scenario: until 2031.75 under observed ART programme. This file is for the revised analysis: exponential time till ART non-retention, no msm, extra params for increased rate of HIV diagnosis after 2012, and quarterly logging
+F.a. is the Future alternative scenario: until 2032 under observed ART programme. This file is for the revised analysis: exponential time till ART non-retention, no msm, extra params for increased rate of HIV diagnosis after 2012, and quarterly logging
 }
