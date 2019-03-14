@@ -18,7 +18,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
                                    population.nummen = 2000,
                                    population.numwomen = 2000,
                                    population.msm = "no", # It was "yes" in EAAA.wrapper
-                                   hivseed.time = 7,
+                                   hivseed.time = 8.5,
                                    hivseed.type = "amount",
                                    hivseed.amount = 20, #30,
                                    hivseed.age.min = 20,
@@ -109,7 +109,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro["time"] <- 20     # ~2000
   art.intro["diagnosis.baseline"] <- inputvector[16] # prior [-4 , 0] # -2
   art.intro["monitoring.cd4.threshold"] <- 100
-  art.intro["formation.hazard.agegapry.baseline"] <- inputvector[11] - 0.5
+  # art.intro["formation.hazard.agegapry.baseline"] <- inputvector[11] - 0.5
 
 
   art.intro1 <- list()
@@ -121,7 +121,7 @@ EAAA.revised.F.c.wrapper <- function(inputvector = input.vector){
   art.intro2["time"] <- 23     # ~2003
   art.intro2["diagnosis.baseline"] <- inputvector[16] + inputvector[17] + inputvector[18] # prior [0, 2] # -1.5
   art.intro2["monitoring.cd4.threshold"] <- 200
-  art.intro2["formation.hazard.agegapry.baseline"] <- inputvector[11] - 1
+  # art.intro2["formation.hazard.agegapry.baseline"] <- inputvector[11] - 1
 
 
   art.intro3 <- list()
