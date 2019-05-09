@@ -23,6 +23,8 @@ This repository contains R functions that facilitate post-simulation analysis in
   To install and load the package, run the following lines of code:
     
   library(devtools)
+  
+  Mac users will need to have Xcode installed, as well as Command Line Tool <https://developer.apple.com/download/more/> and gfortran for MacOS: <https://github.com/fxcoudert/gfortran-for-macOS/releases>
 
   install_github("wdelva/RSimpactHelp”, dependencies = TRUE)
   
