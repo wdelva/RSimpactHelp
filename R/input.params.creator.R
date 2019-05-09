@@ -101,6 +101,7 @@
 #'  population (500) e.g 500 women
 #' @param population.eyecap.fraction Allow for the indication of how many people can a person
 #'  possible engage in a relation with. (0.2)
+#' @param population.msm "yes" or "no". Default is "no".
 #' @param hivseed.type Allows for a selection of method on seeding HIV. (amount) e.g if amount
 #'  number of people else if fraction then a fraction will be set to HIV+
 #' @param hivseed.amount These number of people will be seeded to be HIV+ (20)
@@ -119,6 +120,7 @@
 #' @param birth.boygirlratio the probability of a newly born to be boy
 #' @param monitoring.cd4.threshold.prestudy cd4 values prestudy
 #' @param monitoring.cd4.threshold.instudy.controlstage cd4 values during the control phase
+#' @param dropout.interval.dist.type Distribution of time till ART programme non-retention
 #'# @param monitoring.cd4.threshold.instudy.transitionstage cd4 threshold when site is transitioning
 #'# @param monitoring.cd4.threshold.instudy.interventionstage cd threshold not needed during the intervention stage
 #'
@@ -192,7 +194,7 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  diagnosis.baseline = -100,
                                  monitoring.cd4.threshold = 0.1,#Treatment will not start before schedule
                                  monitoring.fraction.log_viralload = 0.3,
-                                 population.msm = "yes",
+                                 population.msm = "no",
                                  person.eagerness.man.msm.dist.type = "fixed",
                                  person.eagerness.man.msm.dist.fixed.value = 0,
                                  formationmsm.hazard.type = "simple",
@@ -206,7 +208,9 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
                                  birth.boygirlratio = 1.0/2.01, #0.5024876, #101:100
                                  simulation.type = "simpact-cyan",
                                  monitoring.cd4.threshold.prestudy = 350,
-                                 monitoring.cd4.threshold.instudy.controlstage = 350
+                                 monitoring.cd4.threshold.instudy.controlstage = 350,
+                                 dropout.interval.dist.type = "exponential" #,
+                                 #dropout.interval.dist.exponential.lambda = 0.1 # ~ 18% dropout after 2 year
                                  #monitoring.cd4.threshold.instudy.transitionstage = Inf,
                                  #monitoring.cd4.threshold.instudy.interventionstage = Inf
                                  ){
@@ -284,6 +288,8 @@ input.params.creator <- function(mortality.normal.weibull.shape = 5,
   input.params$formationmsm.hazard.simple.alpha_7 <- formationmsm.hazard.simple.alpha_7
   input.params$birth.pregnancyduration.dist.type <- birth.pregnancyduration.dist.type
   input.params$birth.pregnancyduration.dist.fixed.value <- birth.pregnancyduration.dist.fixed.value
+  input.params$dropout.interval.dist.type <- dropout.interval.dist.type
+  #input.params$dropout.interval.dist.exponential.lambda <- dropout.interval.dist.exponential.lambda
 
   if(simulation.type == "simpact-cyan"){
     input.params$monitoring.cd4.threshold <- monitoring.cd4.threshold

@@ -133,10 +133,10 @@ EAAA.P.c.wrapper <- function(inputvector = input.vector){
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 107) # 37 + 52 + 18 = 107
+    outputvector <- rep(NA, 147) # 37 + 52 + 18 + 40 = 147
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 107)
+      outputvector <- rep(NA, 147)
     } else {
       datalist.EAAA <- readthedata(results)
 
@@ -372,12 +372,12 @@ EAAA.P.c.wrapper <- function(inputvector = input.vector){
       for (inc.vector.index in 1:length(inc.vector)){
         inc.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
                                                              agegroup = c(15, 50),
-                                                             timewindow = c((inc.vector.index - 1),
-                                                                            inc.vector.index))$incidence[3]
+                                                             timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
+                                                                            incidence.eval.timepoints[inc.vector.index]))$incidence[3]
         inc.cases.vector[inc.vector.index] <- incidence.calculator(datalist = datalist.EAAA,
-                                                             agegroup = c(15, 50),
-                                                             timewindow = c((inc.vector.index - 1),
-                                                                            inc.vector.index))$sum.incident.cases[3]
+                                                                   agegroup = c(15, 50),
+                                                                   timewindow = c(((incidence.eval.timepoints[inc.vector.index]) - 1),
+                                                                                  incidence.eval.timepoints[inc.vector.index]))$sum.incident.cases[3]
       }
 
 
@@ -390,6 +390,23 @@ EAAA.P.c.wrapper <- function(inputvector = input.vector){
                                                                      agegroup = c(15, 150),
                                                                      timepoint = ART.cases.eval.timepoints[art.cases.index])$sum.onART)
       }
+
+      ###
+      # SHIMS I: # 1 extra stat
+      SHIMS1.inc.18.50 <- incidence.calculator(datalist = datalist.EAAA,
+                                               agegroup = c(18, 50),
+                                               timewindow = c(31.25,
+                                                              31.8))$incidence[3]
+      # SHIMS II: # 1 extra stat
+      SHIMS2.inc.15.50 <- incidence.calculator(datalist = datalist.EAAA,
+                                               agegroup = c(15, 50),
+                                               timewindow = c(36,
+                                                              37))$incidence[3]
+
+      # Annual HIV prevalence # 38 extra stats
+      last.timepoint <- as.numeric(cfg.list["population.simtime"][1])
+      annual.prev <- prevalence.vector.creator(datalist = datalist.EAAA, agegroup = c(15, 50))$prevalence[1:(last.timepoint+1)]
+
 
       outputvector <- c(exp(growthrate),
                         prev.f.18.19,

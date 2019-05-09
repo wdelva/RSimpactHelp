@@ -1,5 +1,5 @@
 
-#' Subset sequences based on gender ratio and age of individuals
+#' Completely random subset of sequences of individuals
 #'
 #' @param simpact.trans.net Transmission networks computed by \code{\link{transmission.network.builder()}}
 #' @param limitTransmEvents Choose transmission network with at least this  amount of individuals
@@ -87,7 +87,7 @@ IDs.Seq.Random <- function(simpact.trans.net = simpact.trans.net,
 
     trans.sum.men.women <- rbind(trans.sum.men, trans.sum.women)
 
-    perc.seq.coverage <- round(perc.100*seq.cov/100) # total number of wanted individuals at seq.cov sequence coverage
+    perc.seq.coverage <- round(perc.100*seq.cov/100) # total number of individuals at seq.cov sequence coverage
 
 
     samp.all <- sample(trans.sum.men.women$id, perc.seq.coverage)

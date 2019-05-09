@@ -1,6 +1,6 @@
 #' Wrapper function for running simpact simulations for the MaxART EAAA simulation study
 #'
-#' P.a. is the Past alternative scenario: until 2016.75 under observed ART programme
+#' F.c. is the Future counterfactual scenario: until 2031.75 under conservative ART programme
 #'
 #' @param inputvector Vector of random seed and parameter values
 #' @return A vector of model features (summary statistics of simulation output)
@@ -9,15 +9,15 @@
 #' @importFrom magrittr %>%
 #' @export
 
-EAAA.P.a.wrapper <- function(inputvector = input.vector){
+EAAA.F.c.wrapper <- function(inputvector = input.vector){
   age.distr <- agedistr.creator(shape = 5, scale = 65)
 
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2,
-                                   population.simtime = 37, # Until 1 January 2017
+                                   population.simtime = 52, # Until 1 January 2032
                                    population.nummen = 2000,
                                    population.numwomen = 2000,
-                                   hivseed.time = 10,
+                                   hivseed.time = 7,
                                    hivseed.type = "amount",
                                    hivseed.amount = 20, #30,
                                    hivseed.age.min = 20,
@@ -87,11 +87,11 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
 
   art.intro5 <- list()
   art.intro5["time"] <- 36.75     # October ~2016
-  art.intro5["monitoring.cd4.threshold"] <- 500 # 6000 # So that we can estimate PY ART in the first 9 months of 2016
+  art.intro5["monitoring.cd4.threshold"] <- 6000
 
 
   ART.factual <- list(art.intro,art.intro1, art.intro2, art.intro3, art.intro4, art.intro5)
-  ART.counterfactual <- list(art.intro,art.intro1, art.intro2, art.intro3)
+  ART.counterfactual <- list(art.intro,art.intro1, art.intro2, art.intro3, art.intro4)
 
 
   cfg.list["population.maxevents"] <- as.numeric(cfg.list["population.simtime"][1]) * as.numeric(cfg.list["population.nummen"][1]) * 6
@@ -120,7 +120,7 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
   cfg.list["dissolution.alpha_0"] <- inputvector[15]
 
   identifier <- paste0(seedid)
-  rootDir <- "/user/scratch/gent/vsc400/vsc40070/EAAA/Pa/temp"
+  rootDir <- "/user/scratch/gent/vsc400/vsc40070/EAAA/Fc/temp"
 
   destDir <- paste0(rootDir, "/", identifier)
 
@@ -128,15 +128,15 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
   results <- tryCatch(simpact.run(configParams = cfg.list,
                                   destDir = destDir,
                                   agedist = age.distr,
-                                  intervention = ART.factual, # ART programme in the P.a. scenario
+                                  intervention = ART.counterfactual, # ART programme in the F.c. scenario
                                   seed = seedid,
                                   identifierFormat = identifier),
                       error = simpact.errFunction)
   if (length(results) == 0){
-    outputvector <- rep(NA, 147) # 37 + 52 + 18 + 40 = 147
+    outputvector <- rep(NA, 215) # 37 + 90 + 33 + 1 + 1 + 53 = 215 # 37 + 82 + 33 + 55 = 207
   } else {
     if (as.numeric(results["eventsexecuted"]) >= (as.numeric(cfg.list["population.maxevents"]) - 1)) {
-      outputvector <- rep(NA, 147)
+      outputvector <- rep(NA, 215)
     } else {
       datalist.EAAA <- readthedata(results)
 
@@ -366,7 +366,7 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
 
       ###
       # Annual HIV incidence and number of new HIV infections
-      incidence.eval.timepoints <- seq(from = 11.75, to = 36.75)  # 26 1-year intervals, so that is 50 values (inc.vector + cases.vector)
+      incidence.eval.timepoints <- seq(from = 8, to = 52) # 45 1-year intervals, so that's 90 values (inc.vector + cases.vector) #11.75, to = 51.75)  # 41 1-year intervals, so that is 82 values (inc.vector + cases.vector)
       inc.vector <- rep(NA, length(incidence.eval.timepoints))
       inc.cases.vector <- inc.vector
       for (inc.vector.index in 1:length(inc.vector)){
@@ -383,7 +383,7 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
 
       ###
       # Annual number of people on ART (proxy for number of PY of ART distributed)
-      ART.cases.eval.timepoints <- seq(from = 20, to = 37) # 18 time points
+      ART.cases.eval.timepoints <- seq(from = 20, to = 52) # 33 time points
       ART.cases.vector <- rep(NA, length(ART.cases.eval.timepoints))
       for (art.cases.index in 1:length(ART.cases.vector)){
         ART.cases.vector[art.cases.index] <- sum(ART.coverage.calculator(datalist = datalist.EAAA,  # summing over both genders
@@ -403,7 +403,7 @@ EAAA.P.a.wrapper <- function(inputvector = input.vector){
                                                timewindow = c(36,
                                                               37))$incidence[3]
 
-      # Annual HIV prevalence # 38 extra stats
+      # Annual HIV prevalence # 53 extra stats
       last.timepoint <- as.numeric(cfg.list["population.simtime"][1])
       annual.prev <- prevalence.vector.creator(datalist = datalist.EAAA, agegroup = c(15, 50))$prevalence[1:(last.timepoint+1)]
 
