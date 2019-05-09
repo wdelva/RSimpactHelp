@@ -12,7 +12,8 @@ License: GPL-3
 LazyData: TRUE
 Remotes:
     github::j0r1/RSimpactCyan/pkg,
-    github::j0r1/readcsvcolumns/pkg
+    github::j0r1/readcsvcolumns/pkg,
+    github::emvolz/treedater
 biocViews:
 Imports:
     ape,
@@ -42,6 +43,5 @@ Imports:
     RSimpactCyan,
     tibble,
     tidyr,
-    treedater,
     VarianceGamma
 RoxygenNote: 6.1.1

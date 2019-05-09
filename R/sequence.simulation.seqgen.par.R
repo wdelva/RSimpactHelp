@@ -281,7 +281,7 @@ sequence.simulation.seqgen.par <- function(dir.seq = dir,
 
       }else{
 
-        system(paste0(paste0(dir.seq,"/"), paste0(paste0(seq.gen.tool)," -mGTR -f 0.3857, 0.1609, 0.2234, 0.2300  -a 0.9 -g 4 -i 0.5230  -r 2.9114, 12.5112, 1.2569, 0.8559, 12.9379, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
+        system(paste0(paste0(dir.seq,"/"), paste0(paste0(seq.gen.tool)," -mGTR -f 0.3906, 0.1752, 0.2201, 0.2142  -a 0.6250 -g 4 -i 0.2130  -r 1.9803, 9.4404, 0.9423, 0.8770, 11.6367, 1.0000 -s 0.00475  -n1 -k",seq.rand,"< ",in.seq.gen.file," -z",seedid," > ", out.seq.gen.file)))
 
       }
     }
