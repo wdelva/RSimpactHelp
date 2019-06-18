@@ -18,8 +18,8 @@ HIVinNetworks.calibration.wrapper <- function(index, list_param){
 
   cfg.list <- input.params.creator(population.eyecap.fraction = 0.2,
                                    population.simtime = 10,
-                                   population.nummen = 2000,
-                                   population.numwomen = 2000,
+                                   population.nummen = 500,
+                                   population.numwomen = 500,
                                    population.msm = "no",
                                    hivseed.time = 10,
                                    hivseed.type = "amount",
